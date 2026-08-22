@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ToolSharp.dev — Free .NET & C# developer utilities</title>
-<meta name="description" content="Free, client-side developer tools for .NET and C# engineers: connection string builder, cron expression builder for Hangfire/Quartz.NET, JWT decoder, GUID formatter, regex tester, and appsettings.json validator. No signup, nothing leaves your browser.">
+<title>ToolSharp.dev — Free developer utilities</title>
+<meta name="description" content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
 <link rel="canonical" href="https://toolsharp.dev/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,9 +26,9 @@
 <main class="wrap">
   <section class="hero">
     <div class="prompt-line"><span class="caret">&gt;</span> whoami &amp;&amp; ls tools/</div>
-    <h1>Small, sharp tools for .NET engineers.</h1>
+    <h1>Small, sharp tools every developer reaches for.</h1>
     <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
-    <div class="meta-line">6 tools · $0 · runs entirely client-side</div>
+    <div class="meta-line">8 tools · $0 · runs entirely client-side</div>
   </section>
 
   <section id="tools" class="dir-listing">
@@ -73,6 +73,18 @@
       <div class="desc">Validate &amp; pretty-print appsettings.json, catch duplicate keys and common config mistakes</div>
       <div class="status">● ready</div>
     </div>
+
+    <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
+      <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
+      <div class="desc">Validate, format, or minify any JSON — errors point to the exact line and column</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
+      <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
+      <div class="desc">Compare two blocks of text or code line by line — see exactly what was added or removed</div>
+      <div class="status">● ready</div>
+    </div>
   </section>
 
   <section id="about" class="notes">
@@ -86,7 +98,7 @@
 
 <footer>
   <div class="wrap">
-    <span>toolsharp.dev — built for the .NET community</span>
+    <span>toolsharp.dev — built by a developer, for developers</span>
     <span>no cookies, no tracking, no signup</span>
   </div>
 </footer>

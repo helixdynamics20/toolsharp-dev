@@ -1,6 +1,8 @@
-# ToolSharp.dev — MVP
+# ToolSharp.dev
 
-Six free, client-side developer tools for the .NET/C# ecosystem. Pure static HTML/CSS/JS — no build step, no backend, no dependencies to install.
+Six free, client-side developer tools any backend developer can reach for — connection strings, cron expressions, JWTs, GUIDs, regex, and JSON config. A few lean into .NET/SQL Server specifics since that's where the ideas came from, but nothing here requires knowing .NET to use. Pure static HTML/CSS/JS — no build step, no backend, no dependencies to install.
+
+**Live at:** [toolsharp.dev](https://toolsharp.dev)
 
 ## What's here
 
@@ -16,35 +18,31 @@ Six free, client-side developer tools for the .NET/C# ecosystem. Pure static HTM
     ├── jwt-decoder.html                # JWT header/payload decoder
     ├── guid-formatter.html             # GUID generator + .NET format converter
     ├── regex-tester.html               # regex tester mapped to RegexOptions
-    └── appsettings-validator.html      # appsettings.json validator + formatter
+    ├── appsettings-validator.html      # appsettings.json validator + formatter
+    ├── json-formatter.html             # generic JSON validator, formatter, minifier
+    └── diff-checker.html               # line-by-line text/code diff
 ```
 
 Every tool runs entirely in the browser. Nothing is sent to a server — this matters both for user trust (people paste connection strings and JWTs into these tools) and for hosting cost (this can run on a free static host forever).
 
-## Deploy it (free, ~10 minutes)
+## Deployment status
 
-**Easiest: Vercel**
-1. Push this folder to a new GitHub repo.
-2. Go to vercel.com → New Project → import the repo.
-3. Framework preset: "Other" (it's static HTML, no build command needed).
-4. Deploy. You'll get a `*.vercel.app` URL immediately.
-5. Buy a domain (e.g. `toolsharp.dev` — check availability, adjust the name if taken) and add it in Vercel's domain settings. ~$10-15/year on Namecheap or Porkbun.
+- ✅ Hosted on Vercel, connected to the GitHub repo (push to `main` auto-deploys)
+- ✅ Custom domain `toolsharp.dev` live with SSL (via Spaceship DNS → Vercel)
+- ✅ Verified in Google Search Console, `sitemap.xml` submitted (7 pages discovered)
+- ✅ Submitted to Bing Webmaster Tools
 
-**Alternative: Netlify or GitHub Pages** — same idea, drag-and-drop the folder or connect the repo. Either works fine for a static site like this.
+Redeploying is just `git push` — Vercel picks it up automatically, no manual steps needed.
 
-**Before going live**, do a find-and-replace on `toolsharp.dev` across all files (canonical URLs, sitemap.xml, robots.txt) if you pick a different domain name.
+## Getting indexed
 
-## Getting indexed (weeks 1-4)
-
-1. Submit the site in Google Search Console (add property → verify via DNS TXT record → submit `sitemap.xml`).
-2. Do the same in Bing Webmaster Tools — smaller volume but near-zero effort since it accepts the same sitemap.
-3. Don't touch anything for ~2 weeks. Watch Search Console's Coverage report to confirm all 7 pages get indexed.
+Indexing is already submitted (see above) — Google/Bing typically take 1-2 weeks to fully index a new domain. Check Search Console's Coverage report periodically; no action needed while waiting.
 
 ## Getting the first real traffic (months 1-3)
 
-Dev tools don't grow via SEO alone early on — they grow by being useful enough that developers link to them. In order of effort:
+Dev tools don't grow via SEO alone early on — they grow by being useful enough that developers link to them. Since the tools span both general-purpose (JWT, regex, GUID) and .NET-flavored (connection strings, cron, appsettings.json) use cases, there's more than one community worth posting in. In order of effort:
 
-1. **Post once, in the right place.** A single Reddit post in r/dotnet or r/csharp along the lines of "made a few small .NET tools I kept needing — connection string builder, cron builder for Hangfire/Quartz, etc." Be upfront that you built it; dev communities are fine with that if the tool is actually useful and you're not spamming multiple subreddits with the same post.
+1. **Post once per relevant community — not the same post copy-pasted everywhere.** r/dotnet or r/csharp for the .NET-specific angle ("cron builder for Hangfire/Quartz, connection string builder..."); r/webdev or r/programming for the general-purpose tools (JWT decoder, regex tester, GUID formatter). Be upfront that you built it — dev communities are fine with that if the tool is genuinely useful and each post is tailored to that community rather than identical spam.
 2. **Answer one Stack Overflow question per tool, where genuinely relevant**, and link the tool only if it directly solves the asker's problem better than a text answer would.
 3. **GitHub README of a related open-source project** (if you have one, or contribute a small doc PR) — a "useful tools" section linking out is a legitimate, low-effort backlink.
 4. Skip paid ads entirely at this stage — the audience is small and specific enough that organic + community placement outperforms spend.
@@ -56,4 +54,4 @@ Dev tools don't grow via SEO alone early on — they grow by being useful enough
 
 ## Adding more tools later
 
-Keep the same pattern: one `.html` file per tool in `/tools/`, reuse `css/style.css`, add an entry to `index.html`'s directory listing and to `sitemap.xml`. Good next candidates, in rough order of search demand: a Base64 encoder/decoder, a timestamp/epoch converter, a `.gitignore` generator for .NET projects, an HTTP status code reference with .NET-specific notes (e.g. which ones `ProblemDetails` maps to by default).
+Keep the same pattern: one `.html` file per tool in `/tools/`, reuse `css/style.css`, add an entry to `index.html`'s directory listing and to `sitemap.xml`. Good next candidates, in rough order of search demand: a Base64 encoder/decoder, a timestamp/epoch converter, a URL encoder/decoder, a Markdown previewer, a `.gitignore` generator, and an HTTP status code reference.

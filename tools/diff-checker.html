@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diff Checker — ToolSharp.dev</title>
+<meta name="description" content="Compare two blocks of text or code line by line and see exactly what changed, added, or was removed. Runs entirely in your browser.">
+<link rel="canonical" href="https://toolsharp.dev/tools/diff-checker.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .diff-line { display: flex; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+  .diff-line .gutter { flex-shrink: 0; width: 46px; text-align: right; padding-right: 12px; color: var(--ink-faint); user-select: none; }
+  .diff-line .content { flex: 1; padding: 1px 8px; border-radius: 2px; }
+  .diff-line.add .content { background: var(--green-wash); color: #206B47; }
+  .diff-line.add .gutter { color: var(--green); }
+  .diff-line.remove .content { background: var(--red-wash); color: var(--red); }
+  .diff-line.remove .gutter { color: var(--red); }
+  .diff-line.same .content { color: var(--ink-soft); }
+  .diff-output { max-height: 480px; overflow: auto; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">diff-checker</span></div>
+
+  <div class="tool-header">
+    <h1>diff-checker</h1>
+    <p class="sub">Paste two versions of text, config, or code and see a line-by-line diff — additions, removals, and unchanged context. Everything stays in your browser.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">line-based diff</span>
+      <span class="badge">no signup</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">original</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="diffOriginal" rows="14" placeholder="Paste the original version here..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="config-block">
+      <div class="tab">changed</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="diffChanged" rows="14" placeholder="Paste the changed version here..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:-8px; margin-bottom:24px;">
+    <button class="btn" onclick="runDiff()">Compare</button>
+    <button class="btn secondary" onclick="clearDiff()">Clear both</button>
+    <label class="check-row" style="margin:0 0 0 6px;">
+      <input type="checkbox" id="diffIgnoreWhitespace">
+      <span style="font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);">Ignore leading/trailing whitespace</span>
+    </label>
+  </div>
+
+  <div id="diffResult"></div>
+
+  <section class="notes">
+    <h2>// how this compares text</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This runs a line-based diff (similar in spirit to what <code>git diff</code> shows) — it finds the longest matching sequence of unchanged lines between the two versions, and treats everything else as added or removed. It's a whole-line comparison, not a character-by-character one, so a single-character change on a line marks that entire line as changed rather than highlighting just the character.</p></div>
+
+    <h2>// when this is the right tool</h2>
+    <ul>
+      <li>Comparing two versions of a config file, environment variable list, or SQL migration before applying one.</li>
+      <li>Checking exactly what a teammate changed in a code snippet pasted over Slack, without pulling the branch locally.</li>
+      <li>Reviewing generated output (e.g. a formatter or codemod result) against the original to sanity-check the change.</li>
+    </ul>
+    <p>For anything larger than a quick check — a full file or a real pull request — your editor's built-in diff view or <code>git diff</code> will handle whitespace, renames, and large files far better than a browser textarea.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script>
+function clearDiff() {
+  document.getElementById('diffOriginal').value = '';
+  document.getElementById('diffChanged').value = '';
+  document.getElementById('diffResult').innerHTML = '';
+}
+
+// Longest Common Subsequence based line diff
+function diffLines(aLines, bLines) {
+  const n = aLines.length, m = bLines.length;
+  const dp = Array.from({length: n + 1}, () => new Int32Array(m + 1));
+
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      if (aLines[i] === bLines[j]) {
+        dp[i][j] = dp[i+1][j+1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i+1][j], dp[i][j+1]);
+      }
+    }
+  }
+
+  let i = 0, j = 0;
+  const result = [];
+  while (i < n && j < m) {
+    if (aLines[i] === bLines[j]) {
+      result.push({type: 'same', line: aLines[i]});
+      i++; j++;
+    } else if (dp[i+1][j] >= dp[i][j+1]) {
+      result.push({type: 'remove', line: aLines[i]});
+      i++;
+    } else {
+      result.push({type: 'add', line: bLines[j]});
+      j++;
+    }
+  }
+  while (i < n) { result.push({type: 'remove', line: aLines[i]}); i++; }
+  while (j < m) { result.push({type: 'add', line: bLines[j]}); j++; }
+  return result;
+}
+
+function runDiff() {
+  const origRaw = document.getElementById('diffOriginal').value;
+  const changedRaw = document.getElementById('diffChanged').value;
+  const ignoreWs = document.getElementById('diffIgnoreWhitespace').checked;
+  const resultDiv = document.getElementById('diffResult');
+
+  if (!origRaw && !changedRaw) {
+    resultDiv.innerHTML = '<div class="callout warn">Paste something in both boxes first.</div>';
+    return;
+  }
+
+  let aLines = origRaw.split('\n');
+  let bLines = changedRaw.split('\n');
+  if (ignoreWs) {
+    aLines = aLines.map(l => l.trim());
+    bLines = bLines.map(l => l.trim());
+  }
+
+  // safety guard against pathological input sizes for the O(n*m) table
+  if (aLines.length * bLines.length > 4_000_000) {
+    resultDiv.innerHTML = '<div class="callout error">These inputs are too large to diff in-browser (this tool is built for quick checks, not full files). Try a smaller excerpt, or use your editor\'s built-in diff view instead.</div>';
+    return;
+  }
+
+  const diff = diffLines(aLines, bLines);
+  const added = diff.filter(d => d.type === 'add').length;
+  const removed = diff.filter(d => d.type === 'remove').length;
+
+  let aLineNo = 1, bLineNo = 1;
+  const rows = diff.map(d => {
+    let gutter = '';
+    if (d.type === 'same') { gutter = `${aLineNo}`; aLineNo++; bLineNo++; }
+    else if (d.type === 'remove') { gutter = `${aLineNo}`; aLineNo++; }
+    else { gutter = `${bLineNo}`; bLineNo++; }
+    const prefix = d.type === 'add' ? '+' : d.type === 'remove' ? '-' : ' ';
+    return `<div class="diff-line ${d.type}"><span class="gutter">${gutter}</span><span class="content">${prefix} ${escapeHtml(d.line)}</span></div>`;
+  }).join('');
+
+  resultDiv.innerHTML = `
+    <div class="callout ${added || removed ? 'ok' : 'ok'}" style="margin-bottom:14px;">
+      ${added === 0 && removed === 0 ? 'No differences — the two inputs are identical.' : `${added} line(s) added, ${removed} line(s) removed.`}
+    </div>
+    <div class="config-block">
+      <div class="tab">diff</div>
+      <div class="diff-output">${rows}</div>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
