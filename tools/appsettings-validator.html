@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>appsettings.json Validator &amp; Formatter — ToolSharp.dev</title>
+<meta name="description" content="Validate and pretty-print appsettings.json for ASP.NET Core. Catches JSON syntax errors with line/column, duplicate keys, and common config mistakes.">
+<link rel="canonical" href="https://toolsharp.dev/tools/appsettings-validator.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">appsettings-validator</span></div>
+
+  <div class="tool-header">
+    <h1>appsettings-validator</h1>
+    <p class="sub">Paste an appsettings.json and get it validated, formatted, and checked for a few config mistakes that are easy to miss in review.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">ASP.NET Core</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">appsettings.json</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="asInput" rows="16" placeholder='{&#10;  "Logging": {&#10;    "LogLevel": {&#10;      "Default": "Information"&#10;    }&#10;  },&#10;  "ConnectionStrings": {&#10;    "Default": "Server=..;Database=..;"&#10;  }&#10;}'></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="validateAppsettings()">Validate &amp; format</button>
+          <button class="btn secondary" onclick="document.getElementById('asInput').value=''; document.getElementById('asResult').innerHTML='';">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="asResult"></div>
+  </div>
+
+  <section class="notes">
+    <h2>// what gets checked</h2>
+    <ul>
+      <li><strong>JSON syntax</strong> — trailing commas, unquoted keys, mismatched braces — reported with the line and column where parsing failed, since the browser's native error message is often just "Unexpected token" with no location.</li>
+      <li><strong>Duplicate keys within the same object</strong> — valid JSON allows this (the last one silently wins), which makes it a nasty bug: the config loads fine, but a setting you think is active isn't.</li>
+      <li><strong>Empty <code>ConnectionStrings</code> values</strong> — a key present with an empty string, which usually means a secret was meant to come from environment variables or a secrets manager but the placeholder was left checked in.</li>
+      <li><strong>Suspiciously plaintext-looking secrets</strong> — a rough heuristic flag on values that look like passwords or keys sitting directly in the file, as a nudge to double check they're not meant to be in <code>appsettings.Development.json</code>, user secrets, or a vault instead.</li>
+    </ul>
+
+    <h2>// why appsettings bugs are so quiet</h2>
+    <div class="comment-line"><span class="bar">│</span><p>ASP.NET Core's configuration system merges appsettings.json, appsettings.{Environment}.json, environment variables, and user secrets in a defined precedence order, and a key that's misspelled or nested one level off from where a strongly-typed options class expects it won't throw — it just silently falls back to the type's default value. That's why catching structural mistakes before the app even starts (rather than debugging a "why is this null" at runtime) is worth the extra minute.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script>
+function findLineCol(text, index) {
+  const lines = text.slice(0, index).split('\n');
+  return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+}
+
+function findDuplicateKeys(text) {
+  // Walk the raw text tracking object depth and collect key names per depth level.
+  let dupes = [];
+  let stack = [{}]; // key counts per open object, by depth
+  let i = 0;
+  const n = text.length;
+  let depth = 0;
+  let objStack = [{}];
+
+  while (i < n) {
+    const ch = text[i];
+    if (ch === '"') {
+      // read string
+      let j = i + 1;
+      let str = '';
+      while (j < n && text[j] !== '"') {
+        if (text[j] === '\\') { str += text[j] + text[j+1]; j += 2; continue; }
+        str += text[j]; j++;
+      }
+      // check if this string is a key (followed by optional whitespace then colon)
+      let k = j + 1;
+      while (k < n && /\s/.test(text[k])) k++;
+      if (text[k] === ':') {
+        const top = objStack[objStack.length - 1];
+        if (top[str] === undefined) top[str] = 0;
+        top[str]++;
+        if (top[str] === 2) dupes.push(str);
+      }
+      i = j + 1;
+      continue;
+    }
+    if (ch === '{') { objStack.push({}); depth++; i++; continue; }
+    if (ch === '}') { objStack.pop(); depth--; i++; continue; }
+    i++;
+  }
+  return [...new Set(dupes)];
+}
+
+function validateAppsettings() {
+  const text = document.getElementById('asInput').value;
+  const resultDiv = document.getElementById('asResult');
+  if (!text.trim()) {
+    resultDiv.innerHTML = '<div class="callout warn">Paste some JSON first.</div>';
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (e) {
+    const match = /position (\d+)/.exec(e.message);
+    let locInfo = '';
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const {line, col} = findLineCol(text, pos);
+      locInfo = ` (around line ${line}, column ${col})`;
+    }
+    resultDiv.innerHTML = `
+      <div class="config-block">
+        <div class="tab">result</div>
+        <div class="body">
+          <div class="callout error">Invalid JSON: ${escapeHtml(e.message)}${locInfo}</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const formatted = JSON.stringify(parsed, null, 2);
+  const dupes = findDuplicateKeys(text);
+
+  let checks = [];
+  checks.push({type: 'ok', msg: 'Valid JSON.'});
+
+  if (dupes.length) {
+    checks.push({type: 'error', msg: `Duplicate key(s) found within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — in valid JSON the last one silently wins, which usually isn't what was intended.`});
+  }
+
+  // ConnectionStrings empty value check
+  if (parsed.ConnectionStrings && typeof parsed.ConnectionStrings === 'object') {
+    Object.entries(parsed.ConnectionStrings).forEach(([k, v]) => {
+      if (v === '' || v === null) {
+        checks.push({type: 'warn', msg: `ConnectionStrings.${escapeHtml(k)} is empty — likely meant to be supplied via environment variable, user secrets, or a vault at deploy time.`});
+      }
+    });
+  }
+
+  // plaintext secret heuristic
+  const secretKeyPattern = /password|secret|apikey|api_key|token|connectionstring/i;
+  let flaggedSecrets = [];
+  (function walk(obj, path) {
+    if (obj === null || typeof obj !== 'object') return;
+    Object.entries(obj).forEach(([k, v]) => {
+      const fullPath = path ? `${path}.${k}` : k;
+      if (typeof v === 'string' && v.length > 0 && secretKeyPattern.test(k) && !/connectionstrings\./i.test(fullPath.toLowerCase()) === false) {
+        // allow ConnectionStrings section itself since that's expected to hold a string
+      }
+      if (typeof v === 'string' && v.length > 3 && secretKeyPattern.test(k) && !fullPath.toLowerCase().startsWith('connectionstrings')) {
+        flaggedSecrets.push(fullPath);
+      }
+      if (typeof v === 'object') walk(v, fullPath);
+    });
+  })(parsed, '');
+
+  if (flaggedSecrets.length) {
+    checks.push({type: 'warn', msg: `Key name(s) suggest secret material sitting directly in the file: ${flaggedSecrets.map(p => `<code>${escapeHtml(p)}</code>`).join(', ')}. Worth confirming these are dev-only values, not something checked into source control for a real environment.`});
+  }
+
+  resultDiv.innerHTML = `
+    <div class="config-block">
+      <div class="tab">result</div>
+      <div class="body">
+        ${checks.map(c => `<div class="callout ${c.type}" style="margin-top:0; margin-bottom:10px;">${c.msg}</div>`).join('')}
+      </div>
+    </div>
+    <div class="config-block" style="margin-top:16px;">
+      <div class="tab">formatted <button class="copy-btn" onclick="copyFormatted()">copy</button></div>
+      <div class="output-block"><pre id="asFormatted">${escapeHtml(formatted)}</pre></div>
+    </div>
+  `;
+}
+
+function copyFormatted() {
+  navigator.clipboard.writeText(document.getElementById('asFormatted').textContent);
+}
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>

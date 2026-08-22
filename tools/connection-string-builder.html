@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Server Connection String Builder — ToolSharp.dev</title>
+<meta name="description" content="Build and validate SQL Server connection strings for .NET: SQL auth, Windows auth, Azure AD, Encrypt and TrustServerCertificate flags. Paste a connection string to parse it back into fields.">
+<link rel="canonical" href="https://toolsharp.dev/tools/connection-string-builder.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">connection-string-builder</span></div>
+
+  <div class="tool-header">
+    <h1>connection-string-builder</h1>
+    <p class="sub">Build a SQL Server connection string field by field, or paste an existing one to see it broken down. Runs entirely in your browser.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">SQL Server</span>
+      <span class="badge">no signup</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">build.env — fill in the fields</div>
+      <div class="body">
+        <div class="field">
+          <label><span class="key">Server</span></label>
+          <input type="text" id="csServer" placeholder="e.g. myserver.database.windows.net or localhost\SQLEXPRESS">
+        </div>
+        <div class="field">
+          <label><span class="key">Database</span></label>
+          <input type="text" id="csDatabase" placeholder="e.g. StoredValueDb">
+        </div>
+        <div class="field">
+          <label><span class="key">Authentication</span></label>
+          <select id="csAuth">
+            <option value="sql">SQL Server Authentication (User Id / Password)</option>
+            <option value="windows">Windows Authentication (Integrated Security)</option>
+            <option value="azuread-default">Azure AD — Default (managed identity / env chain)</option>
+            <option value="azuread-interactive">Azure AD — Interactive</option>
+            <option value="azuread-password">Azure AD — Password</option>
+          </select>
+        </div>
+        <div class="row-2" id="csCreds">
+          <div class="field">
+            <label><span class="key">User Id</span></label>
+            <input type="text" id="csUser" placeholder="e.g. app_user">
+          </div>
+          <div class="field">
+            <label><span class="key">Password</span></label>
+            <input type="password" id="csPass" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="csEncrypt" checked>
+          <label for="csEncrypt">Encrypt = True (required for Azure SQL, recommended everywhere since .NET 6 default)</label>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="csTrust">
+          <label for="csTrust">TrustServerCertificate = True (dev/local only — skips cert validation)</label>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="csMars">
+          <label for="csMars">MultipleActiveResultSets = True (needed for some EF Core scenarios)</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label><span class="key">Connect Timeout</span> (seconds)</label>
+            <input type="number" id="csTimeout" placeholder="30">
+          </div>
+          <div class="field">
+            <label><span class="key">Application Name</span></label>
+            <input type="text" id="csAppName" placeholder="e.g. StoredValue.Api">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="buildConnectionString()">Build string</button>
+          <button class="btn secondary" onclick="clearCsForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="config-block">
+        <div class="tab">
+          output — generated connection string
+          <button class="copy-btn" onclick="copyText('csOutput')">copy</button>
+        </div>
+        <div class="output-block"><pre id="csOutput" class="empty">Fill in the fields on the left, then click "Build string".</pre></div>
+      </div>
+      <div id="csWarnings"></div>
+
+      <div class="config-block" style="margin-top:18px;">
+        <div class="tab">parse.env — or paste an existing connection string</div>
+        <div class="body">
+          <div class="field">
+            <textarea id="csParseInput" rows="3" placeholder="Server=tcp:myserver.database.windows.net,1433;Database=mydb;User ID=app;Password=***;Encrypt=True;"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="parseConnectionString()">Parse into fields</button>
+          </div>
+        </div>
+      </div>
+      <div id="csParsedResult"></div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// things this catches</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A few mistakes show up constantly in .NET connection strings, so the builder flags them as you go rather than letting you find out at runtime.</p></div>
+    <ul>
+      <li><strong>Encrypt not set for Azure SQL.</strong> Azure SQL rejects unencrypted connections outright — if your server host contains <code>database.windows.net</code> and Encrypt is off, that's almost always a bug, not a choice.</li>
+      <li><strong>TrustServerCertificate=True in what looks like a production host.</strong> It's the right call for a local Docker SQL instance with a self-signed cert; it's a silent security hole if it ships to prod by accident.</li>
+      <li><strong>Both Integrated Security and a User Id set.</strong> These are mutually exclusive — the driver will ignore one, and it's rarely obvious which.</li>
+      <li><strong>Since .NET 6, Microsoft.Data.SqlClient defaults Encrypt to <code>True</code></strong> and TrustServerCertificate to <code>False</code> — a connection string that worked under .NET Framework's older client can suddenly fail after a migration purely because of this default flip. Worth checking explicitly rather than assuming the old string still behaves the same way after upgrading.</li>
+    </ul>
+
+    <h2>// why "just paste it from Azure Portal" isn't always enough</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The Azure Portal's connection string blade gives you a string that's syntactically correct but not always what you want to run with — it typically enables Encrypt but leaves the auth block as a placeholder, and it won't reflect an Azure AD identity setup even if that's actually how your app authenticates in production. Treat it as a starting template, not the final string.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script>
+function toggleCreds() {
+  const auth = document.getElementById('csAuth').value;
+  document.getElementById('csCreds').style.display = (auth === 'sql' || auth === 'azuread-password') ? 'grid' : 'none';
+}
+document.getElementById('csAuth').addEventListener('change', toggleCreds);
+toggleCreds();
+
+function clearCsForm() {
+  ['csServer','csDatabase','csUser','csPass','csAppName','csTimeout'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('csAuth').value = 'sql';
+  document.getElementById('csEncrypt').checked = true;
+  document.getElementById('csTrust').checked = false;
+  document.getElementById('csMars').checked = false;
+  document.getElementById('csOutput').textContent = 'Fill in the fields on the left, then click "Build string".';
+  document.getElementById('csOutput').classList.add('empty');
+  document.getElementById('csWarnings').innerHTML = '';
+  toggleCreds();
+}
+
+function buildConnectionString() {
+  const server = document.getElementById('csServer').value.trim();
+  const db = document.getElementById('csDatabase').value.trim();
+  const auth = document.getElementById('csAuth').value;
+  const user = document.getElementById('csUser').value.trim();
+  const pass = document.getElementById('csPass').value;
+  const encrypt = document.getElementById('csEncrypt').checked;
+  const trust = document.getElementById('csTrust').checked;
+  const mars = document.getElementById('csMars').checked;
+  const timeout = document.getElementById('csTimeout').value.trim();
+  const appName = document.getElementById('csAppName').value.trim();
+
+  let parts = [];
+  if (server) parts.push(`Server=tcp:${server},1433`);
+  if (db) parts.push(`Database=${db}`);
+
+  if (auth === 'sql') {
+    if (user) parts.push(`User Id=${user}`);
+    if (pass) parts.push(`Password=${pass}`);
+  } else if (auth === 'windows') {
+    parts.push('Integrated Security=True');
+  } else if (auth === 'azuread-default') {
+    parts.push('Authentication=Active Directory Default');
+  } else if (auth === 'azuread-interactive') {
+    parts.push('Authentication=Active Directory Interactive');
+  } else if (auth === 'azuread-password') {
+    parts.push('Authentication=Active Directory Password');
+    if (user) parts.push(`User Id=${user}`);
+    if (pass) parts.push(`Password=${pass}`);
+  }
+
+  parts.push(`Encrypt=${encrypt ? 'True' : 'False'}`);
+  if (trust) parts.push('TrustServerCertificate=True');
+  if (mars) parts.push('MultipleActiveResultSets=True');
+  if (timeout) parts.push(`Connect Timeout=${timeout}`);
+  if (appName) parts.push(`Application Name=${appName}`);
+
+  const result = parts.join(';') + ';';
+  const out = document.getElementById('csOutput');
+  out.textContent = result;
+  out.classList.remove('empty');
+
+  // warnings
+  let warnings = [];
+  const isAzure = server.includes('database.windows.net');
+  if (isAzure && !encrypt) {
+    warnings.push({type:'error', msg: 'Server looks like Azure SQL, but Encrypt is off — Azure SQL will reject this connection.'});
+  }
+  if (trust && isAzure) {
+    warnings.push({type:'warn', msg: 'TrustServerCertificate=True on what looks like an Azure SQL host — usually unnecessary and worth double-checking before this reaches production.'});
+  }
+  if (auth === 'windows' && (user || pass)) {
+    warnings.push({type:'warn', msg: 'Integrated Security is set but User Id/Password are also filled in — the credentials will be ignored.'});
+  }
+  if (!server) warnings.push({type:'warn', msg: 'No server specified yet.'});
+
+  document.getElementById('csWarnings').innerHTML = warnings.map(w =>
+    `<div class="callout ${w.type}">${w.msg}</div>`
+  ).join('');
+}
+
+function parseConnectionString() {
+  const input = document.getElementById('csParseInput').value.trim();
+  const resultDiv = document.getElementById('csParsedResult');
+  if (!input) { resultDiv.innerHTML = ''; return; }
+
+  const pairs = input.split(';').map(p => p.trim()).filter(Boolean);
+  let rows = [];
+  pairs.forEach(p => {
+    const idx = p.indexOf('=');
+    if (idx === -1) return;
+    const key = p.substring(0, idx).trim();
+    let val = p.substring(idx + 1).trim();
+    if (/password|pwd/i.test(key)) val = '••••••• (hidden)';
+    rows.push({key, val});
+  });
+
+  if (rows.length === 0) {
+    resultDiv.innerHTML = '<div class="callout error" style="margin-top:14px;">Could not parse any key=value pairs. Check the format looks like Key=Value;Key=Value;</div>';
+    return;
+  }
+
+  resultDiv.innerHTML = `
+    <div class="config-block" style="margin-top:18px;">
+      <div class="tab">parsed fields</div>
+      <div class="result-list">
+        ${rows.map(r => `<div class="result-item"><span class="k">${escapeHtml(r.key)}</span><span class="v">${escapeHtml(r.val)}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text);
+}
+</script>
+
+</body>
+</html>
