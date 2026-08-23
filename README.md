@@ -43,13 +43,14 @@ Every tool except share-pad runs entirely in the browser — nothing sent to a s
 Get these from an Upstash account (free tier is enough) → create a Redis database → REST API section has both values. Without them, `/api/share` returns a 500 and share-pad will show an error when creating a link — every other tool is unaffected.
 
 ## Deployment status
-
+ 
 - ✅ Hosted on Vercel, connected to the GitHub repo (push to `main` auto-deploys)
+  - **IMPORTANT:** In Vercel Project Settings, set the **Build Command** to `npm run build` and **Output Directory** to `dist`. Vercel will install dependencies, build/minify the files, and serve the minified output from `dist`.
 - ✅ Custom domain `toolsharp.dev` live with SSL (via Spaceship DNS → Vercel)
 - ✅ Verified in Google Search Console, `sitemap.xml` submitted
 - ✅ Submitted to Bing Webmaster Tools
 - ⚠️ share-pad requires the Upstash env vars above to be set on Vercel before it'll work live
-
+ 
 Redeploying is just `git push` — Vercel picks it up automatically, no manual steps needed.
 
 ## License
