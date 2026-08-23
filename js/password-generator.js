@@ -94,18 +94,20 @@ function generatePassphrase(count, separator) {
 
 /* ── main generate ── */
 
+let lastPasswords = [];
+let lastMode = 'password';
+
 function generate() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
-  const resultEl = document.getElementById('pwResult');
-  const metaEl   = document.getElementById('pwMeta');
+  const metaEl = document.getElementById('pwMeta');
   const bulkN = parseInt(document.getElementById('bulkCount').value, 10) || 1;
+  lastMode = mode;
 
   if (mode === 'passphrase') {
     const count = parseInt(document.getElementById('wordCount').value, 10) || 5;
     const sep   = document.getElementById('wordSep').value;
     const pws = Array.from({ length: bulkN }, () => generatePassphrase(count, sep));
-    resultEl.value = pws.join('\n');
-    autoResizeResult(resultEl);
+    showPasswords(pws);
     const bits = Math.round(count * Math.log2(WORD_LIST.length));
     const { label, cls } = entropyLabel(bits);
     metaEl.innerHTML = entropyHtml(bits, label, cls) +
@@ -116,19 +118,42 @@ function generate() {
   const length  = parseInt(document.getElementById('pwLength').value, 10) || 16;
   const charset = buildCharset();
   if (!charset) {
-    resultEl.value = '';
-    autoResizeResult(resultEl);
+    showPasswords([]);
     metaEl.innerHTML = '<span style="color:var(--red);">Select at least one character set.</span>';
     return;
   }
 
   const pws = Array.from({ length: bulkN }, () => generateOne(length, charset));
-  resultEl.value = pws.join('\n');
-  autoResizeResult(resultEl);
+  showPasswords(pws);
   const bits = entropyBits(length, charset.length);
   const { label, cls } = entropyLabel(bits);
   metaEl.innerHTML = entropyHtml(bits, label, cls) +
     `<span class="pw-meta-item">${charset.length} possible chars</span>`;
+}
+
+/* ── result display: single textarea, or a numbered list once bulk > 1 ── */
+
+function showPasswords(pws) {
+  lastPasswords = pws;
+  const resultEl = document.getElementById('pwResult');
+  const listEl   = document.getElementById('pwList');
+
+  if (pws.length > 1) {
+    resultEl.style.display = 'none';
+    listEl.style.display = '';
+    listEl.innerHTML = pws.map((pw, i) => {
+      const idx = String(i + 1).padStart(2, '0');
+      return `<div class="pw-list-row"><span class="pw-list-idx">${idx}</span>` +
+        `<span class="pw-list-val">${escHtml(pw)}</span>` +
+        `<button class="pw-list-copy" onclick="copySingle(this, ${i})">copy</button></div>`;
+    }).join('');
+  } else {
+    listEl.style.display = 'none';
+    listEl.innerHTML = '';
+    resultEl.style.display = '';
+    resultEl.value = pws[0] || '';
+    autoResizeResult(resultEl);
+  }
 }
 
 function autoResizeResult(el) {
@@ -143,9 +168,30 @@ function entropyHtml(bits, label, cls) {
 /* ── copy ── */
 
 function copyPasswords(btn) {
-  const val = document.getElementById('pwResult').value;
-  if (!val) return;
-  navigator.clipboard.writeText(val).then(() => flash(btn, 'copied!', 'copy'));
+  if (!lastPasswords.length) return;
+  navigator.clipboard.writeText(lastPasswords.join('\n')).then(() => flash(btn, 'copied!', 'copy'));
+}
+
+function copySingle(btn, i) {
+  const pw = lastPasswords[i];
+  if (!pw) return;
+  navigator.clipboard.writeText(pw).then(() => flash(btn, 'copied!', 'copy'));
+}
+
+/* ── download ── */
+
+function downloadPasswords() {
+  if (!lastPasswords.length) return;
+  const blob = new Blob([lastPasswords.join('\n') + '\n'], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href = url;
+  a.download = `${lastMode === 'passphrase' ? 'passphrases' : 'passwords'}-${stamp}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 /* ── slider sync ── */
@@ -169,6 +215,12 @@ function onModeChange() {
 }
 
 /* ── helpers ── */
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
 
 function flash(btn, active, orig) {
   btn.textContent = active;
