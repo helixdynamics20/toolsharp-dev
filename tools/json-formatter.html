@@ -27,6 +27,29 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<style>
+/* JSON view tab toggle */
+.json-view-tabs { display:flex; border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; }
+.json-tab-btn { padding:3px 12px; font-family:var(--mono); font-size:11.5px; background:none; border:none; cursor:pointer; color:var(--ink-soft); }
+.json-tab-btn.active { background:var(--violet-wash); color:var(--violet-dark); font-weight:600; }
+/* JSON tree */
+.json-tree { font-family:var(--mono); font-size:13px; line-height:1.6; }
+.jt-node { margin-left:4px; }
+.jt-node > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px; }
+.jt-node > summary::before { content:'▾'; color:var(--violet); font-size:10px; width:12px; flex-shrink:0; }
+.jt-node[open] > summary::before { content:'▾'; }
+.jt-node:not([open]) > summary::before { content:'▸'; }
+.jt-children { margin-left:20px; border-left:1px solid var(--rule); padding-left:10px; }
+.jt-item { padding:1px 0; }
+.jt-key { color:var(--violet-dark); font-weight:500; }
+.jt-idx { color:var(--ink-faint); font-size:11px; }
+.jt-sep { color:var(--ink-faint); }
+.jt-str { color:var(--green); }
+.jt-num { color:var(--amber); }
+.jt-bool { color:var(--violet); font-weight:600; }
+.jt-null { color:var(--ink-faint); font-style:italic; }
+.jt-meta { color:var(--ink-soft); font-size:12px; }
+</style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"JSON Formatter & Validator","url":"https://toolsharp.dev/tools/json-formatter.html","description":"Validate, format, and minify JSON in your browser. Get exact line and column numbers on syntax errors and flags for duplicate keys.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>

@@ -25,6 +25,13 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<style>
+.live-clock-row { display:flex; align-items:center; gap:12px; padding:7px 0; border-bottom:1px solid var(--rule); font-family:var(--mono); font-size:13px; }
+.live-clock-row:last-child { border-bottom:none; }
+.live-clock-label { width:100px; flex-shrink:0; color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; }
+.live-clock-val { font-size:17px; font-weight:600; color:var(--violet-dark); flex:1; }
+.live-clock-str { color:var(--ink-soft); font-size:13px; flex:1; }
+</style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Unix Timestamp / Epoch Converter","url":"https://toolsharp.dev/tools/epoch-converter.html","description":"Convert Unix timestamps in seconds or milliseconds to readable date-times and back. Shows both UTC and local time.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
@@ -49,6 +56,29 @@
       <span class="badge">client-side only</span>
       <span class="badge">seconds &amp; milliseconds</span>
       <span class="badge">local timezone auto-detected</span>
+    </div>
+  </div>
+
+  <div class="config-block" style="margin-bottom:20px;">
+    <div class="tab" style="display:flex;align-items:center;">
+      <span style="flex:1;">live clock</span>
+      <span id="liveEpochLocal" style="font-family:var(--mono);font-size:13px;color:var(--ink);font-weight:600;"></span>
+    </div>
+    <div class="body">
+      <div class="live-clock-row">
+        <span class="live-clock-label">seconds</span>
+        <code id="liveEpochSec" class="live-clock-val"></code>
+        <button class="btn btn-sm" onclick="setEpochFromClock('sec')">→ use as input</button>
+      </div>
+      <div class="live-clock-row">
+        <span class="live-clock-label">milliseconds</span>
+        <code id="liveEpochMs" class="live-clock-val"></code>
+        <button class="btn btn-sm" onclick="setEpochFromClock('ms')">→ use as input</button>
+      </div>
+      <div class="live-clock-row">
+        <span class="live-clock-label">UTC</span>
+        <span id="liveEpochUtc" class="live-clock-str"></span>
+      </div>
     </div>
   </div>
 

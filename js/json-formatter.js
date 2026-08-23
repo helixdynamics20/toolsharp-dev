@@ -41,19 +41,78 @@ function getIndent() {
   return v === 'tab' ? '\t' : parseInt(v, 10);
 }
 
-function renderResult(checks, formatted) {
+let _lastParsed = null;
+
+function renderTreeHtml(obj) {
+  function val(v) {
+    if (v === null) return `<span class="jt-null">null</span>`;
+    if (typeof v === 'boolean') return `<span class="jt-bool">${v}</span>`;
+    if (typeof v === 'number') return `<span class="jt-num">${v}</span>`;
+    if (typeof v === 'string') {
+      const display = v.length > 120 ? v.slice(0, 120) + '…' : v;
+      return `<span class="jt-str">"${escapeHtml(display)}"</span>`;
+    }
+    if (Array.isArray(v)) {
+      if (!v.length) return `<span class="jt-meta">[ ]</span>`;
+      const items = v.map((item, i) => `<div class="jt-item"><span class="jt-idx">[${i}]</span><span class="jt-sep"> </span>${val(item)}</div>`).join('');
+      return `<details open class="jt-node"><summary><span class="jt-meta">Array [${v.length}]</span></summary><div class="jt-children">${items}</div></details>`;
+    }
+    if (typeof v === 'object') {
+      const keys = Object.keys(v);
+      if (!keys.length) return `<span class="jt-meta">{ }</span>`;
+      const items = keys.map(k => `<div class="jt-item"><span class="jt-key">${escapeHtml(k)}</span><span class="jt-sep">: </span>${val(v[k])}</div>`).join('');
+      return `<details open class="jt-node"><summary><span class="jt-meta">Object {${keys.length}}</span></summary><div class="jt-children">${items}</div></details>`;
+    }
+    return escapeHtml(String(v));
+  }
+  return `<div class="json-tree">${val(obj)}</div>`;
+}
+
+function showJsonViewTab(tab) {
+  const textEl = document.getElementById('jsonTextView');
+  const treeEl = document.getElementById('jsonTreeView');
+  const btnText = document.getElementById('jsonTabText');
+  const btnTree = document.getElementById('jsonTabTree');
+  if (!textEl) return;
+  if (tab === 'tree') {
+    textEl.style.display = 'none';
+    if (treeEl) { treeEl.style.display = ''; if (!treeEl.innerHTML && _lastParsed !== null) treeEl.innerHTML = renderTreeHtml(_lastParsed); }
+    if (btnText) btnText.classList.remove('active');
+    if (btnTree) btnTree.classList.add('active');
+  } else {
+    textEl.style.display = '';
+    if (treeEl) treeEl.style.display = 'none';
+    if (btnText) btnText.classList.add('active');
+    if (btnTree) btnTree.classList.remove('active');
+  }
+}
+
+function renderResult(checks, formatted, parsed) {
+  if (parsed !== undefined) _lastParsed = parsed;
   const resultDiv = document.getElementById('jsonResult');
+  const hasOutput = formatted !== undefined;
+  const hasTree = parsed !== undefined;
+
+  const outputHtml = hasOutput ? `
+    <div class="config-block" style="margin-top:16px;">
+      <div class="tab" style="display:flex;align-items:center;gap:6px;">
+        <span style="flex:1;">output</span>
+        ${hasTree ? `<span class="json-view-tabs"><button id="jsonTabText" class="json-tab-btn active" onclick="showJsonViewTab('text')">text</button><button id="jsonTabTree" class="json-tab-btn" onclick="showJsonViewTab('tree')">tree</button></span>` : ''}
+        <button class="copy-btn" onclick="copyJsonOut(this)">copy</button>
+      </div>
+      <div class="output-block">
+        <div id="jsonTextView"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
+        ${hasTree ? `<div id="jsonTreeView" style="display:none;padding:14px;"></div>` : ''}
+      </div>
+    </div>` : '';
+
   resultDiv.innerHTML = `
     <div class="config-block">
       <div class="body">
         ${checks.map(c => `<div class="callout ${c.type}" style="margin-top:0; margin-bottom:10px;">${c.msg}</div>`).join('')}
       </div>
     </div>
-    ${formatted !== undefined ? `
-    <div class="config-block" style="margin-top:16px;">
-      <div class="tab">output <button class="copy-btn" onclick="copyJsonOut(this)">copy</button></div>
-      <div class="output-block"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
-    </div>` : ''}
+    ${outputHtml}
   `;
 }
 
@@ -253,7 +312,7 @@ function formatJson() {
     return;
   }
   const formatted = JSON.stringify(result.parsed, null, getIndent());
-  renderResult(result.checks, formatted);
+  renderResult(result.checks, formatted, result.parsed);
 }
 
 function minifyJson() {
@@ -269,7 +328,7 @@ function minifyJson() {
     return;
   }
   const minified = JSON.stringify(result.parsed);
-  renderResult(result.checks, minified);
+  renderResult(result.checks, minified, result.parsed);
 }
 
 function convertToYaml() {

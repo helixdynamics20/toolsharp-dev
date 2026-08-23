@@ -5,13 +5,16 @@ function runRegex() {
   const metaDiv = document.getElementById('rxMeta');
   const groupsDiv = document.getElementById('rxGroups');
 
+  const explainDiv = document.getElementById('rxExplain');
   if (!pattern) {
     highlightDiv.textContent = 'Enter a pattern and test string.';
     highlightDiv.classList.add('empty');
     metaDiv.innerHTML = '';
     groupsDiv.innerHTML = '';
+    if (explainDiv) explainDiv.innerHTML = '';
     return;
   }
+  if (explainDiv) explainDiv.innerHTML = renderExplanation(pattern);
 
   let flags = '';
   if (document.getElementById('rxIgnoreCase').checked) flags += 'i';
@@ -137,6 +140,143 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ── Regex explanation ──────────────────────────────────────────────
+function tokenizeRegex(pattern) {
+  const tokens = [];
+  let i = 0;
+  const n = pattern.length;
+
+  while (i < n) {
+    const ch = pattern[i];
+
+    // Escape sequences
+    if (ch === '\\') {
+      const nx = pattern[i + 1];
+      if (!nx) { tokens.push({ token: '\\', type: 'error', desc: 'Trailing backslash — invalid pattern' }); i++; continue; }
+      const escMap = {
+        d:'Any digit [0–9]', D:'Any non-digit', w:'Word character [a-zA-Z0-9_]', W:'Non-word character',
+        s:'Whitespace (space, tab, newline…)', S:'Non-whitespace',
+        b:'Word boundary', B:'Non-word boundary',
+        n:'Newline (\\n)', t:'Tab (\\t)', r:'Carriage return (\\r)',
+        '0':'Null character', f:'Form feed', v:'Vertical tab',
+      };
+      if (nx === 'u') {
+        const code = pattern.slice(i+2, i+6);
+        tokens.push({ token: `\\u${code}`, type: 'escape', desc: `Unicode U+${code.toUpperCase()}` }); i += 6; continue;
+      }
+      if (nx === 'x') {
+        const code = pattern.slice(i+2, i+4);
+        tokens.push({ token: `\\x${code}`, type: 'escape', desc: `Hex character 0x${code.toUpperCase()}` }); i += 4; continue;
+      }
+      if (nx >= '1' && nx <= '9') {
+        tokens.push({ token: `\\${nx}`, type: 'escape', desc: `Back-reference to capture group ${nx}` }); i += 2; continue;
+      }
+      tokens.push({ token: `\\${nx}`, type: escMap[nx] ? 'escape' : 'literal', desc: escMap[nx] || `Escaped literal "${nx}"` });
+      i += 2; continue;
+    }
+
+    // Anchors
+    if (ch === '^') { tokens.push({ token: '^', type: 'anchor', desc: 'Start of string (or line in Multiline mode)' }); i++; continue; }
+    if (ch === '$') { tokens.push({ token: '$', type: 'anchor', desc: 'End of string (or line in Multiline mode)' }); i++; continue; }
+
+    // Dot
+    if (ch === '.') { tokens.push({ token: '.', type: 'wildcard', desc: 'Any character except newline (or any char in Singleline mode)' }); i++; continue; }
+
+    // Alternation
+    if (ch === '|') { tokens.push({ token: '|', type: 'alternation', desc: 'OR — match either the left or right side' }); i++; continue; }
+
+    // Character class [...]
+    if (ch === '[') {
+      let j = i + 1, raw = '[';
+      if (pattern[j] === '^') { raw += '^'; j++; }
+      while (j < n) {
+        if (pattern[j] === '\\') { raw += pattern[j] + (pattern[j+1] || ''); j += 2; continue; }
+        raw += pattern[j];
+        if (pattern[j] === ']') { j++; break; }
+        j++;
+      }
+      const neg = raw[1] === '^';
+      const inner = neg ? raw.slice(2, -1) : raw.slice(1, -1);
+      tokens.push({ token: raw, type: 'class', desc: neg ? `Any character NOT in: ${inner}` : `Any character in: ${inner}` });
+      i = j; continue;
+    }
+
+    // Groups
+    if (ch === '(') {
+      let desc = 'Capturing group', advance = 1;
+      if (pattern[i+1] === '?') {
+        const p2 = pattern[i+2], p3 = pattern[i+3];
+        if (p2 === ':')  { desc = 'Non-capturing group'; advance = 3; }
+        else if (p2 === '=') { desc = 'Positive lookahead — position must be followed by this'; advance = 3; }
+        else if (p2 === '!') { desc = 'Negative lookahead — position must NOT be followed by this'; advance = 3; }
+        else if (p2 === '<' && p3 === '=') { desc = 'Positive lookbehind — position must be preceded by this'; advance = 4; }
+        else if (p2 === '<' && p3 === '!') { desc = 'Negative lookbehind — position must NOT be preceded by this'; advance = 4; }
+        else if (p2 === '<') {
+          const end = pattern.indexOf('>', i + 3);
+          const name = end > 0 ? pattern.slice(i+3, end) : '?';
+          desc = `Named capturing group "${name}"`;
+          advance = end > 0 ? end - i + 1 : 3;
+        } else { desc = 'Group with inline modifier'; advance = 2; }
+      }
+      tokens.push({ token: pattern.slice(i, i + advance) + (advance === 1 ? '' : ''), type: 'group', desc }); i += advance; continue;
+    }
+    if (ch === ')') { tokens.push({ token: ')', type: 'group', desc: 'End of group' }); i++; continue; }
+
+    // {n,m} quantifier
+    if (ch === '{') {
+      const end = pattern.indexOf('}', i);
+      if (end !== -1) {
+        const inner = pattern.slice(i+1, end);
+        const lazy = pattern[end+1] === '?';
+        const mode = lazy ? ' (lazy)' : '';
+        let desc;
+        if (/^\d+$/.test(inner)) desc = `Exactly ${inner} time${inner==='1'?'':'s'}${mode}`;
+        else if (/^\d+,$/.test(inner)) desc = `At least ${inner.slice(0,-1)} times${mode}`;
+        else if (/^\d+,\d+$/.test(inner)) { const [a,b] = inner.split(','); desc = `Between ${a} and ${b} times${mode}`; }
+        else { tokens.push({ token: ch, type: 'literal', desc: `Literal "{"` }); i++; continue; }
+        tokens.push({ token: pattern.slice(i, end+1) + (lazy ? '?' : ''), type: 'quantifier', desc });
+        i = end + 1 + (lazy ? 1 : 0); continue;
+      }
+    }
+
+    // *, +, ? quantifiers
+    if ('*+?'.includes(ch)) {
+      const lazy = pattern[i+1] === '?';
+      const mode = lazy ? ' (lazy — as few as possible)' : ' (greedy — as many as possible)';
+      const desc = ch === '*' ? `Zero or more${mode}` : ch === '+' ? `One or more${mode}` : `Zero or one (optional)${mode}`;
+      tokens.push({ token: lazy ? ch + '?' : ch, type: 'quantifier', desc }); i += lazy ? 2 : 1; continue;
+    }
+
+    // Consecutive literals
+    let lit = '';
+    while (i < n && !'\\^$.|?*+()[]{}'.includes(pattern[i])) { lit += pattern[i]; i++; }
+    if (lit) { tokens.push({ token: lit, type: 'literal', desc: `Literal text "${lit}"` }); continue; }
+
+    // Fallback
+    tokens.push({ token: ch, type: 'literal', desc: `Literal "${ch}"` }); i++;
+  }
+  return tokens;
+}
+
+const _tokenColors = {
+  anchor:'var(--amber)', escape:'var(--violet)', class:'var(--violet)',
+  wildcard:'var(--violet)', quantifier:'var(--green)', group:'var(--ink-soft)',
+  alternation:'var(--red)', literal:'var(--ink)', error:'var(--red)',
+};
+
+function renderExplanation(pattern) {
+  if (!pattern) return '';
+  let tokens;
+  try { tokens = tokenizeRegex(pattern); } catch (e) { return ''; }
+  if (!tokens.length) return '';
+  return `<div class="rx-explain">${tokens.map(t => `
+    <div class="rx-er">
+      <code class="rx-tok" style="color:${_tokenColors[t.type]||'var(--ink)'};">${escapeHtml(t.token)}</code>
+      <span class="rx-type">${t.type}</span>
+      <span class="rx-desc">${escapeHtml(t.desc)}</span>
+    </div>`).join('')}</div>`;
 }
 
 window.addEventListener('load', function() {

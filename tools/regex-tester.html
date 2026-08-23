@@ -32,6 +32,14 @@
   mark { background: var(--violet); color: #fff; border-radius: 2px; padding: 0 1px; }
   mark.alt { background: var(--amber); }
   #regexHighlighted { white-space: pre-wrap; word-break: break-word; }
+  /* explanation panel */
+  .rx-explain { border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; margin-top:12px; }
+  .rx-er { display:flex; align-items:baseline; gap:10px; padding:6px 12px; border-bottom:1px solid var(--rule); font-family:var(--mono); font-size:12px; }
+  .rx-er:last-child { border-bottom:none; }
+  .rx-er:nth-child(even) { background:var(--bg); }
+  .rx-tok { font-weight:600; min-width:70px; flex-shrink:0; }
+  .rx-type { color:var(--ink-faint); font-size:10px; text-transform:uppercase; letter-spacing:.05em; min-width:82px; flex-shrink:0; }
+  .rx-desc { color:var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -69,6 +77,7 @@
           <div class="check-row"><input type="checkbox" id="rxMultiline" onchange="runRegex()"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
           <div class="check-row"><input type="checkbox" id="rxSingleline" onchange="runRegex()"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
           <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
+          <div id="rxExplain"></div>
           <div class="field" style="margin-top:14px;">
             <label><span class="key">Test string</span></label>
             <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
