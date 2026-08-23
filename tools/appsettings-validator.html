@@ -6,16 +6,37 @@
 <title>appsettings.json Validator &amp; Formatter — ToolSharp.dev</title>
 <meta name="description" content="Validate and pretty-print appsettings.json for ASP.NET Core. Catches JSON syntax errors with line/column, duplicate keys, and common config mistakes.">
 <link rel="canonical" href="https://toolsharp.dev/tools/appsettings-validator.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/appsettings-validator.html">
+<meta property="og:title" content="appsettings.json Validator &amp; Formatter — ToolSharp.dev">
+<meta property="og:description" content="Validate and pretty-print appsettings.json for ASP.NET Core. Catches JSON syntax errors with line/column, duplicate keys, and common config mistakes.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/appsettings-validator.html">
+<meta name="twitter:title" content="appsettings.json Validator &amp; Formatter — ToolSharp.dev">
+<meta name="twitter:description" content="Validate and pretty-print appsettings.json for ASP.NET Core. Catches JSON syntax errors with line/column, duplicate keys, and common config mistakes.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
 </head>
 <body>
 
 <header class="site-header">
   <div class="wrap">
     <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
-    <nav class="nav-links"><a href="../index.html">← all tools</a></nav>
+    <nav class="nav-links">
+      <a href="../index.html">← all tools</a>
+      <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()">dark_theme</a>
+    </nav>
   </div>
 </header>
 
@@ -38,8 +59,15 @@
         <div class="field">
           <textarea id="asInput" rows="16" placeholder='{&#10;  "Logging": {&#10;    "LogLevel": {&#10;      "Default": "Information"&#10;    }&#10;  },&#10;  "ConnectionStrings": {&#10;    "Default": "Server=..;Database=..;"&#10;  }&#10;}'></textarea>
         </div>
+        <div class="field" style="margin-bottom: 0;">
+          <div class="check-row">
+            <input type="checkbox" id="asStrict" checked onchange="validateAppsettings()">
+            <label for="asStrict">Strict validation (warn on duplicates/secrets)</label>
+          </div>
+        </div>
         <div class="btn-row">
           <button class="btn" onclick="validateAppsettings()">Validate &amp; format</button>
+          <button class="btn secondary" onclick="autoFixAppsettings()">Auto-fix &amp; format</button>
           <button class="btn secondary" onclick="document.getElementById('asInput').value=''; document.getElementById('asResult').innerHTML='';">Clear</button>
         </div>
       </div>
@@ -113,6 +141,134 @@ function findDuplicateKeys(text) {
   return [...new Set(dupes)];
 }
 
+function tryRepairJson(text) {
+  let output = '';
+  let i = 0;
+  const n = text.length;
+
+  while (i < n) {
+    const char = text[i];
+
+    // 1. Handle line comments
+    if (char === '/' && text[i + 1] === '/') {
+      i += 2;
+      while (i < n && text[i] !== '\n' && text[i] !== '\r') {
+        i++;
+      }
+      continue;
+    }
+
+    // 2. Handle block comments
+    if (char === '/' && text[i + 1] === '*') {
+      i += 2;
+      while (i < n && !(text[i] === '*' && text[i + 1] === '/')) {
+        i++;
+      }
+      i += 2;
+      continue;
+    }
+
+    // 3. Handle strings (single or double quoted)
+    if (char === '"' || char === "'") {
+      const quoteType = char;
+      output += '"'; // always output double quotes
+      i++;
+      while (i < n) {
+        if (text[i] === '\\') {
+          const nextChar = text[i + 1];
+          if (quoteType === "'" && nextChar === "'") {
+            // escaped single quote inside single-quoted string -> unescaped single quote
+            output += "'";
+            i += 2;
+          } else if (quoteType === '"' && nextChar === '"') {
+            // escaped double quote inside double-quoted string -> keep it escaped
+            output += '\\"';
+            i += 2;
+          } else {
+            // keep other escapes (like \n, \t, \\) exactly as they are
+            output += '\\' + nextChar;
+            i += 2;
+          }
+        } else if (text[i] === quoteType) {
+          i++; // closing quote
+          break;
+        } else {
+          const current = text[i];
+          if (quoteType === "'" && current === '"') {
+            // literal double quote inside single-quoted string -> escape it
+            output += '\\"';
+          } else {
+            output += current;
+          }
+          i++;
+        }
+      }
+      output += '"';
+      continue;
+    }
+
+    // 4. Handle whitespace
+    if (/\s/.test(char)) {
+      output += char;
+      i++;
+      continue;
+    }
+
+    // 5. Structural characters
+    if (char === ':' || char === ',' || char === '{' || char === '}' || char === '[' || char === ']') {
+      output += char;
+      i++;
+      continue;
+    }
+
+    // 6. Words/numbers/identifiers
+    let word = '';
+    while (i < n && /[a-zA-Z0-9_\-\+\.]/.test(text[i])) {
+      word += text[i];
+      i++;
+    }
+
+    if (word.length > 0) {
+      if (word === 'True') {
+        output += 'true';
+      } else if (word === 'False') {
+        output += 'false';
+      } else if (word === 'None') {
+        output += 'null';
+      } else if (word === 'true' || word === 'false' || word === 'null') {
+        output += word;
+      } else if (!isNaN(Number(word))) {
+        output += word;
+      } else {
+        output += '"' + word + '"';
+      }
+    } else {
+      output += char;
+      i++;
+    }
+  }
+
+  // Clean up trailing commas before closing braces/brackets
+  output = output.replace(/,\s*([\}\]])/g, '$1');
+
+  return output;
+}
+
+function applyAppsettingsRepair() {
+  const text = document.getElementById('asInput').value;
+  const repaired = tryRepairJson(text);
+  document.getElementById('asInput').value = repaired;
+  validateAppsettings();
+}
+
+function autoFixAppsettings() {
+  const text = document.getElementById('asInput').value;
+  if (!text.trim()) return;
+  const repaired = tryRepairJson(text);
+  document.getElementById('asInput').value = repaired;
+  validateAppsettings();
+}
+
 function validateAppsettings() {
   const text = document.getElementById('asInput').value;
   const resultDiv = document.getElementById('asResult');
@@ -132,54 +288,72 @@ function validateAppsettings() {
       const {line, col} = findLineCol(text, pos);
       locInfo = ` (around line ${line}, column ${col})`;
     }
+
+    let canRepair = false;
+    try {
+      const repaired = tryRepairJson(text);
+      if (repaired !== text) {
+        JSON.parse(repaired);
+        canRepair = true;
+      }
+    } catch (_) {}
+
+    let errorMsg = `Invalid JSON: ${escapeHtml(e.message)}${locInfo}`;
+    if (canRepair) {
+      errorMsg += ` <span class="repair-link" onclick="applyAppsettingsRepair()">Auto-fix it</span>`;
+    }
+
     resultDiv.innerHTML = `
       <div class="config-block">
         <div class="tab">result</div>
         <div class="body">
-          <div class="callout error">Invalid JSON: ${escapeHtml(e.message)}${locInfo}</div>
+          <div class="callout error">${errorMsg}</div>
         </div>
       </div>`;
     return;
   }
 
   const formatted = JSON.stringify(parsed, null, 2);
-  const dupes = findDuplicateKeys(text);
+  const isStrict = document.getElementById('asStrict').checked;
+  const dupes = isStrict ? findDuplicateKeys(text) : [];
 
   let checks = [];
   checks.push({type: 'ok', msg: 'Valid JSON.'});
 
-  if (dupes.length) {
-    checks.push({type: 'error', msg: `Duplicate key(s) found within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — in valid JSON the last one silently wins, which usually isn't what was intended.`});
-  }
+  if (isStrict) {
+    if (dupes.length) {
+      checks.push({type: 'error', msg: `Duplicate key(s) found within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — in valid JSON the last one silently wins, which usually isn't what was intended.`});
+    }
 
-  // ConnectionStrings empty value check
-  if (parsed.ConnectionStrings && typeof parsed.ConnectionStrings === 'object') {
-    Object.entries(parsed.ConnectionStrings).forEach(([k, v]) => {
-      if (v === '' || v === null) {
-        checks.push({type: 'warn', msg: `ConnectionStrings.${escapeHtml(k)} is empty — likely meant to be supplied via environment variable, user secrets, or a vault at deploy time.`});
-      }
-    });
-  }
+    // ConnectionStrings empty value check
+    if (parsed.ConnectionStrings && typeof parsed.ConnectionStrings === 'object') {
+      Object.entries(parsed.ConnectionStrings).forEach(([k, v]) => {
+        if (v === '' || v === null) {
+          checks.push({type: 'warn', msg: `ConnectionStrings.${escapeHtml(k)} is empty — likely meant to be supplied via environment variable, user secrets, or a vault at deploy time.`});
+        }
+      });
+    }
 
-  // plaintext secret heuristic
-  const secretKeyPattern = /password|secret|apikey|api_key|token|connectionstring/i;
-  let flaggedSecrets = [];
-  (function walk(obj, path) {
-    if (obj === null || typeof obj !== 'object') return;
-    Object.entries(obj).forEach(([k, v]) => {
-      const fullPath = path ? `${path}.${k}` : k;
-      if (typeof v === 'string' && v.length > 0 && secretKeyPattern.test(k) && !/connectionstrings\./i.test(fullPath.toLowerCase()) === false) {
-        // allow ConnectionStrings section itself since that's expected to hold a string
-      }
-      if (typeof v === 'string' && v.length > 3 && secretKeyPattern.test(k) && !fullPath.toLowerCase().startsWith('connectionstrings')) {
-        flaggedSecrets.push(fullPath);
-      }
-      if (typeof v === 'object') walk(v, fullPath);
-    });
-  })(parsed, '');
+    // plaintext secret heuristic
+    const secretKeyPattern = /password|secret|apikey|api_key|token|connectionstring/i;
+    let flaggedSecrets = [];
+    (function walk(obj, path) {
+      if (obj === null || typeof obj !== 'object') return;
+      Object.entries(obj).forEach(([k, v]) => {
+        const fullPath = path ? `${path}.${k}` : k;
+        if (typeof v === 'string' && v.length > 0 && secretKeyPattern.test(k) && !/connectionstrings\./i.test(fullPath.toLowerCase()) === false) {
+          // allow ConnectionStrings section itself since that's expected to hold a string
+        }
+        if (typeof v === 'string' && v.length > 3 && secretKeyPattern.test(k) && !fullPath.toLowerCase().startsWith('connectionstrings')) {
+          flaggedSecrets.push(fullPath);
+        }
+        if (typeof v === 'object') walk(v, fullPath);
+      });
+    })(parsed, '');
 
-  if (flaggedSecrets.length) {
-    checks.push({type: 'warn', msg: `Key name(s) suggest secret material sitting directly in the file: ${flaggedSecrets.map(p => `<code>${escapeHtml(p)}</code>`).join(', ')}. Worth confirming these are dev-only values, not something checked into source control for a real environment.`});
+    if (flaggedSecrets.length) {
+      checks.push({type: 'warn', msg: `Key name(s) suggest secret material sitting directly in the file: ${flaggedSecrets.map(p => `<code>${escapeHtml(p)}</code>`).join(', ')}. Worth confirming these are dev-only values, not something checked into source control for a real environment.`});
+    }
   }
 
   resultDiv.innerHTML = `
@@ -204,6 +378,28 @@ function escapeHtml(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  const inputEl = document.getElementById('asInput');
+  if (inputEl) {
+    inputEl.addEventListener('paste', () => {
+      setTimeout(() => {
+        const text = inputEl.value;
+        try {
+          JSON.parse(text);
+          validateAppsettings();
+        } catch (_) {
+          // Check if repairable
+          const repaired = tryRepairJson(text);
+          try {
+            JSON.parse(repaired);
+            validateAppsettings();
+          } catch (__) {}
+        }
+      }, 50);
+    });
+  }
+});
 </script>
 
 </body>

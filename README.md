@@ -1,6 +1,6 @@
 # ToolSharp.dev
 
-Six free, client-side developer tools any backend developer can reach for — connection strings, cron expressions, JWTs, GUIDs, regex, and JSON config. A few lean into .NET/SQL Server specifics since that's where the ideas came from, but nothing here requires knowing .NET to use. Pure static HTML/CSS/JS — no build step, no backend, no dependencies to install.
+Ten free, client-side developer tools any backend developer can reach for — connection strings, cron expressions, JWTs, GUIDs, regex, JSON config, Base64, and serverless text sharing. A few lean into .NET/SQL Server specifics since that's where the ideas came from, but nothing here requires knowing .NET to use. Pure static HTML/CSS/JS — no build step, no backend, no dependencies to install.
 
 **Live at:** [toolsharp.dev](https://toolsharp.dev)
 
@@ -20,7 +20,9 @@ Six free, client-side developer tools any backend developer can reach for — co
     ├── regex-tester.html               # regex tester mapped to RegexOptions
     ├── appsettings-validator.html      # appsettings.json validator + formatter
     ├── json-formatter.html             # generic JSON validator, formatter, minifier
-    └── diff-checker.html               # line-by-line text/code diff
+    ├── diff-checker.html               # line-by-line text/code diff
+    ├── base64-converter.html           # Base64 encoder and decoder
+    └── share-pad.html                  # client-side serverless text sharing tool
 ```
 
 Every tool runs entirely in the browser. Nothing is sent to a server — this matters both for user trust (people paste connection strings and JWTs into these tools) and for hosting cost (this can run on a free static host forever).

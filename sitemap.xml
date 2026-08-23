@@ -9,4 +9,6 @@
   <url><loc>https://toolsharp.dev/tools/appsettings-validator.html</loc><priority>0.8</priority></url>
   <url><loc>https://toolsharp.dev/tools/json-formatter.html</loc><priority>0.8</priority></url>
   <url><loc>https://toolsharp.dev/tools/diff-checker.html</loc><priority>0.8</priority></url>
+  <url><loc>https://toolsharp.dev/tools/base64-converter.html</loc><priority>0.8</priority></url>
+  <url><loc>https://toolsharp.dev/tools/share-pad.html</loc><priority>0.8</priority></url>
 </urlset>

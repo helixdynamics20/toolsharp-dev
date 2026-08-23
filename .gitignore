@@ -1,0 +1,19 @@
+# Local environment variables (keeps your Upstash/database secrets safe locally)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel deployment cache and config
+.vercel
+
+# Node dependencies (if you run builds locally)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System Files
+.DS_Store
+Thumbs.db
