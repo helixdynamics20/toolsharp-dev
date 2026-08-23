@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 const CleanCSS = require('clean-css');
 const { minify: minifyHtml } = require('html-minifier-terser');
 const { minify: minifyJs } = require('terser');
@@ -134,6 +135,18 @@ async function processHtml() {
 }
 
 async function main() {
+  // Bundle analytics module with esbuild
+  console.log('Bundling analytics module...');
+  try {
+    execSync('npx esbuild js/analytics.js --bundle --format=esm --outfile=js/analytics.bundle.js', {
+      stdio: 'inherit'
+    });
+    console.log('Analytics module bundled successfully');
+  } catch (err) {
+    console.error('Error bundling analytics module:', err);
+    process.exit(1);
+  }
+
   await processJs();
   await processHtml();
   console.log('Build completed successfully!');
