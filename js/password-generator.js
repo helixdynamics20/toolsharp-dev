@@ -105,6 +105,7 @@ function generate() {
     const sep   = document.getElementById('wordSep').value;
     const pws = Array.from({ length: bulkN }, () => generatePassphrase(count, sep));
     resultEl.value = pws.join('\n');
+    autoResizeResult(resultEl);
     const bits = Math.round(count * Math.log2(WORD_LIST.length));
     const { label, cls } = entropyLabel(bits);
     metaEl.innerHTML = entropyHtml(bits, label, cls) +
@@ -116,16 +117,23 @@ function generate() {
   const charset = buildCharset();
   if (!charset) {
     resultEl.value = '';
+    autoResizeResult(resultEl);
     metaEl.innerHTML = '<span style="color:var(--red);">Select at least one character set.</span>';
     return;
   }
 
   const pws = Array.from({ length: bulkN }, () => generateOne(length, charset));
   resultEl.value = pws.join('\n');
+  autoResizeResult(resultEl);
   const bits = entropyBits(length, charset.length);
   const { label, cls } = entropyLabel(bits);
   metaEl.innerHTML = entropyHtml(bits, label, cls) +
     `<span class="pw-meta-item">${charset.length} possible chars</span>`;
+}
+
+function autoResizeResult(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
 }
 
 function entropyHtml(bits, label, cls) {
