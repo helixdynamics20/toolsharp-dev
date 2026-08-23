@@ -31,21 +31,14 @@ files.forEach(file => {
 
     // Encrypt the entire HTML document using Base64
     const base64Html = Buffer.from(html).toString('base64');
-    const loaderHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<script>
+    const loaderHtml = `<script>
 const bin = atob("${base64Html}");
 const bytes = new Uint8Array(bin.length);
 for (let i = 0; i < bin.length; i++) {
   bytes[i] = bin.charCodeAt(i);
 }
 document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
-</head>
-<body></body>
-</html>`;
+</script>`;
     
     fs.writeFileSync(filePath, loaderHtml, 'utf8');
     console.log(`Encrypted HTML: tools/${file}`);
@@ -57,21 +50,14 @@ const indexPath = path.join(__dirname, 'index.html');
 if (fs.existsSync(indexPath)) {
   let indexHtml = fs.readFileSync(indexPath, 'utf8');
   const base64Index = Buffer.from(indexHtml).toString('base64');
-  const indexLoader = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<script>
+  const indexLoader = `<script>
 const bin = atob("${base64Index}");
 const bytes = new Uint8Array(bin.length);
 for (let i = 0; i < bin.length; i++) {
   bytes[i] = bin.charCodeAt(i);
 }
 document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
-</head>
-<body></body>
-</html>`;
+</script>`;
   
   fs.writeFileSync(indexPath, indexLoader, 'utf8');
   console.log(`Encrypted HTML: index.html`);
@@ -82,21 +68,14 @@ const path404 = path.join(__dirname, '404.html');
 if (fs.existsSync(path404)) {
   let html404 = fs.readFileSync(path404, 'utf8');
   const base64_404 = Buffer.from(html404).toString('base64');
-  const loader404 = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<script>
+  const loader404 = `<script>
 const bin = atob("${base64_404}");
 const bytes = new Uint8Array(bin.length);
 for (let i = 0; i < bin.length; i++) {
   bytes[i] = bin.charCodeAt(i);
 }
 document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
-</head>
-<body></body>
-</html>`;
+</script>`;
   
   fs.writeFileSync(path404, loader404, 'utf8');
   console.log(`Encrypted HTML: 404.html`);
