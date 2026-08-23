@@ -69,14 +69,10 @@
       <div class="tab">human-date-to-epoch</div>
       <div class="body">
         <div class="field">
-          <label>Year, Month, Day, Hour, Min, Sec (Local)</label>
-          <div style="display:flex; gap: 6px; margin-bottom: 12px;">
-            <input type="number" id="yearIn" placeholder="YYYY" style="width: 22%;" oninput="convertDateToEpoch()">
-            <input type="number" id="monthIn" placeholder="MM" style="width: 15%;" oninput="convertDateToEpoch()">
-            <input type="number" id="dayIn" placeholder="DD" style="width: 15%;" oninput="convertDateToEpoch()">
-            <input type="number" id="hourIn" placeholder="HH" style="width: 15%;" oninput="convertDateToEpoch()">
-            <input type="number" id="minIn" placeholder="Min" style="width: 15%;" oninput="convertDateToEpoch()">
-            <input type="number" id="secIn" placeholder="Sec" style="width: 15%;" oninput="convertDateToEpoch()">
+          <label>Date & Time (Local)</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="datetime-local" id="datetimePicker" oninput="convertDateToEpoch()" style="width: 100%;">
+            <button class="btn btn-sm" onclick="setPickerToNow()">Now</button>
           </div>
 
           <label>Epoch in Seconds</label>

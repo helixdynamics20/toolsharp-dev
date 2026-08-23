@@ -36,24 +36,29 @@ function convertEpoch() {
 }
 
 function convertDateToEpoch() {
-  const y = parseInt(document.getElementById('yearIn').value, 10);
-  const m = parseInt(document.getElementById('monthIn').value, 10) - 1;
-  const d = parseInt(document.getElementById('dayIn').value, 10);
-  const h = parseInt(document.getElementById('hourIn').value, 10) || 0;
-  const min = parseInt(document.getElementById('minIn').value, 10) || 0;
-  const s = parseInt(document.getElementById('secIn').value, 10) || 0;
-
-  if (isNaN(y) || isNaN(m) || isNaN(d)) {
-    alert('Please enter at least Year, Month, and Day.');
+  const picker = document.getElementById('datetimePicker');
+  if (!picker.value) {
+    document.getElementById('epochSecOutput').value = '';
+    document.getElementById('epochMsOutput').value = '';
     return;
   }
 
-  const date = new Date(y, m, d, h, min, s);
+  const date = new Date(picker.value);
   const ms = date.getTime();
   const sec = Math.floor(ms / 1000);
 
   document.getElementById('epochSecOutput').value = sec;
   document.getElementById('epochMsOutput').value = ms;
+}
+
+function setPickerToNow() {
+  const d = new Date();
+  // Format local date-time string matching datetime-local input (YYYY-MM-DDTHH:mm)
+  const offsetMs = d.getTimezoneOffset() * 60000;
+  const localISOTime = new Date(d.getTime() - offsetMs).toISOString().slice(0, 16);
+  
+  document.getElementById('datetimePicker').value = localISOTime;
+  convertDateToEpoch();
 }
 
 function copyResult(id, btn) {
@@ -66,14 +71,6 @@ function copyResult(id, btn) {
 
 // Initialize on load
 window.addEventListener('load', function() {
-  const d = new Date();
-  document.getElementById('yearIn').value = d.getFullYear();
-  document.getElementById('monthIn').value = d.getMonth() + 1;
-  document.getElementById('dayIn').value = d.getDate();
-  document.getElementById('hourIn').value = d.getHours();
-  document.getElementById('minIn').value = d.getMinutes();
-  document.getElementById('secIn').value = d.getSeconds();
-  
+  setPickerToNow();
   setEpochNow();
-  convertDateToEpoch();
 });
