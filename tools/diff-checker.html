@@ -1,8 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diff Checker — ToolSharp.dev</title>
+<meta name="description" content="Compare two blocks of text or code side by side with word-level highlighting on exactly what changed. Runs entirely in your browser.">
+<link rel="canonical" href="https://toolsharp.dev/tools/diff-checker.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/diff-checker.html">
+<meta property="og:title" content="Diff Checker — ToolSharp.dev">
+<meta property="og:description" content="Compare two blocks of text or code side by side with word-level highlighting on exactly what changed. Runs entirely in your browser.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/diff-checker.html">
+<meta name="twitter:title" content="Diff Checker — ToolSharp.dev">
+<meta name="twitter:description" content="Compare two blocks of text or code side by side with word-level highlighting on exactly what changed. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<style>
+  .diff-summary-row {
+    display: flex;
+    border: 1px solid var(--rule);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+  .diff-summary-side {
+    flex: 1 1 50%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-raised);
+  }
+  .diff-summary-side.removals { border-right: 1px solid var(--rule); color: var(--red); }
+  .diff-summary-side.additions { color: #206B47; }
+  .diff-summary-side .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .diff-summary-side.removals .dot { background: var(--red); }
+  .diff-summary-side.additions .dot { background: var(--green); }
+  .diff-summary-side .linecount { color: var(--ink-faint); }
+  .diff-summary-side .copy-btn { margin-left: auto; }
+
+  .diff-split-body {
+    border: 1px solid var(--rule);
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: auto;
+    max-height: 560px;
+    background: var(--bg-raised);
+  }
+  .diff-row { display: flex; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
+  .diff-cell {
+    flex: 1 1 50%;
+    display: flex;
+    min-width: 0;
+    padding: 1px 0;
+  }
+  .diff-cell.left { border-right: 1px solid var(--rule); }
+  .diff-cell .gutter {
+    width: 42px; flex-shrink: 0;
+    text-align: right; padding-right: 10px;
+    color: var(--ink-faint); user-select: none;
+  }
+  .diff-cell .content { flex: 1; white-space: pre-wrap; word-break: break-word; padding-right: 10px; min-width: 0; }
+  .diff-cell.bg-remove { background: var(--red-wash); }
+  .diff-cell.bg-add { background: var(--green-wash); }
+  .diff-cell.empty {
+    background: repeating-linear-gradient(45deg, var(--bg-raised), var(--bg-raised) 6px, var(--rule) 6px, var(--rule) 7px);
+  }
+  mark.tok-remove { background: #F3B4AE; color: #7A241D; border-radius: 2px; padding: 0 1px; }
+  mark.tok-add { background: #A8DFC0; color: #1B5E3D; border-radius: 2px; padding: 0 1px; }
+</style>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">diff-checker</span></div>
+
+  <div class="tool-header">
+    <h1>diff-checker</h1>
+    <p class="sub">Paste two versions of text, config, or code and see a side-by-side diff — removed lines on the left, added lines on the right, with the exact changed words highlighted inline.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">word-level highlighting</span>
+      <span class="badge">no signup</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">original</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="diffOriginal" rows="14" placeholder="Paste the original version here..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="config-block">
+      <div class="tab">changed</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="diffChanged" rows="14" placeholder="Paste the changed version here..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:-8px; margin-bottom:24px;">
+    <button class="btn" onclick="runDiff()">Compare</button>
+    <button class="btn secondary" onclick="clearDiff()">Clear both</button>
+    <label class="check-row" style="margin:0 0 0 6px;">
+      <input type="checkbox" id="diffIgnoreWhitespace">
+      <span style="font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);">Ignore leading/trailing whitespace</span>
+    </label>
+  </div>
+
+  <div id="diffResult"></div>
+
+  <section class="notes">
+    <h2>// how this compares text</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This finds the longest matching sequence of unchanged lines between the two versions (the same idea behind <code>git diff</code>), then for lines that changed, it goes a level deeper and highlights only the specific words that differ — rather than marking the whole line as different, the way a plain line-diff would.</p></div>
+
+    <h2>// when this is the right tool</h2>
+    <ul>
+      <li>Comparing two versions of a config file, environment variable list, or SQL migration before applying one.</li>
+      <li>Checking exactly what a teammate changed in a code snippet pasted over Slack, without pulling the branch locally.</li>
+      <li>Reviewing generated output (e.g. a formatter or codemod result) against the original to sanity-check the change.</li>
+    </ul>
+    <p>For anything larger than a quick check — a full file or a real pull request — your editor's built-in diff view or <code>git diff</code> will handle whitespace, renames, and large files far better than a browser textarea.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
 <script>
-const bin = atob("PHNjcmlwdCBzcmM9Ii4uL2pzL2RpZmYtY2hlY2tlci5qcyIgZGVmZXI+PC9zY3JpcHQ+");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
+function clearDiff() {
+  document.getElementById('diffOriginal').value = '';
+  document.getElementById('diffChanged').value = '';
+  document.getElementById('diffResult').innerHTML = '';
 }
-document.write(new TextDecoder("utf-8").decode(bytes));
+
+// Generic LCS-based diff over any array of comparable items (lines or tokens).
+function diffArrays(a, b) {
+  const n = a.length, m = b.length;
+  const dp = Array.from({length: n + 1}, () => new Int32Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = (a[i] === b[j]) ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);
+    }
+  }
+  let i = 0, j = 0;
+  const ops = [];
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { ops.push({type: 'same', item: a[i]}); i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]) { ops.push({type: 'remove', item: a[i]}); i++; }
+    else { ops.push({type: 'add', item: b[j]}); j++; }
+  }
+  while (i < n) { ops.push({type: 'remove', item: a[i]}); i++; }
+  while (j < m) { ops.push({type: 'add', item: b[j]}); j++; }
+  return ops;
+}
+
+function tokenize(line) {
+  return line.match(/\w+|[^\w\s]|\s+/g) || [];
+}
+
+// Build word-level highlighted HTML for a pair of changed lines.
+function renderModifiedHalf(oldLine, newLine) {
+  const tokenOps = diffArrays(tokenize(oldLine), tokenize(newLine));
+  let leftHtml = '', rightHtml = '';
+  tokenOps.forEach(op => {
+    const escaped = escapeHtml(op.item);
+    if (op.type === 'same') { leftHtml += escaped; rightHtml += escaped; }
+    else if (op.type === 'remove') { leftHtml += `<mark class="tok-remove">${escaped}</mark>`; }
+    else { rightHtml += `<mark class="tok-add">${escaped}</mark>`; }
+  });
+  return { leftHtml, rightHtml };
+}
+
+function buildRows(lineOps) {
+  const rows = [];
+  let i = 0;
+  while (i < lineOps.length) {
+    if (lineOps[i].type === 'same') {
+      rows.push({ type: 'same', left: lineOps[i].item, right: lineOps[i].item });
+      i++;
+      continue;
+    }
+    // gather the consecutive non-same block
+    const removeBuf = [], addBuf = [];
+    while (i < lineOps.length && lineOps[i].type !== 'same') {
+      if (lineOps[i].type === 'remove') removeBuf.push(lineOps[i].item);
+      else addBuf.push(lineOps[i].item);
+      i++;
+    }
+    const pairCount = Math.min(removeBuf.length, addBuf.length);
+    for (let k = 0; k < pairCount; k++) {
+      rows.push({ type: 'modified', left: removeBuf[k], right: addBuf[k] });
+    }
+    for (let k = pairCount; k < removeBuf.length; k++) rows.push({ type: 'removed', left: removeBuf[k], right: null });
+    for (let k = pairCount; k < addBuf.length; k++) rows.push({ type: 'added', left: null, right: addBuf[k] });
+  }
+  return rows;
+}
+
+function runDiff() {
+  const origRaw = document.getElementById('diffOriginal').value;
+  const changedRaw = document.getElementById('diffChanged').value;
+  const ignoreWs = document.getElementById('diffIgnoreWhitespace').checked;
+  const resultDiv = document.getElementById('diffResult');
+
+  if (!origRaw && !changedRaw) {
+    resultDiv.innerHTML = '<div class="callout warn">Paste something in both boxes first.</div>';
+    return;
+  }
+
+  let aLines = origRaw.split('\n');
+  let bLines = changedRaw.split('\n');
+  if (ignoreWs) {
+    aLines = aLines.map(l => l.trim());
+    bLines = bLines.map(l => l.trim());
+  }
+
+  if (aLines.length * bLines.length > 4_000_000) {
+    resultDiv.innerHTML = '<div class="callout error">These inputs are too large to diff in-browser (this tool is built for quick checks, not full files). Try a smaller excerpt, or use your editor\'s built-in diff view instead.</div>';
+    return;
+  }
+
+  const lineOps = diffArrays(aLines, bLines);
+  const rows = buildRows(lineOps);
+
+  const removalsCount = rows.filter(r => r.type === 'removed' || r.type === 'modified').length;
+  const additionsCount = rows.filter(r => r.type === 'added' || r.type === 'modified').length;
+
+  let leftNo = 1, rightNo = 1;
+  const rowsHtml = rows.map(row => {
+    let leftContent = '', rightContent = '', leftBg = '', rightBg = '';
+    let leftGutter = '', rightGutter = '';
+
+    if (row.type === 'same') {
+      leftContent = escapeHtml(row.left);
+      rightContent = escapeHtml(row.right);
+      leftGutter = leftNo++; rightGutter = rightNo++;
+    } else if (row.type === 'modified') {
+      const { leftHtml, rightHtml } = renderModifiedHalf(row.left, row.right);
+      leftContent = leftHtml; rightContent = rightHtml;
+      leftBg = 'bg-remove'; rightBg = 'bg-add';
+      leftGutter = leftNo++; rightGutter = rightNo++;
+    } else if (row.type === 'removed') {
+      leftContent = escapeHtml(row.left);
+      leftBg = 'bg-remove'; rightBg = 'empty';
+      leftGutter = leftNo++; rightGutter = '';
+    } else if (row.type === 'added') {
+      rightContent = escapeHtml(row.right);
+      leftBg = 'empty'; rightBg = 'bg-add';
+      leftGutter = ''; rightGutter = rightNo++;
+    }
+
+    return `<div class="diff-row ${row.type}">
+      <div class="diff-cell left ${leftBg}"><span class="gutter">${leftGutter}</span><span class="content">${leftContent}</span></div>
+      <div class="diff-cell right ${rightBg}"><span class="gutter">${rightGutter}</span><span class="content">${rightContent}</span></div>
+    </div>`;
+  }).join('');
+
+  resultDiv.innerHTML = `
+    <div class="diff-summary-row">
+      <div class="diff-summary-side removals">
+        <span class="dot"></span> <strong>${removalsCount}</strong> removal${removalsCount === 1 ? '' : 's'} <span class="linecount">${aLines.length} lines</span>
+        <button class="copy-btn" onclick="copyOriginal()">copy</button>
+      </div>
+      <div class="diff-summary-side additions">
+        <span class="dot"></span> <strong>${additionsCount}</strong> addition${additionsCount === 1 ? '' : 's'} <span class="linecount">${bLines.length} lines</span>
+        <button class="copy-btn" onclick="copyChanged()">copy</button>
+      </div>
+    </div>
+    <div class="diff-split-body">${rowsHtml}</div>
+    ${removalsCount === 0 && additionsCount === 0 ? '<div class="callout ok" style="margin-top:14px;">No differences — the two inputs are identical.</div>' : ''}
+  `;
+}
+
+function copyOriginal() { navigator.clipboard.writeText(document.getElementById('diffOriginal').value); }
+function copyChanged() { navigator.clipboard.writeText(document.getElementById('diffChanged').value); }
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 </script>
+
+</body>
+</html>

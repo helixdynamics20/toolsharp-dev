@@ -1,8 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GUID Generator &amp; .NET Format Converter — ToolSharp.dev</title>
+<meta name="description" content="Generate a GUID or paste an existing one and convert it across .NET's Guid.ToString() formats: D, N, B, P, and the X constructor form.">
+<link rel="canonical" href="https://toolsharp.dev/tools/guid-formatter.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/guid-formatter.html">
+<meta property="og:title" content="GUID Generator &amp; .NET Format Converter — ToolSharp.dev">
+<meta property="og:description" content="Generate a GUID or paste an existing one and convert it across .NET's Guid.ToString() formats: D, N, B, P, and the X constructor form.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/guid-formatter.html">
+<meta name="twitter:title" content="GUID Generator &amp; .NET Format Converter — ToolSharp.dev">
+<meta name="twitter:description" content="Generate a GUID or paste an existing one and convert it across .NET's Guid.ToString() formats: D, N, B, P, and the X constructor form.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">guid-formatter</span></div>
+
+  <div class="tool-header">
+    <h1>guid-formatter</h1>
+    <p class="sub">Generate a random GUID, or paste one you already have, and see it in every format .NET's <code>Guid.ToString()</code> supports.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">v4 random</span>
+    </div>
+  </div>
+
+  <div class="tool-grid single">
+    <div class="config-block">
+      <div class="tab">input.guid</div>
+      <div class="body">
+        <div class="field">
+          <label><span class="key">GUID</span> (any format — leave blank to generate one)</label>
+          <input type="text" id="guidInput" placeholder="e.g. 3f2504e0-4f89-11d3-9a0c-0305e82c3301" oninput="onGuidInput()">
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="generateGuid()">Generate new GUID</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="guidResult"></div>
+
+  <section class="notes">
+    <h2>// the five formats</h2>
+    <ul>
+      <li><strong>N</strong> — 32 digits, no dashes: <code>32digits</code></li>
+      <li><strong>D</strong> — 32 digits with hyphens (the default from <code>Guid.ToString()</code> and <code>Guid.NewGuid()</code>): <code>8-4-4-4-12</code></li>
+      <li><strong>B</strong> — same as D, wrapped in braces: <code>{8-4-4-4-12}</code></li>
+      <li><strong>P</strong> — same as D, wrapped in parentheses: <code>(8-4-4-4-12)</code></li>
+      <li><strong>X</strong> — the four-part hex constructor form used when writing <code>new Guid(0x..., 0x..., ...)</code> directly in code, e.g. for seeded/well-known IDs in EF Core migrations.</li>
+    </ul>
+
+    <h2>// where this actually bites</h2>
+    <div class="comment-line"><span class="bar">│</span><p>SQL Server's <code>uniqueidentifier</code> type is happy with the D format (with or without braces) but will reject the N format outright since it expects the hyphens. Going the other way, some third-party APIs expect N format specifically and will fail silently or reject a request if you send hyphens. This mismatch is a common source of "works locally, breaks against this one API" bugs — worth checking the exact format a downstream system expects rather than assuming <code>.ToString()</code>'s default is universal.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
 <script>
-const bin = atob("PHNjcmlwdCBzcmM9Ii4uL2pzL2d1aWQtZm9ybWF0dGVyLmpzIiBkZWZlcj48L3NjcmlwdD4=");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
+function generateGuid() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+  const hex = [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
+  const d = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  document.getElementById('guidInput').value = d;
+  renderGuid(d);
 }
-document.write(new TextDecoder("utf-8").decode(bytes));
+
+function onGuidInput() {
+  const raw = document.getElementById('guidInput').value.trim();
+  if (!raw) { document.getElementById('guidResult').innerHTML = ''; return; }
+  renderGuid(raw);
+}
+
+function normalizeGuid(raw) {
+  const cleaned = raw.replace(/[{}()]/g, '').trim();
+  const hexOnly = cleaned.replace(/-/g, '');
+  if (!/^[0-9a-fA-F]{32}$/.test(hexOnly)) return null;
+  const h = hexOnly.toLowerCase();
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
+function renderGuid(raw) {
+  const resultDiv = document.getElementById('guidResult');
+  const d = normalizeGuid(raw);
+  if (!d) {
+    resultDiv.innerHTML = `<div class="callout error" style="margin-top:20px;">That doesn't look like a valid GUID — expected 32 hex digits, with or without dashes/braces/parens.</div>`;
+    return;
+  }
+  const n = d.replace(/-/g, '');
+  const b = `{${d}}`;
+  const p = `(${d})`;
+
+  const seg = d.split('-');
+  const last12 = seg[4];
+  const bytePairs = [];
+  for (let i = 0; i < 12; i += 2) bytePairs.push('0x' + last12.substr(i, 2));
+  const x = `new Guid(0x${seg[0]}, 0x${seg[1]}, 0x${seg[2]}, ${bytePairs.join(', ')})`;
+
+  const rows = [
+    {k: 'D  (default)', v: d},
+    {k: 'N  (no dashes)', v: n},
+    {k: 'B  (braces)', v: b},
+    {k: 'P  (parens)', v: p},
+    {k: 'X  (ctor form)', v: x},
+  ];
+
+  resultDiv.innerHTML = `
+    <div class="config-block" style="margin-top:20px;">
+      <div class="tab">formats</div>
+      <div class="result-list">
+        ${rows.map((r,i) => `<div class="result-item"><span class="k">${r.k}</span><span class="v" id="guidRow${i}">${escapeHtml(r.v)}</span></div>`).join('')}
+      </div>
+      <div class="body" style="padding-top:0;">
+        <div class="btn-row">
+          ${rows.map((r,i) => `<button class="btn secondary" onclick="navigator.clipboard.writeText(document.getElementById('guidRow${i}').textContent)">copy ${r.k.trim().split(' ')[0]}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// generate one on first load so the page isn't empty
+generateGuid();
 </script>
+
+</body>
+</html>

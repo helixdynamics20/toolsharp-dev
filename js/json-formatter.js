@@ -1,1 +1,297 @@
-function a6_0x1bf9(_0x234164,_0x1761fc){_0x234164=_0x234164-0x19b;const _0x7203b2=a6_0x7203();let _0x1bf905=_0x7203b2[_0x234164];return _0x1bf905;}const a6_0xfe939e=a6_0x1bf9;(function(_0xdfec1c,_0x40d753){const _0xa7de10=a6_0x1bf9,_0x1fc3b1=_0xdfec1c();while(!![]){try{const _0x43fb2f=parseInt(_0xa7de10(0x1a2))/0x1*(parseInt(_0xa7de10(0x1a9))/0x2)+-parseInt(_0xa7de10(0x19b))/0x3+-parseInt(_0xa7de10(0x19e))/0x4*(parseInt(_0xa7de10(0x1ab))/0x5)+parseInt(_0xa7de10(0x1a0))/0x6*(parseInt(_0xa7de10(0x19c))/0x7)+parseInt(_0xa7de10(0x1a6))/0x8*(-parseInt(_0xa7de10(0x1a8))/0x9)+parseInt(_0xa7de10(0x1a4))/0xa*(parseInt(_0xa7de10(0x1a7))/0xb)+parseInt(_0xa7de10(0x19f))/0xc;if(_0x43fb2f===_0x40d753)break;else _0x1fc3b1['push'](_0x1fc3b1['shift']());}catch(_0x41e01f){_0x1fc3b1['push'](_0x1fc3b1['shift']());}}}(a6_0x7203,0xeb7c7));function a6_0x7203(){const _0x412a4a=['utf-8','10zYYGbV','PCFET0NUWVBFIGh0bWw+DQo8aHRtbCBsYW5nPSJlbiI+DQo8aGVhZD4NCjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4NCjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4NCjx0aXRsZT5KU09OIEZvcm1hdHRlciAmYW1wOyBWYWxpZGF0b3Ig4oCUIFRvb2xTaGFycC5kZXY8L3RpdGxlPg0KPG1ldGEgbmFtZT0iZGVzY3JpcHRpb24iIGNvbnRlbnQ9IlZhbGlkYXRlLCBmb3JtYXQsIGFuZCBtaW5pZnkgSlNPTiBpbiB5b3VyIGJyb3dzZXIuIEdldCBleGFjdCBsaW5lIGFuZCBjb2x1bW4gbnVtYmVycyBvbiBzeW50YXggZXJyb3JzLCBhbmQgYSBmbGFnIGZvciBkdXBsaWNhdGUga2V5cyB0aGF0IHZhbGlkIEpTT04gc2lsZW50bHkgYWxsb3dzLiI+DQo8bGluayByZWw9ImNhbm9uaWNhbCIgaHJlZj0iaHR0cHM6Ly90b29sc2hhcnAuZGV2L3Rvb2xzL2pzb24tZm9ybWF0dGVyLmh0bWwiPg0KPGxpbmsgcmVsPSJpY29uIiB0eXBlPSJpbWFnZS9zdmcreG1sIiBocmVmPSIvZmF2aWNvbi5zdmciPg0KDQo8IS0tIE9wZW4gR3JhcGggLyBGYWNlYm9vayAtLT4NCjxtZXRhIHByb3BlcnR5PSJvZzp0eXBlIiBjb250ZW50PSJ3ZWJzaXRlIj4NCjxtZXRhIHByb3BlcnR5PSJvZzp1cmwiIGNvbnRlbnQ9Imh0dHBzOi8vdG9vbHNoYXJwLmRldi90b29scy9qc29uLWZvcm1hdHRlci5odG1sIj4NCjxtZXRhIHByb3BlcnR5PSJvZzp0aXRsZSIgY29udGVudD0iSlNPTiBGb3JtYXR0ZXIgJmFtcDsgVmFsaWRhdG9yIOKAlCBUb29sU2hhcnAuZGV2Ij4NCjxtZXRhIHByb3BlcnR5PSJvZzpkZXNjcmlwdGlvbiIgY29udGVudD0iVmFsaWRhdGUsIGZvcm1hdCwgYW5kIG1pbmlmeSBKU09OIGluIHlvdXIgYnJvd3Nlci4gR2V0IGV4YWN0IGxpbmUgYW5kIGNvbHVtbiBudW1iZXJzIG9uIHN5bnRheCBlcnJvcnMsIGFuZCBhIGZsYWcgZm9yIGR1cGxpY2F0ZSBrZXlzIHRoYXQgdmFsaWQgSlNPTiBzaWxlbnRseSBhbGxvd3MuIj4NCjxtZXRhIHByb3BlcnR5PSJvZzppbWFnZSIgY29udGVudD0iaHR0cHM6Ly90b29sc2hhcnAuZGV2L2Fzc2V0cy9vZy1pbWFnZS5qcGciPg0KPG1ldGEgcHJvcGVydHk9Im9nOnNpdGVfbmFtZSIgY29udGVudD0iVG9vbFNoYXJwLmRldiI+DQoNCjwhLS0gVHdpdHRlciAtLT4NCjxtZXRhIG5hbWU9InR3aXR0ZXI6Y2FyZCIgY29udGVudD0ic3VtbWFyeV9sYXJnZV9pbWFnZSI+DQo8bWV0YSBuYW1lPSJ0d2l0dGVyOnVybCIgY29udGVudD0iaHR0cHM6Ly90b29sc2hhcnAuZGV2L3Rvb2xzL2pzb24tZm9ybWF0dGVyLmh0bWwiPg0KPG1ldGEgbmFtZT0idHdpdHRlcjp0aXRsZSIgY29udGVudD0iSlNPTiBGb3JtYXR0ZXIgJmFtcDsgVmFsaWRhdG9yIOKAlCBUb29sU2hhcnAuZGV2Ij4NCjxtZXRhIG5hbWU9InR3aXR0ZXI6ZGVzY3JpcHRpb24iIGNvbnRlbnQ9IlZhbGlkYXRlLCBmb3JtYXQsIGFuZCBtaW5pZnkgSlNPTiBpbiB5b3VyIGJyb3dzZXIuIEdldCBleGFjdCBsaW5lIGFuZCBjb2x1bW4gbnVtYmVycyBvbiBzeW50YXggZXJyb3JzLCBhbmQgYSBmbGFnIGZvciBkdXBsaWNhdGUga2V5cyB0aGF0IHZhbGlkIEpTT04gc2lsZW50bHkgYWxsb3dzLiI+DQo8bWV0YSBuYW1lPSJ0d2l0dGVyOmltYWdlIiBjb250ZW50PSJodHRwczovL3Rvb2xzaGFycC5kZXYvYXNzZXRzL29nLWltYWdlLmpwZyI+DQoNCjxsaW5rIHJlbD0icHJlY29ubmVjdCIgaHJlZj0iaHR0cHM6Ly9mb250cy5nb29nbGVhcGlzLmNvbSI+DQo8bGluayBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PUlCTStQbGV4K01vbm86d2dodEA0MDA7NTAwOzYwMCZmYW1pbHk9SUJNK1BsZXgrU2Fuczp3Z2h0QDQwMDs1MDA7NjAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iLi4vY3NzL3N0eWxlLmNzcyI+DQo8c2NyaXB0IHNyYz0iLi4vanMvdGhlbWUuanMiIGRlZmVyPjwvc2NyaXB0Pg0KPC9oZWFkPg0KPGJvZHk+DQoNCjxoZWFkZXIgY2xhc3M9InNpdGUtaGVhZGVyIj4NCiAgPGRpdiBjbGFzcz0id3JhcCI+DQogICAgPGRpdiBjbGFzcz0ibG9nbyI+PHNwYW4gY2xhc3M9InRlcm0tZG90cyI+PHNwYW4+PC9zcGFuPjxzcGFuPjwvc3Bhbj48c3Bhbj48L3NwYW4+PC9zcGFuPnRvb2w8c3BhbiBjbGFzcz0iYWNjZW50Ij5zaGFycDwvc3Bhbj48c3BhbiBjbGFzcz0iZGltIj4uZGV2PC9zcGFuPjwvZGl2Pg0KICAgIDxuYXYgY2xhc3M9Im5hdi1saW5rcyI+DQogICAgICA8YSBocmVmPSIuLi9pbmRleC5odG1sIj7ihpAgYWxsIHRvb2xzPC9hPg0KICAgICAgPGEgaHJlZj0iIyIgaWQ9ImRhcmtNb2RlVG9nZ2xlIiBvbmNsaWNrPSJldmVudC5wcmV2ZW50RGVmYXVsdCgpOyB0b2dnbGVEYXJrTW9kZSgpIj5kYXJrX3RoZW1lPC9hPg0KICAgIDwvbmF2Pg0KICA8L2Rpdj4NCjwvaGVhZGVyPg0KDQo8bWFpbiBjbGFzcz0id3JhcCI+DQogIDxkaXYgY2xhc3M9ImJyZWFkY3J1bWIiPjxhIGhyZWY9Ii4uL2luZGV4Lmh0bWwiPnRvb2xzaGFycC5kZXY8L2E+PHNwYW4gY2xhc3M9InNlcCI+Lzwvc3Bhbj48YSBocmVmPSIuLi9pbmRleC5odG1sI3Rvb2xzIj50b29sczwvYT48c3BhbiBjbGFzcz0ic2VwIj4vPC9zcGFuPjxzcGFuIGNsYXNzPSJjdXJyZW50Ij5qc29uLWZvcm1hdHRlcjwvc3Bhbj48L2Rpdj4NCg0KICA8ZGl2IGNsYXNzPSJ0b29sLWhlYWRlciI+DQogICAgPGgxPmpzb24tZm9ybWF0dGVyPC9oMT4NCiAgICA8cCBjbGFzcz0ic3ViIj5QYXN0ZSBhbnkgSlNPTiB0byB2YWxpZGF0ZSwgcHJldHR5LXByaW50LCBvciBtaW5pZnkgaXQuIEVycm9ycyBwb2ludCB0byB0aGUgZXhhY3QgbGluZSBhbmQgY29sdW1uLCBhbmQgZHVwbGljYXRlIGtleXMgZ2V0IGZsYWdnZWQgZXZlbiB0aG91Z2ggdGVjaG5pY2FsbHktdmFsaWQgSlNPTiBhbGxvd3MgdGhlbS48L3A+DQogICAgPGRpdiBjbGFzcz0iYmFkZ2VzIj4NCiAgICAgIDxzcGFuIGNsYXNzPSJiYWRnZSI+Y2xpZW50LXNpZGUgb25seTwvc3Bhbj4NCiAgICAgIDxzcGFuIGNsYXNzPSJiYWRnZSI+YW55IEpTT048L3NwYW4+DQogICAgICA8c3BhbiBjbGFzcz0iYmFkZ2UiPm5vIHNpZ251cDwvc3Bhbj4NCiAgICA8L2Rpdj4NCiAgPC9kaXY+DQoNCiAgPGRpdiBjbGFzcz0idG9vbC1ncmlkIj4NCiAgICA8ZGl2IGNsYXNzPSJjb25maWctYmxvY2siPg0KICAgICAgPGRpdiBjbGFzcz0idGFiIj5pbnB1dC5qc29uPC9kaXY+DQogICAgICA8ZGl2IGNsYXNzPSJib2R5Ij4NCiAgICAgICAgPGRpdiBjbGFzcz0iZmllbGQiPg0KICAgICAgICAgIDx0ZXh0YXJlYSBpZD0ianNvbklucHV0IiByb3dzPSIxNiIgcGxhY2Vob2xkZXI9J3smIzEwOyAgIm5hbWUiOiAiZXhhbXBsZSIsJiMxMDsgICJ2YWx1ZXMiOiBbMSwgMiwgM10sJiMxMDsgICJuZXN0ZWQiOiB7ICJhY3RpdmUiOiB0cnVlIH0mIzEwO30nIG9uaW5wdXQ9Im9uSnNvbklucHV0KCkiPjwvdGV4dGFyZWE+DQogICAgICAgIDwvZGl2Pg0KICAgICAgICA8ZGl2IGNsYXNzPSJmaWVsZCI+DQogICAgICAgICAgPGxhYmVsPjxzcGFuIGNsYXNzPSJrZXkiPkluZGVudDwvc3Bhbj48L2xhYmVsPg0KICAgICAgICAgIDxzZWxlY3QgaWQ9Impzb25JbmRlbnQiPg0KICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT0iMiI+MiBzcGFjZXM8L29wdGlvbj4NCiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9IjQiPjQgc3BhY2VzPC9vcHRpb24+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJ0YWIiPlRhYjwvb3B0aW9uPg0KICAgICAgICAgIDwvc2VsZWN0Pg0KICAgICAgICA8L2Rpdj4NCiAgICAgICAgPGRpdiBjbGFzcz0iZmllbGQiIHN0eWxlPSJtYXJnaW4tYm90dG9tOiAwOyI+DQogICAgICAgICAgPGRpdiBjbGFzcz0iY2hlY2stcm93Ij4NCiAgICAgICAgICAgIDxpbnB1dCB0eXBlPSJjaGVja2JveCIgaWQ9Impzb25TdHJpY3QiIGNoZWNrZWQgb25jaGFuZ2U9Im9uSnNvbklucHV0KCkiPg0KICAgICAgICAgICAgPGxhYmVsIGZvcj0ianNvblN0cmljdCI+U3RyaWN0IHZhbGlkYXRpb24gKHdhcm4gb24gZHVwbGljYXRlIGtleXMpPC9sYWJlbD4NCiAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9ImJ0bi1yb3ciPg0KICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0biIgb25jbGljaz0iZm9ybWF0SnNvbigpIj5Gb3JtYXQ8L2J1dHRvbj4NCiAgICAgICAgICA8YnV0dG9uIGNsYXNzPSJidG4gc2Vjb25kYXJ5IiBvbmNsaWNrPSJtaW5pZnlKc29uKCkiPk1pbmlmeTwvYnV0dG9uPg0KICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0biBzZWNvbmRhcnkiIG9uY2xpY2s9ImF1dG9GaXhKc29uKCkiPkF1dG8tZml4PC9idXR0b24+DQogICAgICAgICAgPGJ1dHRvbiBjbGFzcz0iYnRuIHNlY29uZGFyeSIgb25jbGljaz0iZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2pzb25JbnB1dCcpLnZhbHVlPScnOyBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnanNvblJlc3VsdCcpLmlubmVySFRNTD0nJzsiPkNsZWFyPC9idXR0b24+DQogICAgICAgIDwvZGl2Pg0KICAgICAgPC9kaXY+DQogICAgPC9kaXY+DQoNCiAgICA8ZGl2IGlkPSJqc29uUmVzdWx0Ij4NCiAgICAgIDxkaXYgY2xhc3M9ImNvbmZpZy1ibG9jayI+DQogICAgICAgIDxkaXYgY2xhc3M9Im91dHB1dC1ibG9jayI+PGRpdiBjbGFzcz0iZW1wdHkiPlBhc3RlIEpTT04gb24gdGhlIGxlZnQgYW5kIGNsaWNrIEZvcm1hdCwgTWluaWZ5LCBvciBqdXN0IHN0YXJ0IHR5cGluZyB0byB2YWxpZGF0ZS48L2Rpdj48L2Rpdj4NCiAgICAgIDwvZGl2Pg0KICAgIDwvZGl2Pg0KICA8L2Rpdj4NCg0KICA8c2VjdGlvbiBjbGFzcz0ibm90ZXMiPg0KICAgIDxoMj4vLyB3aGF0IGdldHMgY2hlY2tlZDwvaDI+DQogICAgPHVsPg0KICAgICAgPGxpPjxzdHJvbmc+U3ludGF4IGVycm9yczwvc3Ryb25nPiDigJQgdHJhaWxpbmcgY29tbWFzLCB1bnF1b3RlZCBrZXlzLCBtaXNzaW5nIGNvbW1hcywgbWlzbWF0Y2hlZCBicmFja2V0cyDigJQgcmVwb3J0ZWQgd2l0aCB0aGUgbGluZSBhbmQgY29sdW1uIHdoZXJlIHBhcnNpbmcgZmFpbGVkLCBzaW5jZSBtb3N0IGJyb3dzZXJzJyBuYXRpdmUgZXJyb3IgbWVzc2FnZXMganVzdCBzYXkgIlVuZXhwZWN0ZWQgdG9rZW4iIHdpdGggbm8gbG9jYXRpb24uPC9saT4NCiAgICAgIDxsaT48c3Ryb25nPkR1cGxpY2F0ZSBrZXlzIHdpdGhpbiB0aGUgc2FtZSBvYmplY3Q8L3N0cm9uZz4g4oCUIHZhbGlkIEpTT04gdGVjaG5pY2FsbHkgYWxsb3dzIHRoaXMgYW5kIHNpbGVudGx5IGtlZXBzIG9ubHkgdGhlIGxhc3Qgb25lLCB3aGljaCBtYWtlcyBpdCBhIHF1aWV0IHNvdXJjZSBvZiBidWdzOiB0aGUgZmlsZSBwYXJzZXMgZmluZSwgYnV0IGEgdmFsdWUgeW91IHRoaW5rIGlzIHNldCBpc24ndCwgYmVjYXVzZSBhbiBlYXJsaWVyIGtleSB3aXRoIHRoZSBzYW1lIG5hbWUgZ290IG92ZXJ3cml0dGVuIGxhdGVyIGluIHRoZSBzYW1lIG9iamVjdC48L2xpPg0KICAgIDwvdWw+DQoNCiAgICA8aDI+Ly8gZm9ybWF0IHZzLiBtaW5pZnk8L2gyPg0KICAgIDxkaXYgY2xhc3M9ImNvbW1lbnQtbGluZSI+PHNwYW4gY2xhc3M9ImJhciI+4pSCPC9zcGFuPjxwPkZvcm1hdHRpbmcgaXMgZm9yIGh1bWFucyDigJQgcmV2aWV3aW5nIGEgY29uZmlnIGZpbGUsIGRlYnVnZ2luZyBhbiBBUEkgcmVzcG9uc2UsIG9yIHByZXBhcmluZyBzb21ldGhpbmcgdG8gcGFzdGUgaW50byBhIFBSLiBNaW5pZnlpbmcgaXMgZm9yIG1hY2hpbmVzIOKAlCBzdHJpcHBpbmcgd2hpdGVzcGFjZSBiZWZvcmUgc3RvcmluZyBKU09OIGluIGEgZGF0YWJhc2UgY29sdW1uLCBlbWJlZGRpbmcgaXQgaW4gYSBVUkwgcXVlcnkgcGFyYW0sIG9yIHNoaXBwaW5nIGl0IG92ZXIgdGhlIHdpcmUgd2hlcmUgZXZlcnkgYnl0ZSBjb3VudHMuIEJvdGggcHJvZHVjZSBpZGVudGljYWwgZGF0YTsgb25seSB0aGUgd2hpdGVzcGFjZSBjaGFuZ2VzLjwvcD48L2Rpdj4NCiAgPC9zZWN0aW9uPg0KPC9tYWluPg0KDQo8Zm9vdGVyPg0KICA8ZGl2IGNsYXNzPSJ3cmFwIj4NCiAgICA8c3Bhbj48YSBocmVmPSIuLi9pbmRleC5odG1sIj7ihpAgdG9vbHNoYXJwLmRldjwvYT48L3NwYW4+DQogICAgPHNwYW4+cnVucyBlbnRpcmVseSBpbiB5b3VyIGJyb3dzZXI8L3NwYW4+DQogIDwvZGl2Pg0KPC9mb290ZXI+DQoNCjxzY3JpcHQgc3JjPSIuLi9qcy9qc29uLWZvcm1hdHRlci5qcyIgZGVmZXI+PC9zY3JpcHQ+DQoNCjwvYm9keT4NCjwvaHRtbD4NCg==','27128XdMqcK','10809975MiFLEm','3087FLOGnw','1043618bmoFFi','write','89020mzTGRg','1740975ZELKQB','7LkAyjP','length','172quFgtR','5296680dzLvOt','9165822RtKLxE','charCodeAt','1kxpzwP'];a6_0x7203=function(){return _0x412a4a;};return a6_0x7203();}const bin=atob(a6_0xfe939e(0x1a5)),bytes=new Uint8Array(bin['length']);for(let i=0x0;i<bin[a6_0xfe939e(0x19d)];i++){bytes[i]=bin[a6_0xfe939e(0x1a1)](i);}document[a6_0xfe939e(0x1aa)](new TextDecoder(a6_0xfe939e(0x1a3))['decode'](bytes));
+function findLineCol(text, index) {
+  const lines = text.slice(0, index).split('\n');
+  return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+}
+
+function findDuplicateKeys(text) {
+  let dupes = [];
+  let objStack = [{}];
+  let i = 0;
+  const n = text.length;
+
+  while (i < n) {
+    const ch = text[i];
+    if (ch === '"') {
+      let j = i + 1;
+      let str = '';
+      while (j < n && text[j] !== '"') {
+        if (text[j] === '\\') { str += text[j] + text[j+1]; j += 2; continue; }
+        str += text[j]; j++;
+      }
+      let k = j + 1;
+      while (k < n && /\s/.test(text[k])) k++;
+      if (text[k] === ':') {
+        const top = objStack[objStack.length - 1];
+        if (top[str] === undefined) top[str] = 0;
+        top[str]++;
+        if (top[str] === 2) dupes.push(str);
+      }
+      i = j + 1;
+      continue;
+    }
+    if (ch === '{') { objStack.push({}); i++; continue; }
+    if (ch === '}') { objStack.pop(); i++; continue; }
+    i++;
+  }
+  return [...new Set(dupes)];
+}
+
+function getIndent() {
+  const v = document.getElementById('jsonIndent').value;
+  return v === 'tab' ? '\t' : parseInt(v, 10);
+}
+
+function renderResult(checks, formatted) {
+  const resultDiv = document.getElementById('jsonResult');
+  resultDiv.innerHTML = `
+    <div class="config-block">
+      <div class="body">
+        ${checks.map(c => `<div class="callout ${c.type}" style="margin-top:0; margin-bottom:10px;">${c.msg}</div>`).join('')}
+      </div>
+    </div>
+    ${formatted !== undefined ? `
+    <div class="config-block" style="margin-top:16px;">
+      <div class="tab">output <button class="copy-btn" onclick="copyJsonOut()">copy</button></div>
+      <div class="output-block"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
+    </div>` : ''}
+  `;
+}
+
+function tryRepairJson(text) {
+  let output = '';
+  let i = 0;
+  const n = text.length;
+
+  while (i < n) {
+    const char = text[i];
+
+    // 1. Handle line comments
+    if (char === '/' && text[i + 1] === '/') {
+      i += 2;
+      while (i < n && text[i] !== '\n' && text[i] !== '\r') {
+        i++;
+      }
+      continue;
+    }
+
+    // 2. Handle block comments
+    if (char === '/' && text[i + 1] === '*') {
+      i += 2;
+      while (i < n && !(text[i] === '*' && text[i + 1] === '/')) {
+        i++;
+      }
+      i += 2;
+      continue;
+    }
+
+    // 3. Handle strings (single or double quoted)
+    if (char === '"' || char === "'") {
+      const quoteType = char;
+      output += '"'; // always output double quotes
+      i++;
+      while (i < n) {
+        if (text[i] === '\\') {
+          const nextChar = text[i + 1];
+          if (quoteType === "'" && nextChar === "'") {
+            // escaped single quote inside single-quoted string -> unescaped single quote
+            output += "'";
+            i += 2;
+          } else if (quoteType === '"' && nextChar === '"') {
+            // escaped double quote inside double-quoted string -> keep it escaped
+            output += '\\"';
+            i += 2;
+          } else {
+            // keep other escapes (like \n, \t, \\) exactly as they are
+            output += '\\' + nextChar;
+            i += 2;
+          }
+        } else if (text[i] === quoteType) {
+          i++; // closing quote
+          break;
+        } else {
+          const current = text[i];
+          if (quoteType === "'" && current === '"') {
+            // literal double quote inside single-quoted string -> escape it
+            output += '\\"';
+          } else {
+            output += current;
+          }
+          i++;
+        }
+      }
+      output += '"';
+      continue;
+    }
+
+    // 4. Handle whitespace
+    if (/\s/.test(char)) {
+      output += char;
+      i++;
+      continue;
+    }
+
+    // 5. Structural characters
+    if (char === ':' || char === ',' || char === '{' || char === '}' || char === '[' || char === ']') {
+      output += char;
+      i++;
+      continue;
+    }
+
+    // 6. Words/numbers/identifiers
+    let word = '';
+    while (i < n && /[a-zA-Z0-9_\-\+\.]/.test(text[i])) {
+      word += text[i];
+      i++;
+    }
+
+    if (word.length > 0) {
+      if (word === 'True') {
+        output += 'true';
+      } else if (word === 'False') {
+        output += 'false';
+      } else if (word === 'None') {
+        output += 'null';
+      } else if (word === 'true' || word === 'false' || word === 'null') {
+        output += word;
+      } else if (!isNaN(Number(word))) {
+        output += word;
+      } else {
+        output += '"' + word + '"';
+      }
+    } else {
+      output += char;
+      i++;
+    }
+  }
+
+  // Clean up trailing commas before closing braces/brackets
+  output = output.replace(/,\s*([\}\]])/g, '$1');
+
+  return output;
+}
+
+function applyJsonRepair() {
+  const text = document.getElementById('jsonInput').value;
+  const repaired = tryRepairJson(text);
+  document.getElementById('jsonInput').value = repaired;
+  formatJson();
+}
+
+function autoFixJson() {
+  const text = document.getElementById('jsonInput').value;
+  if (!text.trim()) return;
+  const repaired = tryRepairJson(text);
+  document.getElementById('jsonInput').value = repaired;
+  formatJson();
+}
+
+function validateOnly(text) {
+  if (!text.trim()) return null;
+  try {
+    const parsed = JSON.parse(text);
+    const isStrict = document.getElementById('jsonStrict').checked;
+    const dupes = isStrict ? findDuplicateKeys(text) : [];
+    let checks = [{type: 'ok', msg: 'Valid JSON.'}];
+    if (dupes.length) {
+      checks.push({type: 'warn', msg: `Duplicate key(s) within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — the last one silently wins in valid JSON.`});
+    }
+    return { parsed, checks };
+  } catch (e) {
+    const match = /position (\d+)/.exec(e.message);
+    let locInfo = '';
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const {line, col} = findLineCol(text, pos);
+      locInfo = ` (around line ${line}, column ${col})`;
+    }
+
+    // Check if repair is possible
+    let canRepair = false;
+    try {
+      const repaired = tryRepairJson(text);
+      if (repaired !== text) {
+        JSON.parse(repaired);
+        canRepair = true;
+      }
+    } catch (_) {}
+
+    return {
+      error: `Invalid JSON: ${escapeHtml(e.message)}${locInfo}`,
+      canRepair: canRepair
+    };
+  }
+}
+
+function onJsonInput() {
+  const text = document.getElementById('jsonInput').value;
+  if (!text.trim()) {
+    document.getElementById('jsonResult').innerHTML = '<div class="config-block"><div class="output-block"><div class="empty">Paste JSON on the left and click Format, Minify, or just start typing to validate.</div></div></div>';
+    return;
+  }
+  const result = validateOnly(text);
+  if (result.error) {
+    let msg = result.error;
+    if (result.canRepair) {
+      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+    }
+    renderResult([{type: 'error', msg: msg}]);
+  } else {
+    renderResult(result.checks);
+  }
+}
+
+function formatJson() {
+  const text = document.getElementById('jsonInput').value;
+  const result = validateOnly(text);
+  if (!result) return;
+  if (result.error) {
+    let msg = result.error;
+    if (result.canRepair) {
+      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+    }
+    renderResult([{type: 'error', msg: msg}]);
+    return;
+  }
+  const formatted = JSON.stringify(result.parsed, null, getIndent());
+  renderResult(result.checks, formatted);
+}
+
+function minifyJson() {
+  const text = document.getElementById('jsonInput').value;
+  const result = validateOnly(text);
+  if (!result) return;
+  if (result.error) {
+    let msg = result.error;
+    if (result.canRepair) {
+      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+    }
+    renderResult([{type: 'error', msg: msg}]);
+    return;
+  }
+  const minified = JSON.stringify(result.parsed);
+  renderResult(result.checks, minified);
+}
+
+function copyJsonOut() {
+  navigator.clipboard.writeText(document.getElementById('jsonOutputPre').textContent);
+}
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const inputEl = document.getElementById('jsonInput');
+  if (inputEl) {
+    inputEl.addEventListener('paste', () => {
+      setTimeout(() => {
+        const text = inputEl.value;
+        const result = validateOnly(text);
+        if (result && !result.error) {
+          formatJson();
+        }
+      }, 50);
+    });
+  }
+});

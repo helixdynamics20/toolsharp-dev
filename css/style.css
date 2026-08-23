@@ -503,6 +503,8 @@ body.dark-theme .site-header {
   font-size: 13.5px;
   user-select: none;
   font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 #toolFilter {
   background: transparent;
