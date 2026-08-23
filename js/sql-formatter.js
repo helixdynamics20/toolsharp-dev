@@ -178,8 +178,19 @@ function formatSQL(sql, opts = {}) {
   let lineTokens = [];
   let inSelectList = false;
 
+  function smartJoin(toks) {
+    let s = '';
+    for (let j = 0; j < toks.length; j++) {
+      const t = toks[j];
+      if (t === '.') { s = s.trimEnd() + '.'; }
+      else if (j > 0 && toks[j - 1] === '.') { s += t; }
+      else { s += (s ? ' ' : '') + t; }
+    }
+    return s;
+  }
+
   function flushLine(extraIndent = 0) {
-    const line = lineTokens.join(' ').trim();
+    const line = smartJoin(lineTokens).trim();
     if (line) out += indent(depth + extraIndent) + line + '\n';
     lineTokens = [];
   }
