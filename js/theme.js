@@ -228,6 +228,7 @@
         name: 'text',
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
+          { name: 'Regex Tester', path: 'tools/regex-tester.html' },
           { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       },
