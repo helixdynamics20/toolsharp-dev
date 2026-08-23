@@ -33,6 +33,14 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js" defer></script>
+  <style>
+    .cat-nav { display:flex; align-items:stretch; border-bottom:1px solid var(--rule); margin-bottom:0; background:var(--bg-raised); }
+    .cat-nav a { padding:9px 18px; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); text-decoration:none; border-right:1px solid var(--rule); transition:color .15s; white-space:nowrap; }
+    .cat-nav a:last-child { border-right:none; }
+    .cat-nav a:hover { color:var(--ink); background:var(--violet-wash); }
+    .cat-nav a.active { color:var(--violet-dark); font-weight:600; background:var(--violet-wash); border-bottom:2px solid var(--violet); }
+    body.dark-theme .cat-nav { background:#0f0d1a; }
+  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -75,6 +83,14 @@
       <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off" oninput="filterTools()">
     </div>
 
+    <nav class="cat-nav" id="catNav">
+      <a href="#cat-json" onclick="setCatActive(this)">json/</a>
+      <a href="#cat-encoding" onclick="setCatActive(this)">encoding/</a>
+      <a href="#cat-text" onclick="setCatActive(this)">text/</a>
+      <a href="#cat-hashes" onclick="setCatActive(this)">hashes/</a>
+      <a href="#cat-dev" onclick="setCatActive(this)">dev-helpers/</a>
+    </nav>
+
     <section id="tools" class="dir-listing">
       <div class="dir-row-head">
         <div>path</div>
@@ -82,8 +98,62 @@
         <div>status</div>
       </div>
 
-      <!-- config & infrastructure -->
-      <div class="dir-category">config &amp; infrastructure</div>
+      <!-- json/ -->
+      <div class="dir-category" id="cat-json">json/</div>
+
+      <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
+        <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
+        <div class="desc">Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/appsettings-validator.html'">
+        <a class="path-link" href="tools/appsettings-validator.html">/appsettings-validator</a>
+        <div class="desc">Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <!-- encoding/ -->
+      <div class="dir-category" id="cat-encoding">encoding/</div>
+
+      <div class="dir-row" onclick="location.href='tools/base64-converter.html'">
+        <a class="path-link" href="tools/base64-converter.html">/base64-converter</a>
+        <div class="desc">Encode text or files to Base64 (standard or URL-safe) and decode it back — handles UTF-8 correctly, supports drag-and-drop file input</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/url-encoder.html'">
+        <a class="path-link" href="tools/url-encoder.html">/url-encoder</a>
+        <div class="desc">Encode or decode URL / query string values, parse a full URL into its components (protocol, host, path, params, fragment), or build a URL from parts</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <!-- text/ -->
+      <div class="dir-category" id="cat-text">text/</div>
+
+      <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
+        <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
+        <div class="desc">Compare two texts side-by-side or in unified view with word or character precision — auto-compares as you type, supports file upload, hide unchanged lines</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/sql-formatter.html'">
+        <a class="path-link" href="tools/sql-formatter.html">/sql-formatter</a>
+        <div class="desc">Format and indent messy SQL queries or minify them for logging — supports T-SQL, PostgreSQL, MySQL; handles JOINs, subqueries, CTEs, and compound keywords</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <!-- hashes/ -->
+      <div class="dir-category" id="cat-hashes">hashes/</div>
+
+      <div class="dir-row" onclick="location.href='tools/hash-generator.html'">
+        <a class="path-link" href="tools/hash-generator.html">/hash-generator</a>
+        <div class="desc">Compute MD5, SHA-1, SHA-256, and SHA-512 hashes from any text — runs locally via the Web Crypto API, nothing is sent to any server</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <!-- dev-helpers/ -->
+      <div class="dir-category" id="cat-dev">dev-helpers/</div>
 
       <div class="dir-row" onclick="location.href='tools/connection-string-builder.html'">
         <a class="path-link" href="tools/connection-string-builder.html">/connection-string-builder</a>
@@ -97,66 +167,15 @@
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/appsettings-validator.html'">
-        <a class="path-link" href="tools/appsettings-validator.html">/appsettings-validator</a>
-        <div class="desc">Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- data & encoding -->
-      <div class="dir-category">data &amp; encoding — new</div>
-
-      <div class="dir-row" onclick="location.href='tools/url-encoder.html'">
-        <a class="path-link" href="tools/url-encoder.html">/url-encoder</a>
-        <div class="desc">Encode or decode URL / query string values, parse a full URL into its components (protocol, host, path, params, fragment), or build a URL from parts</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" onclick="location.href='tools/sql-formatter.html'">
-        <a class="path-link" href="tools/sql-formatter.html">/sql-formatter</a>
-        <div class="desc">Format and indent messy SQL queries or minify them for logging — supports T-SQL, PostgreSQL, MySQL; handles JOINs, subqueries, CTEs, and compound keywords</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" onclick="location.href='tools/password-generator.html'">
-        <a class="path-link" href="tools/password-generator.html">/password-generator</a>
-        <div class="desc">Generate cryptographically secure passwords or passphrases — configure length, character sets, exclude ambiguous chars, see entropy in bits, bulk generate up to 50 at once</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- security & auth -->
-      <div class="dir-category">security &amp; auth</div>
-
       <div class="dir-row" onclick="location.href='tools/jwt-decoder.html'">
         <a class="path-link" href="tools/jwt-decoder.html">/jwt-decoder</a>
-        <div class="desc">Decode a JWT's header and payload, inspect all claims, check exp/nbf against the current time, and optionally verify an HS256 signature — decoding runs entirely in your browser</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" onclick="location.href='tools/hash-generator.html'">
-        <a class="path-link" href="tools/hash-generator.html">/hash-generator</a>
-        <div class="desc">Compute MD5, SHA-1, SHA-256, and SHA-512 hashes from any text — runs locally via the Web Crypto API, nothing is sent to any server</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- data & encoding -->
-      <div class="dir-category">data &amp; encoding</div>
-
-      <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
-        <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
-        <div class="desc">Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" onclick="location.href='tools/base64-converter.html'">
-        <a class="path-link" href="tools/base64-converter.html">/base64-converter</a>
-        <div class="desc">Encode text or files to Base64 (standard or URL-safe) and decode it back — handles UTF-8 correctly, supports drag-and-drop file input</div>
+        <div class="desc">Decode a JWT's header and payload, inspect all claims, check exp/nbf against the current time, and verify HS256 / RS256 / ES256 signatures in-browser</div>
         <div class="status">● ready</div>
       </div>
 
       <div class="dir-row" onclick="location.href='tools/epoch-converter.html'">
         <a class="path-link" href="tools/epoch-converter.html">/epoch-converter</a>
-        <div class="desc">Convert Unix timestamps (seconds or milliseconds) to readable date-times and back — auto-detects seconds vs milliseconds, shows both UTC and local time</div>
+        <div class="desc">Convert Unix timestamps (seconds or milliseconds) to ISO 8601, UTC, and local time — live ticking clock, auto-detects seconds vs milliseconds</div>
         <div class="status">● ready</div>
       </div>
 
@@ -166,23 +185,17 @@
         <div class="status">● ready</div>
       </div>
 
-      <!-- text & diff -->
-      <div class="dir-category">text &amp; diff</div>
-
-      <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
-        <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
-        <div class="desc">Compare two texts side-by-side or in unified view with word or character precision — auto-compares as you type, supports file upload, hide unchanged lines</div>
-        <div class="status">● ready</div>
-      </div>
-
       <div class="dir-row" onclick="location.href='tools/regex-tester.html'">
         <a class="path-link" href="tools/regex-tester.html">/regex-tester</a>
-        <div class="desc">Test a regex with live match and capture-group highlighting — options labeled to match .NET's RegexOptions enum, includes a cheat sheet and C#/JS code generator</div>
+        <div class="desc">Test a regex with live match and capture-group highlighting — pattern explanation panel, options mapped to .NET RegexOptions, C#/JS code generator</div>
         <div class="status">● ready</div>
       </div>
 
-      <!-- sharing -->
-      <div class="dir-category">sharing</div>
+      <div class="dir-row" onclick="location.href='tools/password-generator.html'">
+        <a class="path-link" href="tools/password-generator.html">/password-generator</a>
+        <div class="desc">Generate cryptographically secure passwords or passphrases — configure length, character sets, exclude ambiguous chars, see entropy in bits, bulk generate up to 50 at once</div>
+        <div class="status">● ready</div>
+      </div>
 
       <div class="dir-row" onclick="location.href='tools/share-pad.html'">
         <a class="path-link" href="tools/share-pad.html">/share-pad</a>
@@ -216,13 +229,40 @@
       rows.forEach(row => {
         const path = row.querySelector('.path-link').textContent.toLowerCase();
         const desc = row.querySelector('.desc').textContent.toLowerCase();
-        if (path.includes(q) || desc.includes(q)) {
-          row.style.display = 'grid';
-        } else {
-          row.style.display = 'none';
-        }
+        row.style.display = (!q || path.includes(q) || desc.includes(q)) ? 'grid' : 'none';
       });
+      // Hide category headers with no visible tools under them
+      document.querySelectorAll('.dir-category').forEach(cat => {
+        let sib = cat.nextElementSibling;
+        let anyVisible = false;
+        while (sib && !sib.classList.contains('dir-category')) {
+          if (sib.style.display !== 'none') anyVisible = true;
+          sib = sib.nextElementSibling;
+        }
+        cat.style.display = anyVisible ? '' : 'none';
+      });
+      document.getElementById('catNav').style.display = q ? 'none' : '';
     }
+
+    function setCatActive(el) {
+      document.querySelectorAll('#catNav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Scrollspy: highlight active category in nav as user scrolls
+    window.addEventListener('DOMContentLoaded', () => {
+      const cats = ['cat-json','cat-encoding','cat-text','cat-hashes','cat-dev'];
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll('#catNav a').forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`#catNav a[href="#${entry.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+      cats.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    });
   </script>
 </body>
 
