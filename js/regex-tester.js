@@ -54,12 +54,11 @@ function runRegex() {
     if (m) matches.push(m);
   }
 
-  // build highlighted output
   let html = '';
   let lastIndex = 0;
-  matches.forEach(m => {
+  matches.forEach((m, idx) => {
     html += escapeHtml(testStr.slice(lastIndex, m.index));
-    html += `<mark>${escapeHtml(m[0])}</mark>`;
+    html += `<mark class="${idx % 2 ? 'alt' : ''}">${escapeHtml(m[0])}</mark>`;
     lastIndex = m.index + m[0].length;
   });
   html += escapeHtml(testStr.slice(lastIndex));

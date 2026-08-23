@@ -51,7 +51,7 @@ function renderResult(checks, formatted) {
     </div>
     ${formatted !== undefined ? `
     <div class="config-block" style="margin-top:16px;">
-      <div class="tab">output <button class="copy-btn" onclick="copyJsonOut()">copy</button></div>
+      <div class="tab">output <button class="copy-btn" onclick="copyJsonOut(this)">copy</button></div>
       <div class="output-block"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
     </div>` : ''}
   `;
@@ -272,8 +272,9 @@ function minifyJson() {
   renderResult(result.checks, minified);
 }
 
-function copyJsonOut() {
+function copyJsonOut(btn) {
   navigator.clipboard.writeText(document.getElementById('jsonOutputPre').textContent);
+  flashCopied(btn);
 }
 function escapeHtml(str) {
   const div = document.createElement('div');

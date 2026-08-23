@@ -30,7 +30,10 @@ function buildConnectionString() {
   const appName = document.getElementById('csAppName').value.trim();
 
   let parts = [];
-  if (server) parts.push(`Server=tcp:${server},1433`);
+  if (server) {
+    const isNamedInstance = server.includes('\\');
+    parts.push(isNamedInstance ? `Server=${server}` : `Server=tcp:${server},1433`);
+  }
   if (db) parts.push(`Database=${db}`);
 
   if (auth === 'sql') {
@@ -59,7 +62,6 @@ function buildConnectionString() {
   out.textContent = result;
   out.classList.remove('empty');
 
-  // warnings
   let warnings = [];
   const isAzure = server.includes('database.windows.net');
   if (isAzure && !encrypt) {
@@ -115,7 +117,8 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function copyText(id) {
+function copyText(id, btn) {
   const text = document.getElementById(id).textContent;
   navigator.clipboard.writeText(text);
+  flashCopied(btn);
 }

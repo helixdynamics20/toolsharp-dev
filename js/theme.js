@@ -26,4 +26,11 @@
     updateToggleIcon(isDark);
     try { localStorage.setItem(STORAGE_KEY, String(isDark)); } catch (e) {}
   };
+
+  window.flashCopied = function (btn) {
+    if (!btn) return;
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function () { btn.textContent = orig; }, 1200);
+  };
 })();
