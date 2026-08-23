@@ -9,15 +9,14 @@ if (!fs.existsSync(jsDir)) {
   fs.mkdirSync(jsDir);
 }
 
-// Read all files in tools/
+// 1. Process files in tools/
 const files = fs.readdirSync(toolsDir);
-
 files.forEach(file => {
   if (file.endsWith('.html')) {
     const filePath = path.join(toolsDir, file);
     let html = fs.readFileSync(filePath, 'utf8');
     
-    // Match <script>...</script> (including attributes, ignoring scripts that already have src)
+    // Match inline script if it exists
     const scriptRegex = /<script\b(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/i;
     const match = html.match(scriptRegex);
     
@@ -26,18 +25,70 @@ files.forEach(file => {
       const jsFileName = file.replace('.html', '.js');
       const jsFilePath = path.join(jsDir, jsFileName);
       
-      // Write the extracted JS to the js/ directory
       fs.writeFileSync(jsFilePath, jsCode, 'utf8');
-      
-      // Replace the inline script with a src reference
-      const updatedHtml = html.replace(scriptRegex, `<script src="../js/${jsFileName}" defer></script>`);
-      fs.writeFileSync(filePath, updatedHtml, 'utf8');
-      
-      console.log(`Extracted: ${file} -> js/${jsFileName}`);
+      html = html.replace(scriptRegex, `<script src="../js/${jsFileName}" defer></script>`);
     }
+
+    // Encrypt the entire HTML document using Base64
+    const base64Html = Buffer.from(html).toString('base64');
+    const loaderHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>document.write(atob("${base64Html}"));</script>
+</head>
+<body></body>
+</html>`;
+    
+    fs.writeFileSync(filePath, loaderHtml, 'utf8');
+    console.log(`Encrypted HTML: tools/${file}`);
   }
 });
 
+// 2. Process index.html in the root
+const indexPath = path.join(__dirname, 'index.html');
+if (fs.existsSync(indexPath)) {
+  let indexHtml = fs.readFileSync(indexPath, 'utf8');
+  const base64Index = Buffer.from(indexHtml).toString('base64');
+  const indexLoader = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>document.write(atob("${base64Index}"));</script>
+</head>
+<body></body>
+</html>`;
+  
+  fs.writeFileSync(indexPath, indexLoader, 'utf8');
+  console.log(`Encrypted HTML: index.html`);
+}
+
+// 3. Process 404.html in the root
+const path404 = path.join(__dirname, '404.html');
+if (fs.existsSync(path404)) {
+  let html404 = fs.readFileSync(path404, 'utf8');
+  const base64_404 = Buffer.from(html404).toString('base64');
+  const loader404 = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>document.write(atob("${base64_404}"));</script>
+</head>
+<body></body>
+</html>`;
+  
+  fs.writeFileSync(path404, loader404, 'utf8');
+  console.log(`Encrypted HTML: 404.html`);
+}
+
 console.log('Running obfuscator on js/ directory...');
 execSync('npx -y javascript-obfuscator js/ --output js/', { stdio: 'inherit' });
-console.log('Obfuscation completed successfully!');
+
+// Move nested files back and clean up
+try {
+  execSync('Move-Item -Path js\\js\\* -Destination js -Force; Remove-Item -Path js\\js -Recurse -Force', { shell: 'powershell', stdio: 'ignore' });
+} catch (e) {
+  // Catch silent error if already in root
+}
+
+console.log('Obfuscation and Encryption completed successfully!');
