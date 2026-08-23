@@ -35,7 +35,14 @@ files.forEach(file => {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>document.write(atob("${base64Html}"));</script>
+<script>
+const bin = atob("${base64Html}");
+const bytes = new Uint8Array(bin.length);
+for (let i = 0; i < bin.length; i++) {
+  bytes[i] = bin.charCodeAt(i);
+}
+document.write(new TextDecoder("utf-8").decode(bytes));
+</script>
 </head>
 <body></body>
 </html>`;
@@ -54,7 +61,14 @@ if (fs.existsSync(indexPath)) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>document.write(atob("${base64Index}"));</script>
+<script>
+const bin = atob("${base64Index}");
+const bytes = new Uint8Array(bin.length);
+for (let i = 0; i < bin.length; i++) {
+  bytes[i] = bin.charCodeAt(i);
+}
+document.write(new TextDecoder("utf-8").decode(bytes));
+</script>
 </head>
 <body></body>
 </html>`;
@@ -72,7 +86,14 @@ if (fs.existsSync(path404)) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>document.write(atob("${base64_404}"));</script>
+<script>
+const bin = atob("${base64_404}");
+const bytes = new Uint8Array(bin.length);
+for (let i = 0; i < bin.length; i++) {
+  bytes[i] = bin.charCodeAt(i);
+}
+document.write(new TextDecoder("utf-8").decode(bytes));
+</script>
 </head>
 <body></body>
 </html>`;
