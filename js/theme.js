@@ -7,7 +7,7 @@
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored !== null) return stored === 'true';
-    } catch (e) {}
+    } catch (e) { }
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
@@ -24,7 +24,7 @@
   window.toggleDarkMode = function () {
     var isDark = document.body.classList.toggle('dark-theme');
     updateToggleIcon(isDark);
-    try { localStorage.setItem(STORAGE_KEY, String(isDark)); } catch (e) {}
+    try { localStorage.setItem(STORAGE_KEY, String(isDark)); } catch (e) { }
   };
 
   window.flashCopied = function (btn) {
@@ -36,10 +36,10 @@
 
   // Register Service Worker
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, function(err) {
+      }, function (err) {
         console.log('ServiceWorker registration failed: ', err);
       });
     });
@@ -75,7 +75,7 @@
 
     var searchContainer = document.createElement('div');
     searchContainer.className = 'cmd-palette-search';
-    
+
     var prompt = document.createElement('span');
     prompt.className = 'cmd-palette-prompt';
     prompt.textContent = '>';
@@ -104,15 +104,15 @@
 
     input.focus();
 
-    backdrop.addEventListener('click', function(e) {
+    backdrop.addEventListener('click', function (e) {
       if (e.target === backdrop) closePalette();
     });
 
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       renderList(input.value);
     });
 
-    input.addEventListener('keydown', function(e) {
+    input.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         closePalette();
       } else if (e.key === 'ArrowDown') {
@@ -143,20 +143,20 @@
   }
 
   function renderList(query) {
-    filteredTools = toolsList.filter(function(t) {
+    filteredTools = toolsList.filter(function (t) {
       return t.name.toLowerCase().includes(query.toLowerCase());
     });
     paletteIndex = 0;
-    
+
     var list = document.querySelector('.cmd-palette-list');
     if (!list) return;
     list.innerHTML = '';
 
-    filteredTools.forEach(function(tool, i) {
+    filteredTools.forEach(function (tool, i) {
       var item = document.createElement('div');
       item.className = 'cmd-palette-item' + (i === 0 ? ' active' : '');
       item.innerHTML = '<span>' + tool.name + '</span><span class="shortcut">jump to</span>';
-      item.addEventListener('click', function() {
+      item.addEventListener('click', function () {
         var currentPath = window.location.pathname;
         var targetPath = tool.path;
         if (currentPath.includes('/tools/')) {
@@ -172,7 +172,7 @@
 
   function updateActiveItem() {
     var items = document.querySelectorAll('.cmd-palette-item');
-    items.forEach(function(item, i) {
+    items.forEach(function (item, i) {
       if (i === paletteIndex) {
         item.classList.add('active');
         item.scrollIntoView({ block: 'nearest' });
@@ -188,7 +188,7 @@
     paletteActive = false;
   }
 
-  window.addEventListener('keydown', function(e) {
+  window.addEventListener('keydown', function (e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
       if (paletteActive) {
@@ -201,7 +201,7 @@
   });
 
   // Dynamic Header Categorized Navigation Menu
-  window.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('DOMContentLoaded', function () {
     var navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
@@ -228,8 +228,7 @@
         name: 'text',
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
-          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
-          { name: 'Share Pad', path: 'tools/share-pad.html' }
+          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' }
         ]
       },
       {
@@ -246,7 +245,8 @@
           { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
           { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
           { name: 'Regex Tester', path: 'tools/regex-tester.html' },
-          { name: 'Password Generator', path: 'tools/password-generator.html' }
+          { name: 'Password Generator', path: 'tools/password-generator.html' },
+          { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       }
     ];
@@ -256,7 +256,7 @@
     dropdownContainer.style.gap = '6px';
     dropdownContainer.style.alignItems = 'center';
 
-    categories.forEach(function(cat) {
+    categories.forEach(function (cat) {
       var dropdown = document.createElement('div');
       dropdown.className = 'nav-dropdown';
 
@@ -267,7 +267,7 @@
       var menu = document.createElement('div');
       menu.className = 'nav-dropdown-menu';
 
-      cat.items.forEach(function(item) {
+      cat.items.forEach(function (item) {
         var a = document.createElement('a');
         a.className = 'nav-dropdown-item';
         a.href = pathPrefix + item.path;
@@ -279,7 +279,7 @@
       dropdown.appendChild(menu);
       dropdownContainer.appendChild(dropdown);
 
-      trigger.addEventListener('click', function(e) {
+      trigger.addEventListener('click', function (e) {
         e.stopPropagation();
         var isActive = dropdown.classList.contains('active');
         closeAllDropdowns();
@@ -288,7 +288,7 @@
     });
 
     function closeAllDropdowns() {
-      document.querySelectorAll('.nav-dropdown').forEach(function(d) {
+      document.querySelectorAll('.nav-dropdown').forEach(function (d) {
         d.classList.remove('active');
       });
     }
@@ -297,7 +297,7 @@
 
     var toggleBtn = document.getElementById('darkModeToggle');
     if (toggleBtn) {
-      var existingAllTools = Array.from(navLinks.querySelectorAll('a')).find(function(el) {
+      var existingAllTools = Array.from(navLinks.querySelectorAll('a')).find(function (el) {
         return el.textContent.includes('← all tools') || el.textContent.includes('← tools');
       });
 
@@ -309,21 +309,6 @@
 
       navLinks.appendChild(dropdownContainer);
       navLinks.appendChild(toggleBtn);
-    }
-
-    // Inject Vercel Web Analytics & Speed Insights
-    try {
-      var vaScript = document.createElement('script');
-      vaScript.defer = true;
-      vaScript.src = '/_vercel/insights/script.js';
-      document.head.appendChild(vaScript);
-
-      var siScript = document.createElement('script');
-      siScript.defer = true;
-      siScript.src = '/_vercel/speed-insights/script.js';
-      document.head.appendChild(siScript);
-    } catch (e) {
-      console.warn('Vercel scripts failed to load:', e);
     }
   });
 
