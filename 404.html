@@ -2,14 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>
-const bin = atob("PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPHNjcmlwdD5kb2N1bWVudC53cml0ZShhdG9iKCJQQ0ZFVDBOVVdWQkZJR2gwYld3K0NqeG9kRzFzSUd4aGJtYzlJbVZ1SWo0S1BHaGxZV1ErQ2p4dFpYUmhJR05vWVhKelpYUTlJbFZVUmkwNElqNEtQRzFsZEdFZ2JtRnRaVDBpZG1sbGQzQnZjblFpSUdOdmJuUmxiblE5SW5kcFpIUm9QV1JsZG1salpTMTNhV1IwYUN3Z2FXNXBkR2xoYkMxelkyRnNaVDB4TGpBaVBnbzhkR2wwYkdVK05EQTBJRkJoWjJVZ1RtOTBJRVp2ZFc1a0lPS0FsQ0JVYjI5c1UyaGhjbkF1WkdWMlBDOTBhWFJzWlQ0S1BHeHBibXNnY21Wc1BTSndjbVZqYjI1dVpXTjBJaUJvY21WbVBTSm9kSFJ3Y3pvdkwyWnZiblJ6TG1kdmIyZHNaV0Z3YVhNdVkyOXRJajRLUEd4cGJtc2dhSEpsWmowaWFIUjBjSE02THk5bWIyNTBjeTVuYjI5bmJHVmhjR2x6TG1OdmJTOWpjM015UDJaaGJXbHNlVDFKUWswclVHeGxlQ3ROYjI1dk9uZG5hSFJBTkRBd096VXdNRHMyTURBbVptRnRhV3g1UFVsQ1RTdFFiR1Y0SzFOaGJuTTZkMmRvZEVBME1EQTdOVEF3T3pZd01DWmthWE53YkdGNVBYTjNZWEFpSUhKbGJEMGljM1I1YkdWemFHVmxkQ0krQ2p4c2FXNXJJSEpsYkQwaWMzUjViR1Z6YUdWbGRDSWdhSEpsWmowaUwyTnpjeTl6ZEhsc1pTNWpjM01pUGdvOGJHbHVheUJ5Wld3OUltbGpiMjRpSUhSNWNHVTlJbWx0WVdkbEwzTjJaeXQ0Yld3aUlHaHlaV1k5SWk5bVlYWnBZMjl1TG5OMlp5SStDanh6WTNKcGNIUWdjM0pqUFNJdmFuTXZkR2hsYldVdWFuTWlJR1JsWm1WeVBqd3ZjMk55YVhCMFBnbzhMMmhsWVdRK0NqeGliMlI1UGdvS1BHaGxZV1JsY2lCamJHRnpjejBpYzJsMFpTMW9aV0ZrWlhJaVBnb2dJRHhrYVhZZ1kyeGhjM005SW5keVlYQWlQZ29nSUNBZ1BHUnBkaUJqYkdGemN6MGliRzluYnlJK1BITndZVzRnWTJ4aGMzTTlJblJsY20wdFpHOTBjeUkrUEhOd1lXNCtQQzl6Y0dGdVBqeHpjR0Z1UGp3dmMzQmhiajQ4YzNCaGJqNDhMM053WVc0K1BDOXpjR0Z1UG5SdmIydzhjM0JoYmlCamJHRnpjejBpWVdOalpXNTBJajV6YUdGeWNEd3ZjM0JoYmo0OGMzQmhiaUJqYkdGemN6MGlaR2x0SWo0dVpHVjJQQzl6Y0dGdVBqd3ZaR2wyUGdvZ0lDQWdQRzVoZGlCamJHRnpjejBpYm1GMkxXeHBibXR6SWo0S0lDQWdJQ0FnUEdFZ2FISmxaajBpTHlOMGIyOXNjeUkrZEc5dmJITXZQQzloUGdvZ0lDQWdJQ0E4WVNCb2NtVm1QU0l2STJGaWIzVjBJajVoWW05MWREd3ZZVDRLSUNBZ0lDQWdQR0VnYUhKbFpqMGlJeUlnYVdROUltUmhjbXROYjJSbFZHOW5aMnhsSWlCdmJtTnNhV05yUFNKbGRtVnVkQzV3Y21WMlpXNTBSR1ZtWVhWc2RDZ3BPeUIwYjJkbmJHVkVZWEpyVFc5a1pTZ3BJajVrWVhKclgzUm9aVzFsUEM5aFBnb2dJQ0FnUEM5dVlYWStDaUFnUEM5a2FYWStDand2YUdWaFpHVnlQZ29LUEcxaGFXNGdZMnhoYzNNOUluZHlZWEFpUGdvZ0lEeGthWFlnYzNSNWJHVTlJblJsZUhRdFlXeHBaMjQ2SUdObGJuUmxjanNnY0dGa1pHbHVaem9nTVRBd2NIZ2dNRHNnYldGNExYZHBaSFJvT2lBMk1EQndlRHNnYldGeVoybHVPaUF3SUdGMWRHODdJajRLSUNBZ0lEeGthWFlnWTJ4aGMzTTlJbXh2WjI4aUlITjBlV3hsUFNKcWRYTjBhV1o1TFdOdmJuUmxiblE2SUdObGJuUmxjanNnWm05dWRDMXphWHBsT2lBek5uQjRPeUJ0WVhKbmFXNHRZbTkwZEc5dE9pQXlOSEI0T3lJK0NpQWdJQ0FnSUR4emNHRnVJR05zWVhOelBTSjBaWEp0TFdSdmRITWlQanh6Y0dGdVBqd3ZjM0JoYmo0OGMzQmhiajQ4TDNOd1lXNCtQSE53WVc0K1BDOXpjR0Z1UGp3dmMzQmhiajQwTURROGMzQmhiaUJqYkdGemN6MGlZV05qWlc1MElqNHZQQzl6Y0dGdVBqeHpjR0Z1SUdOc1lYTnpQU0prYVcwaVBtNXZkQzFtYjNWdVpEd3ZjM0JoYmo0S0lDQWdJRHd2WkdsMlBnb2dJQ0FnUEdneElITjBlV3hsUFNKbWIyNTBMV1poYldsc2VUb2dkbUZ5S0MwdGJXOXVieWs3SUdadmJuUXRjMmw2WlRvZ01qUndlRHNnWm05dWRDMTNaV2xuYUhRNklEWXdNRHNnYldGeVoybHVPaUF3SURBZ01UWndlRHNpUGtoVVZGQWdOREEwT2lCU2IzVjBaU0J1YjNRZ2NtVm5hWE4wWlhKbFpDNDhMMmd4UGdvZ0lDQWdQSEFnYzNSNWJHVTlJbU52Ykc5eU9pQjJZWElvTFMxcGJtc3RjMjltZENrN0lHWnZiblF0YzJsNlpUb2dNVFp3ZURzZ2JXRnlaMmx1T2lBd0lEQWdNekp3ZURzaVBsUm9aU0J3WVdkbElIbHZkU0JoY21VZ2JHOXZhMmx1WnlCbWIzSWdaRzlsY3lCdWIzUWdaWGhwYzNRc0lHaGhjeUJpWldWdUlHMXZkbVZrTENCdmNpQnlaWE5wWkdWeklHbHVJR0Z1SUhWdVkyOXRjR2xzWldRZ1pHbHlaV04wYjNKNUxqd3ZjRDRLSUNBZ0lEeGhJR2h5WldZOUlpOGlJR05zWVhOelBTSmlkRzRpSUhOMGVXeGxQU0owWlhoMExXUmxZMjl5WVhScGIyNDZJRzV2Ym1VN0lqNWpaQ0F2YUc5dFpUd3ZZVDRLSUNBOEwyUnBkajRLUEM5dFlXbHVQZ29LUEdadmIzUmxjajRLSUNBOFpHbDJJR05zWVhOelBTSjNjbUZ3SWo0S0lDQWdJRHh6Y0dGdVBuUnZiMnh6YUdGeWNDNWtaWFlnNG9DVUlHSjFhV3gwSUdKNUlHRWdaR1YyWld4dmNHVnlMQ0JtYjNJZ1pHVjJaV3h2Y0dWeWN6d3ZjM0JoYmo0S0lDQWdJRHh6Y0dGdVBtNXZJR052YjJ0cFpYTXNJRzV2SUhSeVlXTnJhVzVuTENCdWJ5QnphV2R1ZFhBOEwzTndZVzQrQ2lBZ1BDOWthWFkrQ2p3dlptOXZkR1Z5UGdvS1BDOWliMlI1UGdvOEwyaDBiV3crQ2c9PSIpKTs8L3NjcmlwdD4KPC9oZWFkPgo8Ym9keT48L2JvZHk+CjwvaHRtbD4=");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
-}
-document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 Page Not Found — ToolSharp.dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="/js/theme.js" defer></script>
 </head>
-<body></body>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links">
+      <a href="/#tools">tools/</a>
+      <a href="/#about">about</a>
+      <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()">dark_theme</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div style="text-align: center; padding: 100px 0; max-width: 600px; margin: 0 auto;">
+    <div class="logo" style="justify-content: center; font-size: 36px; margin-bottom: 24px;">
+      <span class="term-dots"><span></span><span></span><span></span></span>404<span class="accent">/</span><span class="dim">not-found</span>
+    </div>
+    <h1 style="font-family: var(--mono); font-size: 24px; font-weight: 600; margin: 0 0 16px;">HTTP 404: Route not registered.</h1>
+    <p style="color: var(--ink-soft); font-size: 16px; margin: 0 0 32px;">The page you are looking for does not exist, has been moved, or resides in an uncompiled directory.</p>
+    <a href="/" class="btn" style="text-decoration: none;">cd /home</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>toolsharp.dev — built by a developer, for developers</span>
+    <span>no cookies, no tracking, no signup</span>
+  </div>
+</footer>
+
+</body>
 </html>

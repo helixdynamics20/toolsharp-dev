@@ -1,15 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<script>
-const bin = atob("PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPHNjcmlwdD5kb2N1bWVudC53cml0ZShhdG9iKCJQQ0ZFVDBOVVdWQkZJR2gwYld3K0NqeG9kRzFzSUd4aGJtYzlJbVZ1SWo0S0NqeG9aV0ZrUGdvZ0lEeHRaWFJoSUdOb1lYSnpaWFE5SWxWVVJpMDRJajRLSUNBOGJXVjBZU0J1WVcxbFBTSjJhV1YzY0c5eWRDSWdZMjl1ZEdWdWREMGlkMmxrZEdnOVpHVjJhV05sTFhkcFpIUm9MQ0JwYm1sMGFXRnNMWE5qWVd4bFBURXVNQ0krQ2lBZ1BIUnBkR3hsUGxSdmIyeFRhR0Z5Y0M1a1pYWWc0b0NVSUVaeVpXVWdaR1YyWld4dmNHVnlJSFYwYVd4cGRHbGxjend2ZEdsMGJHVStDaUFnUEcxbGRHRWdibUZ0WlQwaVpHVnpZM0pwY0hScGIyNGlDaUFnSUNCamIyNTBaVzUwUFNKR2NtVmxMQ0JqYkdsbGJuUXRjMmxrWlNCa1pYWmxiRzl3WlhJZ2RHOXZiSE1nWVc1NUlHSmhZMnRsYm1RZ1pHVjJaV3h2Y0dWeUlHTmhiaUIxYzJVNklHTnZibTVsWTNScGIyNGdjM1J5YVc1bklHSjFhV3hrWlhJc0lHTnliMjRnWlhod2NtVnpjMmx2YmlCaWRXbHNaR1Z5TENCS1YxUWdaR1ZqYjJSbGNpd2dSMVZKUkNCbWIzSnRZWFIwWlhJc0lISmxaMlY0SUhSbGMzUmxjaXdnWVc1a0lFcFRUMDRnWTI5dVptbG5JSFpoYkdsa1lYUnZjaTRnVG04Z2MybG5iblZ3TENCdWIzUm9hVzVuSUd4bFlYWmxjeUI1YjNWeUlHSnliM2R6WlhJdUlqNEtJQ0E4YkdsdWF5QnlaV3c5SW1OaGJtOXVhV05oYkNJZ2FISmxaajBpYUhSMGNITTZMeTkwYjI5c2MyaGhjbkF1WkdWMkx5SStDaUFnUEd4cGJtc2djbVZzUFNKcFkyOXVJaUIwZVhCbFBTSnBiV0ZuWlM5emRtY3JlRzFzSWlCb2NtVm1QU0l2Wm1GMmFXTnZiaTV6ZG1jaVBnb0tJQ0E4SVMwdElFOXdaVzRnUjNKaGNHZ2dMeUJHWVdObFltOXZheUF0TFQ0S0lDQThiV1YwWVNCd2NtOXdaWEowZVQwaWIyYzZkSGx3WlNJZ1kyOXVkR1Z1ZEQwaWQyVmljMmwwWlNJK0NpQWdQRzFsZEdFZ2NISnZjR1Z5ZEhrOUltOW5PblZ5YkNJZ1kyOXVkR1Z1ZEQwaWFIUjBjSE02THk5MGIyOXNjMmhoY25BdVpHVjJMeUkrQ2lBZ1BHMWxkR0VnY0hKdmNHVnlkSGs5SW05bk9uUnBkR3hsSWlCamIyNTBaVzUwUFNKVWIyOXNVMmhoY25BdVpHVjJJT0tBbENCR2NtVmxJR1JsZG1Wc2IzQmxjaUIxZEdsc2FYUnBaWE1pUGdvZ0lEeHRaWFJoSUhCeWIzQmxjblI1UFNKdlp6cGtaWE5qY21sd2RHbHZiaUlLSUNBZ0lHTnZiblJsYm5ROUlrWnlaV1VzSUdOc2FXVnVkQzF6YVdSbElHUmxkbVZzYjNCbGNpQjBiMjlzY3lCaGJua2dZbUZqYTJWdVpDQmtaWFpsYkc5d1pYSWdZMkZ1SUhWelpUb2dZMjl1Ym1WamRHbHZiaUJ6ZEhKcGJtY2dZblZwYkdSbGNpd2dZM0p2YmlCbGVIQnlaWE56YVc5dUlHSjFhV3hrWlhJc0lFcFhWQ0JrWldOdlpHVnlMQ0JIVlVsRUlHWnZjbTFoZEhSbGNpd2djbVZuWlhnZ2RHVnpkR1Z5TENCaGJtUWdTbE5QVGlCamIyNW1hV2NnZG1Gc2FXUmhkRzl5TGlCT2J5QnphV2R1ZFhBc0lHNXZkR2hwYm1jZ2JHVmhkbVZ6SUhsdmRYSWdZbkp2ZDNObGNpNGlQZ29nSUR4dFpYUmhJSEJ5YjNCbGNuUjVQU0p2WnpwcGJXRm5aU0lnWTI5dWRHVnVkRDBpYUhSMGNITTZMeTkwYjI5c2MyaGhjbkF1WkdWMkwyRnpjMlYwY3k5dlp5MXBiV0ZuWlM1cWNHY2lQZ29nSUR4dFpYUmhJSEJ5YjNCbGNuUjVQU0p2WnpwemFYUmxYMjVoYldVaUlHTnZiblJsYm5ROUlsUnZiMnhUYUdGeWNDNWtaWFlpUGdvS0lDQThJUzB0SUZSM2FYUjBaWElnTFMwK0NpQWdQRzFsZEdFZ2JtRnRaVDBpZEhkcGRIUmxjanBqWVhKa0lpQmpiMjUwWlc1MFBTSnpkVzF0WVhKNVgyeGhjbWRsWDJsdFlXZGxJajRLSUNBOGJXVjBZU0J1WVcxbFBTSjBkMmwwZEdWeU9uVnliQ0lnWTI5dWRHVnVkRDBpYUhSMGNITTZMeTkwYjI5c2MyaGhjbkF1WkdWMkx5SStDaUFnUEcxbGRHRWdibUZ0WlQwaWRIZHBkSFJsY2pwMGFYUnNaU0lnWTI5dWRHVnVkRDBpVkc5dmJGTm9ZWEp3TG1SbGRpRGlnSlFnUm5KbFpTQmtaWFpsYkc5d1pYSWdkWFJwYkdsMGFXVnpJajRLSUNBOGJXVjBZU0J1WVcxbFBTSjBkMmwwZEdWeU9tUmxjMk55YVhCMGFXOXVJZ29nSUNBZ1kyOXVkR1Z1ZEQwaVJuSmxaU3dnWTJ4cFpXNTBMWE5wWkdVZ1pHVjJaV3h2Y0dWeUlIUnZiMnh6SUdGdWVTQmlZV05yWlc1a0lHUmxkbVZzYjNCbGNpQmpZVzRnZFhObE9pQmpiMjV1WldOMGFXOXVJSE4wY21sdVp5QmlkV2xzWkdWeUxDQmpjbTl1SUdWNGNISmxjM05wYjI0Z1luVnBiR1JsY2l3Z1NsZFVJR1JsWTI5a1pYSXNJRWRWU1VRZ1ptOXliV0YwZEdWeUxDQnlaV2RsZUNCMFpYTjBaWElzSUdGdVpDQktVMDlPSUdOdmJtWnBaeUIyWVd4cFpHRjBiM0l1SUU1dklITnBaMjUxY0N3Z2JtOTBhR2x1WnlCc1pXRjJaWE1nZVc5MWNpQmljbTkzYzJWeUxpSStDaUFnUEcxbGRHRWdibUZ0WlQwaWRIZHBkSFJsY2pwcGJXRm5aU0lnWTI5dWRHVnVkRDBpYUhSMGNITTZMeTkwYjI5c2MyaGhjbkF1WkdWMkwyRnpjMlYwY3k5dlp5MXBiV0ZuWlM1cWNHY2lQZ29LSUNBOGJHbHVheUJ5Wld3OUluQnlaV052Ym01bFkzUWlJR2h5WldZOUltaDBkSEJ6T2k4dlptOXVkSE11WjI5dloyeGxZWEJwY3k1amIyMGlQZ29nSUR4c2FXNXJDaUFnSUNCb2NtVm1QU0pvZEhSd2N6b3ZMMlp2Ym5SekxtZHZiMmRzWldGd2FYTXVZMjl0TDJOemN6SS9abUZ0YVd4NVBVbENUU3RRYkdWNEswMXZibTg2ZDJkb2RFQTBNREE3TlRBd096WXdNQ1ptWVcxcGJIazlTVUpOSzFCc1pYZ3JVMkZ1Y3pwM1oyaDBRRFF3TURzMU1EQTdOakF3Sm1ScGMzQnNZWGs5YzNkaGNDSUtJQ0FnSUhKbGJEMGljM1I1YkdWemFHVmxkQ0krQ2lBZ1BHeHBibXNnY21Wc1BTSnpkSGxzWlhOb1pXVjBJaUJvY21WbVBTSmpjM012YzNSNWJHVXVZM056SWo0S0lDQThjMk55YVhCMElITnlZejBpYW5NdmRHaGxiV1V1YW5NaUlHUmxabVZ5UGp3dmMyTnlhWEIwUGdvOEwyaGxZV1ErQ2dvOFltOWtlVDRLQ2lBZ1BHaGxZV1JsY2lCamJHRnpjejBpYzJsMFpTMW9aV0ZrWlhJaVBnb2dJQ0FnUEdScGRpQmpiR0Z6Y3owaWQzSmhjQ0krQ2lBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW14dloyOGlQanh6Y0dGdUlHTnNZWE56UFNKMFpYSnRMV1J2ZEhNaVBqeHpjR0Z1UGp3dmMzQmhiajQ4YzNCaGJqNDhMM053WVc0K1BITndZVzQrUEM5emNHRnVQand2YzNCaGJqNTBiMjlzUEhOd1lXNEtJQ0FnSUNBZ0lDQWdJR05zWVhOelBTSmhZMk5sYm5RaVBuTm9ZWEp3UEM5emNHRnVQanh6Y0dGdUlHTnNZWE56UFNKa2FXMGlQaTVrWlhZOEwzTndZVzQrUEM5a2FYWStDaUFnSUNBZ0lEeHVZWFlnWTJ4aGMzTTlJbTVoZGkxc2FXNXJjeUkrQ2lBZ0lDQWdJQ0FnUEdFZ2FISmxaajBpSTNSdmIyeHpJajUwYjI5c2N5ODhMMkUrQ2lBZ0lDQWdJQ0FnUEdFZ2FISmxaajBpSTJGaWIzVjBJajVoWW05MWREd3ZZVDRLSUNBZ0lDQWdJQ0E4WVNCb2NtVm1QU0lqSWlCcFpEMGlaR0Z5YTAxdlpHVlViMmRuYkdVaUlHOXVZMnhwWTJzOUltVjJaVzUwTG5CeVpYWmxiblJFWldaaGRXeDBLQ2s3SUhSdloyZHNaVVJoY210TmIyUmxLQ2tpUG1SaGNtdGZkR2hsYldVOEwyRStDaUFnSUNBZ0lEd3ZibUYyUGdvZ0lDQWdQQzlrYVhZK0NpQWdQQzlvWldGa1pYSStDZ29nSUR4dFlXbHVJR05zWVhOelBTSjNjbUZ3SWo0S0lDQWdJRHh6WldOMGFXOXVJR05zWVhOelBTSm9aWEp2SWo0S0lDQWdJQ0FnUEdScGRpQmpiR0Z6Y3owaWNISnZiWEIwTFd4cGJtVWlQanh6Y0dGdUlHTnNZWE56UFNKallYSmxkQ0krSm1kME96d3ZjM0JoYmo0Z2QyaHZZVzFwSUNaaGJYQTdKbUZ0Y0RzZ2JITWdkRzl2YkhNdlBDOWthWFkrQ2lBZ0lDQWdJRHhvTVQ1VGJXRnNiQ3dnYzJoaGNuQWdkRzl2YkhNZ1pYWmxjbmtnWkdWMlpXeHZjR1Z5SUhKbFlXTm9aWE1nWm05eUxqd3ZhREUrQ2lBZ0lDQWdJRHh3SUdOc1lYTnpQU0pzWldSbElqNURiMjV1WldOMGFXOXVJSE4wY21sdVozTXNJR055YjI0Z1pYaHdjbVZ6YzJsdmJuTXNJRXBYVkhNc0lFZFZTVVJ6TENCeVpXZGxlQ3dnWVhCd2MyVjBkR2x1WjNNdWFuTnZiaURpZ0pRZ2RHaGxJSE4wZFdabUlIbHZkU0JzYjI5cklIVndDaUFnSUNBZ0lDQWdaWFpsY25rZ1ptVjNJRzF2Ym5Sb2N5QmhibVFnYm1WMlpYSWdjbVZ0WlcxaVpYSXVJRTV2SUhOcFoyNTFjQ3dnYm04Z2MyVnlkbVZ5SUhKdmRXNWtMWFJ5YVhBc0lHNXZkR2hwYm1jZ2JHVmhkbVZ6SUhsdmRYSWdZbkp2ZDNObGNpNDhMM0ErQ2lBZ0lDQThMM05sWTNScGIyNCtDZ29nSUNBZ1BITmxZM1JwYjI0Z2FXUTlJblJ2YjJ4eklpQmpiR0Z6Y3owaVpHbHlMV3hwYzNScGJtY2lQZ29nSUNBZ0lDQThaR2wySUdOc1lYTnpQU0prYVhJdGNtOTNMV2hsWVdRaVBnb2dJQ0FnSUNBZ0lEeGthWFkrY0dGMGFEd3ZaR2wyUGdvZ0lDQWdJQ0FnSUR4a2FYWStaR1Z6WTNKcGNIUnBiMjQ4TDJScGRqNEtJQ0FnSUNBZ0lDQThaR2wyUG5OMFlYUjFjend2WkdsMlBnb2dJQ0FnSUNBOEwyUnBkajRLQ2lBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW1ScGNpMXliM2NpSUc5dVkyeHBZMnM5SW14dlkyRjBhVzl1TG1oeVpXWTlKM1J2YjJ4ekwyTnZibTVsWTNScGIyNHRjM1J5YVc1bkxXSjFhV3hrWlhJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMk52Ym01bFkzUnBiMjR0YzNSeWFXNW5MV0oxYVd4a1pYSXVhSFJ0YkNJK0wyTnZibTVsWTNScGIyNHRjM1J5YVc1bkxXSjFhV3hrWlhJOEwyRStDaUFnSUNBZ0lDQWdQR1JwZGlCamJHRnpjejBpWkdWell5SStRblZwYkdRZ0ptRnRjRHNnY0dGeWMyVWdVMUZNSUZObGNuWmxjaUJqYjI1dVpXTjBhVzl1SUhOMGNtbHVaM01nNG9DVUlGTlJUQ0JoZFhSb0xDQlhhVzVrYjNkeklHRjFkR2dzSUVGNmRYSmxJRUZFTEFvZ0lDQWdJQ0FnSUNBZ1JXNWpjbmx3ZEM5VWNuVnpkRk5sY25abGNrTmxjblJwWm1sallYUmxJR1pzWVdkelBDOWthWFkrQ2lBZ0lDQWdJQ0FnUEdScGRpQmpiR0Z6Y3owaWMzUmhkSFZ6SWo3aWw0OGdjbVZoWkhrOEwyUnBkajRLSUNBZ0lDQWdQQzlrYVhZK0Nnb2dJQ0FnSUNBOFpHbDJJR05zWVhOelBTSmthWEl0Y205M0lpQnZibU5zYVdOclBTSnNiMk5oZEdsdmJpNW9jbVZtUFNkMGIyOXNjeTlqY205dUxXSjFhV3hrWlhJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMk55YjI0dFluVnBiR1JsY2k1b2RHMXNJajR2WTNKdmJpMWlkV2xzWkdWeVBDOWhQZ29nSUNBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW1SbGMyTWlQa0oxYVd4a0lDWmhiWEE3SUdWNGNHeGhhVzRnWTNKdmJpQmxlSEJ5WlhOemFXOXVjeUJtYjNJZ1NHRnVaMlpwY21Vc0lITjBZVzVrWVhKa0lGVnVhWGdnWTNKdmJpd2dZVzVrSUZGMVlYSjBlaTVPUlZRbmN3b2dJQ0FnSUNBZ0lDQWdOaTgzTFdacFpXeGtJR1p2Y20xaGREd3ZaR2wyUGdvZ0lDQWdJQ0FnSUR4a2FYWWdZMnhoYzNNOUluTjBZWFIxY3lJKzRwZVBJSEpsWVdSNVBDOWthWFkrQ2lBZ0lDQWdJRHd2WkdsMlBnb0tJQ0FnSUNBZ1BHUnBkaUJqYkdGemN6MGlaR2x5TFhKdmR5SWdiMjVqYkdsamF6MGliRzlqWVhScGIyNHVhSEpsWmowbmRHOXZiSE12YW5kMExXUmxZMjlrWlhJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMnAzZEMxa1pXTnZaR1Z5TG1oMGJXd2lQaTlxZDNRdFpHVmpiMlJsY2p3dllUNEtJQ0FnSUNBZ0lDQThaR2wySUdOc1lYTnpQU0prWlhOaklqNUVaV052WkdVZ1lTQktWMVFuY3lCb1pXRmtaWElnSm1GdGNEc2djR0Y1Ykc5aFpDd2dhVzV6Y0dWamRDQmpiR0ZwYlhNc0lHTm9aV05ySUdWNGNDOXVZbVlnWVdkaGFXNXpkQ0IwYUdVZ1kzVnljbVZ1ZENCMGFXMWxDaUFnSUNBZ0lDQWdQQzlrYVhZK0NpQWdJQ0FnSUNBZ1BHUnBkaUJqYkdGemN6MGljM1JoZEhWeklqN2lsNDhnY21WaFpIazhMMlJwZGo0S0lDQWdJQ0FnUEM5a2FYWStDZ29nSUNBZ0lDQThaR2wySUdOc1lYTnpQU0prYVhJdGNtOTNJaUJ2Ym1Oc2FXTnJQU0pzYjJOaGRHbHZiaTVvY21WbVBTZDBiMjlzY3k5bmRXbGtMV1p2Y20xaGRIUmxjaTVvZEcxc0p5SStDaUFnSUNBZ0lDQWdQR0VnWTJ4aGMzTTlJbkJoZEdndGJHbHVheUlnYUhKbFpqMGlkRzl2YkhNdlozVnBaQzFtYjNKdFlYUjBaWEl1YUhSdGJDSStMMmQxYVdRdFptOXliV0YwZEdWeVBDOWhQZ29nSUNBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW1SbGMyTWlQa2RsYm1WeVlYUmxJRWRWU1VSeklHOXlJSEpsWm05eWJXRjBJR0VnY0dGemRHVmtJRzl1WlNCaFkzSnZjM01nTGs1RlZDZHpJRVF2VGk5Q0wxQXZXQ0JIZFdsa0xsUnZVM1J5YVc1bktDa2dabTl5YldGMGN6d3ZaR2wyUGdvZ0lDQWdJQ0FnSUR4a2FYWWdZMnhoYzNNOUluTjBZWFIxY3lJKzRwZVBJSEpsWVdSNVBDOWthWFkrQ2lBZ0lDQWdJRHd2WkdsMlBnb0tJQ0FnSUNBZ1BHUnBkaUJqYkdGemN6MGlaR2x5TFhKdmR5SWdiMjVqYkdsamF6MGliRzlqWVhScGIyNHVhSEpsWmowbmRHOXZiSE12Y21WblpYZ3RkR1Z6ZEdWeUxtaDBiV3duSWo0S0lDQWdJQ0FnSUNBOFlTQmpiR0Z6Y3owaWNHRjBhQzFzYVc1cklpQm9jbVZtUFNKMGIyOXNjeTl5WldkbGVDMTBaWE4wWlhJdWFIUnRiQ0krTDNKbFoyVjRMWFJsYzNSbGNqd3ZZVDRLSUNBZ0lDQWdJQ0E4WkdsMklHTnNZWE56UFNKa1pYTmpJajVVWlhOMElHRWdjbVZuWlhnZ1lXZGhhVzV6ZENCellXMXdiR1VnZEdWNGRDQjNhWFJvSUd4cGRtVWdiV0YwWTJnZ0ptRnRjRHNnWjNKdmRYQWdhR2xuYUd4cFoyaDBhVzVuTENCdFlYQndaV1FnZEc4Z0xrNUZWQW9nSUNBZ0lDQWdJQ0FnVW1WblpYaFBjSFJwYjI1elBDOWthWFkrQ2lBZ0lDQWdJQ0FnUEdScGRpQmpiR0Z6Y3owaWMzUmhkSFZ6SWo3aWw0OGdjbVZoWkhrOEwyUnBkajRLSUNBZ0lDQWdQQzlrYVhZK0Nnb2dJQ0FnSUNBOFpHbDJJR05zWVhOelBTSmthWEl0Y205M0lpQnZibU5zYVdOclBTSnNiMk5oZEdsdmJpNW9jbVZtUFNkMGIyOXNjeTloY0hCelpYUjBhVzVuY3kxMllXeHBaR0YwYjNJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMkZ3Y0hObGRIUnBibWR6TFhaaGJHbGtZWFJ2Y2k1b2RHMXNJajR2WVhCd2MyVjBkR2x1WjNNdGRtRnNhV1JoZEc5eVBDOWhQZ29nSUNBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW1SbGMyTWlQbFpoYkdsa1lYUmxJQ1poYlhBN0lIQnlaWFIwZVMxd2NtbHVkQ0JoY0hCelpYUjBhVzVuY3k1cWMyOXVMQ0JqWVhSamFDQmtkWEJzYVdOaGRHVWdhMlY1Y3lCaGJtUWdZMjl0Ylc5dUlHTnZibVpwWnlCdGFYTjBZV3RsY3dvZ0lDQWdJQ0FnSUR3dlpHbDJQZ29nSUNBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW5OMFlYUjFjeUkrNHBlUElISmxZV1I1UEM5a2FYWStDaUFnSUNBZ0lEd3ZaR2wyUGdvS0lDQWdJQ0FnUEdScGRpQmpiR0Z6Y3owaVpHbHlMWEp2ZHlJZ2IyNWpiR2xqYXowaWJHOWpZWFJwYjI0dWFISmxaajBuZEc5dmJITXZhbk52YmkxbWIzSnRZWFIwWlhJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMnB6YjI0dFptOXliV0YwZEdWeUxtaDBiV3dpUGk5cWMyOXVMV1p2Y20xaGRIUmxjand2WVQ0S0lDQWdJQ0FnSUNBOFpHbDJJR05zWVhOelBTSmtaWE5qSWo1V1lXeHBaR0YwWlN3Z1ptOXliV0YwTENCdmNpQnRhVzVwWm5rZ1lXNTVJRXBUVDA0ZzRvQ1VJR1Z5Y205eWN5QndiMmx1ZENCMGJ5QjBhR1VnWlhoaFkzUWdiR2x1WlNCaGJtUWdZMjlzZFcxdVBDOWthWFkrQ2lBZ0lDQWdJQ0FnUEdScGRpQmpiR0Z6Y3owaWMzUmhkSFZ6SWo3aWw0OGdjbVZoWkhrOEwyUnBkajRLSUNBZ0lDQWdQQzlrYVhZK0Nnb2dJQ0FnSUNBOFpHbDJJR05zWVhOelBTSmthWEl0Y205M0lpQnZibU5zYVdOclBTSnNiMk5oZEdsdmJpNW9jbVZtUFNkMGIyOXNjeTlrYVdabUxXTm9aV05yWlhJdWFIUnRiQ2NpUGdvZ0lDQWdJQ0FnSUR4aElHTnNZWE56UFNKd1lYUm9MV3hwYm1zaUlHaHlaV1k5SW5SdmIyeHpMMlJwWm1ZdFkyaGxZMnRsY2k1b2RHMXNJajR2WkdsbVppMWphR1ZqYTJWeVBDOWhQZ29nSUNBZ0lDQWdJRHhrYVhZZ1kyeGhjM005SW1SbGMyTWlQa052YlhCaGNtVWdkSGR2SUdKc2IyTnJjeUJ2WmlCMFpYaDBJRzl5SUdOdlpHVWdiR2x1WlNCaWVTQnNhVzVsSU9LQWxDQnpaV1VnWlhoaFkzUnNlU0IzYUdGMElIZGhjeUJoWkdSbFpDQnZjaUJ5WlcxdmRtVmtQQzlrYVhZK0NpQWdJQ0FnSUNBZ1BHUnBkaUJqYkdGemN6MGljM1JoZEhWeklqN2lsNDhnY21WaFpIazhMMlJwZGo0S0lDQWdJQ0FnUEM5a2FYWStDZ29nSUNBZ0lDQThaR2wySUdOc1lYTnpQU0prYVhJdGNtOTNJaUJ2Ym1Oc2FXTnJQU0pzYjJOaGRHbHZiaTVvY21WbVBTZDBiMjlzY3k5aVlYTmxOalF0WTI5dWRtVnlkR1Z5TG1oMGJXd25JajRLSUNBZ0lDQWdJQ0E4WVNCamJHRnpjejBpY0dGMGFDMXNhVzVySWlCb2NtVm1QU0owYjI5c2N5OWlZWE5sTmpRdFkyOXVkbVZ5ZEdWeUxtaDBiV3dpUGk5aVlYTmxOalF0WTI5dWRtVnlkR1Z5UEM5aFBnb2dJQ0FnSUNBZ0lEeGthWFlnWTJ4aGMzTTlJbVJsYzJNaVBrVnVZMjlrWlNCMFpYaDBJSFJ2SUVKaGMyVTJOQ0FvYVc1amJIVmthVzVuSUZWU1RDMXpZV1psSUVKaGMyVTJOQ2tnYjNJZ1pHVmpiMlJsSUVKaGMyVTJOQ0JpWVdOcklIUnZJSEJzWVdsdWRHVjRkRHd2WkdsMlBnb2dJQ0FnSUNBZ0lEeGthWFlnWTJ4aGMzTTlJbk4wWVhSMWN5SSs0cGVQSUhKbFlXUjVQQzlrYVhZK0NpQWdJQ0FnSUR3dlpHbDJQZ29LSUNBZ0lDQWdQR1JwZGlCamJHRnpjejBpWkdseUxYSnZkeUlnYjI1amJHbGphejBpYkc5allYUnBiMjR1YUhKbFpqMG5kRzl2YkhNdmMyaGhjbVV0Y0dGa0xtaDBiV3duSWo0S0lDQWdJQ0FnSUNBOFlTQmpiR0Z6Y3owaWNHRjBhQzFzYVc1cklpQm9jbVZtUFNKMGIyOXNjeTl6YUdGeVpTMXdZV1F1YUhSdGJDSStMM05vWVhKbExYQmhaRHd2WVQ0S0lDQWdJQ0FnSUNBOFpHbDJJR05zWVhOelBTSmtaWE5qSWo1VGFHRnlaU0IwWlhoMElITmxZM1Z5Wld4NUlHRnVaQ0J6WlhKMlpYSnNaWE56YkhrZzRvQ1VJR052YlhCeVpYTnpaWE1nZEdWNGRDQjBieUJqYjNCNVlXSnNaU0JIV2tsUUlHTnZaR1Z6SUc5eUlGVlNUQ0JvWVhOb1pYTThMMlJwZGo0S0lDQWdJQ0FnSUNBOFpHbDJJR05zWVhOelBTSnpkR0YwZFhNaVB1S1hqeUJ5WldGa2VUd3ZaR2wyUGdvZ0lDQWdJQ0E4TDJScGRqNEtJQ0FnSUR3dmMyVmpkR2x2Ymo0S0NpQWdJQ0E4YzJWamRHbHZiaUJwWkQwaVlXSnZkWFFpSUdOc1lYTnpQU0p1YjNSbGN5SStDaUFnSUNBZ0lEeG9NajR2THlCaFltOTFkRHd2YURJK0NpQWdJQ0FnSUR4a2FYWWdZMnhoYzNNOUltTnZiVzFsYm5RdGJHbHVaU0krQ2lBZ0lDQWdJQ0FnUEhOd1lXNGdZMnhoYzNNOUltSmhjaUkrNHBTQ1BDOXpjR0Z1UGdvZ0lDQWdJQ0FnSUR4d1BrSjFhV3gwSUdKNUlHRWdZbUZqYTJWdVpDQmxibWRwYm1WbGNpQjNhRzhnYTJWd2RDQnNiM05wYm1jZ2RHaGxJSE5oYldVZ1ptbDJaU0J0YVc1MWRHVnpJSFJ2SUVkdmIyZHNhVzVuSUdOdmJtNWxZM1JwYjI0Z2MzUnlhVzVuSUhONWJuUmhlQ0JoYm1RS0lDQWdJQ0FnSUNBZ0lHTnliMjRnWm1sbGJHUWdiM0prWlhJdUlFVjJaWEo1ZEdocGJtY2dhR1Z5WlNCeWRXNXpJR2x1SUhsdmRYSWdZbkp2ZDNObGNpRGlnSlFnYm04Z1lXTmpiM1Z1ZEhNc0lHNXZJSFJsYkdWdFpYUnllU3dnYm04Z1pHRjBZU0J6Wlc1MElHRnVlWGRvWlhKbExpQkpaZ29nSUNBZ0lDQWdJQ0FnWVNCMGIyOXNJR2x6SUhkeWIyNW5JRzl5SUcxcGMzTnBibWNnYzI5dFpYUm9hVzVuTENCMGFHRjBKM01nZFhObFpuVnNJSFJ2SUd0dWIzY3VQQzl3UGdvZ0lDQWdJQ0E4TDJScGRqNEtJQ0FnSUR3dmMyVmpkR2x2Ymo0S0lDQThMMjFoYVc0K0Nnb2dJRHhtYjI5MFpYSStDaUFnSUNBOFpHbDJJR05zWVhOelBTSjNjbUZ3SWo0S0lDQWdJQ0FnUEhOd1lXNCtkRzl2YkhOb1lYSndMbVJsZGlEaWdKUWdZblZwYkhRZ1lua2dZU0JrWlhabGJHOXdaWElzSUdadmNpQmtaWFpsYkc5d1pYSnpQQzl6Y0dGdVBnb2dJQ0FnSUNBOGMzQmhiajV1YnlCamIyOXJhV1Z6TENCdWJ5QjBjbUZqYTJsdVp5d2dibThnYzJsbmJuVndQQzl6Y0dGdVBnb2dJQ0FnUEM5a2FYWStDaUFnUEM5bWIyOTBaWEkrQ2dvOEwySnZaSGsrQ2dvOEwyaDBiV3crIikpOzwvc2NyaXB0Pgo8L2hlYWQ+Cjxib2R5PjwvYm9keT4KPC9odG1sPg==");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
-}
-document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToolSharp.dev — Free developer utilities</title>
+  <meta name="description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <link rel="canonical" href="https://toolsharp.dev/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://toolsharp.dev/">
+  <meta property="og:title" content="ToolSharp.dev — Free developer utilities">
+  <meta property="og:description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+  <meta property="og:site_name" content="ToolSharp.dev">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://toolsharp.dev/">
+  <meta name="twitter:title" content="ToolSharp.dev — Free developer utilities">
+  <meta name="twitter:description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js" defer></script>
 </head>
-<body></body>
+
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span
+          class="accent">sharp</span><span class="dim">.dev</span></div>
+      <nav class="nav-links">
+        <a href="#tools">tools/</a>
+        <a href="#about">about</a>
+        <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()">dark_theme</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="prompt-line"><span class="caret">&gt;</span> whoami &amp;&amp; ls tools/</div>
+      <h1>Small, sharp tools every developer reaches for.</h1>
+      <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up
+        every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
+    </section>
+
+    <section id="tools" class="dir-listing">
+      <div class="dir-row-head">
+        <div>path</div>
+        <div>description</div>
+        <div>status</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/connection-string-builder.html'">
+        <a class="path-link" href="tools/connection-string-builder.html">/connection-string-builder</a>
+        <div class="desc">Build &amp; parse SQL Server connection strings — SQL auth, Windows auth, Azure AD,
+          Encrypt/TrustServerCertificate flags</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/cron-builder.html'">
+        <a class="path-link" href="tools/cron-builder.html">/cron-builder</a>
+        <div class="desc">Build &amp; explain cron expressions for Hangfire, standard Unix cron, and Quartz.NET's
+          6/7-field format</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/jwt-decoder.html'">
+        <a class="path-link" href="tools/jwt-decoder.html">/jwt-decoder</a>
+        <div class="desc">Decode a JWT's header &amp; payload, inspect claims, check exp/nbf against the current time
+        </div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/guid-formatter.html'">
+        <a class="path-link" href="tools/guid-formatter.html">/guid-formatter</a>
+        <div class="desc">Generate GUIDs or reformat a pasted one across .NET's D/N/B/P/X Guid.ToString() formats</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/regex-tester.html'">
+        <a class="path-link" href="tools/regex-tester.html">/regex-tester</a>
+        <div class="desc">Test a regex against sample text with live match &amp; group highlighting, mapped to .NET
+          RegexOptions</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/appsettings-validator.html'">
+        <a class="path-link" href="tools/appsettings-validator.html">/appsettings-validator</a>
+        <div class="desc">Validate &amp; pretty-print appsettings.json, catch duplicate keys and common config mistakes
+        </div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
+        <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
+        <div class="desc">Validate, format, or minify any JSON — errors point to the exact line and column</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
+        <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
+        <div class="desc">Compare two blocks of text or code line by line — see exactly what was added or removed</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/base64-converter.html'">
+        <a class="path-link" href="tools/base64-converter.html">/base64-converter</a>
+        <div class="desc">Encode text to Base64 (including URL-safe Base64) or decode Base64 back to plaintext</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/share-pad.html'">
+        <a class="path-link" href="tools/share-pad.html">/share-pad</a>
+        <div class="desc">Share text securely and serverlessly — compresses text to copyable GZIP codes or URL hashes</div>
+        <div class="status">● ready</div>
+      </div>
+    </section>
+
+    <section id="about" class="notes">
+      <h2>// about</h2>
+      <div class="comment-line">
+        <span class="bar">│</span>
+        <p>Built by a backend engineer who kept losing the same five minutes to Googling connection string syntax and
+          cron field order. Everything here runs in your browser — no accounts, no telemetry, no data sent anywhere. If
+          a tool is wrong or missing something, that's useful to know.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>toolsharp.dev — built by a developer, for developers</span>
+      <span>no cookies, no tracking, no signup</span>
+    </div>
+  </footer>
+
+</body>
+
 </html>

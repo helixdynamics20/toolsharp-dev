@@ -2,14 +2,436 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>
-const bin = atob("PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPHNjcmlwdCBzcmM9Ii4uL2pzL3NoYXJlLXBhZC5qcyIgZGVmZXI+PC9zY3JpcHQ+CjwvaGVhZD4KPGJvZHk+PC9ib2R5Pgo8L2h0bWw+");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
-}
-document.write(new TextDecoder("utf-8").decode(bytes));
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev</title>
+<meta name="description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
+<link rel="canonical" href="https://toolsharp.dev/tools/share-pad.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/share-pad.html">
+<meta property="og:title" content="SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev">
+<meta property="og:description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/share-pad.html">
+<meta name="twitter:title" content="SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev">
+<meta name="twitter:description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
 </head>
-<body></body>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links">
+      <a href="../index.html">← all tools</a>
+      <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()">dark_theme</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">share-pad</span></div>
+
+  <div class="tool-header">
+    <h1>share-pad</h1>
+    <p class="sub">Transfer text, configurations, or logs securely. Generates easy-to-dictate 6-digit numeric codes or offline compressed fallback links.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">easy 6-digit dictation</span>
+      <span class="badge">serverless fallback</span>
+    </div>
+  </div>
+
+  <div id="autoLoadedPanel" class="config-block" style="display: none; margin-bottom: 24px;">
+    <div class="tab" style="background: var(--green-wash); color: var(--green); border-bottom-color: var(--green);">retrieved_share</div>
+    <div class="body" style="padding: 20px;">
+      <div class="field" style="margin-bottom: 12px;">
+        <textarea id="autoLoadedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="copyAutoLoaded()">Copy Text</button>
+        <button class="btn secondary" onclick="dismissAutoLoaded()">Create New Share</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-grid" style="grid-template-columns: 1fr 1fr;">
+    <!-- Panel 1: Create Share -->
+    <div class="config-block">
+      <div class="tab">create_share</div>
+      <div class="body">
+        <div class="field" style="margin-bottom: 12px;">
+          <textarea id="plainInput" rows="12" placeholder="Paste or type text here to generate sharing codes..."></textarea>
+        </div>
+        <div class="btn-row" style="margin-bottom: 16px;">
+          <button id="btnGenerate" class="btn" onclick="generateShare()">Generate Share</button>
+          <button class="btn secondary" onclick="clearPlainInput()">Clear</button>
+        </div>
+
+        <div id="outputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
+          <div class="field" style="margin-bottom: 12px;">
+            <label><span class="key">6-Digit Dictation Code</span></label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
+              <button class="btn secondary" onclick="copyValue('shareCode')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom: 12px;">
+            <label><span class="key">Quick Share Link</span></label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="shareLink" readonly style="flex: 1;">
+              <button class="btn secondary" onclick="copyValue('shareLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom: 0;">
+            <label><span class="key">Offline Fallback Link (No database)</span></label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="offlineLink" readonly style="flex: 1; font-size: 11px;">
+              <button class="btn secondary" onclick="copyValue('offlineLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Retrieve Share -->
+    <div class="config-block">
+      <div class="tab">retrieve_share</div>
+      <div class="body">
+        <div class="field" style="margin-bottom: 12px;">
+          <input type="text" id="retrieveInput" placeholder="Enter 6-digit code (e.g. 192 841) or share link here..." style="font-size: 15px;">
+        </div>
+        <div class="btn-row" style="margin-bottom: 16px;">
+          <button id="btnRetrieve" class="btn" onclick="retrieveShare()">Retrieve Text</button>
+          <button class="btn secondary" onclick="clearRetrieveInput()">Clear</button>
+        </div>
+
+        <div id="retrieveOutputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
+          <div class="field" style="margin-bottom: 12px;">
+            <label><span class="key">Retrieved Output</span></label>
+            <textarea id="retrievedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="copyValue('retrievedOutput')">Copy Output</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="shareError" class="callout error" style="display: none; margin-top: 24px; margin-bottom: 24px;"></div>
+
+  <section class="notes">
+    <h2>// sharing options explained</h2>
+    <ul>
+      <li><strong>6-Digit Numeric Code</strong> — A super simple code (e.g. <code>482 195</code>) that is easy to dictate or copy-paste. Data is securely stored temporarily in an anonymous Key-Value store.</li>
+      <li><strong>Offline Fallback Link</strong> — A serverless link that compresses and serializes the entire text directly inside the URL hash. Perfect for sharing large or highly private keys offline.</li>
+      <li><strong>100% Client-Side Encryption option</strong> — No passwords or accounts are required. Standard data transfer is executed directly between your browsers.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// Secure serverless database proxy endpoint
+const API_URL = '../api/share';
+
+async function compressText(text) {
+  const blob = new Blob([text], { type: 'text/plain' });
+  const compressionStream = blob.stream().pipeThrough(new CompressionStream('gzip'));
+  const response = new Response(compressionStream);
+  const arrayBuffer = await response.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+async function decompressText(code) {
+  let base64 = code.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) {
+    base64 += '=';
+  }
+  
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  
+  const decompressionStream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const response = new Response(decompressionStream);
+  return await response.text();
+}
+
+
+
+// Generate a random 6-digit code
+function generateCode() {
+  const num = Math.floor(100000 + Math.random() * 900000);
+  return num.toString();
+}
+
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 1000,
+      hash: "SHA-256"
+    },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function encryptPayload(plaintext, password) {
+  const enc = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt);
+  
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv },
+    key,
+    enc.encode(plaintext)
+  );
+  
+  const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, salt.length);
+  combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+  
+  let binary = '';
+  for (let i = 0; i < combined.byteLength; i++) {
+    binary += String.fromCharCode(combined[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function decryptPayload(encryptedBase64, password) {
+  let base64 = encryptedBase64.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  const binary = atob(base64);
+  const combined = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    combined[i] = binary.charCodeAt(i);
+  }
+  
+  const salt = combined.slice(0, 16);
+  const iv = combined.slice(16, 28);
+  const ciphertext = combined.slice(28);
+  
+  const key = await deriveKey(password, salt);
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: iv },
+    key,
+    ciphertext
+  );
+  return new TextDecoder().decode(decrypted);
+}
+
+async function generateShare() {
+  const val = document.getElementById('plainInput').value;
+  if (!val.trim()) return;
+  
+  const btn = document.getElementById('btnGenerate');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  
+  try {
+    // 1. Generate offline compressed link
+    const offlineHash = await compressText(val);
+    const origin = window.location.origin + window.location.pathname;
+    document.getElementById('offlineLink').value = origin + '#data=' + offlineHash;
+    
+    // 2. Generate sharing credentials
+    let code = generateCode();
+    
+    // Encrypt client-side using the 6-digit code itself as the key
+    const encryptedText = await encryptPayload(val, code);
+    
+    // Write ciphertext to the Vercel Serverless API
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code, value: encryptedText })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Database sharing failed.');
+    }
+    
+    const resData = await response.json();
+    if (resData.error) {
+      throw new Error(resData.error);
+    }
+    
+    // Format code as "123 456" for clean dictation
+    const formattedCode = code.substring(0, 3) + ' ' + code.substring(3);
+    document.getElementById('shareCode').value = formattedCode;
+    document.getElementById('shareLink').value = origin + '#code=' + code;
+    document.getElementById('outputBlock').style.display = 'block';
+    clearError();
+  } catch (e) {
+    showError('Sharing failed: ' + e.message + '. Offline fallback link is still available below.');
+    document.getElementById('outputBlock').style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Share';
+  }
+}
+
+async function retrieveShare() {
+  let input = document.getElementById('retrieveInput').value.trim();
+  if (!input) return;
+  
+  const btn = document.getElementById('btnRetrieve');
+  btn.disabled = true;
+  btn.textContent = 'Retrieving...';
+  
+  try {
+    let text = '';
+    if (input.includes('#data=')) {
+      // Offline fallback link
+      const dataHash = input.split('#data=')[1];
+      text = await decompressText(dataHash);
+    } else {
+      // Clean numeric code (remove spaces and hyphens)
+      let cleaned = input.replace(/[\s-]/g, '');
+      if (cleaned.includes('#code=')) {
+        cleaned = cleaned.split('#code=')[1];
+      }
+      if (cleaned.length < 6) {
+        throw new Error('Code must be 6 digits (e.g. 752 936)');
+      }
+      
+      const code = cleaned.substring(0, 6);
+      const pass = code;
+      
+      const response = await fetch(`${API_URL}?code=${code}`);
+      if (!response.ok) {
+        throw new Error('Code not found or expired.');
+      }
+      const resData = await response.json();
+      if (resData.error || !resData.result) {
+        throw new Error('Code not found or expired.');
+      }
+      const ciphertext = resData.result;
+      text = await decryptPayload(ciphertext, pass);
+    }
+    
+    document.getElementById('retrievedOutput').value = text;
+    document.getElementById('retrieveOutputBlock').style.display = 'block';
+    clearError();
+  } catch (e) {
+    showError('Failed to retrieve: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Retrieve Text';
+  }
+}
+
+function copyValue(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.value);
+}
+
+function clearPlainInput() {
+  document.getElementById('plainInput').value = '';
+  document.getElementById('outputBlock').style.display = 'none';
+  clearError();
+}
+
+function clearRetrieveInput() {
+  document.getElementById('retrieveInput').value = '';
+  document.getElementById('retrieveOutputBlock').style.display = 'none';
+  clearError();
+}
+
+function showError(msg) {
+  const el = document.getElementById('shareError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearError() {
+  document.getElementById('shareError').style.display = 'none';
+}
+
+function copyAutoLoaded() {
+  const val = document.getElementById('autoLoadedOutput').value;
+  navigator.clipboard.writeText(val);
+}
+
+function dismissAutoLoaded() {
+  document.getElementById('autoLoadedPanel').style.display = 'none';
+  window.location.hash = '';
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const hash = window.location.hash;
+  if (hash.startsWith('#code=')) {
+    try {
+      const codeWithKey = hash.slice(6);
+      const cleaned = codeWithKey.replace(/[\s-]/g, '');
+      const code = cleaned.substring(0, 6);
+      const pass = code;
+      
+      const response = await fetch(`${API_URL}?code=${code}`);
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.result) {
+          const decoded = await decryptPayload(resData.result, pass);
+          document.getElementById('autoLoadedOutput').value = decoded;
+          document.getElementById('autoLoadedPanel').style.display = 'block';
+        } else {
+          showError('The shared link has expired or is invalid.');
+        }
+      } else {
+        showError('The shared link has expired or is invalid.');
+      }
+    } catch (e) {
+      showError('Failed to retrieve or decrypt shared text.');
+    }
+  } else if (hash.startsWith('#data=')) {
+    try {
+      const code = hash.slice(6);
+      const decoded = await decompressText(code);
+      document.getElementById('autoLoadedOutput').value = decoded;
+      document.getElementById('autoLoadedPanel').style.display = 'block';
+    } catch (e) {
+      showError('Failed to decompress shared link.');
+    }
+  }
+});
+</script>
+</body>
 </html>
