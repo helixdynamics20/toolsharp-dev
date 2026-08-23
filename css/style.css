@@ -681,6 +681,7 @@ body.dark-theme .nav-dropdown-item:hover {
   background: rgba(108, 76, 224, 0.2);
   color: #fff;
 }
+
 .nav-links {
   display: flex;
   align-items: center;

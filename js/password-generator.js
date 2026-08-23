@@ -152,13 +152,7 @@ function showPasswords(pws) {
     listEl.innerHTML = '';
     resultEl.style.display = '';
     resultEl.value = pws[0] || '';
-    autoResizeResult(resultEl);
   }
-}
-
-function autoResizeResult(el) {
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
 }
 
 function entropyHtml(bits, label, cls) {

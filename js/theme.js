@@ -205,7 +205,6 @@
     var navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
-    // Check if we are on a tool subpage (inside /tools/)
     var isToolSubpage = window.location.pathname.includes('/tools/');
     var pathPrefix = isToolSubpage ? '../' : '';
 
@@ -221,6 +220,7 @@
         name: 'encoding',
         items: [
           { name: 'Base64 Converter', path: 'tools/base64-converter.html' },
+          { name: 'URL Encoder', path: 'tools/url-encoder.html' },
           { name: 'JWT Decoder', path: 'tools/jwt-decoder.html' }
         ]
       },
@@ -228,7 +228,7 @@
         name: 'text',
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
-          { name: 'Regex Tester', path: 'tools/regex-tester.html' },
+          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
           { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       },
@@ -243,13 +243,14 @@
         items: [
           { name: 'Connection String Builder', path: 'tools/connection-string-builder.html' },
           { name: 'Cron Builder & Explainer', path: 'tools/cron-builder.html' },
+          { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
           { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
-          { name: 'Epoch Converter', path: 'tools/epoch-converter.html' }
+          { name: 'Regex Tester', path: 'tools/regex-tester.html' },
+          { name: 'Password Generator', path: 'tools/password-generator.html' }
         ]
       }
     ];
 
-    // Create a container for dropdowns
     var dropdownContainer = document.createElement('div');
     dropdownContainer.style.display = 'flex';
     dropdownContainer.style.gap = '6px';
@@ -294,22 +295,36 @@
 
     document.addEventListener('click', closeAllDropdowns);
 
-    // Insert categories before the theme toggle
     var toggleBtn = document.getElementById('darkModeToggle');
     if (toggleBtn) {
-      // Clear original nav items except theme toggle
       var existingAllTools = Array.from(navLinks.querySelectorAll('a')).find(function(el) {
-        return el.textContent.includes('← all tools') || el.textContent.includes('tools/');
+        return el.textContent.includes('← all tools') || el.textContent.includes('← tools');
       });
-      
+
       navLinks.innerHTML = '';
       if (isToolSubpage && existingAllTools) {
         existingAllTools.textContent = '← tools';
         navLinks.appendChild(existingAllTools);
       }
-      
+
       navLinks.appendChild(dropdownContainer);
       navLinks.appendChild(toggleBtn);
     }
+
+    // Inject Vercel Web Analytics & Speed Insights
+    try {
+      var vaScript = document.createElement('script');
+      vaScript.defer = true;
+      vaScript.src = '/_vercel/insights/script.js';
+      document.head.appendChild(vaScript);
+
+      var siScript = document.createElement('script');
+      siScript.defer = true;
+      siScript.src = '/_vercel/speed-insights/script.js';
+      document.head.appendChild(siScript);
+    } catch (e) {
+      console.warn('Vercel scripts failed to load:', e);
+    }
   });
+
 })();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'toolsharp-cache-v1';
+const CACHE_NAME = 'toolsharp-cache-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -20,6 +20,9 @@ const ASSETS = [
   '/tools/share-pad.html',
   '/tools/hash-generator.html',
   '/tools/epoch-converter.html',
+  '/tools/url-encoder.html',
+  '/tools/sql-formatter.html',
+  '/tools/password-generator.html',
   '/js/connection-string-builder.js',
   '/js/cron-builder.js',
   '/js/jwt-decoder.js',
@@ -31,51 +34,44 @@ const ASSETS = [
   '/js/base64-converter.js',
   '/js/share-pad.js',
   '/js/hash-generator.js',
-  '/js/epoch-converter.js'
+  '/js/epoch-converter.js',
+  '/js/url-encoder.js',
+  '/js/sql-formatter.js',
+  '/js/password-generator.js'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((key) => key !== CACHE_NAME && caches.delete(key)))
+    ).then(() => self.clients.claim())
   );
 });
 
+// Network-first: always try the network, fall back to cache only when offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
     return;
   }
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+    fetch(event.request).then((response) => {
+      if (!response || response.status !== 200 || response.type !== 'basic') {
         return response;
-      }).catch(() => {
-        if (event.request.headers.get('accept').includes('text/html')) {
+      }
+      const responseToCache = response.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+      return response;
+    }).catch(() => {
+      return caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+        if (event.request.headers.get('accept')?.includes('text/html')) {
           return caches.match('/404.html');
         }
       });
