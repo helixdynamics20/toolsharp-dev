@@ -417,3 +417,69 @@ footer {
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 footer a { color: var(--ink-faint); }
 footer a:hover { color: var(--violet); }
+
+.repair-link {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--violet-dark);
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 6px;
+}
+.repair-link:hover {
+  color: var(--violet);
+}
+
+/* Dark Mode Color Palette Overrides */
+body.dark-theme {
+  --bg: #130f22;
+  --bg-raised: #1c1730;
+  --ink: #e2dfec;
+  --ink-soft: #a8a2bc;
+  --ink-faint: #6c6488;
+  --rule: #2a2444;
+  --rule-strong: #423b65;
+  --violet: #8c73ec;
+  --violet-dark: #a18aff;
+  --violet-wash: #201a38;
+  --amber: #f29c38;
+  --amber-wash: #2e1d0b;
+  --green: #42bf80;
+  --green-wash: #102e1f;
+  --red: #e05850;
+  --red-wash: #361715;
+}
+
+body.dark-theme input[type="text"],
+body.dark-theme input[type="password"],
+body.dark-theme input[type="number"],
+body.dark-theme select,
+body.dark-theme textarea {
+  background: #18142a;
+  color: var(--ink);
+  border-color: var(--rule-strong);
+}
+
+body.dark-theme .diff-split-body {
+  background: #18142a;
+}
+body.dark-theme .diff-row.same .diff-cell {
+  background: #18142a;
+}
+body.dark-theme .diff-cell.empty {
+  background-color: #1c1730;
+}
+body.dark-theme .diff-cell .gutter {
+  background: #151126;
+  border-right-color: #2b2548;
+}
+body.dark-theme .diff-cell.unified .gutter {
+  background: #151126;
+  border-right-color: #2b2548;
+}
+
+body.dark-theme .site-header {
+  background: rgba(19, 15, 34, 0.92);
+}
+
+

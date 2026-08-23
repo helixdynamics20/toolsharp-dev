@@ -1,107 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ToolSharp.dev — Free developer utilities</title>
-<meta name="description" content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
-<link rel="canonical" href="https://toolsharp.dev/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToolSharp.dev — Free developer utilities</title>
+  <meta name="description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <link rel="canonical" href="https://toolsharp.dev/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://toolsharp.dev/">
+  <meta property="og:title" content="ToolSharp.dev — Free developer utilities">
+  <meta property="og:description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+  <meta property="og:site_name" content="ToolSharp.dev">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://toolsharp.dev/">
+  <meta name="twitter:title" content="ToolSharp.dev — Free developer utilities">
+  <meta name="twitter:description"
+    content="Free, client-side developer tools any backend developer can use: connection string builder, cron expression builder, JWT decoder, GUID formatter, regex tester, and JSON config validator. No signup, nothing leaves your browser.">
+  <meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js" defer></script>
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="wrap">
-    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
-    <nav class="nav-links">
-      <a href="#tools">tools/</a>
-      <a href="#about">about</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">github</a>
-    </nav>
-  </div>
-</header>
-
-<main class="wrap">
-  <section class="hero">
-    <div class="prompt-line"><span class="caret">&gt;</span> whoami &amp;&amp; ls tools/</div>
-    <h1>Small, sharp tools every developer reaches for.</h1>
-    <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
-    <div class="meta-line">8 tools · $0 · runs entirely client-side</div>
-  </section>
-
-  <section id="tools" class="dir-listing">
-    <div class="dir-row-head">
-      <div>path</div>
-      <div>description</div>
-      <div>status</div>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span
+          class="accent">sharp</span><span class="dim">.dev</span></div>
+      <nav class="nav-links">
+        <a href="#tools">tools/</a>
+        <a href="#about">about</a>
+        <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()">dark_theme</a>
+      </nav>
     </div>
+  </header>
 
-    <div class="dir-row" onclick="location.href='tools/connection-string-builder.html'">
-      <a class="path-link" href="tools/connection-string-builder.html">/connection-string-builder</a>
-      <div class="desc">Build &amp; parse SQL Server connection strings — SQL auth, Windows auth, Azure AD, Encrypt/TrustServerCertificate flags</div>
-      <div class="status">● ready</div>
+  <main class="wrap">
+    <section class="hero">
+      <div class="prompt-line"><span class="caret">&gt;</span> whoami &amp;&amp; ls tools/</div>
+      <h1>Small, sharp tools every developer reaches for.</h1>
+      <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up
+        every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
+    </section>
+
+    <section id="tools" class="dir-listing">
+      <div class="dir-row-head">
+        <div>path</div>
+        <div>description</div>
+        <div>status</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/connection-string-builder.html'">
+        <a class="path-link" href="tools/connection-string-builder.html">/connection-string-builder</a>
+        <div class="desc">Build &amp; parse SQL Server connection strings — SQL auth, Windows auth, Azure AD,
+          Encrypt/TrustServerCertificate flags</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/cron-builder.html'">
+        <a class="path-link" href="tools/cron-builder.html">/cron-builder</a>
+        <div class="desc">Build &amp; explain cron expressions for Hangfire, standard Unix cron, and Quartz.NET's
+          6/7-field format</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/jwt-decoder.html'">
+        <a class="path-link" href="tools/jwt-decoder.html">/jwt-decoder</a>
+        <div class="desc">Decode a JWT's header &amp; payload, inspect claims, check exp/nbf against the current time
+        </div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/guid-formatter.html'">
+        <a class="path-link" href="tools/guid-formatter.html">/guid-formatter</a>
+        <div class="desc">Generate GUIDs or reformat a pasted one across .NET's D/N/B/P/X Guid.ToString() formats</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/regex-tester.html'">
+        <a class="path-link" href="tools/regex-tester.html">/regex-tester</a>
+        <div class="desc">Test a regex against sample text with live match &amp; group highlighting, mapped to .NET
+          RegexOptions</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/appsettings-validator.html'">
+        <a class="path-link" href="tools/appsettings-validator.html">/appsettings-validator</a>
+        <div class="desc">Validate &amp; pretty-print appsettings.json, catch duplicate keys and common config mistakes
+        </div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
+        <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
+        <div class="desc">Validate, format, or minify any JSON — errors point to the exact line and column</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
+        <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
+        <div class="desc">Compare two blocks of text or code line by line — see exactly what was added or removed</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/base64-converter.html'">
+        <a class="path-link" href="tools/base64-converter.html">/base64-converter</a>
+        <div class="desc">Encode text to Base64 (including URL-safe Base64) or decode Base64 back to plaintext</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" onclick="location.href='tools/share-pad.html'">
+        <a class="path-link" href="tools/share-pad.html">/share-pad</a>
+        <div class="desc">Share text securely and serverlessly — compresses text to copyable GZIP codes or URL hashes</div>
+        <div class="status">● ready</div>
+      </div>
+    </section>
+
+    <section id="about" class="notes">
+      <h2>// about</h2>
+      <div class="comment-line">
+        <span class="bar">│</span>
+        <p>Built by a backend engineer who kept losing the same five minutes to Googling connection string syntax and
+          cron field order. Everything here runs in your browser — no accounts, no telemetry, no data sent anywhere. If
+          a tool is wrong or missing something, that's useful to know.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>toolsharp.dev — built by a developer, for developers</span>
+      <span>no cookies, no tracking, no signup</span>
     </div>
-
-    <div class="dir-row" onclick="location.href='tools/cron-builder.html'">
-      <a class="path-link" href="tools/cron-builder.html">/cron-builder</a>
-      <div class="desc">Build &amp; explain cron expressions for Hangfire, standard Unix cron, and Quartz.NET's 6/7-field format</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/jwt-decoder.html'">
-      <a class="path-link" href="tools/jwt-decoder.html">/jwt-decoder</a>
-      <div class="desc">Decode a JWT's header &amp; payload, inspect claims, check exp/nbf against the current time</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/guid-formatter.html'">
-      <a class="path-link" href="tools/guid-formatter.html">/guid-formatter</a>
-      <div class="desc">Generate GUIDs or reformat a pasted one across .NET's D/N/B/P/X Guid.ToString() formats</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/regex-tester.html'">
-      <a class="path-link" href="tools/regex-tester.html">/regex-tester</a>
-      <div class="desc">Test a regex against sample text with live match &amp; group highlighting, mapped to .NET RegexOptions</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/appsettings-validator.html'">
-      <a class="path-link" href="tools/appsettings-validator.html">/appsettings-validator</a>
-      <div class="desc">Validate &amp; pretty-print appsettings.json, catch duplicate keys and common config mistakes</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/json-formatter.html'">
-      <a class="path-link" href="tools/json-formatter.html">/json-formatter</a>
-      <div class="desc">Validate, format, or minify any JSON — errors point to the exact line and column</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" onclick="location.href='tools/diff-checker.html'">
-      <a class="path-link" href="tools/diff-checker.html">/diff-checker</a>
-      <div class="desc">Compare two blocks of text or code line by line — see exactly what was added or removed</div>
-      <div class="status">● ready</div>
-    </div>
-  </section>
-
-  <section id="about" class="notes">
-    <h2>// about</h2>
-    <div class="comment-line">
-      <span class="bar">│</span>
-      <p>Built by a backend engineer who kept losing the same five minutes to Googling connection string syntax and cron field order. Everything here runs in your browser — no accounts, no telemetry, no data sent anywhere. If a tool is wrong or missing something, that's useful to know.</p>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>toolsharp.dev — built by a developer, for developers</span>
-    <span>no cookies, no tracking, no signup</span>
-  </div>
-</footer>
+  </footer>
 
 </body>
+
 </html>
