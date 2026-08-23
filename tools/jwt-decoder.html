@@ -47,7 +47,7 @@
     <p class="sub">Paste a JWT to decode its header and payload and check the standard time claims. This decodes only — it does not verify the signature, and the token never leaves your browser.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
-      <span class="badge">no signature verification</span>
+      <span class="badge">HS256 / RS256 / ES256 verification</span>
       <span class="badge">nothing sent anywhere</span>
     </div>
   </div>
@@ -62,13 +62,25 @@
       </div>
     </div>
     <div class="config-block">
-      <div class="tab">signature verification (HMAC-SHA256)</div>
+      <div class="tab">signature verification</div>
       <div class="body">
         <div class="field">
-          <label>Secret Key (HS256)</label>
-          <input type="text" id="jwtSecret" placeholder="Type secret key here to verify signature..." oninput="decodeJwt()">
+          <label><span class="key">Algorithm</span></label>
+          <select id="jwtAlgSelect" onchange="onAlgChange(); decodeJwt();">
+            <option value="HS256">HS256 — HMAC-SHA256 (shared secret)</option>
+            <option value="RS256">RS256 — RSA-SHA256 (public key)</option>
+            <option value="ES256">ES256 — ECDSA-SHA256 P-256 (public key)</option>
+          </select>
         </div>
-        <div id="verifyResult" class="callout" style="margin-top: 12px; display:none;"></div>
+        <div class="field" id="jwtSecretRow">
+          <label><span class="key">Secret (HS256)</span></label>
+          <input type="text" id="jwtSecret" placeholder="Paste shared secret…" oninput="decodeJwt()">
+        </div>
+        <div class="field" id="jwtPemRow" style="display:none;">
+          <label><span class="key">Public Key (PEM)</span></label>
+          <textarea id="jwtPem" rows="5" placeholder="-----BEGIN PUBLIC KEY-----&#10;…&#10;-----END PUBLIC KEY-----" oninput="decodeJwt()" spellcheck="false" style="font-family:var(--mono);font-size:12px;"></textarea>
+        </div>
+        <div id="verifyResult" class="callout" style="margin-top:12px;display:none;"></div>
       </div>
     </div>
   </div>

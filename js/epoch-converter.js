@@ -7,6 +7,7 @@ function setEpochNow() {
 function convertEpoch() {
   const val = document.getElementById('epochInput').value.trim();
   if (!val) {
+    document.getElementById('isoOutput').value = '';
     document.getElementById('utcOutput').value = '';
     document.getElementById('localOutput').value = '';
     return;
@@ -14,6 +15,7 @@ function convertEpoch() {
 
   let num = parseInt(val, 10);
   if (isNaN(num)) {
+    document.getElementById('isoOutput').value = 'Invalid timestamp';
     document.getElementById('utcOutput').value = 'Invalid timestamp';
     document.getElementById('localOutput').value = 'Invalid timestamp';
     return;
@@ -31,6 +33,7 @@ function convertEpoch() {
     return;
   }
 
+  document.getElementById('isoOutput').value = d.toISOString();
   document.getElementById('utcOutput').value = d.toUTCString();
   document.getElementById('localOutput').value = d.toString();
 }
@@ -69,8 +72,29 @@ function copyResult(id, btn) {
   flashCopied(btn);
 }
 
-// Initialize on load
+function setEpochFromClock(unit) {
+  const now = Date.now();
+  document.getElementById('epochInput').value = unit === 'ms' ? now : Math.floor(now / 1000);
+  convertEpoch();
+}
+
+function updateLiveClock() {
+  const now = Date.now();
+  const sec = Math.floor(now / 1000);
+  const d = new Date(now);
+  const elSec = document.getElementById('liveEpochSec');
+  const elMs = document.getElementById('liveEpochMs');
+  const elUtc = document.getElementById('liveEpochUtc');
+  const elLocal = document.getElementById('liveEpochLocal');
+  if (elSec) elSec.textContent = sec;
+  if (elMs) elMs.textContent = now;
+  if (elUtc) elUtc.textContent = d.toUTCString();
+  if (elLocal) elLocal.textContent = d.toLocaleTimeString();
+}
+
 window.addEventListener('load', function() {
   setPickerToNow();
   setEpochNow();
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
 });

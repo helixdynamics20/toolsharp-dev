@@ -73,25 +73,34 @@ async function decodeJwt() {
     ${timeCallouts ? '<div style="margin-top:6px;">' + timeCallouts + '</div>' : ''}
   `;
 
-  // Verify Signature if Secret is provided and algorithm is HS256
-  const secretKey = document.getElementById('jwtSecret').value;
-  if (secretKey) {
+  // Signature verification
+  const algSel = document.getElementById('jwtAlgSelect');
+  const selectedAlg = algSel ? algSel.value : 'HS256';
+  const secretKey = document.getElementById('jwtSecret').value.trim();
+  const pemKey = document.getElementById('jwtPem') ? document.getElementById('jwtPem').value.trim() : '';
+
+  const hasInput = selectedAlg === 'HS256' ? !!secretKey : !!pemKey;
+  if (hasInput) {
     verifyResult.style.display = 'block';
-    if (header.alg !== 'HS256') {
+    const tokenAlg = header.alg || '';
+    if (tokenAlg && tokenAlg !== selectedAlg) {
       verifyResult.className = 'callout warn';
-      verifyResult.innerHTML = `Verification only supported for HS256 algorithm. Current token uses: <strong>${escapeHtml(header.alg)}</strong>`;
+      verifyResult.innerHTML = `Token header says <strong>${escapeHtml(tokenAlg)}</strong> but you selected <strong>${escapeHtml(selectedAlg)}</strong> — switch the selector to match.`;
       return;
     }
-
     try {
-      const isVerified = await verifyHS256(parts[0], parts[1], parts[2], secretKey);
-      if (isVerified) {
-        verifyResult.className = 'callout ok';
-        verifyResult.innerHTML = '✔ Signature Verified (HS256)';
-      } else {
-        verifyResult.className = 'callout error';
-        verifyResult.innerHTML = '✖ Invalid Signature';
+      let ok;
+      if (selectedAlg === 'HS256') {
+        ok = await verifyHS256(parts[0], parts[1], parts[2], secretKey);
+      } else if (selectedAlg === 'RS256') {
+        ok = await verifyRS256(parts[0], parts[1], parts[2], pemKey);
+      } else if (selectedAlg === 'ES256') {
+        ok = await verifyES256(parts[0], parts[1], parts[2], pemKey);
       }
+      verifyResult.className = `callout ${ok ? 'ok' : 'error'}`;
+      verifyResult.innerHTML = ok
+        ? `✔ Signature verified (${selectedAlg})`
+        : `✖ Signature invalid (${selectedAlg})`;
     } catch (err) {
       verifyResult.className = 'callout error';
       verifyResult.innerHTML = `Verification error: ${escapeHtml(err.message)}`;
@@ -110,14 +119,55 @@ async function verifyHS256(headerB64, payloadB64, signatureB64, secret) {
     false,
     ['verify']
   );
-  
-  // Re-encode signatureB64 from URL-safe Base64
   let sigStr = signatureB64.replace(/-/g, '+').replace(/_/g, '/');
   while (sigStr.length % 4) sigStr += '=';
   const sigBytes = new Uint8Array(atob(sigStr).split('').map(c => c.charCodeAt(0)));
-
   const dataBytes = enc.encode(`${headerB64}.${payloadB64}`);
   return await crypto.subtle.verify('HMAC', key, sigBytes, dataBytes);
+}
+
+function pemToDer(pem) {
+  const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return buf.buffer;
+}
+
+function sigToBytes(b64url) {
+  let s = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  return new Uint8Array(atob(s).split('').map(c => c.charCodeAt(0)));
+}
+
+async function verifyRS256(headerB64, payloadB64, sigB64, pem) {
+  const der = pemToDer(pem);
+  const key = await crypto.subtle.importKey(
+    'spki', der,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false, ['verify']
+  );
+  const sig = sigToBytes(sigB64);
+  const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+  return await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, sig, data);
+}
+
+async function verifyES256(headerB64, payloadB64, sigB64, pem) {
+  const der = pemToDer(pem);
+  const key = await crypto.subtle.importKey(
+    'spki', der,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false, ['verify']
+  );
+  const sig = sigToBytes(sigB64);
+  const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+  return await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, sig, data);
+}
+
+function onAlgChange() {
+  const alg = document.getElementById('jwtAlgSelect').value;
+  document.getElementById('jwtSecretRow').style.display = alg === 'HS256' ? '' : 'none';
+  document.getElementById('jwtPemRow').style.display = alg !== 'HS256' ? '' : 'none';
 }
 
 function escapeHtml(str) {
