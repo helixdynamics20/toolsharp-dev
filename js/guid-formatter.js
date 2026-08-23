@@ -1,8 +1,8 @@
 function generateGuid() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
-  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
-  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const hex = [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
   const d = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
   document.getElementById('guidInput').value = d;
@@ -35,10 +35,10 @@ function renderGuid(raw) {
   const p = `(${d})`;
 
   const seg = d.split('-');
-  const last12 = seg[4];
+  const tailHex = seg[3] + seg[4];
   const bytePairs = [];
-  for (let i = 0; i < 12; i += 2) bytePairs.push('0x' + last12.substr(i, 2));
-  const x = `new Guid(0x${seg[0]}, 0x${seg[1]}, 0x${seg[2]}, ${bytePairs.join(', ')})`;
+  for (let i = 0; i < 16; i += 2) bytePairs.push('0x' + tailHex.substring(i, i + 2));
+  const x = `{0x${seg[0]},0x${seg[1]},0x${seg[2]},{${bytePairs.join(',')}}}`;
 
   const rows = [
     {k: 'D  (default)', v: d},
@@ -56,7 +56,7 @@ function renderGuid(raw) {
       </div>
       <div class="body" style="padding-top:0;">
         <div class="btn-row">
-          ${rows.map((r,i) => `<button class="btn secondary" onclick="navigator.clipboard.writeText(document.getElementById('guidRow${i}').textContent)">copy ${r.k.trim().split(' ')[0]}</button>`).join('')}
+          ${rows.map((r,i) => `<button class="btn secondary" onclick="navigator.clipboard.writeText(document.getElementById('guidRow${i}').textContent); flashCopied(this)">copy ${r.k.trim().split(' ')[0]}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -69,5 +69,4 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// generate one on first load so the page isn't empty
 generateGuid();

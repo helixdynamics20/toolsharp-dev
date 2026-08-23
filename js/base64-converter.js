@@ -1,99 +1,72 @@
-function encode() {
-  const text = document.getElementById('plainText').value;
-  const isUrlSafe = document.getElementById('urlSafe').checked;
+function toUrlSafe(b64) {
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function fromUrlSafe(b64) {
+  let s = b64.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  return s;
+}
+
+function encodeB64() {
+  const text = document.getElementById('b64Input').value;
+  const output = document.getElementById('b64Output');
+  const meta = document.getElementById('b64Meta');
   if (!text) {
-    document.getElementById('base64Text').value = '';
-    clearError();
+    output.textContent = 'Nothing to encode — type or paste some text first.';
+    output.classList.add('empty');
+    meta.innerHTML = '';
     return;
   }
   try {
     const bytes = new TextEncoder().encode(text);
     let binary = '';
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    let base64 = btoa(binary);
-    if (isUrlSafe) {
-      base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-    document.getElementById('base64Text').value = base64;
-    clearError();
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    let b64 = btoa(binary);
+    if (document.getElementById('b64UrlSafe').checked) b64 = toUrlSafe(b64);
+    output.textContent = b64;
+    output.classList.remove('empty');
+    meta.innerHTML = `<div class="callout ok">Encoded ${bytes.length} byte(s) of UTF-8 text.</div>`;
   } catch (e) {
-    showError(e.message);
+    output.textContent = '';
+    meta.innerHTML = `<div class="callout error">Couldn't encode: ${e.message}</div>`;
   }
 }
 
-function decode() {
-  let base64 = document.getElementById('base64Text').value.trim();
-  const isUrlSafe = document.getElementById('urlSafe').checked;
-  if (!base64) {
-    document.getElementById('plainText').value = '';
-    clearError();
+function decodeB64() {
+  const raw = document.getElementById('b64Input').value.trim();
+  const output = document.getElementById('b64Output');
+  const meta = document.getElementById('b64Meta');
+  if (!raw) {
+    output.textContent = 'Nothing to decode — paste a Base64 string first.';
+    output.classList.add('empty');
+    meta.innerHTML = '';
     return;
   }
   try {
-    if (isUrlSafe) {
-      base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
-      while (base64.length % 4) {
-        base64 += '=';
-      }
-    }
-    const binary = atob(base64);
+    const isUrlSafe = document.getElementById('b64UrlSafe').checked || (/[-_]/.test(raw) && !/[+/]/.test(raw));
+    const normalized = isUrlSafe ? fromUrlSafe(raw) : raw;
+    const binary = atob(normalized);
     const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    const decoded = new TextDecoder().decode(bytes);
-    document.getElementById('plainText').value = decoded;
-    clearError();
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    output.textContent = text;
+    output.classList.remove('empty');
+    meta.innerHTML = `<div class="callout ok">Decoded ${bytes.length} byte(s).${isUrlSafe && !document.getElementById('b64UrlSafe').checked ? ' Auto-detected URL-safe encoding.' : ''}</div>`;
   } catch (e) {
-    showError('Invalid Base64 string: ' + e.message);
+    output.textContent = '';
+    meta.innerHTML = `<div class="callout error">Couldn't decode — this doesn't look like valid Base64${document.getElementById('b64UrlSafe').checked ? '' : ' (try the URL-safe checkbox if this came from a JWT or URL)'}.</div>`;
   }
 }
 
-function onUrlSafeToggle() {
-  // Recalculate based on active values
-  const plain = document.getElementById('plainText').value;
-  if (plain) {
-    encode();
-  } else {
-    const b64 = document.getElementById('base64Text').value;
-    if (b64) {
-      decode();
-    }
-  }
+function clearB64() {
+  document.getElementById('b64Input').value = '';
+  const output = document.getElementById('b64Output');
+  output.textContent = 'Result appears here.';
+  output.classList.add('empty');
+  document.getElementById('b64Meta').innerHTML = '';
 }
 
-function showError(msg) {
-  const errDiv = document.getElementById('base64Error');
-  errDiv.textContent = msg;
-  errDiv.style.display = 'block';
-}
-
-function clearError() {
-  document.getElementById('base64Error').style.display = 'none';
-}
-
-// Copy/Clear Handlers
-function copyPlaintext() {
-  const val = document.getElementById('plainText').value;
-  navigator.clipboard.writeText(val);
-}
-
-function clearPlaintext() {
-  document.getElementById('plainText').value = '';
-  document.getElementById('base64Text').value = '';
-  clearError();
-}
-
-function copyBase64() {
-  const val = document.getElementById('base64Text').value;
-  navigator.clipboard.writeText(val);
-}
-
-function clearBase64() {
-  document.getElementById('plainText').value = '';
-  document.getElementById('base64Text').value = '';
-  clearError();
+function copyB64Out(btn) {
+  navigator.clipboard.writeText(document.getElementById('b64Output').textContent);
+  flashCopied(btn);
 }

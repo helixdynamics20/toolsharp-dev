@@ -6,7 +6,7 @@
 <title>SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev</title>
 <meta name="description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
 <link rel="canonical" href="https://toolsharp.dev/tools/share-pad.html">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
@@ -61,7 +61,7 @@
         <textarea id="autoLoadedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn" onclick="copyAutoLoaded()">Copy Text</button>
+        <button class="btn" onclick="copyAutoLoaded(this)">Copy Text</button>
         <button class="btn secondary" onclick="dismissAutoLoaded()">Create New Share</button>
       </div>
     </div>
@@ -85,21 +85,21 @@
             <label><span class="key">6-Digit Dictation Code</span></label>
             <div style="display: flex; gap: 8px; align-items: center;">
               <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
-              <button class="btn secondary" onclick="copyValue('shareCode')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyValue(this,'shareCode')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 12px;">
             <label><span class="key">Quick Share Link</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="shareLink" readonly style="flex: 1;">
-              <button class="btn secondary" onclick="copyValue('shareLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyValue(this,'shareLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 0;">
             <label><span class="key">Offline Fallback Link (No database)</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="offlineLink" readonly style="flex: 1; font-size: 11px;">
-              <button class="btn secondary" onclick="copyValue('offlineLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyValue(this,'offlineLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@
             <textarea id="retrievedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
           </div>
           <div class="btn-row">
-            <button class="btn secondary" onclick="copyValue('retrievedOutput')">Copy Output</button>
+            <button class="btn secondary" onclick="copyValue(this,'retrievedOutput')">Copy Output</button>
           </div>
         </div>
       </div>
@@ -142,6 +142,13 @@
     </ul>
   </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
 
 <script src="../js/share-pad.js" defer></script>
 

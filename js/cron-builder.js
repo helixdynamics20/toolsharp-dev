@@ -38,6 +38,19 @@ function onFreqChange() {
 }
 onFreqChange();
 
+function clampField(id, min, max) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const v = parseInt(el.value, 10);
+  if (isNaN(v)) return el.value || null;
+  if (v < min || v > max) {
+    el.style.borderColor = 'var(--red)';
+    return null;
+  }
+  el.style.borderColor = '';
+  return String(v);
+}
+
 function buildCron() {
   const flavor = document.getElementById('cronFlavor').value;
   const freq = document.getElementById('cronFreq').value;
@@ -45,33 +58,49 @@ function buildCron() {
 
   let min = '*', hour = '*', dom = '*', month = '*', dow = flavor === 'quartz' ? '?' : '*';
   let explanation = '';
+  let validationError = '';
 
   if (freq === 'everyMinute') {
     explanation = 'Runs every minute, every hour, every day.';
   } else if (freq === 'everyNMinutes') {
-    const n = val('cronN') || '15';
-    min = `*/${n}`;
-    explanation = `Runs every ${n} minute(s), around the clock, every day.`;
+    const n = clampField('cronN', 1, 59);
+    if (n === null) { validationError = 'Interval must be 1–59.'; }
+    else { min = `*/${n}`; explanation = `Runs every ${n} minute(s), around the clock, every day.`; }
   } else if (freq === 'hourly') {
-    min = val('cronMinute') || '0';
-    explanation = `Runs once an hour, at minute ${min} of every hour.`;
+    const m = clampField('cronMinute', 0, 59);
+    if (m === null) { validationError = 'Minute must be 0–59.'; }
+    else { min = m; explanation = `Runs once an hour, at minute ${min} of every hour.`; }
   } else if (freq === 'daily') {
-    hour = val('cronHour') || '0';
-    min = val('cronMinute') || '0';
-    explanation = `Runs once a day at ${pad(hour)}:${pad(min)}.`;
+    const h = clampField('cronHour', 0, 23);
+    const m = clampField('cronMinute', 0, 59);
+    if (h === null || m === null) { validationError = 'Hour must be 0–23 and minute must be 0–59.'; }
+    else { hour = h; min = m; explanation = `Runs once a day at ${pad(hour)}:${pad(min)}.`; }
   } else if (freq === 'weekly') {
     const dowVal = val('cronDow') || '1';
-    hour = val('cronHour') || '0';
-    min = val('cronMinute') || '0';
-    dow = flavor === 'quartz' ? quartzDow(dowVal) : dowVal;
-    dom = flavor === 'quartz' ? '?' : '*';
-    explanation = `Runs weekly on ${dowName(dowVal)} at ${pad(hour)}:${pad(min)}.`;
+    const h = clampField('cronHour', 0, 23);
+    const m = clampField('cronMinute', 0, 59);
+    if (h === null || m === null) { validationError = 'Hour must be 0–23 and minute must be 0–59.'; }
+    else {
+      hour = h; min = m;
+      dow = flavor === 'quartz' ? quartzDow(dowVal) : dowVal;
+      dom = flavor === 'quartz' ? '?' : '*';
+      explanation = `Runs weekly on ${dowName(dowVal)} at ${pad(hour)}:${pad(min)}.`;
+    }
   } else if (freq === 'monthly') {
-    dom = val('cronDom') || '1';
-    hour = val('cronHour') || '0';
-    min = val('cronMinute') || '0';
-    dow = flavor === 'quartz' ? '?' : '*';
-    explanation = `Runs monthly on day ${dom} at ${pad(hour)}:${pad(min)}.`;
+    const d = clampField('cronDom', 1, 31);
+    const h = clampField('cronHour', 0, 23);
+    const m = clampField('cronMinute', 0, 59);
+    if (d === null || h === null || m === null) { validationError = 'Day must be 1–31, hour 0–23, minute 0–59.'; }
+    else {
+      dom = d; hour = h; min = m;
+      dow = flavor === 'quartz' ? '?' : '*';
+      explanation = `Runs monthly on day ${dom} at ${pad(hour)}:${pad(min)}.`;
+    }
+  }
+
+  if (validationError) {
+    document.getElementById('cronExplain').innerHTML = `<div class="callout error">${validationError}</div>`;
+    return;
   }
 
   let expr;
@@ -85,12 +114,13 @@ function buildCron() {
   out.textContent = expr;
   out.classList.remove('empty');
 
-  document.getElementById('cronExplain').innerHTML = `<div class="callout ok">${explanation}</div>`;
+  const nextRuns = getNextRuns(expr, 5);
+  const nextHtml = nextRuns.length ? `<div style="margin-top:10px; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);">Next ${nextRuns.length} runs:<br>${nextRuns.map(d => '  ' + formatRun(d)).join('<br>')}</div>` : '';
+  document.getElementById('cronExplain').innerHTML = `<div class="callout ok">${explanation}${nextHtml}</div>`;
 }
 
 function pad(n) { n = String(n); return n.length < 2 ? '0' + n : n; }
 function quartzDow(standardDow) {
-  // standard: 0=Sun..6=Sat -> quartz: 1=SUN..7=SAT
   return (parseInt(standardDow, 10) + 1).toString();
 }
 function dowName(v) {
@@ -117,12 +147,14 @@ function explainPasted() {
     return;
   }
 
-  resultDiv.innerHTML = `<div class="config-block" style="margin-top:18px;"><div class="tab">explanation</div><div class="body"><div class="callout ok">${html}</div></div></div>`;
+  const nextRuns = getNextRuns(input, 5);
+  const nextHtml = nextRuns.length ? `<div style="margin-top:10px; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);">Next ${nextRuns.length} runs:<br>${nextRuns.map(d => '  ' + formatRun(d)).join('<br>')}</div>` : '';
+  resultDiv.innerHTML = `<div class="config-block" style="margin-top:18px;"><div class="tab">explanation</div><div class="body"><div class="callout ok">${html}${nextHtml}</div></div></div>`;
 }
 
 function describeFields(f) {
   let parts = [];
-  if (f.hasSeconds) parts.push(f.sec === '0' || f.sec === '*' && false ? '' : (f.sec === '0' ? '' : `at second ${f.sec}`));
+  if (f.hasSeconds && f.sec !== '0') parts.push(`at second ${f.sec}`);
   const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
   const hourDesc = f.hour === '*' ? 'every hour' : `hour ${f.hour}`;
   const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `on day-of-month ${f.dom}`;
@@ -136,4 +168,50 @@ function describeFields(f) {
   else out += ' (5-field format — treat this as standard/Hangfire cron.)';
   return out;
 }
-function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent); }
+function matchesField(field, value) {
+  if (field === '*' || field === '?') return true;
+  return field.split(',').some(part => {
+    if (part.includes('/')) {
+      const [range, step] = part.split('/');
+      const s = parseInt(step, 10);
+      if (range === '*') return value % s === 0;
+      const start = parseInt(range, 10);
+      return value >= start && (value - start) % s === 0;
+    }
+    if (part.includes('-')) {
+      const [lo, hi] = part.split('-').map(Number);
+      return value >= lo && value <= hi;
+    }
+    return parseInt(part, 10) === value;
+  });
+}
+
+function getNextRuns(expr, count) {
+  const fields = expr.trim().split(/\s+/);
+  let minF, hourF, domF, monF, dowF;
+  if (fields.length === 5) {
+    [minF, hourF, domF, monF, dowF] = fields;
+  } else if (fields.length >= 6) {
+    [, minF, hourF, domF, monF, dowF] = fields;
+  } else return [];
+
+  const results = [];
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
+
+  for (let i = 0; i < 525960 && results.length < count; i++) {
+    const m = d.getMinutes(), h = d.getHours(), dom = d.getDate(), mon = d.getMonth() + 1, dow = d.getDay();
+    if (matchesField(minF, m) && matchesField(hourF, h) && matchesField(domF, dom) && matchesField(monF, mon) && matchesField(dowF, dow)) {
+      results.push(new Date(d));
+    }
+    d.setMinutes(d.getMinutes() + 1);
+  }
+  return results;
+}
+
+function formatRun(d) {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return `${days[d.getDay()]} ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function copyText(id, btn) { navigator.clipboard.writeText(document.getElementById(id).textContent); flashCopied(btn); }
