@@ -75,4 +75,5 @@ window.addEventListener('load', function() {
   document.getElementById('secIn').value = d.getSeconds();
   
   setEpochNow();
+  convertDateToEpoch();
 });
