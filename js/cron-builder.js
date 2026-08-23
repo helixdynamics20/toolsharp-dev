@@ -152,21 +152,49 @@ function explainPasted() {
   resultDiv.innerHTML = `<div class="config-block" style="margin-top:18px;"><div class="tab">explanation</div><div class="body"><div class="callout ok">${html}${nextHtml}</div></div></div>`;
 }
 
-function describeFields(f) {
-  let parts = [];
-  if (f.hasSeconds && f.sec !== '0') parts.push(`at second ${f.sec}`);
-  const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
-  const hourDesc = f.hour === '*' ? 'every hour' : `hour ${f.hour}`;
-  const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `on day-of-month ${f.dom}`;
-  const monthDesc = f.month === '*' ? '' : `in month ${f.month}`;
-  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `on day-of-week ${f.dow}`;
+function describeFieldValue(name, value) {
+  if (value === '*') return 'every ' + name;
+  if (value === '?') return 'any (wildcard)';
+  if (value.startsWith('*/')) return 'every ' + value.slice(2) + ' ' + name + (parseInt(value.slice(2)) > 1 ? 's' : '');
+  if (/^\d+$/.test(value)) {
+    if (name === 'minute') return 'at :' + String(value).padStart(2, '0');
+    if (name === 'hour') return 'at ' + String(value).padStart(2, '0') + ':xx';
+    if (name === 'second') return 'at second ' + value;
+    if (name === 'month') return 'in ' + (['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+value] || 'month ' + value);
+    if (name === 'day-of-week') return 'on ' + (['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][+value] || 'day ' + value);
+    return 'on day ' + value;
+  }
+  if (value.includes('-')) { const [a, b] = value.split('-'); return `${a} through ${b}`; }
+  if (value.includes(',')) return 'at ' + value;
+  return value;
+}
 
-  let out = `Runs ${minDesc}, ${hourDesc}`;
-  [domDesc, monthDesc, dowDesc].filter(Boolean).forEach(p => out += `, ${p}`);
-  out += '.';
-  if (f.hasSeconds) out += ' (6/7-field format — treat this as Quartz.NET.)';
-  else out += ' (5-field format — treat this as standard/Hangfire cron.)';
-  return out;
+function describeFields(f) {
+  const flavor = f.hasSeconds ? 'Quartz.NET (6-field)' : 'Hangfire / standard (5-field)';
+  const rows = [];
+  if (f.hasSeconds) rows.push({ field: 'second', value: f.sec, desc: describeFieldValue('second', f.sec) });
+  rows.push({ field: 'minute',     value: f.min,   desc: describeFieldValue('minute', f.min) });
+  rows.push({ field: 'hour',       value: f.hour,  desc: describeFieldValue('hour', f.hour) });
+  rows.push({ field: 'day-of-month', value: f.dom, desc: describeFieldValue('day-of-month', f.dom) });
+  rows.push({ field: 'month',      value: f.month, desc: describeFieldValue('month', f.month) });
+  rows.push({ field: 'day-of-week', value: f.dow,  desc: describeFieldValue('day-of-week', f.dow) });
+
+  const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
+  const hourDesc = f.hour === '*' ? 'around the clock' : `at hour ${f.hour}`;
+  const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `, day ${f.dom} of the month`;
+  const monthDesc = f.month === '*' ? '' : `, in month ${f.month}`;
+  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `, on day-of-week ${f.dow}`;
+  const summary = `Runs ${minDesc}, ${hourDesc}${domDesc}${monthDesc}${dowDesc}.`;
+
+  const tableRows = rows.map(r =>
+    `<div style="display:flex;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--mono);font-size:12px;">` +
+    `<span style="width:110px;flex-shrink:0;color:var(--ink-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px;">${r.field}</span>` +
+    `<code style="width:60px;flex-shrink:0;color:var(--violet);">${r.value}</code>` +
+    `<span style="color:var(--ink-soft);">${r.desc}</span></div>`
+  ).join('');
+
+  return `<div style="margin-bottom:8px;">${summary} <span style="color:var(--ink-faint);font-size:11px;">(${flavor})</span></div>` +
+         `<div style="border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 12px;margin-top:6px;">${tableRows}</div>`;
 }
 function matchesField(field, value) {
   if (field === '*' || field === '?') return true;

@@ -228,7 +228,8 @@
         name: 'text',
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
-          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' }
+          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
+          { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       },
       {
@@ -245,8 +246,7 @@
           { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
           { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
           { name: 'Regex Tester', path: 'tools/regex-tester.html' },
-          { name: 'Password Generator', path: 'tools/password-generator.html' },
-          { name: 'Share Pad', path: 'tools/share-pad.html' }
+          { name: 'Password Generator', path: 'tools/password-generator.html' }
         ]
       }
     ];
@@ -309,6 +309,21 @@
 
       navLinks.appendChild(dropdownContainer);
       navLinks.appendChild(toggleBtn);
+    }
+
+    // Inject Vercel Web Analytics & Speed Insights
+    try {
+      var vaScript = document.createElement('script');
+      vaScript.defer = true;
+      vaScript.src = '/_vercel/insights/script.js';
+      document.head.appendChild(vaScript);
+
+      var siScript = document.createElement('script');
+      siScript.defer = true;
+      siScript.src = '/_vercel/speed-insights/script.js';
+      document.head.appendChild(siScript);
+    } catch (e) {
+      console.warn('Vercel scripts failed to load:', e);
     }
   });
 
