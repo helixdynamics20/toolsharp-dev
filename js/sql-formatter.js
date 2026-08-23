@@ -178,8 +178,28 @@ function formatSQL(sql, opts = {}) {
   let lineTokens = [];
   let inSelectList = false;
 
+  function smartJoin(toks) {
+    let s = '';
+    for (let j = 0; j < toks.length; j++) {
+      const t = toks[j];
+      const prev = toks[j - 1];
+      if (t === '.') { s = s.trimEnd() + '.'; continue; }
+      if (prev === '.') { s += t; continue; }
+      if (t === ',' || t === ')') { s = s.trimEnd() + t; continue; }
+      if (t === '(') {
+        // function calls hug the paren (SUM(x)); keywords like IN/WHERE keep a space
+        const noSpace = prev !== undefined && !isKw(prev) && prev !== ',' && prev !== '(';
+        s += (s && !noSpace ? ' ' : '') + t;
+        continue;
+      }
+      if (prev === '(') { s += t; continue; }
+      s += (s ? ' ' : '') + t;
+    }
+    return s;
+  }
+
   function flushLine(extraIndent = 0) {
-    const line = lineTokens.join(' ').trim();
+    const line = smartJoin(lineTokens).trim();
     if (line) out += indent(depth + extraIndent) + line + '\n';
     lineTokens = [];
   }
