@@ -34,7 +34,8 @@ const staticFiles = [
   'robots.txt',
   'sitemap.xml',
   'google461995a17a0d27be.html',
-  'LICENSE'
+  'LICENSE',
+  'service-worker.js'
 ];
 
 staticFiles.forEach(file => {

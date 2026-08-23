@@ -52,13 +52,23 @@
     </div>
   </div>
 
-  <div class="tool-grid single">
+  <div class="tool-grid">
     <div class="config-block">
       <div class="tab">token.jwt</div>
       <div class="body">
         <div class="field">
           <textarea id="jwtInput" rows="5" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" oninput="decodeJwt()"></textarea>
         </div>
+      </div>
+    </div>
+    <div class="config-block">
+      <div class="tab">signature verification (HMAC-SHA256)</div>
+      <div class="body">
+        <div class="field">
+          <label>Secret Key (HS256)</label>
+          <input type="text" id="jwtSecret" placeholder="Type secret key here to verify signature..." oninput="decodeJwt()">
+        </div>
+        <div id="verifyResult" class="callout" style="margin-top: 12px; display:none;"></div>
       </div>
     </div>
   </div>

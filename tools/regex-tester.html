@@ -56,32 +56,77 @@
     </div>
   </div>
 
-  <div class="tool-grid">
-    <div class="config-block">
-      <div class="tab">pattern.regex</div>
-      <div class="body">
-        <div class="field">
-          <label><span class="key">Pattern</span></label>
-          <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$" oninput="runRegex()">
+  <div class="tool-grid" style="display: grid; grid-template-columns: 1fr 300px; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="config-block">
+        <div class="tab">pattern.regex</div>
+        <div class="body">
+          <div class="field">
+            <label><span class="key">Pattern</span></label>
+            <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$" oninput="runRegex()">
+          </div>
+          <div class="check-row"><input type="checkbox" id="rxIgnoreCase" onchange="runRegex()"><label for="rxIgnoreCase">IgnoreCase</label></div>
+          <div class="check-row"><input type="checkbox" id="rxMultiline" onchange="runRegex()"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
+          <div class="check-row"><input type="checkbox" id="rxSingleline" onchange="runRegex()"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
+          <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
+          <div class="field" style="margin-top:14px;">
+            <label><span class="key">Test string</span></label>
+            <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
+          </div>
         </div>
-        <div class="check-row"><input type="checkbox" id="rxIgnoreCase" onchange="runRegex()"><label for="rxIgnoreCase">IgnoreCase</label></div>
-        <div class="check-row"><input type="checkbox" id="rxMultiline" onchange="runRegex()"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
-        <div class="check-row"><input type="checkbox" id="rxSingleline" onchange="runRegex()"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
-        <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
-        <div class="field" style="margin-top:14px;">
-          <label><span class="key">Test string</span></label>
-          <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
+      </div>
+
+      <div class="config-block">
+        <div class="tab">code generator</div>
+        <div class="body" style="padding:16px;">
+          <div style="display:flex; gap: 10px; margin-bottom: 12px;">
+            <button class="btn btn-sm" onclick="showTab('cs')">C# (.NET)</button>
+            <button class="btn btn-sm" onclick="showTab('js')">JavaScript</button>
+          </div>
+          <pre id="codeGen" style="background:#151126; padding: 12px; border-radius: 4px; color:#a9b2c3; font-size:12.5px; overflow-x:auto; margin:0;"></pre>
         </div>
+      </div>
+
+      <div>
+        <div class="config-block">
+          <div class="tab">highlighted matches</div>
+          <div class="output-block"><div id="regexHighlighted" class="empty" style="padding:16px; font-family: var(--mono); font-size: 13.5px;">Enter a pattern and test string.</div></div>
+        </div>
+        <div id="rxMeta"></div>
+        <div id="rxGroups"></div>
       </div>
     </div>
 
-    <div>
-      <div class="config-block">
-        <div class="tab">highlighted matches</div>
-        <div class="output-block"><div id="regexHighlighted" class="empty" style="padding:16px; font-family: var(--mono); font-size: 13.5px;">Enter a pattern and test string.</div></div>
+    <!-- Regex Cheat Sheet Sidebar -->
+    <div class="config-block" style="align-self: start;">
+      <div class="tab">cheat sheet</div>
+      <div class="body" style="font-size: 12.5px; line-height: 1.6; padding:12px;">
+        <div style="font-weight:600; margin-bottom:4px; color:var(--violet);">Anchors</div>
+        <div style="margin-bottom:8px;">
+          <code>^</code> String start<br>
+          <code>$</code> String end
+        </div>
+        <div style="font-weight:600; margin-bottom:4px; color:var(--violet);">Classes</div>
+        <div style="margin-bottom:8px;">
+          <code>.</code> Any character<br>
+          <code>\d</code> Digit [0-9]<br>
+          <code>\w</code> Word character<br>
+          <code>\s</code> Whitespace
+        </div>
+        <div style="font-weight:600; margin-bottom:4px; color:var(--violet);">Quantifiers</div>
+        <div style="margin-bottom:8px;">
+          <code>*</code> 0 or more<br>
+          <code>+</code> 1 or more<br>
+          <code>?</code> 0 or 1<br>
+          <code>{n,m}</code> n to m times
+        </div>
+        <div style="font-weight:600; margin-bottom:4px; color:var(--violet);">Groups</div>
+        <div>
+          <code>(abc)</code> Group<br>
+          <code>(?:abc)</code> Non-capturing<br>
+          <code>(?&lt;name&gt;...)</code> Named group
+        </div>
       </div>
-      <div id="rxMeta"></div>
-      <div id="rxGroups"></div>
     </div>
   </div>
 
