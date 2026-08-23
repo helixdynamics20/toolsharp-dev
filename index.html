@@ -33,14 +33,6 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js" defer></script>
-  <style>
-    .cat-nav { display:flex; align-items:stretch; border-bottom:1px solid var(--rule); margin-bottom:0; background:var(--bg-raised); }
-    .cat-nav a { padding:9px 18px; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); text-decoration:none; border-right:1px solid var(--rule); transition:color .15s; white-space:nowrap; }
-    .cat-nav a:last-child { border-right:none; }
-    .cat-nav a:hover { color:var(--ink); background:var(--violet-wash); }
-    .cat-nav a.active { color:var(--violet-dark); font-weight:600; background:var(--violet-wash); border-bottom:2px solid var(--violet); }
-    body.dark-theme .cat-nav { background:#0f0d1a; }
-  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -83,15 +75,7 @@
       <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off" oninput="filterTools()">
     </div>
 
-    <nav class="cat-nav" id="catNav">
-      <a href="#cat-json" onclick="setCatActive(this)">json/</a>
-      <a href="#cat-encoding" onclick="setCatActive(this)">encoding/</a>
-      <a href="#cat-text" onclick="setCatActive(this)">text/</a>
-      <a href="#cat-hashes" onclick="setCatActive(this)">hashes/</a>
-      <a href="#cat-dev" onclick="setCatActive(this)">dev-helpers/</a>
-    </nav>
-
-    <section id="tools" class="dir-listing">
+<section id="tools" class="dir-listing">
       <div class="dir-row-head">
         <div>path</div>
         <div>description</div>
@@ -241,28 +225,7 @@
         }
         cat.style.display = anyVisible ? '' : 'none';
       });
-      document.getElementById('catNav').style.display = q ? 'none' : '';
     }
-
-    function setCatActive(el) {
-      document.querySelectorAll('#catNav a').forEach(a => a.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    // Scrollspy: highlight active category in nav as user scrolls
-    window.addEventListener('DOMContentLoaded', () => {
-      const cats = ['cat-json','cat-encoding','cat-text','cat-hashes','cat-dev'];
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            document.querySelectorAll('#catNav a').forEach(a => a.classList.remove('active'));
-            const link = document.querySelector(`#catNav a[href="#${entry.target.id}"]`);
-            if (link) link.classList.add('active');
-          }
-        });
-      }, { rootMargin: '-10% 0px -80% 0px' });
-      cats.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
-    });
   </script>
 </body>
 

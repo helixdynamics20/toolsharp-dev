@@ -200,5 +200,116 @@
     }
   });
 
+  // Dynamic Header Categorized Navigation Menu
+  window.addEventListener('DOMContentLoaded', function() {
+    var navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    var isToolSubpage = window.location.pathname.includes('/tools/');
+    var pathPrefix = isToolSubpage ? '../' : '';
+
+    var categories = [
+      {
+        name: 'json',
+        items: [
+          { name: 'JSON Formatter', path: 'tools/json-formatter.html' },
+          { name: 'AppSettings Validator', path: 'tools/appsettings-validator.html' }
+        ]
+      },
+      {
+        name: 'encoding',
+        items: [
+          { name: 'Base64 Converter', path: 'tools/base64-converter.html' },
+          { name: 'URL Encoder', path: 'tools/url-encoder.html' },
+          { name: 'JWT Decoder', path: 'tools/jwt-decoder.html' }
+        ]
+      },
+      {
+        name: 'text',
+        items: [
+          { name: 'Diff Checker', path: 'tools/diff-checker.html' },
+          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' }
+        ]
+      },
+      {
+        name: 'hashes',
+        items: [
+          { name: 'Hash Generator', path: 'tools/hash-generator.html' }
+        ]
+      },
+      {
+        name: 'dev-helpers',
+        items: [
+          { name: 'Connection String Builder', path: 'tools/connection-string-builder.html' },
+          { name: 'Cron Builder & Explainer', path: 'tools/cron-builder.html' },
+          { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
+          { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
+          { name: 'Regex Tester', path: 'tools/regex-tester.html' },
+          { name: 'Password Generator', path: 'tools/password-generator.html' },
+          { name: 'Share Pad', path: 'tools/share-pad.html' }
+        ]
+      }
+    ];
+
+    var dropdownContainer = document.createElement('div');
+    dropdownContainer.style.display = 'flex';
+    dropdownContainer.style.gap = '6px';
+    dropdownContainer.style.alignItems = 'center';
+
+    categories.forEach(function(cat) {
+      var dropdown = document.createElement('div');
+      dropdown.className = 'nav-dropdown';
+
+      var trigger = document.createElement('div');
+      trigger.className = 'nav-dropdown-trigger';
+      trigger.textContent = cat.name + '/';
+
+      var menu = document.createElement('div');
+      menu.className = 'nav-dropdown-menu';
+
+      cat.items.forEach(function(item) {
+        var a = document.createElement('a');
+        a.className = 'nav-dropdown-item';
+        a.href = pathPrefix + item.path;
+        a.textContent = item.name;
+        menu.appendChild(a);
+      });
+
+      dropdown.appendChild(trigger);
+      dropdown.appendChild(menu);
+      dropdownContainer.appendChild(dropdown);
+
+      trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isActive = dropdown.classList.contains('active');
+        closeAllDropdowns();
+        if (!isActive) dropdown.classList.add('active');
+      });
+    });
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.nav-dropdown').forEach(function(d) {
+        d.classList.remove('active');
+      });
+    }
+
+    document.addEventListener('click', closeAllDropdowns);
+
+    var toggleBtn = document.getElementById('darkModeToggle');
+    if (toggleBtn) {
+      var existingAllTools = Array.from(navLinks.querySelectorAll('a')).find(function(el) {
+        return el.textContent.includes('← all tools') || el.textContent.includes('← tools');
+      });
+
+      navLinks.innerHTML = '';
+      if (isToolSubpage && existingAllTools) {
+        existingAllTools.textContent = '← tools';
+        navLinks.appendChild(existingAllTools);
+      }
+
+      navLinks.appendChild(dropdownContainer);
+      navLinks.appendChild(toggleBtn);
+    }
+  });
 
 })();
