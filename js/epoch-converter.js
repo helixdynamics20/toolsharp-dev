@@ -7,6 +7,7 @@ function setEpochNow() {
 function convertEpoch() {
   const val = document.getElementById('epochInput').value.trim();
   if (!val) {
+    document.getElementById('isoOutput').value = '';
     document.getElementById('utcOutput').value = '';
     document.getElementById('localOutput').value = '';
     return;
@@ -14,6 +15,7 @@ function convertEpoch() {
 
   let num = parseInt(val, 10);
   if (isNaN(num)) {
+    document.getElementById('isoOutput').value = 'Invalid timestamp';
     document.getElementById('utcOutput').value = 'Invalid timestamp';
     document.getElementById('localOutput').value = 'Invalid timestamp';
     return;
@@ -31,6 +33,7 @@ function convertEpoch() {
     return;
   }
 
+  document.getElementById('isoOutput').value = d.toISOString();
   document.getElementById('utcOutput').value = d.toUTCString();
   document.getElementById('localOutput').value = d.toString();
 }

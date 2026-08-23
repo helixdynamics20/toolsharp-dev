@@ -95,6 +95,12 @@
         </div>
 
         <div class="field" style="margin-top: 20px;">
+          <label>ISO 8601</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="isoOutput" readonly>
+            <button class="btn" onclick="copyResult('isoOutput', this)">Copy</button>
+          </div>
+
           <label>Result UTC Time</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="utcOutput" readonly>
