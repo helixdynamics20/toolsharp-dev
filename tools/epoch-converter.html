@@ -3,17 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Epoch & Timestamp Converter — ToolSharp.dev</title>
-<meta name="description" content="Convert Unix timestamps (seconds & milliseconds) to human-readable date-times and vice versa locally.">
+<title>Unix Timestamp / Epoch Converter — ToolSharp.dev</title>
+<meta name="description" content="Convert Unix timestamps (seconds or milliseconds) to human-readable date-times and back. Auto-detects seconds vs milliseconds, shows UTC and local time. Runs in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/epoch-converter.html">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toolsharp.dev/tools/epoch-converter.html">
-<meta property="og:title" content="Epoch & Timestamp Converter — ToolSharp.dev">
-<meta property="og:description" content="Convert Unix timestamps (seconds & milliseconds) to human-readable date-times and vice versa locally.">
+<meta property="og:title" content="Unix Timestamp / Epoch Converter — ToolSharp.dev">
+<meta property="og:description" content="Convert Unix timestamps to human-readable date-times and back. Handles seconds and milliseconds, shows UTC and local time.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/epoch-converter.html">
+<meta name="twitter:title" content="Unix Timestamp / Epoch Converter — ToolSharp.dev">
+<meta name="twitter:description" content="Convert Unix timestamps to human-readable date-times and back. Handles seconds and milliseconds, shows UTC and local time.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Unix Timestamp / Epoch Converter","url":"https://toolsharp.dev/tools/epoch-converter.html","description":"Convert Unix timestamps in seconds or milliseconds to readable date-times and back. Shows both UTC and local time.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
 </head>
 <body>
 <script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
@@ -30,9 +44,10 @@
 
   <div class="tool-header">
     <h1>epoch-converter</h1>
-    <p class="sub">Convert between Unix Epoch timestamps and human-readable dates. Works with seconds and milliseconds formats.</p>
+    <p class="sub">Convert a Unix timestamp (in seconds or milliseconds) to a human-readable date-time — or pick a date and get the timestamp back. Auto-detects the unit, shows both UTC and your local timezone.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
+      <span class="badge">seconds &amp; milliseconds</span>
       <span class="badge">local timezone auto-detected</span>
     </div>
   </div>
@@ -69,7 +84,7 @@
       <div class="tab">human-date-to-epoch</div>
       <div class="body">
         <div class="field">
-          <label>Date & Time (Local)</label>
+          <label>Date &amp; Time (Local)</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="datetime-local" id="datetimePicker" oninput="convertDateToEpoch()" style="width: 100%;">
             <button class="btn btn-sm" onclick="setPickerToNow()">Now</button>
@@ -92,8 +107,19 @@
   </div>
 
   <section class="notes">
-    <h2>// unix epoch timestamp basics</h2>
-    <div class="comment-line"><span class="bar">│</span><p>The Unix Epoch is the number of seconds (or milliseconds) that have elapsed since UTC January 1, 1970. Seconds-based epochs are 10 digits long (e.g. 1700000000) and are standard in Unix systems, databases, and standard APIs. Millisecond-based epochs are 13 digits long and are the native format for JavaScript's <code>Date.now()</code>.</p></div>
+    <h2>// seconds vs. milliseconds — the most common confusion</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Unix timestamps traditionally count <strong>seconds</strong> since the epoch (January 1, 1970 UTC). A seconds-based timestamp is 10 digits long today (e.g. <code>1713876000</code>). JavaScript's <code>Date.now()</code> returns <strong>milliseconds</strong>, making it 13 digits long (e.g. <code>1713876000000</code>). This distinction causes one of the most reliable classes of off-by-1000x bugs: displaying a date 47 years in the past because seconds were used where milliseconds were expected, or displaying a date in the year 56,000 because milliseconds were stored as seconds.</p></div>
+    <ul>
+      <li><strong>In .NET</strong>: use <code>DateTimeOffset.UtcNow.ToUnixTimeSeconds()</code> for seconds and <code>ToUnixTimeMilliseconds()</code> for milliseconds. Do not use <code>(long)(DateTime.UtcNow - new DateTime(1970,1,1)).TotalSeconds</code> — that's fragile and loses the explicit "this is UTC" signal.</li>
+      <li><strong>In JWT claims</strong>: <code>exp</code>, <code>nbf</code>, and <code>iat</code> are always in <strong>seconds</strong>, not milliseconds — a common off-by-1000 bug when a token is validated against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code>.</li>
+      <li><strong>In databases</strong>: SQL Server's <code>DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())</code> returns seconds. If you're storing a timestamp as a <code>bigint</code>, agree on the unit with the application layer before writing the first row — changing it later means migrating all existing values.</li>
+    </ul>
+
+    <h2>// what the Unix epoch actually is</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The epoch is a fixed reference point: midnight UTC, January 1, 1970. Every Unix timestamp is just the number of seconds (or milliseconds) that have elapsed since that moment. There's nothing special about the date itself — it was chosen as a convenient origin point when Unix was being designed. One practical consequence: timestamps before 1970 are negative numbers, and some older APIs or parsers reject negative timestamps without explanation.</p></div>
+
+    <h2>// the year 2038 problem</h2>
+    <div class="comment-line"><span class="bar">│</span><p>32-bit signed integers can hold Unix timestamps up to <code>2,147,483,647</code> — which corresponds to January 19, 2038 at 03:14:07 UTC. Systems that store timestamps in a 32-bit <code>int</code> will overflow on that date. Most modern systems use 64-bit integers for timestamps, but the problem still surfaces in embedded systems, legacy databases using <code>int</code> columns for timestamps, or old serialization formats that pack timestamps into 4 bytes. If you're designing a new system, always use a 64-bit type for timestamps.</p></div>
   </section>
 </main>
 

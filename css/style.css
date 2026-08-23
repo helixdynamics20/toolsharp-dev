@@ -180,6 +180,23 @@ code, kbd, .mono { font-family: var(--mono); }
   cursor: pointer;
 }
 .dir-row:last-child { border-bottom: none; }
+.dir-category {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  border-top: 1px solid var(--rule);
+}
+.dir-category:first-of-type { border-top: none; }
+.dir-category::before { content: '//'; color: var(--violet); font-weight: 600; }
+body.dark-theme .dir-category { background: #0f0d1a; }
 .dir-row:hover { background: var(--violet-wash); }
 .dir-row a.path-link {
   font-family: var(--mono);

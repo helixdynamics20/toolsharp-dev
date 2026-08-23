@@ -49,11 +49,11 @@
 
   <div class="tool-header">
     <h1>share-pad</h1>
-    <p class="sub">Transfer text, configurations, or logs securely. Generates easy-to-dictate 6-digit numeric codes or offline compressed fallback links.</p>
+    <p class="sub">Share a snippet of text via a short 6-digit code (stored temporarily on a server) or an offline URL-hash link where the full content is compressed into the URL itself — no account required, nothing to install.</p>
     <div class="badges">
-      <span class="badge">client-side only</span>
-      <span class="badge">easy 6-digit dictation</span>
-      <span class="badge">serverless fallback</span>
+      <span class="badge">6-digit code</span>
+      <span class="badge">offline URL-hash fallback</span>
+      <span class="badge">no account required</span>
     </div>
   </div>
 
@@ -139,10 +139,12 @@
   <section class="notes">
     <h2>// sharing options explained</h2>
     <ul>
-      <li><strong>6-Digit Numeric Code</strong> — A super simple code (e.g. <code>482 195</code>) that is easy to dictate or copy-paste. Data is securely stored temporarily in an anonymous Key-Value store.</li>
-      <li><strong>Offline Fallback Link</strong> — A serverless link that compresses and serializes the entire text directly inside the URL hash. Perfect for sharing large or highly private keys offline.</li>
-      <li><strong>100% Client-Side Encryption option</strong> — No passwords or accounts are required. Standard data transfer is executed directly between your browsers.</li>
+      <li><strong>6-Digit Code</strong> — A short code like <code>482 195</code> that's easy to read out, type, or paste. When you generate a share, the text is compressed and stored server-side in a temporary key-value store — the code is just a retrieval key. Codes are short-lived and expire automatically. This mode requires a network round-trip to retrieve.</li>
+      <li><strong>Offline Fallback Link</strong> — The entire text is compressed (GZIP) and encoded directly into the URL hash fragment. Nothing is sent to any server — the URL itself contains all the data. The recipient's browser decompresses it locally when they open the link. The trade-off: the URL can get very long for large inputs, which some messaging apps may truncate or reject.</li>
     </ul>
+
+    <h2>// privacy considerations</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The 6-digit code path temporarily stores your text on a server. Do not share anything sensitive — passwords, production secrets, private keys, or personal data — via the code path. For sensitive content, use the offline fallback link: the data never leaves your browser and the recipient's browser, and the server never sees it. If you share a URL with sensitive data in the hash and that URL gets logged (by a proxy, a chat client, or a browser extension), the data is exposed regardless of the hash-fragment design. Treat the offline link as convenient, not cryptographically secure.</p></div>
   </section>
 </main>
 
