@@ -1,8 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester — ToolSharp.dev</title>
+<meta name="description" content="Test a regular expression against sample text with live match and capture group highlighting, with options mapped to .NET's RegexOptions enum.">
+<link rel="canonical" href="https://toolsharp.dev/tools/regex-tester.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/regex-tester.html">
+<meta property="og:title" content="Regex Tester — ToolSharp.dev">
+<meta property="og:description" content="Test a regular expression against sample text with live match and capture group highlighting, with options mapped to .NET's RegexOptions enum.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/regex-tester.html">
+<meta name="twitter:title" content="Regex Tester — ToolSharp.dev">
+<meta name="twitter:description" content="Test a regular expression against sample text with live match and capture group highlighting, with options mapped to .NET's RegexOptions enum.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<style>
+  mark { background: var(--violet); color: #fff; border-radius: 2px; padding: 0 1px; }
+  mark.alt { background: var(--amber); }
+  #regexHighlighted { white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">regex-tester</span></div>
+
+  <div class="tool-header">
+    <h1>regex-tester</h1>
+    <p class="sub">Test a pattern against sample text with live highlighting. Options are labeled to match .NET's <code>RegexOptions</code> enum. Uses JavaScript's regex engine under the hood — see notes below for where that differs from .NET.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">RegexOptions mapped</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">pattern.regex</div>
+      <div class="body">
+        <div class="field">
+          <label><span class="key">Pattern</span></label>
+          <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$" oninput="runRegex()">
+        </div>
+        <div class="check-row"><input type="checkbox" id="rxIgnoreCase" onchange="runRegex()"><label for="rxIgnoreCase">IgnoreCase</label></div>
+        <div class="check-row"><input type="checkbox" id="rxMultiline" onchange="runRegex()"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
+        <div class="check-row"><input type="checkbox" id="rxSingleline" onchange="runRegex()"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
+        <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
+        <div class="field" style="margin-top:14px;">
+          <label><span class="key">Test string</span></label>
+          <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="config-block">
+        <div class="tab">highlighted matches</div>
+        <div class="output-block"><div id="regexHighlighted" class="empty" style="padding:16px; font-family: var(--mono); font-size: 13.5px;">Enter a pattern and test string.</div></div>
+      </div>
+      <div id="rxMeta"></div>
+      <div id="rxGroups"></div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// RegexOptions mapping</h2>
+    <ul>
+      <li><strong>IgnoreCase</strong> → JS <code>i</code> flag — behaves the same way.</li>
+      <li><strong>Multiline</strong> → JS <code>m</code> flag — same meaning in both: <code>^</code>/<code>$</code> match at line breaks, not just string start/end.</li>
+      <li><strong>Singleline</strong> → JS <code>s</code> flag (dotAll). Careful: .NET's "Singleline" and JavaScript's naming here point at the same behavior (<code>.</code> matches <code>\n</code>) despite the confusingly similar name to Multiline — they're independent flags in both engines.</li>
+    </ul>
+
+    <h2>// where .NET regex and JS regex actually diverge</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For the vast majority of patterns you'll write in a backend service — validation, parsing, log scraping — .NET's regex engine and JavaScript's behave identically, since both are backtracking engines with very similar syntax. The differences that matter show up in a few specific spots:</p></div>
+    <ul>
+      <li><strong>Balancing groups</strong> (<code>(?&lt;name1-name2&gt;...)</code>) — a .NET-only construct for matching nested/balanced structures. No JS equivalent; a pattern using this can't be tested here.</li>
+      <li><strong>Named group syntax</strong> — both support <code>(?&lt;name&gt;...)</code>, so this one's actually fine across both.</li>
+      <li><strong>Right-to-left matching</strong> (<code>RegexOptions.RightToLeft</code>) has no JS equivalent.</li>
+      <li><strong>Possessive quantifiers and atomic groups</strong> — supported in .NET 7+, not supported in JS.</li>
+    </ul>
+    <p>If your pattern only uses standard character classes, quantifiers, anchors, and groups (which covers most real-world validation patterns), what you see here will match .NET's behavior exactly.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
 <script>
-const bin = atob("PHNjcmlwdCBzcmM9Ii4uL2pzL3JlZ2V4LXRlc3Rlci5qcyIgZGVmZXI+PC9zY3JpcHQ+");
-const bytes = new Uint8Array(bin.length);
-for (let i = 0; i < bin.length; i++) {
-  bytes[i] = bin.charCodeAt(i);
+function runRegex() {
+  const pattern = document.getElementById('rxPattern').value;
+  const testStr = document.getElementById('rxTestString').value;
+  const highlightDiv = document.getElementById('regexHighlighted');
+  const metaDiv = document.getElementById('rxMeta');
+  const groupsDiv = document.getElementById('rxGroups');
+
+  if (!pattern) {
+    highlightDiv.textContent = 'Enter a pattern and test string.';
+    highlightDiv.classList.add('empty');
+    metaDiv.innerHTML = '';
+    groupsDiv.innerHTML = '';
+    return;
+  }
+
+  let flags = '';
+  if (document.getElementById('rxIgnoreCase').checked) flags += 'i';
+  if (document.getElementById('rxMultiline').checked) flags += 'm';
+  if (document.getElementById('rxSingleline').checked) flags += 's';
+  const findAll = document.getElementById('rxGlobal').checked;
+  if (findAll) flags += 'g';
+
+  let re;
+  try {
+    re = new RegExp(pattern, flags);
+  } catch (e) {
+    highlightDiv.classList.remove('empty');
+    highlightDiv.innerHTML = '';
+    metaDiv.innerHTML = `<div class="callout error">Invalid pattern: ${escapeHtml(e.message)}</div>`;
+    groupsDiv.innerHTML = '';
+    return;
+  }
+
+  if (!testStr) {
+    highlightDiv.textContent = 'Enter a test string to see matches.';
+    highlightDiv.classList.add('empty');
+    metaDiv.innerHTML = '';
+    groupsDiv.innerHTML = '';
+    return;
+  }
+
+  highlightDiv.classList.remove('empty');
+
+  let matches = [];
+  if (findAll) {
+    let m;
+    const globalRe = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
+    while ((m = globalRe.exec(testStr)) !== null) {
+      matches.push(m);
+      if (m[0] === '') globalRe.lastIndex++;
+    }
+  } else {
+    const m = re.exec(testStr);
+    if (m) matches.push(m);
+  }
+
+  // build highlighted output
+  let html = '';
+  let lastIndex = 0;
+  matches.forEach(m => {
+    html += escapeHtml(testStr.slice(lastIndex, m.index));
+    html += `<mark>${escapeHtml(m[0])}</mark>`;
+    lastIndex = m.index + m[0].length;
+  });
+  html += escapeHtml(testStr.slice(lastIndex));
+  highlightDiv.innerHTML = html || '<span class="empty">No matches.</span>';
+
+  metaDiv.innerHTML = `<div class="callout ${matches.length ? 'ok' : 'warn'}" style="margin-top:14px;">${matches.length} match${matches.length === 1 ? '' : 'es'} found.</div>`;
+
+  if (matches.length && matches.some(m => m.length > 1)) {
+    let rows = [];
+    matches.forEach((m, mi) => {
+      for (let gi = 1; gi < m.length; gi++) {
+        if (m[gi] !== undefined) rows.push({k: `match ${mi+1}, group ${gi}`, v: m[gi]});
+      }
+      if (m.groups) {
+        Object.entries(m.groups).forEach(([name, val]) => {
+          if (val !== undefined) rows.push({k: `match ${mi+1}, ${name}`, v: val});
+        });
+      }
+    });
+    groupsDiv.innerHTML = rows.length ? `
+      <div class="config-block" style="margin-top:14px;">
+        <div class="tab">capture groups</div>
+        <div class="result-list">${rows.map(r => `<div class="result-item"><span class="k">${escapeHtml(r.k)}</span><span class="v">${escapeHtml(r.v)}</span></div>`).join('')}</div>
+      </div>` : '';
+  } else {
+    groupsDiv.innerHTML = '';
+  }
 }
-document.write(new TextDecoder("utf-8").decode(bytes));
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 </script>
+
+</body>
+</html>

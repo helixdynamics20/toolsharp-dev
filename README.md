@@ -1,6 +1,6 @@
 # ToolSharp.dev
 
-Ten free, client-side developer tools any backend developer can reach for — connection strings, cron expressions, JWTs, GUIDs, regex, JSON config, Base64, and serverless text sharing. A few lean into .NET/SQL Server specifics since that's where the ideas came from, but nothing here requires knowing .NET to use. Pure static HTML/CSS/JS — no build step, no backend, no dependencies to install.
+Ten free, client-side developer tools any backend developer can reach for — connection strings, cron expressions, JWTs, GUIDs, regex, JSON config, Base64, and text diffing. A few lean into .NET/SQL Server specifics since that's where the ideas came from, but nothing here requires knowing .NET to use. Static HTML/CSS/JS, plus one small serverless function for the share-pad tool.
 
 **Live at:** [toolsharp.dev](https://toolsharp.dev)
 
@@ -9,7 +9,13 @@ Ten free, client-side developer tools any backend developer can reach for — co
 ```
 /
 ├── index.html                          # homepage — directory listing of all tools
-├── css/style.css                       # shared design system
+├── 404.html                            # custom not-found page
+├── favicon.svg
+├── LICENSE                             # MIT
+├── css/style.css                       # shared design system (incl. dark mode)
+├── js/theme.js                         # dark mode toggle, persisted via localStorage
+├── assets/og-image.jpg                 # social share preview image
+├── api/share.js                        # Vercel serverless function backing share-pad (Upstash Redis)
 ├── robots.txt
 ├── sitemap.xml
 └── tools/
@@ -18,42 +24,38 @@ Ten free, client-side developer tools any backend developer can reach for — co
     ├── jwt-decoder.html                # JWT header/payload decoder
     ├── guid-formatter.html             # GUID generator + .NET format converter
     ├── regex-tester.html               # regex tester mapped to RegexOptions
-    ├── appsettings-validator.html      # appsettings.json validator + formatter
-    ├── json-formatter.html             # generic JSON validator, formatter, minifier
-    ├── diff-checker.html               # line-by-line text/code diff
-    ├── base64-converter.html           # Base64 encoder and decoder
-    └── share-pad.html                  # client-side serverless text sharing tool
+    ├── appsettings-validator.html      # appsettings.json validator + formatter + auto-repair
+    ├── json-formatter.html             # generic JSON validator, formatter, minifier + auto-repair
+    ├── diff-checker.html               # side-by-side text/code diff with word-level highlighting
+    ├── base64-converter.html           # Base64 encoder/decoder (UTF-8 safe, URL-safe variant)
+    └── share-pad.html                  # short-link text sharing (backed by api/share.js)
 ```
 
-Every tool runs entirely in the browser. Nothing is sent to a server — this matters both for user trust (people paste connection strings and JWTs into these tools) and for hosting cost (this can run on a free static host forever).
+Every tool except share-pad runs entirely in the browser — nothing sent to a server. share-pad is the one exception: it needs a tiny backend to make short links possible (see below).
+
+## share-pad needs Upstash configured on Vercel
+
+`api/share.js` stores shared text in Upstash Redis via its REST API. For this to work in production, two environment variables must be set in the Vercel project (Settings → Environment Variables):
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+
+Get these from an Upstash account (free tier is enough) → create a Redis database → REST API section has both values. Without them, `/api/share` returns a 500 and share-pad will show an error when creating a link — every other tool is unaffected.
 
 ## Deployment status
 
 - ✅ Hosted on Vercel, connected to the GitHub repo (push to `main` auto-deploys)
 - ✅ Custom domain `toolsharp.dev` live with SSL (via Spaceship DNS → Vercel)
-- ✅ Verified in Google Search Console, `sitemap.xml` submitted (7 pages discovered)
+- ✅ Verified in Google Search Console, `sitemap.xml` submitted
 - ✅ Submitted to Bing Webmaster Tools
+- ⚠️ share-pad requires the Upstash env vars above to be set on Vercel before it'll work live
 
 Redeploying is just `git push` — Vercel picks it up automatically, no manual steps needed.
 
-## Getting indexed
+## License
 
-Indexing is already submitted (see above) — Google/Bing typically take 1-2 weeks to fully index a new domain. Check Search Console's Coverage report periodically; no action needed while waiting.
+MIT — see `LICENSE`. Use it, fork it, ship your own version; credit is appreciated but not enforced beyond what the license requires.
 
-## Getting the first real traffic (months 1-3)
+## Adding a new tool
 
-Dev tools don't grow via SEO alone early on — they grow by being useful enough that developers link to them. Since the tools span both general-purpose (JWT, regex, GUID) and .NET-flavored (connection strings, cron, appsettings.json) use cases, there's more than one community worth posting in. In order of effort:
-
-1. **Post once per relevant community — not the same post copy-pasted everywhere.** r/dotnet or r/csharp for the .NET-specific angle ("cron builder for Hangfire/Quartz, connection string builder..."); r/webdev or r/programming for the general-purpose tools (JWT decoder, regex tester, GUID formatter). Be upfront that you built it — dev communities are fine with that if the tool is genuinely useful and each post is tailored to that community rather than identical spam.
-2. **Answer one Stack Overflow question per tool, where genuinely relevant**, and link the tool only if it directly solves the asker's problem better than a text answer would.
-3. **GitHub README of a related open-source project** (if you have one, or contribute a small doc PR) — a "useful tools" section linking out is a legitimate, low-effort backlink.
-4. Skip paid ads entirely at this stage — the audience is small and specific enough that organic + community placement outperforms spend.
-
-## Adding monetization (once there's consistent traffic — don't rush this)
-
-- Apply for Google AdSense once you're seeing steady daily sessions (rough guideline: 100+/day). A single unobtrusive ad slot below the tool, not interrupting the tool itself.
-- Once you have repeat visitors, consider a small "Pro" tier ($3-5/mo) for things like: saving a history of generated connection strings/cron expressions locally, or removing ads. This needs a backend + auth + payments (Stripe), which is a meaningfully bigger step than the current MVP — only worth it once the free tools have proven there's a returning audience.
-
-## Adding more tools later
-
-Keep the same pattern: one `.html` file per tool in `/tools/`, reuse `css/style.css`, add an entry to `index.html`'s directory listing and to `sitemap.xml`. Good next candidates, in rough order of search demand: a Base64 encoder/decoder, a timestamp/epoch converter, a URL encoder/decoder, a Markdown previewer, a `.gitignore` generator, and an HTTP status code reference.
+One `.html` file per tool in `/tools/`, reuse `css/style.css`, add an entry to `index.html`'s directory listing and to `sitemap.xml`.

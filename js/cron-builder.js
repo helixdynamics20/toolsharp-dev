@@ -1,1 +1,139 @@
-const a3_0x57aa82=a3_0x2c46;(function(_0x26e099,_0x287281){const _0x4d8aa9=a3_0x2c46,_0x22dce2=_0x26e099();while(!![]){try{const _0x369ed1=parseInt(_0x4d8aa9(0x17d))/0x1+parseInt(_0x4d8aa9(0x186))/0x2*(-parseInt(_0x4d8aa9(0x179))/0x3)+parseInt(_0x4d8aa9(0x181))/0x4+parseInt(_0x4d8aa9(0x180))/0x5+-parseInt(_0x4d8aa9(0x185))/0x6*(-parseInt(_0x4d8aa9(0x182))/0x7)+-parseInt(_0x4d8aa9(0x17c))/0x8*(parseInt(_0x4d8aa9(0x183))/0x9)+-parseInt(_0x4d8aa9(0x17f))/0xa*(parseInt(_0x4d8aa9(0x184))/0xb);if(_0x369ed1===_0x287281)break;else _0x22dce2['push'](_0x22dce2['shift']());}catch(_0x2acdbe){_0x22dce2['push'](_0x22dce2['shift']());}}}(a3_0x5d84,0x7bc41));function a3_0x5d84(){const _0x39a1e7=['utf-8','16YtPIVu','629307VSbaXr','PCFET0NUWVBFIGh0bWw+DQo8aHRtbCBsYW5nPSJlbiI+DQo8aGVhZD4NCjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4NCjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4NCjx0aXRsZT5Dcm9uIEV4cHJlc3Npb24gQnVpbGRlciBmb3IgSGFuZ2ZpcmUgJmFtcDsgUXVhcnR6Lk5FVCDigJQgVG9vbFNoYXJwLmRldjwvdGl0bGU+DQo8bWV0YSBuYW1lPSJkZXNjcmlwdGlvbiIgY29udGVudD0iQnVpbGQgYW5kIGV4cGxhaW4gY3JvbiBleHByZXNzaW9ucyBmb3IgSGFuZ2ZpcmUgKHN0YW5kYXJkIDUtZmllbGQgY3JvbikgYW5kIFF1YXJ0ei5ORVQncyA2LzctZmllbGQgZm9ybWF0IHdpdGggc2Vjb25kcyBhbmQgZGF5LW9mLXdlZWsgcXVpcmtzLiI+DQo8bGluayByZWw9ImNhbm9uaWNhbCIgaHJlZj0iaHR0cHM6Ly90b29sc2hhcnAuZGV2L3Rvb2xzL2Nyb24tYnVpbGRlci5odG1sIj4NCjxsaW5rIHJlbD0iaWNvbiIgdHlwZT0iaW1hZ2Uvc3ZnK3htbCIgaHJlZj0iL2Zhdmljb24uc3ZnIj4NCg0KPCEtLSBPcGVuIEdyYXBoIC8gRmFjZWJvb2sgLS0+DQo8bWV0YSBwcm9wZXJ0eT0ib2c6dHlwZSIgY29udGVudD0id2Vic2l0ZSI+DQo8bWV0YSBwcm9wZXJ0eT0ib2c6dXJsIiBjb250ZW50PSJodHRwczovL3Rvb2xzaGFycC5kZXYvdG9vbHMvY3Jvbi1idWlsZGVyLmh0bWwiPg0KPG1ldGEgcHJvcGVydHk9Im9nOnRpdGxlIiBjb250ZW50PSJDcm9uIEV4cHJlc3Npb24gQnVpbGRlciBmb3IgSGFuZ2ZpcmUgJmFtcDsgUXVhcnR6Lk5FVCDigJQgVG9vbFNoYXJwLmRldiI+DQo8bWV0YSBwcm9wZXJ0eT0ib2c6ZGVzY3JpcHRpb24iIGNvbnRlbnQ9IkJ1aWxkIGFuZCBleHBsYWluIGNyb24gZXhwcmVzc2lvbnMgZm9yIEhhbmdmaXJlIChzdGFuZGFyZCA1LWZpZWxkIGNyb24pIGFuZCBRdWFydHouTkVUJ3MgNi83LWZpZWxkIGZvcm1hdCB3aXRoIHNlY29uZHMgYW5kIGRheS1vZi13ZWVrIHF1aXJrcy4iPg0KPG1ldGEgcHJvcGVydHk9Im9nOmltYWdlIiBjb250ZW50PSJodHRwczovL3Rvb2xzaGFycC5kZXYvYXNzZXRzL29nLWltYWdlLmpwZyI+DQo8bWV0YSBwcm9wZXJ0eT0ib2c6c2l0ZV9uYW1lIiBjb250ZW50PSJUb29sU2hhcnAuZGV2Ij4NCg0KPCEtLSBUd2l0dGVyIC0tPg0KPG1ldGEgbmFtZT0idHdpdHRlcjpjYXJkIiBjb250ZW50PSJzdW1tYXJ5X2xhcmdlX2ltYWdlIj4NCjxtZXRhIG5hbWU9InR3aXR0ZXI6dXJsIiBjb250ZW50PSJodHRwczovL3Rvb2xzaGFycC5kZXYvdG9vbHMvY3Jvbi1idWlsZGVyLmh0bWwiPg0KPG1ldGEgbmFtZT0idHdpdHRlcjp0aXRsZSIgY29udGVudD0iQ3JvbiBFeHByZXNzaW9uIEJ1aWxkZXIgZm9yIEhhbmdmaXJlICZhbXA7IFF1YXJ0ei5ORVQg4oCUIFRvb2xTaGFycC5kZXYiPg0KPG1ldGEgbmFtZT0idHdpdHRlcjpkZXNjcmlwdGlvbiIgY29udGVudD0iQnVpbGQgYW5kIGV4cGxhaW4gY3JvbiBleHByZXNzaW9ucyBmb3IgSGFuZ2ZpcmUgKHN0YW5kYXJkIDUtZmllbGQgY3JvbikgYW5kIFF1YXJ0ei5ORVQncyA2LzctZmllbGQgZm9ybWF0IHdpdGggc2Vjb25kcyBhbmQgZGF5LW9mLXdlZWsgcXVpcmtzLiI+DQo8bWV0YSBuYW1lPSJ0d2l0dGVyOmltYWdlIiBjb250ZW50PSJodHRwczovL3Rvb2xzaGFycC5kZXYvYXNzZXRzL29nLWltYWdlLmpwZyI+DQoNCjxsaW5rIHJlbD0icHJlY29ubmVjdCIgaHJlZj0iaHR0cHM6Ly9mb250cy5nb29nbGVhcGlzLmNvbSI+DQo8bGluayBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PUlCTStQbGV4K01vbm86d2dodEA0MDA7NTAwOzYwMCZmYW1pbHk9SUJNK1BsZXgrU2Fuczp3Z2h0QDQwMDs1MDA7NjAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iLi4vY3NzL3N0eWxlLmNzcyI+DQo8c2NyaXB0IHNyYz0iLi4vanMvdGhlbWUuanMiIGRlZmVyPjwvc2NyaXB0Pg0KPC9oZWFkPg0KPGJvZHk+DQoNCjxoZWFkZXIgY2xhc3M9InNpdGUtaGVhZGVyIj4NCiAgPGRpdiBjbGFzcz0id3JhcCI+DQogICAgPGRpdiBjbGFzcz0ibG9nbyI+PHNwYW4gY2xhc3M9InRlcm0tZG90cyI+PHNwYW4+PC9zcGFuPjxzcGFuPjwvc3Bhbj48c3Bhbj48L3NwYW4+PC9zcGFuPnRvb2w8c3BhbiBjbGFzcz0iYWNjZW50Ij5zaGFycDwvc3Bhbj48c3BhbiBjbGFzcz0iZGltIj4uZGV2PC9zcGFuPjwvZGl2Pg0KICAgIDxuYXYgY2xhc3M9Im5hdi1saW5rcyI+DQogICAgICA8YSBocmVmPSIuLi9pbmRleC5odG1sIj7ihpAgYWxsIHRvb2xzPC9hPg0KICAgICAgPGEgaHJlZj0iIyIgaWQ9ImRhcmtNb2RlVG9nZ2xlIiBvbmNsaWNrPSJldmVudC5wcmV2ZW50RGVmYXVsdCgpOyB0b2dnbGVEYXJrTW9kZSgpIj5kYXJrX3RoZW1lPC9hPg0KICAgIDwvbmF2Pg0KICA8L2Rpdj4NCjwvaGVhZGVyPg0KDQo8bWFpbiBjbGFzcz0id3JhcCI+DQogIDxkaXYgY2xhc3M9ImJyZWFkY3J1bWIiPjxhIGhyZWY9Ii4uL2luZGV4Lmh0bWwiPnRvb2xzaGFycC5kZXY8L2E+PHNwYW4gY2xhc3M9InNlcCI+Lzwvc3Bhbj48YSBocmVmPSIuLi9pbmRleC5odG1sI3Rvb2xzIj50b29sczwvYT48c3BhbiBjbGFzcz0ic2VwIj4vPC9zcGFuPjxzcGFuIGNsYXNzPSJjdXJyZW50Ij5jcm9uLWJ1aWxkZXI8L3NwYW4+PC9kaXY+DQoNCiAgPGRpdiBjbGFzcz0idG9vbC1oZWFkZXIiPg0KICAgIDxoMT5jcm9uLWJ1aWxkZXI8L2gxPg0KICAgIDxwIGNsYXNzPSJzdWIiPkJ1aWxkIGEgc2NoZWR1bGUgdmlzdWFsbHkgYW5kIGdldCB0aGUgZXhwcmVzc2lvbiBmb3IgSGFuZ2ZpcmUgKHN0YW5kYXJkIGNyb24pIG9yIFF1YXJ0ei5ORVQgKDYtZmllbGQsIHdpdGggc2Vjb25kcykuIE9yIHBhc3RlIG9uZSBpbiB0byBnZXQgYSBwbGFpbi1FbmdsaXNoIGV4cGxhbmF0aW9uLjwvcD4NCiAgICA8ZGl2IGNsYXNzPSJiYWRnZXMiPg0KICAgICAgPHNwYW4gY2xhc3M9ImJhZGdlIj5IYW5nZmlyZTwvc3Bhbj4NCiAgICAgIDxzcGFuIGNsYXNzPSJiYWRnZSI+UXVhcnR6Lk5FVDwvc3Bhbj4NCiAgICAgIDxzcGFuIGNsYXNzPSJiYWRnZSI+Y2xpZW50LXNpZGUgb25seTwvc3Bhbj4NCiAgICA8L2Rpdj4NCiAgPC9kaXY+DQoNCiAgPGRpdiBjbGFzcz0idG9vbC1ncmlkIj4NCiAgICA8ZGl2IGNsYXNzPSJjb25maWctYmxvY2siPg0KICAgICAgPGRpdiBjbGFzcz0idGFiIj5zY2hlZHVsZS5jcm9uIOKAlCBidWlsZCBvbmU8L2Rpdj4NCiAgICAgIDxkaXYgY2xhc3M9ImJvZHkiPg0KICAgICAgICA8ZGl2IGNsYXNzPSJmaWVsZCI+DQogICAgICAgICAgPGxhYmVsPjxzcGFuIGNsYXNzPSJrZXkiPlRhcmdldDwvc3Bhbj48L2xhYmVsPg0KICAgICAgICAgIDxzZWxlY3QgaWQ9ImNyb25GbGF2b3IiIG9uY2hhbmdlPSJidWlsZENyb24oKSI+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJoYW5nZmlyZSI+SGFuZ2ZpcmUgLyBzdGFuZGFyZCA1LWZpZWxkIGNyb248L29wdGlvbj4NCiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9InF1YXJ0eiI+UXVhcnR6Lk5FVCAoNi1maWVsZCwgaW5jbHVkZXMgc2Vjb25kcyk8L29wdGlvbj4NCiAgICAgICAgICA8L3NlbGVjdD4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9ImZpZWxkIj4NCiAgICAgICAgICA8bGFiZWw+PHNwYW4gY2xhc3M9ImtleSI+RnJlcXVlbmN5PC9zcGFuPjwvbGFiZWw+DQogICAgICAgICAgPHNlbGVjdCBpZD0iY3JvbkZyZXEiIG9uY2hhbmdlPSJvbkZyZXFDaGFuZ2UoKSI+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJldmVyeU1pbnV0ZSI+RXZlcnkgbWludXRlPC9vcHRpb24+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJldmVyeU5NaW51dGVzIj5FdmVyeSBOIG1pbnV0ZXM8L29wdGlvbj4NCiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9ImhvdXJseSI+RXZlcnkgaG91ciwgYXQgbWludXRlIFg8L29wdGlvbj4NCiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9ImRhaWx5Ij5FdmVyeSBkYXksIGF0IEhIOk1NPC9vcHRpb24+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJ3ZWVrbHkiPkV2ZXJ5IHdlZWssIG9uIGRheSBYIGF0IEhIOk1NPC9vcHRpb24+DQogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSJtb250aGx5Ij5FdmVyeSBtb250aCwgb24gZGF5LW9mLW1vbnRoIFggYXQgSEg6TU08L29wdGlvbj4NCiAgICAgICAgICA8L3NlbGVjdD4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9InJvdy0yIiBpZD0iY3JvbkV4dHJhRmllbGRzIj48L2Rpdj4NCiAgICAgICAgPGRpdiBjbGFzcz0iYnRuLXJvdyI+DQogICAgICAgICAgPGJ1dHRvbiBjbGFzcz0iYnRuIiBvbmNsaWNrPSJidWlsZENyb24oKSI+R2VuZXJhdGU8L2J1dHRvbj4NCiAgICAgICAgPC9kaXY+DQogICAgICA8L2Rpdj4NCiAgICA8L2Rpdj4NCg0KICAgIDxkaXY+DQogICAgICA8ZGl2IGNsYXNzPSJjb25maWctYmxvY2siPg0KICAgICAgICA8ZGl2IGNsYXNzPSJ0YWIiPg0KICAgICAgICAgIG91dHB1dA0KICAgICAgICAgIDxidXR0b24gY2xhc3M9ImNvcHktYnRuIiBvbmNsaWNrPSJjb3B5VGV4dCgnY3Jvbk91dHB1dCcpIj5jb3B5PC9idXR0b24+DQogICAgICAgIDwvZGl2Pg0KICAgICAgICA8ZGl2IGNsYXNzPSJvdXRwdXQtYmxvY2siPjxwcmUgaWQ9ImNyb25PdXRwdXQiIGNsYXNzPSJlbXB0eSI+UGljayBhIGZyZXF1ZW5jeSBhbmQgY2xpY2sgR2VuZXJhdGUuPC9wcmU+PC9kaXY+DQogICAgICA8L2Rpdj4NCiAgICAgIDxkaXYgaWQ9ImNyb25FeHBsYWluIj48L2Rpdj4NCg0KICAgICAgPGRpdiBjbGFzcz0iY29uZmlnLWJsb2NrIiBzdHlsZT0ibWFyZ2luLXRvcDoxOHB4OyI+DQogICAgICAgIDxkaXYgY2xhc3M9InRhYiI+ZXhwbGFpbi5jcm9uIOKAlCBvciBwYXN0ZSBhbiBleHByZXNzaW9uIHRvIGV4cGxhaW48L2Rpdj4NCiAgICAgICAgPGRpdiBjbGFzcz0iYm9keSI+DQogICAgICAgICAgPGRpdiBjbGFzcz0iZmllbGQiPg0KICAgICAgICAgICAgPGlucHV0IHR5cGU9InRleHQiIGlkPSJjcm9uUGFyc2VJbnB1dCIgcGxhY2Vob2xkZXI9ImUuZy4gMCAqLzE1ICogKiAqID8gb3IgKi8xNSAqICogKiAqIj4NCiAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgICA8ZGl2IGNsYXNzPSJidG4tcm93Ij4NCiAgICAgICAgICAgIDxidXR0b24gY2xhc3M9ImJ0biBzZWNvbmRhcnkiIG9uY2xpY2s9ImV4cGxhaW5QYXN0ZWQoKSI+RXhwbGFpbiBpdDwvYnV0dG9uPg0KICAgICAgICAgIDwvZGl2Pg0KICAgICAgICA8L2Rpdj4NCiAgICAgIDwvZGl2Pg0KICAgICAgPGRpdiBpZD0iY3JvblBhc3RlZFJlc3VsdCI+PC9kaXY+DQogICAgPC9kaXY+DQogIDwvZGl2Pg0KDQogIDxzZWN0aW9uIGNsYXNzPSJub3RlcyI+DQogICAgPGgyPi8vIHRoZSBmaWVsZC1jb3VudCB0cmFwPC9oMj4NCiAgICA8ZGl2IGNsYXNzPSJjb21tZW50LWxpbmUiPjxzcGFuIGNsYXNzPSJiYXIiPuKUgjwvc3Bhbj48cD5UaGUgc2luZ2xlIG1vc3QgY29tbW9uIGNyb24gYnVnIGluIC5ORVQgYXBwcyBpc24ndCBhIHdyb25nIHZhbHVlIOKAlCBpdCdzIHVzaW5nIHRoZSB3cm9uZyBudW1iZXIgb2YgZmllbGRzIGZvciB0aGUgc2NoZWR1bGVyLiBIYW5nZmlyZSB1c2VzIHN0YW5kYXJkIDUtZmllbGQgVW5peCBjcm9uIChtaW51dGUsIGhvdXIsIGRheS1vZi1tb250aCwgbW9udGgsIGRheS1vZi13ZWVrKS4gUXVhcnR6Lk5FVCB1c2VzIDYgb3IgNyBmaWVsZHMsIGFkZGluZyA8c3Ryb25nPnNlY29uZHM8L3N0cm9uZz4gYXQgdGhlIGZyb250IGFuZCB0cmVhdGluZyBkYXktb2Ytd2VlayBkaWZmZXJlbnRseSAoMeKAkzcgPSBTVU7igJNTQVQsIGFuZCBpdCB1c2VzIDxjb2RlPj88L2NvZGU+IGluIGVpdGhlciB0aGUgZGF5LW9mLW1vbnRoIG9yIGRheS1vZi13ZWVrIHNsb3QgdG8gbWVhbiAibm8gc3BlY2lmaWMgdmFsdWUsIiBzaW5jZSBRdWFydHogZG9lc24ndCBhbGxvdyBib3RoIHRvIGJlIHNwZWNpZmllZCBhdCBvbmNlKS48L3A+PC9kaXY+DQogICAgPHA+RHJvcHBpbmcgYSBIYW5nZmlyZS1zdHlsZSA1LWZpZWxkIGV4cHJlc3Npb24gaW50byBhIFF1YXJ0ei5ORVQgdHJpZ2dlciAob3IgdmljZSB2ZXJzYSkgd2lsbCBlaXRoZXIgdGhyb3cgYXQgc3RhcnR1cCBvciwgd29yc2UsIHNpbGVudGx5IHJ1biBhdCBhIHRpbWUgeW91IGRpZG4ndCBpbnRlbmQg4oCUIHRoZSBmaWVsZHMganVzdCBzaGlmdCBieSBvbmUgYW5kIGdldCBtaXNyZWFkLjwvcD4NCg0KICAgIDxoMj4vLyBmaWVsZCBvcmRlciByZWZlcmVuY2U8L2gyPg0KICAgIDx1bD4NCiAgICAgIDxsaT48c3Ryb25nPkhhbmdmaXJlIC8gc3RhbmRhcmQgY3JvbiAoNSBmaWVsZHMpOjwvc3Ryb25nPiA8Y29kZT5taW51dGUgaG91ciBkYXktb2YtbW9udGggbW9udGggZGF5LW9mLXdlZWs8L2NvZGU+PC9saT4NCiAgICAgIDxsaT48c3Ryb25nPlF1YXJ0ei5ORVQgKDYgZmllbGRzKTo8L3N0cm9uZz4gPGNvZGU+c2Vjb25kIG1pbnV0ZSBob3VyIGRheS1vZi1tb250aCBtb250aCBkYXktb2Ytd2VlazwvY29kZT4g4oCUIGEgN3RoIG9wdGlvbmFsIHllYXIgZmllbGQgY2FuIGZvbGxvdy48L2xpPg0KICAgICAgPGxpPkluIFF1YXJ0ei5ORVQsIGlmIHlvdSBzcGVjaWZ5IGEgdmFsdWUgZm9yIGRheS1vZi1tb250aCwgZGF5LW9mLXdlZWsgbXVzdCBiZSA8Y29kZT4/PC9jb2RlPiwgYW5kIHZpY2UgdmVyc2Eg4oCUIHlvdSBjYW4ndCBjb25zdHJhaW4gYm90aCBhdCBvbmNlLjwvbGk+DQogICAgPC91bD4NCiAgPC9zZWN0aW9uPg0KPC9tYWluPg0KDQo8Zm9vdGVyPg0KICA8ZGl2IGNsYXNzPSJ3cmFwIj4NCiAgICA8c3Bhbj48YSBocmVmPSIuLi9pbmRleC5odG1sIj7ihpAgdG9vbHNoYXJwLmRldjwvYT48L3NwYW4+DQogICAgPHNwYW4+cnVucyBlbnRpcmVseSBpbiB5b3VyIGJyb3dzZXI8L3NwYW4+DQogIDwvZGl2Pg0KPC9mb290ZXI+DQoNCjxzY3JpcHQgc3JjPSIuLi9qcy9jcm9uLWJ1aWxkZXIuanMiIGRlZmVyPjwvc2NyaXB0Pg0KDQo8L2JvZHk+DQo8L2h0bWw+DQo=','27470GGPjux','4643440SpNvXA','3745020npkXLw','42eONSun','3508101zWuWRh','8173TKCsLP','928818LXpDac','22aTmhbx','write','26052PViTCI','length'];a3_0x5d84=function(){return _0x39a1e7;};return a3_0x5d84();}const bin=atob(a3_0x57aa82(0x17e)),bytes=new Uint8Array(bin[a3_0x57aa82(0x17a)]);for(let i=0x0;i<bin[a3_0x57aa82(0x17a)];i++){bytes[i]=bin['charCodeAt'](i);}function a3_0x2c46(_0x22478c,_0x2a17d8){_0x22478c=_0x22478c-0x178;const _0x5d8482=a3_0x5d84();let _0x2c46cc=_0x5d8482[_0x22478c];return _0x2c46cc;}document[a3_0x57aa82(0x178)](new TextDecoder(a3_0x57aa82(0x17b))['decode'](bytes));
+function onFreqChange() {
+  const freq = document.getElementById('cronFreq').value;
+  const container = document.getElementById('cronExtraFields');
+  container.innerHTML = '';
+
+  function addField(label, id, type, placeholder, colSpanFull) {
+    const div = document.createElement('div');
+    div.className = 'field';
+    if (colSpanFull) div.style.gridColumn = '1 / -1';
+    div.innerHTML = `<label><span class="key">${label}</span></label><input type="${type}" id="${id}" placeholder="${placeholder}">`;
+    container.appendChild(div);
+  }
+  function addSelect(label, id, options) {
+    const div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = `<label><span class="key">${label}</span></label><select id="${id}">${options.map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}</select>`;
+    container.appendChild(div);
+  }
+
+  if (freq === 'everyNMinutes') {
+    addField('Every N minutes', 'cronN', 'number', 'e.g. 15', true);
+  } else if (freq === 'hourly') {
+    addField('At minute', 'cronMinute', 'number', '0-59', true);
+  } else if (freq === 'daily') {
+    addField('Hour (0-23)', 'cronHour', 'number', 'e.g. 2');
+    addField('Minute (0-59)', 'cronMinute', 'number', 'e.g. 30');
+  } else if (freq === 'weekly') {
+    addSelect('Day of week', 'cronDow', [
+      {v:1,l:'Monday'},{v:2,l:'Tuesday'},{v:3,l:'Wednesday'},{v:4,l:'Thursday'},{v:5,l:'Friday'},{v:6,l:'Saturday'},{v:0,l:'Sunday'}
+    ]);
+    addField('Hour (0-23)', 'cronHour', 'number', 'e.g. 6');
+    addField('Minute (0-59)', 'cronMinute', 'number', 'e.g. 0', true);
+  } else if (freq === 'monthly') {
+    addField('Day of month (1-31)', 'cronDom', 'number', 'e.g. 1');
+    addField('Hour (0-23)', 'cronHour', 'number', 'e.g. 3');
+    addField('Minute (0-59)', 'cronMinute', 'number', 'e.g. 0', true);
+  }
+}
+onFreqChange();
+
+function buildCron() {
+  const flavor = document.getElementById('cronFlavor').value;
+  const freq = document.getElementById('cronFreq').value;
+  const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+
+  let min = '*', hour = '*', dom = '*', month = '*', dow = flavor === 'quartz' ? '?' : '*';
+  let explanation = '';
+
+  if (freq === 'everyMinute') {
+    explanation = 'Runs every minute, every hour, every day.';
+  } else if (freq === 'everyNMinutes') {
+    const n = val('cronN') || '15';
+    min = `*/${n}`;
+    explanation = `Runs every ${n} minute(s), around the clock, every day.`;
+  } else if (freq === 'hourly') {
+    min = val('cronMinute') || '0';
+    explanation = `Runs once an hour, at minute ${min} of every hour.`;
+  } else if (freq === 'daily') {
+    hour = val('cronHour') || '0';
+    min = val('cronMinute') || '0';
+    explanation = `Runs once a day at ${pad(hour)}:${pad(min)}.`;
+  } else if (freq === 'weekly') {
+    const dowVal = val('cronDow') || '1';
+    hour = val('cronHour') || '0';
+    min = val('cronMinute') || '0';
+    dow = flavor === 'quartz' ? quartzDow(dowVal) : dowVal;
+    dom = flavor === 'quartz' ? '?' : '*';
+    explanation = `Runs weekly on ${dowName(dowVal)} at ${pad(hour)}:${pad(min)}.`;
+  } else if (freq === 'monthly') {
+    dom = val('cronDom') || '1';
+    hour = val('cronHour') || '0';
+    min = val('cronMinute') || '0';
+    dow = flavor === 'quartz' ? '?' : '*';
+    explanation = `Runs monthly on day ${dom} at ${pad(hour)}:${pad(min)}.`;
+  }
+
+  let expr;
+  if (flavor === 'quartz') {
+    expr = `0 ${min} ${hour} ${dom} ${month} ${dow}`;
+  } else {
+    expr = `${min} ${hour} ${dom} ${month} ${dow}`;
+  }
+
+  const out = document.getElementById('cronOutput');
+  out.textContent = expr;
+  out.classList.remove('empty');
+
+  document.getElementById('cronExplain').innerHTML = `<div class="callout ok">${explanation}</div>`;
+}
+
+function pad(n) { n = String(n); return n.length < 2 ? '0' + n : n; }
+function quartzDow(standardDow) {
+  // standard: 0=Sun..6=Sat -> quartz: 1=SUN..7=SAT
+  return (parseInt(standardDow, 10) + 1).toString();
+}
+function dowName(v) {
+  const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  return names[parseInt(v,10)] || v;
+}
+
+function explainPasted() {
+  const input = document.getElementById('cronParseInput').value.trim();
+  const resultDiv = document.getElementById('cronPastedResult');
+  if (!input) { resultDiv.innerHTML = ''; return; }
+
+  const fields = input.split(/\s+/);
+  let html = '';
+
+  if (fields.length === 5) {
+    const [min, hour, dom, month, dow] = fields;
+    html = describeFields({min, hour, dom, month, dow, hasSeconds:false});
+  } else if (fields.length === 6 || fields.length === 7) {
+    const [sec, min, hour, dom, month, dow] = fields;
+    html = describeFields({sec, min, hour, dom, month, dow, hasSeconds:true});
+  } else {
+    resultDiv.innerHTML = `<div class="callout error" style="margin-top:14px;">That's ${fields.length} field(s) — standard cron (Hangfire) needs 5, Quartz.NET needs 6 or 7. Double check you copied the whole expression.</div>`;
+    return;
+  }
+
+  resultDiv.innerHTML = `<div class="config-block" style="margin-top:18px;"><div class="tab">explanation</div><div class="body"><div class="callout ok">${html}</div></div></div>`;
+}
+
+function describeFields(f) {
+  let parts = [];
+  if (f.hasSeconds) parts.push(f.sec === '0' || f.sec === '*' && false ? '' : (f.sec === '0' ? '' : `at second ${f.sec}`));
+  const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
+  const hourDesc = f.hour === '*' ? 'every hour' : `hour ${f.hour}`;
+  const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `on day-of-month ${f.dom}`;
+  const monthDesc = f.month === '*' ? '' : `in month ${f.month}`;
+  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `on day-of-week ${f.dow}`;
+
+  let out = `Runs ${minDesc}, ${hourDesc}`;
+  [domDesc, monthDesc, dowDesc].filter(Boolean).forEach(p => out += `, ${p}`);
+  out += '.';
+  if (f.hasSeconds) out += ' (6/7-field format — treat this as Quartz.NET.)';
+  else out += ' (5-field format — treat this as standard/Hangfire cron.)';
+  return out;
+}
+function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent); }
