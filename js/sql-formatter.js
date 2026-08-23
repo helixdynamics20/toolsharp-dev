@@ -182,9 +182,18 @@ function formatSQL(sql, opts = {}) {
     let s = '';
     for (let j = 0; j < toks.length; j++) {
       const t = toks[j];
-      if (t === '.') { s = s.trimEnd() + '.'; }
-      else if (j > 0 && toks[j - 1] === '.') { s += t; }
-      else { s += (s ? ' ' : '') + t; }
+      const prev = toks[j - 1];
+      if (t === '.') { s = s.trimEnd() + '.'; continue; }
+      if (prev === '.') { s += t; continue; }
+      if (t === ',' || t === ')') { s = s.trimEnd() + t; continue; }
+      if (t === '(') {
+        // function calls hug the paren (SUM(x)); keywords like IN/WHERE keep a space
+        const noSpace = prev !== undefined && !isKw(prev) && prev !== ',' && prev !== '(';
+        s += (s && !noSpace ? ' ' : '') + t;
+        continue;
+      }
+      if (prev === '(') { s += t; continue; }
+      s += (s ? ' ' : '') + t;
     }
     return s;
   }
