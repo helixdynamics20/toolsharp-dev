@@ -70,3 +70,56 @@ function copyB64Out(btn) {
   navigator.clipboard.writeText(document.getElementById('b64Output').textContent);
   flashCopied(btn);
 }
+
+// Drag & Drop File Handling
+function handleFileSelect(inputEl) {
+  if (inputEl.files && inputEl.files[0]) {
+    processFile(inputEl.files[0]);
+  }
+}
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const rawB64 = e.target.result.split(',')[1] || e.target.result;
+    let finalB64 = rawB64;
+    if (document.getElementById('b64UrlSafe').checked) {
+      finalB64 = toUrlSafe(rawB64);
+    }
+    const output = document.getElementById('b64Output');
+    output.textContent = finalB64;
+    output.classList.remove('empty');
+    document.getElementById('b64Meta').innerHTML = `<div class="callout ok">Loaded and encoded file: <strong>${escapeHtml(file.name)}</strong> (${file.size} bytes).</div>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+window.addEventListener('load', function() {
+  const dropZone = document.getElementById('dropZone');
+  if (!dropZone) return;
+
+  dropZone.addEventListener('click', () => document.getElementById('fileInput').click());
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--violet)';
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = 'var(--rule)';
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--rule)';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  });
+});

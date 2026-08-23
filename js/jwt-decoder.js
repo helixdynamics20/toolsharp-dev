@@ -16,14 +16,16 @@ function formatTs(ts) {
   return `${d.toISOString()} (${d.toString()})`;
 }
 
-function decodeJwt() {
+async function decodeJwt() {
   const input = document.getElementById('jwtInput').value.trim();
   const resultDiv = document.getElementById('jwtResult');
-  if (!input) { resultDiv.innerHTML = ''; return; }
+  const verifyResult = document.getElementById('verifyResult');
+  if (!input) { resultDiv.innerHTML = ''; verifyResult.style.display = 'none'; return; }
 
   const parts = input.split('.');
   if (parts.length < 2) {
     resultDiv.innerHTML = `<div class="callout error" style="margin-top:20px;">That doesn't look like a JWT — expected three dot-separated segments (header.payload.signature), found ${parts.length}.</div>`;
+    verifyResult.style.display = 'none';
     return;
   }
 
@@ -32,12 +34,14 @@ function decodeJwt() {
     header = JSON.parse(base64UrlDecode(parts[0]));
   } catch (e) {
     resultDiv.innerHTML = `<div class="callout error" style="margin-top:20px;">Couldn't parse the header segment as JSON. Check the token was copied in full.</div>`;
+    verifyResult.style.display = 'none';
     return;
   }
   try {
     payload = JSON.parse(base64UrlDecode(parts[1]));
   } catch (e) {
     resultDiv.innerHTML = `<div class="callout error" style="margin-top:20px;">Couldn't parse the payload segment as JSON. Check the token was copied in full.</div>`;
+    verifyResult.style.display = 'none';
     return;
   }
 
@@ -67,8 +71,53 @@ function decodeJwt() {
       </div>
     </div>
     ${timeCallouts ? '<div style="margin-top:6px;">' + timeCallouts + '</div>' : ''}
-    <div class="callout warn" style="margin-top:14px;">Signature not verified — this tool only decodes. A well-formed decode does not mean the token is authentic.</div>
   `;
+
+  // Verify Signature if Secret is provided and algorithm is HS256
+  const secretKey = document.getElementById('jwtSecret').value;
+  if (secretKey) {
+    verifyResult.style.display = 'block';
+    if (header.alg !== 'HS256') {
+      verifyResult.className = 'callout warn';
+      verifyResult.innerHTML = `Verification only supported for HS256 algorithm. Current token uses: <strong>${escapeHtml(header.alg)}</strong>`;
+      return;
+    }
+
+    try {
+      const isVerified = await verifyHS256(parts[0], parts[1], parts[2], secretKey);
+      if (isVerified) {
+        verifyResult.className = 'callout ok';
+        verifyResult.innerHTML = '✔ Signature Verified (HS256)';
+      } else {
+        verifyResult.className = 'callout error';
+        verifyResult.innerHTML = '✖ Invalid Signature';
+      }
+    } catch (err) {
+      verifyResult.className = 'callout error';
+      verifyResult.innerHTML = `Verification error: ${escapeHtml(err.message)}`;
+    }
+  } else {
+    verifyResult.style.display = 'none';
+  }
+}
+
+async function verifyHS256(headerB64, payloadB64, signatureB64, secret) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
+  
+  // Re-encode signatureB64 from URL-safe Base64
+  let sigStr = signatureB64.replace(/-/g, '+').replace(/_/g, '/');
+  while (sigStr.length % 4) sigStr += '=';
+  const sigBytes = new Uint8Array(atob(sigStr).split('').map(c => c.charCodeAt(0)));
+
+  const dataBytes = enc.encode(`${headerB64}.${payloadB64}`);
+  return await crypto.subtle.verify('HMAC', key, sigBytes, dataBytes);
 }
 
 function escapeHtml(str) {

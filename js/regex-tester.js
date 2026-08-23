@@ -86,6 +86,51 @@ function runRegex() {
   } else {
     groupsDiv.innerHTML = '';
   }
+
+  updateCodeGen();
+}
+
+let activeTab = 'cs';
+function showTab(lang) {
+  activeTab = lang;
+  updateCodeGen();
+}
+
+function updateCodeGen() {
+  const pattern = document.getElementById('rxPattern').value || '';
+  const pre = document.getElementById('codeGen');
+  if (!pre) return;
+
+  const escapedPattern = pattern.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  
+  let code = '';
+  if (activeTab === 'cs') {
+    const ignoreCase = document.getElementById('rxIgnoreCase').checked;
+    const multiline = document.getElementById('rxMultiline').checked;
+    const singleline = document.getElementById('rxSingleline').checked;
+    
+    let options = [];
+    if (ignoreCase) options.push('RegexOptions.IgnoreCase');
+    if (multiline) options.push('RegexOptions.Multiline');
+    if (singleline) options.push('RegexOptions.Singleline');
+    
+    const optStr = options.length ? `, ${options.join(' | ')}` : '';
+    code = `using System.Text.RegularExpressions;\n\n// Instantiation\nvar rx = new Regex(@"${pattern.replace(/"/g, '""')}"${optStr});\n\n// Match validation\nbool isMatch = rx.IsMatch(text);\n\n// Extracting matches\nvar matches = rx.Matches(text);\nforeach (Match match in matches)\n{\n    Console.WriteLine(match.Value);\n}`;
+  } else {
+    const ignoreCase = document.getElementById('rxIgnoreCase').checked;
+    const multiline = document.getElementById('rxMultiline').checked;
+    const singleline = document.getElementById('rxSingleline').checked;
+    const global = document.getElementById('rxGlobal').checked;
+    
+    let flags = '';
+    if (ignoreCase) flags += 'i';
+    if (multiline) flags += 'm';
+    if (singleline) flags += 's';
+    if (global) flags += 'g';
+    
+    code = `// Instantiation\nconst rx = /${pattern.replace(/\//g, '\\/')}/${flags};\n\n// Match validation\nconst isMatch = rx.test(text);\n\n// Extracting matches\nconst matches = text.match(rx);\nconsole.log(matches);`;
+  }
+  pre.textContent = code;
 }
 
 function escapeHtml(str) {
@@ -93,3 +138,7 @@ function escapeHtml(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+window.addEventListener('load', function() {
+  updateCodeGen();
+});

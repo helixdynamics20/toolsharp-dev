@@ -33,4 +33,170 @@
     btn.textContent = 'Copied!';
     setTimeout(function () { btn.textContent = orig; }, 1200);
   };
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function(err) {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+
+  // Command Palette Logic
+  var toolsList = [
+    { name: 'Connection String Builder', path: '/tools/connection-string-builder.html' },
+    { name: 'Cron Builder & Explainer', path: '/tools/cron-builder.html' },
+    { name: 'JWT Decoder', path: '/tools/jwt-decoder.html' },
+    { name: 'GUID Formatter & Generator', path: '/tools/guid-formatter.html' },
+    { name: 'Regex Tester', path: '/tools/regex-tester.html' },
+    { name: 'AppSettings Validator', path: '/tools/appsettings-validator.html' },
+    { name: 'JSON Formatter & Minifier', path: '/tools/json-formatter.html' },
+    { name: 'Diff Checker', path: '/tools/diff-checker.html' },
+    { name: 'Base64 Converter', path: '/tools/base64-converter.html' },
+    { name: 'Share Pad', path: '/tools/share-pad.html' },
+    { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator.html' },
+    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' }
+  ];
+
+  var paletteActive = false;
+  var paletteIndex = 0;
+  var filteredTools = [];
+
+  function createPalette() {
+    var backdrop = document.createElement('div');
+    backdrop.className = 'cmd-palette-backdrop';
+    backdrop.id = 'cmdPalette';
+
+    var palette = document.createElement('div');
+    palette.className = 'cmd-palette';
+
+    var searchContainer = document.createElement('div');
+    searchContainer.className = 'cmd-palette-search';
+    
+    var prompt = document.createElement('span');
+    prompt.className = 'cmd-palette-prompt';
+    prompt.textContent = '>';
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Search tools... (Esc to close)';
+    input.className = 'cmd-palette-input';
+    input.autocomplete = 'off';
+
+    searchContainer.appendChild(prompt);
+    searchContainer.appendChild(input);
+    palette.appendChild(searchContainer);
+
+    var list = document.createElement('div');
+    list.className = 'cmd-palette-list';
+    palette.appendChild(list);
+
+    var help = document.createElement('div');
+    help.className = 'cmd-palette-help';
+    help.innerHTML = '<span>↑↓ to navigate · Enter to select</span><span>ESC to close</span>';
+    palette.appendChild(help);
+
+    backdrop.appendChild(palette);
+    document.body.appendChild(backdrop);
+
+    input.focus();
+
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === backdrop) closePalette();
+    });
+
+    input.addEventListener('input', function() {
+      renderList(input.value);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closePalette();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        paletteIndex = (paletteIndex + 1) % filteredTools.length;
+        updateActiveItem();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        paletteIndex = (paletteIndex - 1 + filteredTools.length) % filteredTools.length;
+        updateActiveItem();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (filteredTools[paletteIndex]) {
+          // Adjust path relative to current URL
+          var currentPath = window.location.pathname;
+          var targetPath = filteredTools[paletteIndex].path;
+          if (currentPath.includes('/tools/')) {
+            targetPath = '..' + targetPath;
+          } else {
+            targetPath = targetPath.startsWith('/') ? targetPath.substring(1) : targetPath;
+          }
+          window.location.href = targetPath;
+        }
+      }
+    });
+
+    renderList('');
+  }
+
+  function renderList(query) {
+    filteredTools = toolsList.filter(function(t) {
+      return t.name.toLowerCase().includes(query.toLowerCase());
+    });
+    paletteIndex = 0;
+    
+    var list = document.querySelector('.cmd-palette-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    filteredTools.forEach(function(tool, i) {
+      var item = document.createElement('div');
+      item.className = 'cmd-palette-item' + (i === 0 ? ' active' : '');
+      item.innerHTML = '<span>' + tool.name + '</span><span class="shortcut">jump to</span>';
+      item.addEventListener('click', function() {
+        var currentPath = window.location.pathname;
+        var targetPath = tool.path;
+        if (currentPath.includes('/tools/')) {
+          targetPath = '..' + targetPath;
+        } else {
+          targetPath = targetPath.startsWith('/') ? targetPath.substring(1) : targetPath;
+        }
+        window.location.href = targetPath;
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function updateActiveItem() {
+    var items = document.querySelectorAll('.cmd-palette-item');
+    items.forEach(function(item, i) {
+      if (i === paletteIndex) {
+        item.classList.add('active');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  function closePalette() {
+    var palette = document.getElementById('cmdPalette');
+    if (palette) palette.remove();
+    paletteActive = false;
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      if (paletteActive) {
+        closePalette();
+      } else {
+        paletteActive = true;
+        createPalette();
+      }
+    }
+  });
 })();

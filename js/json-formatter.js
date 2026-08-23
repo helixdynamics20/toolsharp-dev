@@ -272,6 +272,69 @@ function minifyJson() {
   renderResult(result.checks, minified);
 }
 
+function convertToYaml() {
+  const text = document.getElementById('jsonInput').value;
+  const result = validateOnly(text);
+  if (!result) return;
+  if (result.error) {
+    let msg = result.error;
+    if (result.canRepair) {
+      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+    }
+    renderResult([{type: 'error', msg: msg}]);
+    return;
+  }
+
+  function jsonToYaml(obj, depth = 0) {
+    const spacing = '  '.repeat(depth);
+    if (obj === null) return 'null';
+    if (typeof obj === 'undefined') return '';
+    if (typeof obj !== 'object') {
+      if (typeof obj === 'string') {
+        if (obj.includes('\n') || obj.includes(':') || obj.startsWith(' ') || obj.includes('#')) {
+          return `"${obj.replace(/"/g, '\\"')}"`;
+        }
+        return obj;
+      }
+      return String(obj);
+    }
+
+    if (Array.isArray(obj)) {
+      if (obj.length === 0) return '[]';
+      return '\n' + obj.map(item => {
+        const valStr = jsonToYaml(item, depth + 1);
+        if (typeof item === 'object' && item !== null) {
+          // If it is an object or array, indent it correctly
+          return `${spacing}- ${valStr.trimStart()}`;
+        }
+        return `${spacing}- ${valStr}`;
+      }).join('\n');
+    }
+
+    const keys = Object.keys(obj);
+    if (keys.length === 0) return '{}';
+    
+    return keys.map((key, index) => {
+      const val = obj[key];
+      const valStr = jsonToYaml(val, depth + 1);
+      const prefix = index === 0 && depth > 0 ? '' : spacing;
+      
+      if (typeof val === 'object' && val !== null) {
+        return `${prefix}${key}:${valStr}`;
+      } else {
+        return `${prefix}${key}: ${valStr}`;
+      }
+    }).join('\n');
+  }
+
+  try {
+    const yaml = jsonToYaml(result.parsed);
+    renderResult(result.checks, yaml);
+  } catch (err) {
+    renderResult([{type: 'error', msg: `Could not convert to YAML: ${err.message}`}]);
+  }
+}
+
 function copyJsonOut(btn) {
   navigator.clipboard.writeText(document.getElementById('jsonOutputPre').textContent);
   flashCopied(btn);
