@@ -13,7 +13,11 @@
 
   function updateToggleIcon(isDark) {
     var toggle = document.getElementById('darkModeToggle');
-    if (toggle) toggle.innerHTML = isDark ? sunIcon : moonIcon;
+    if (!toggle) return;
+    toggle.innerHTML = isDark ? sunIcon : moonIcon;
+    var label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('title', label);
   }
 
   if (isDarkPreferred()) {
@@ -74,18 +78,24 @@
   var paletteActive = false;
   var paletteIndex = 0;
   var filteredTools = [];
+  var paletteOpener = null;
 
   function createPalette() {
+    paletteOpener = document.activeElement;
+
     var backdrop = document.createElement('div');
     backdrop.className = 'cmd-palette-backdrop';
     backdrop.id = 'cmdPalette';
 
     var palette = document.createElement('div');
     palette.className = 'cmd-palette';
+    palette.setAttribute('role', 'dialog');
+    palette.setAttribute('aria-modal', 'true');
+    palette.setAttribute('aria-label', 'Search tools');
 
     var searchContainer = document.createElement('div');
     searchContainer.className = 'cmd-palette-search';
-    
+
     var prompt = document.createElement('span');
     prompt.className = 'cmd-palette-prompt';
     prompt.textContent = '>';
@@ -95,6 +105,10 @@
     input.placeholder = 'Search tools... (Esc to close)';
     input.className = 'cmd-palette-input';
     input.autocomplete = 'off';
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-controls', 'cmdPaletteList');
 
     searchContainer.appendChild(prompt);
     searchContainer.appendChild(input);
@@ -102,6 +116,8 @@
 
     var list = document.createElement('div');
     list.className = 'cmd-palette-list';
+    list.id = 'cmdPaletteList';
+    list.setAttribute('role', 'listbox');
     palette.appendChild(list);
 
     var help = document.createElement('div');
@@ -123,7 +139,12 @@
     });
 
     input.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
+      if (e.key === 'Tab') {
+        // the palette's only real tab-stop is this input (list items are
+        // navigated with arrow keys, like a combobox) -- keep focus here
+        // instead of letting it escape to the page underneath
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
         closePalette();
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -165,6 +186,9 @@
     filteredTools.forEach(function(tool, i) {
       var item = document.createElement('div');
       item.className = 'cmd-palette-item' + (i === 0 ? ' active' : '');
+      item.id = 'cmd-item-' + i;
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
       item.innerHTML = '<span>' + tool.name + '</span><span class="shortcut">jump to</span>';
       item.addEventListener('click', function() {
         var currentPath = window.location.pathname;
@@ -178,6 +202,9 @@
       });
       list.appendChild(item);
     });
+
+    var inputEl = document.querySelector('.cmd-palette-input');
+    if (inputEl) inputEl.setAttribute('aria-activedescendant', filteredTools.length ? 'cmd-item-0' : '');
   }
 
   function updateActiveItem() {
@@ -185,16 +212,21 @@
     items.forEach(function(item, i) {
       if (i === paletteIndex) {
         item.classList.add('active');
+        item.setAttribute('aria-selected', 'true');
         item.scrollIntoView({ block: 'nearest' });
       } else {
         item.classList.remove('active');
+        item.setAttribute('aria-selected', 'false');
       }
     });
+    var inputEl = document.querySelector('.cmd-palette-input');
+    if (inputEl && items[paletteIndex]) inputEl.setAttribute('aria-activedescendant', items[paletteIndex].id);
   }
 
   function closePalette() {
     var palette = document.getElementById('cmdPalette');
     if (palette) palette.remove();
+    if (paletteOpener && typeof paletteOpener.focus === 'function') paletteOpener.focus();
     paletteActive = false;
   }
 
@@ -280,6 +312,10 @@
       var trigger = document.createElement('div');
       trigger.className = 'nav-dropdown-trigger';
       trigger.textContent = cat.name + '/';
+      trigger.tabIndex = 0;
+      trigger.setAttribute('role', 'button');
+      trigger.setAttribute('aria-haspopup', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
 
       var menu = document.createElement('div');
       menu.className = 'nav-dropdown-menu';
@@ -300,13 +336,24 @@
         e.stopPropagation();
         var isActive = dropdown.classList.contains('active');
         closeAllDropdowns();
-        if (!isActive) dropdown.classList.add('active');
+        if (!isActive) { dropdown.classList.add('active'); trigger.setAttribute('aria-expanded', 'true'); }
+      });
+
+      trigger.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          trigger.click();
+        } else if (e.key === 'Escape') {
+          closeAllDropdowns();
+        }
       });
     });
 
     function closeAllDropdowns() {
       document.querySelectorAll('.nav-dropdown').forEach(function(d) {
         d.classList.remove('active');
+        var t = d.querySelector('.nav-dropdown-trigger');
+        if (t) t.setAttribute('aria-expanded', 'false');
       });
     }
 

@@ -36,7 +36,8 @@ const staticFiles = [
   'sitemap.xml',
   'google461995a17a0d27be.html',
   'LICENSE',
-  'service-worker.js'
+  'service-worker.js',
+  'manifest.json'
 ];
 
 staticFiles.forEach(file => {
