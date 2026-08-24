@@ -55,7 +55,7 @@ async function deriveKey(password, salt) {
     {
       name: "PBKDF2",
       salt: salt,
-      iterations: 1000,
+      iterations: 600000, // OWASP's current recommendation for PBKDF2-SHA256
       hash: "SHA-256"
     },
     baseKey,
@@ -140,13 +140,9 @@ async function generateShare() {
       body: JSON.stringify({ code, value: encryptedText })
     });
     
-    if (!response.ok) {
-      throw new Error('Database sharing failed.');
-    }
-    
     const resData = await response.json();
-    if (resData.error) {
-      throw new Error(resData.error);
+    if (!response.ok || resData.error) {
+      throw new Error(resData.error || 'Database sharing failed.');
     }
     
     // Format code as "123 456" for clean dictation
@@ -192,11 +188,11 @@ async function retrieveShare() {
       const pass = code;
       
       const response = await fetch(`${API_URL}?code=${code}`);
-      if (!response.ok) {
-        throw new Error('Code not found or expired.');
-      }
       const resData = await response.json();
-      if (resData.error || !resData.result) {
+      if (!response.ok || resData.error) {
+        throw new Error(resData.error || 'Code not found or expired.');
+      }
+      if (!resData.result) {
         throw new Error('Code not found or expired.');
       }
       const ciphertext = resData.result;
@@ -263,17 +259,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       const pass = code;
       
       const response = await fetch(`${API_URL}?code=${code}`);
-      if (response.ok) {
-        const resData = await response.json();
-        if (resData.result) {
-          const decoded = await decryptPayload(resData.result, pass);
-          document.getElementById('autoLoadedOutput').value = decoded;
-          document.getElementById('autoLoadedPanel').style.display = 'block';
-        } else {
-          showError('The shared link has expired or is invalid.');
-        }
+      const resData = await response.json();
+      if (response.ok && resData.result) {
+        const decoded = await decryptPayload(resData.result, pass);
+        document.getElementById('autoLoadedOutput').value = decoded;
+        document.getElementById('autoLoadedPanel').style.display = 'block';
       } else {
-        showError('The shared link has expired or is invalid.');
+        showError(resData.error || 'The shared link has expired or is invalid.');
       }
     } catch (e) {
       showError('Failed to retrieve or decrypt shared text.');

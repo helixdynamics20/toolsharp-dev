@@ -58,7 +58,17 @@
     { name: 'Base64 Converter', path: '/tools/base64-converter.html' },
     { name: 'Share Pad', path: '/tools/share-pad.html' },
     { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator.html' },
-    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' }
+    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' },
+    { name: 'URL Encoder & Decoder', path: '/tools/url-encoder.html' },
+    { name: 'SQL Formatter & Beautifier', path: '/tools/sql-formatter.html' },
+    { name: 'Password Generator', path: '/tools/password-generator.html' },
+    { name: 'Case Converter', path: '/tools/case-converter.html' },
+    { name: 'XML Formatter & Validator', path: '/tools/xml-formatter.html' },
+    { name: 'Number Base Converter', path: '/tools/base-converter.html' },
+    { name: 'CSV / JSON Converter', path: '/tools/csv-json-converter.html' },
+    { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter.html' },
+    { name: 'Markdown Previewer', path: '/tools/markdown-previewer.html' },
+    { name: 'QR Code Generator', path: '/tools/qr-code-generator.html' }
   ];
 
   var paletteActive = false;
@@ -213,7 +223,8 @@
         name: 'json',
         items: [
           { name: 'JSON Formatter', path: 'tools/json-formatter.html' },
-          { name: 'AppSettings Validator', path: 'tools/appsettings-validator.html' }
+          { name: 'AppSettings Validator', path: 'tools/appsettings-validator.html' },
+          { name: 'CSV / JSON Converter', path: 'tools/csv-json-converter.html' }
         ]
       },
       {
@@ -221,7 +232,9 @@
         items: [
           { name: 'Base64 Converter', path: 'tools/base64-converter.html' },
           { name: 'URL Encoder', path: 'tools/url-encoder.html' },
-          { name: 'JWT Decoder', path: 'tools/jwt-decoder.html' }
+          { name: 'JWT Decoder', path: 'tools/jwt-decoder.html' },
+          { name: 'Color Converter', path: 'tools/color-converter.html' },
+          { name: 'QR Code Generator', path: 'tools/qr-code-generator.html' }
         ]
       },
       {
@@ -229,6 +242,9 @@
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
           { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
+          { name: 'Case Converter', path: 'tools/case-converter.html' },
+          { name: 'XML Formatter', path: 'tools/xml-formatter.html' },
+          { name: 'Markdown Previewer', path: 'tools/markdown-previewer.html' },
           { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       },
@@ -246,7 +262,8 @@
           { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
           { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
           { name: 'Regex Tester', path: 'tools/regex-tester.html' },
-          { name: 'Password Generator', path: 'tools/password-generator.html' }
+          { name: 'Password Generator', path: 'tools/password-generator.html' },
+          { name: 'Base Converter', path: 'tools/base-converter.html' }
         ]
       }
     ];

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Base Converter — Binary, Octal, Decimal, Hex | ToolSharp.dev</title>
+<meta name="description" content="Convert numbers between binary, octal, decimal, and hexadecimal instantly. Handles full 64-bit (long) values correctly using BigInt — no precision loss. Runs locally in your browser.">
+<link rel="canonical" href="https://toolsharp.dev/tools/base-converter.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/base-converter.html">
+<meta property="og:title" content="Number Base Converter — Binary, Octal, Decimal, Hex | ToolSharp.dev">
+<meta property="og:description" content="Convert numbers between binary, octal, decimal, and hexadecimal instantly. Handles full 64-bit (long) values correctly — no precision loss.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/base-converter.html">
+<meta name="twitter:title" content="Number Base Converter — Binary, Octal, Decimal, Hex | ToolSharp.dev">
+<meta name="twitter:description" content="Convert numbers between binary, octal, decimal, and hexadecimal instantly. Handles full 64-bit (long) values correctly — no precision loss.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Number Base Converter","url":"https://toolsharp.dev/tools/base-converter.html","description":"Convert numbers between binary, octal, decimal, and hexadecimal instantly, including full 64-bit (long) values via BigInt with no precision loss. Runs entirely in your browser.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">base-converter</span></div>
+
+  <div class="tool-header">
+    <h1>base-converter</h1>
+    <p class="sub">Type a number in binary, octal, decimal, or hexadecimal and see it instantly converted to all four bases at once. Built on BigInt, so full 64-bit values (like a C# <code>long</code>) convert exactly — no floating-point precision loss.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">BigInt precision</span>
+      <span class="badge">no signup</span>
+    </div>
+  </div>
+
+  <div class="tool-grid split">
+    <div class="config-block">
+      <div class="tab">input.txt</div>
+      <div class="body">
+        <div class="field">
+          <label><span class="key">Input base</span></label>
+          <div class="mode-toggle">
+            <input type="radio" name="inputBase" id="baseBin" value="2" onchange="convertBase()">
+            <label for="baseBin">Binary</label>
+            <input type="radio" name="inputBase" id="baseOct" value="8" onchange="convertBase()">
+            <label for="baseOct">Octal</label>
+            <input type="radio" name="inputBase" id="baseDec" value="10" checked onchange="convertBase()">
+            <label for="baseDec">Decimal</label>
+            <input type="radio" name="inputBase" id="baseHex" value="16" onchange="convertBase()">
+            <label for="baseHex">Hexadecimal</label>
+          </div>
+        </div>
+        <div class="field">
+          <input type="text" id="baseInput" placeholder="e.g. 3735928559, DEADBEEF, 0b1010, 0o17..." spellcheck="false" autocomplete="off" oninput="convertBase()" style="font-family: var(--mono);">
+        </div>
+        <div class="btn-row">
+          <button class="btn secondary" onclick="tryBaseExample()">Try example</button>
+          <button class="btn secondary" onclick="clearBaseInput()">Clear</button>
+        </div>
+        <div id="baseError" class="callout error" style="display:none; margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div class="config-block">
+      <div class="tab">converted.txt</div>
+      <div class="body">
+        <div class="field">
+          <label>Binary</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="binOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
+            <button class="btn" onclick="copyValue('binOutput', this)">Copy</button>
+          </div>
+
+          <label>Octal</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="octOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
+            <button class="btn" onclick="copyValue('octOutput', this)">Copy</button>
+          </div>
+
+          <label>Decimal</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="decOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
+            <button class="btn" onclick="copyValue('decOutput', this)">Copy</button>
+          </div>
+
+          <label>Hexadecimal</label>
+          <div style="display:flex; gap: 8px;">
+            <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
+            <button class="btn" onclick="copyValue('hexOutput', this)">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// how input is read</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Pick the base your typed digits are in using the radio buttons above the input — this is deliberately explicit rather than guessed, since a string like <code>10</code> means very different things depending on whether it's binary (2), octal (8), decimal (10), or hex (16). If you paste a value with an explicit prefix — <code>0x</code>/<code>0X</code> for hex, <code>0b</code>/<code>0B</code> for binary, or <code>0o</code>/<code>0O</code> for octal — that prefix always wins over whatever base is selected, so pasting <code>0xFF</code> while "Decimal" is selected still reads as hex.</p></div>
+
+    <h2>// why this handles 64-bit values correctly</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Every conversion here uses JavaScript's <code>BigInt</code> rather than <code>Number</code>. A plain <code>Number</code> can only represent integers exactly up to <code>2^53 - 1</code> (<code>Number.MAX_SAFE_INTEGER</code>), but a C# <code>long</code> / <code>ulong</code> ranges up to <code>2^63 - 1</code> / <code>2^64 - 1</code> — well past that safe limit. Converting a large 64-bit value through <code>Number</code> silently rounds it to the nearest representable double, producing a wrong answer with no error. <code>BigInt</code> has arbitrary precision, so values like <code>long.MaxValue</code> (<code>9223372036854775807</code>) or <code>ulong.MaxValue</code> (<code>18446744073709551615</code>) round-trip exactly across all four bases.</p></div>
+
+    <h2>// where each base shows up in .NET / backend work</h2>
+    <ul>
+      <li><strong>Binary</strong> — bit flags and <code>[Flags]</code> enums, bitmasks, permission bits, low-level protocol fields.</li>
+      <li><strong>Octal</strong> — Unix file permission modes (<code>chmod 644</code>), some legacy embedded/serial protocols.</li>
+      <li><strong>Decimal</strong> — everyday application values, IDs, counts — what you see in a debugger by default.</li>
+      <li><strong>Hexadecimal</strong> — memory addresses, GUIDs, color codes, hash digests, and compact display of binary data (two hex digits per byte).</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script src="../js/base-converter.js" defer></script>
+</body>
+</html>
