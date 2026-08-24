@@ -24,6 +24,12 @@ const ASSETS = [
   '/tools/sql-formatter.html',
   '/tools/password-generator.html',
   '/tools/case-converter.html',
+  '/tools/xml-formatter.html',
+  '/tools/base-converter.html',
+  '/tools/csv-json-converter.html',
+  '/tools/color-converter.html',
+  '/tools/markdown-previewer.html',
+  '/tools/qr-code-generator.html',
   '/js/connection-string-builder.js',
   '/js/cron-builder.js',
   '/js/jwt-decoder.js',
@@ -39,7 +45,15 @@ const ASSETS = [
   '/js/url-encoder.js',
   '/js/sql-formatter.js',
   '/js/password-generator.js',
-  '/js/case-converter.js'
+  '/js/case-converter.js',
+  '/js/xml-formatter.js',
+  '/js/base-converter.js',
+  '/js/csv-json-converter.js',
+  '/js/color-converter.js',
+  '/js/markdown-previewer.js',
+  '/js/qr-code-generator.js',
+  '/js/qrcode.bundle.js',
+  '/js/marked.bundle.js'
 ];
 
 self.addEventListener('install', (event) => {

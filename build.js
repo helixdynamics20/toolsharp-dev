@@ -147,6 +147,23 @@ async function main() {
     process.exit(1);
   }
 
+  // Bundle vendored libraries (qrcode, marked) with esbuild -- these are
+  // npm packages that expect a bundler, so we bundle once into a plain
+  // script tag each tool can load, same pattern as the analytics module.
+  const vendorBundles = [
+    { entry: 'js/qrcode-lib.js', out: 'js/qrcode.bundle.js' },
+    { entry: 'js/marked-lib.js', out: 'js/marked.bundle.js' }
+  ];
+  for (const { entry, out } of vendorBundles) {
+    console.log(`Bundling ${entry}...`);
+    try {
+      execSync(`npx esbuild ${entry} --bundle --format=esm --outfile=${out}`, { stdio: 'inherit' });
+    } catch (err) {
+      console.error(`Error bundling ${entry}:`, err);
+      process.exit(1);
+    }
+  }
+
   await processJs();
   await processHtml();
   console.log('Build completed successfully!');

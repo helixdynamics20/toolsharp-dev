@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Converter — HEX, RGB, HSL + Contrast Checker | ToolSharp.dev</title>
+<meta name="description" content="Convert colors between HEX, RGB, and HSL instantly, plus check WCAG 2.1 AA/AAA contrast ratios between any two colors. Auto-detects the format you paste. Runs entirely in your browser.">
+<link rel="canonical" href="https://toolsharp.dev/tools/color-converter.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/color-converter.html">
+<meta property="og:title" content="Color Converter — HEX, RGB, HSL + Contrast Checker | ToolSharp.dev">
+<meta property="og:description" content="Convert colors between HEX, RGB, and HSL, and check WCAG contrast ratios between any two colors. Auto-detects format. Nothing is sent to any server.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og-image.jpg">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/color-converter.html">
+<meta name="twitter:title" content="Color Converter — HEX, RGB, HSL + Contrast Checker | ToolSharp.dev">
+<meta name="twitter:description" content="Convert colors between HEX, RGB, and HSL, and check WCAG contrast ratios between any two colors. Auto-detects format. Nothing is sent to any server.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Color Converter","url":"https://toolsharp.dev/tools/color-converter.html","description":"Convert colors between HEX, RGB, and HSL formats, with a live picker and a WCAG 2.1 contrast ratio checker for accessibility. Runs entirely in your browser — nothing sent to any server.","applicationCategory":"DesignApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<style>
+/* ── swatch preview ── */
+.color-swatch {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  margin-bottom: 16px;
+  background: transparent;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+body.dark-theme .color-swatch {
+  background-image:
+    linear-gradient(45deg, #444 25%, transparent 25%),
+    linear-gradient(-45deg, #444 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #444 75%),
+    linear-gradient(-45deg, transparent 75%, #444 75%);
+}
+
+/* ── input row with a native color picker glued to a text field ── */
+.color-input-row { display: flex; gap: 8px; align-items: stretch; }
+.color-input-row input[type="text"] { flex: 1; }
+.color-input-row input[type="color"] {
+  flex: none;
+  width: 44px;
+  padding: 2px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  cursor: pointer;
+}
+
+/* ── contrast checker ── */
+.contrast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .contrast-grid { grid-template-columns: 1fr; } }
+.contrast-preview {
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  padding: 22px 16px;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 16px 0;
+}
+.contrast-ratio-box {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.contrast-ratio-box .val { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--violet-dark); }
+.contrast-ratio-box .lbl { font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); }
+.contrast-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.contrast-pills .status-pill { font-size: 12px; padding: 4px 10px; }
+</style>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="../index.html">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="../index.html#tools">tools</a><span class="sep">/</span><span class="current">color-converter</span></div>
+
+  <div class="tool-header">
+    <h1>color-converter</h1>
+    <p class="sub">Type or paste a color in HEX, RGB, or HSL — the format is detected automatically and all three are shown at once, alongside a live swatch and picker. Includes a WCAG 2.1 contrast ratio checker for accessibility. Everything runs locally in your browser.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">HEX · RGB · HSL</span>
+      <span class="badge">WCAG contrast checker</span>
+      <span class="badge">no signup</span>
+    </div>
+  </div>
+
+  <div class="tool-grid split">
+    <div class="config-block">
+      <div class="tab">color-input</div>
+      <div class="body">
+        <div class="field">
+          <label>Color <span class="key">(any format)</span></label>
+          <div class="color-input-row">
+            <input type="text" id="colorInput" placeholder="#6c4ce0, rgb(108, 76, 224), hsl(253, 70%, 59%)..." oninput="convertColor()">
+            <input type="color" id="colorPicker" value="#6c4ce0" oninput="colorPickerChanged()">
+          </div>
+        </div>
+        <div id="colorError" class="callout error" style="display:none;"></div>
+        <div class="color-swatch" id="colorSwatch"></div>
+        <div class="btn-row">
+          <button class="btn secondary" onclick="tryColorExample()">Try example</button>
+          <button class="btn secondary" onclick="clearColorInput()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-block">
+      <div class="tab">converted.txt</div>
+      <div class="body">
+        <div class="field">
+          <label>HEX</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
+            <button class="btn" onclick="copyValue('hexOutput', this)">Copy</button>
+          </div>
+
+          <label>RGB</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="rgbOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
+            <button class="btn" onclick="copyValue('rgbOutput', this)">Copy</button>
+          </div>
+
+          <label>HSL</label>
+          <div style="display:flex; gap: 8px;">
+            <input type="text" id="hslOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
+            <button class="btn" onclick="copyValue('hslOutput', this)">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-grid single">
+    <div class="config-block">
+      <div class="tab">contrast-checker.txt</div>
+      <div class="body">
+        <p class="sub" style="margin-top:0; font-size:14px;">Enter a foreground and background color to compute the WCAG 2.1 contrast ratio and see whether it passes AA and AAA thresholds. Accepts any format — HEX, RGB, or HSL.</p>
+
+        <div class="contrast-grid">
+          <div class="field">
+            <label>Foreground (text) color</label>
+            <div class="color-input-row">
+              <input type="text" id="fgInput" placeholder="#111111" oninput="updateContrast()">
+              <input type="color" id="fgPicker" value="#111111" oninput="fgPickerChanged()">
+            </div>
+          </div>
+          <div class="field">
+            <label>Background color</label>
+            <div class="color-input-row">
+              <input type="text" id="bgInput" placeholder="#ffffff" oninput="updateContrast()">
+              <input type="color" id="bgPicker" value="#ffffff" oninput="bgPickerChanged()">
+            </div>
+          </div>
+        </div>
+
+        <div id="contrastError" class="callout error" style="display:none;"></div>
+
+        <div id="contrastResult" style="display:none;">
+          <div class="contrast-preview" id="contrastPreview">The quick brown fox — Aa</div>
+          <div class="contrast-ratio-box">
+            <span class="val" id="contrastRatioValue">—</span>
+            <span class="lbl">contrast ratio</span>
+          </div>
+          <div class="contrast-pills">
+            <span class="status-pill" id="aaNormalPill">AA · Normal text</span>
+            <span class="status-pill" id="aaLargePill">AA · Large text</span>
+            <span class="status-pill" id="aaaNormalPill">AAA · Normal text</span>
+            <span class="status-pill" id="aaaLargePill">AAA · Large text</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn secondary" onclick="tryContrastExample()">Try example</button>
+          <button class="btn secondary" onclick="clearContrast()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// how the format is detected</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Each format has a distinctive syntax, so the input can be classified before it's parsed: a leading <code>#</code> means HEX (both 6-digit <code>#RRGGBB</code> and 3-digit shorthand <code>#RGB</code> are accepted), a leading <code>rgb(</code> or <code>rgba(</code> means RGB, and a leading <code>hsl(</code> or <code>hsla(</code> means HSL. Once detected, the color is converted internally to RGB and then re-derived into all three output formats, so the values you see always agree with each other exactly.</p></div>
+
+    <h2>// which format to use where</h2>
+    <ul>
+      <li><strong>HEX</strong> — the most common format in CSS, design tools, and brand style guides. Compact and easy to copy-paste, but not human-intuitive to read at a glance.</li>
+      <li><strong>RGB</strong> — directly maps to how screens render color (red, green, blue channel intensities from 0–255). Useful when you need to reason about individual channel values, or when working with canvas/image APIs that expect raw byte values.</li>
+      <li><strong>HSL</strong> — hue, saturation, lightness. The most intuitive format for humans to adjust: keep the same hue and just change lightness to get a lighter or darker shade of the same color, without the trial-and-error of hand-editing hex digits.</li>
+    </ul>
+
+    <h2>// WCAG contrast ratios</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The contrast ratio is computed with the standard WCAG 2.1 relative luminance formula: each sRGB channel (0–255) is gamma-corrected into linear light, combined as <code>L = 0.2126·R + 0.7152·G + 0.0722·B</code>, and the ratio between the lighter and darker color's luminance is <code>(L1 + 0.05) / (L2 + 0.05)</code>. It ranges from 1:1 (identical colors) to 21:1 (pure black on pure white). WCAG AA requires 4.5:1 for normal text and 3:1 for large text (≥18pt, or ≥14pt bold); WCAG AAA raises that to 7:1 and 4.5:1 respectively.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script src="../js/color-converter.js" defer></script>
+</body>
+</html>
