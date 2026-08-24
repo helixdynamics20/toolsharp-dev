@@ -58,7 +58,11 @@
     { name: 'Base64 Converter', path: '/tools/base64-converter.html' },
     { name: 'Share Pad', path: '/tools/share-pad.html' },
     { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator.html' },
-    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' }
+    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' },
+    { name: 'URL Encoder & Decoder', path: '/tools/url-encoder.html' },
+    { name: 'SQL Formatter & Beautifier', path: '/tools/sql-formatter.html' },
+    { name: 'Password Generator', path: '/tools/password-generator.html' },
+    { name: 'Case Converter', path: '/tools/case-converter.html' }
   ];
 
   var paletteActive = false;
@@ -229,6 +233,7 @@
         items: [
           { name: 'Diff Checker', path: 'tools/diff-checker.html' },
           { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
+          { name: 'Case Converter', path: 'tools/case-converter.html' },
           { name: 'Share Pad', path: 'tools/share-pad.html' }
         ]
       },

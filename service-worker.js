@@ -23,6 +23,7 @@ const ASSETS = [
   '/tools/url-encoder.html',
   '/tools/sql-formatter.html',
   '/tools/password-generator.html',
+  '/tools/case-converter.html',
   '/js/connection-string-builder.js',
   '/js/cron-builder.js',
   '/js/jwt-decoder.js',
@@ -37,7 +38,8 @@ const ASSETS = [
   '/js/epoch-converter.js',
   '/js/url-encoder.js',
   '/js/sql-formatter.js',
-  '/js/password-generator.js'
+  '/js/password-generator.js',
+  '/js/case-converter.js'
 ];
 
 self.addEventListener('install', (event) => {
