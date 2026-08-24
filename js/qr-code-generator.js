@@ -29,7 +29,7 @@ async function generateQr() {
       color: { dark: dark, light: light }
     });
     if (token !== qrGenToken) return;
-    canvas.style.display = '';
+    canvas.style.display = 'block';
     empty.style.display = 'none';
     actions.style.display = '';
   } catch (e) {
