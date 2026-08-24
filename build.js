@@ -46,12 +46,10 @@ staticFiles.forEach(file => {
   }
 });
 
-// Copy assets directory contents
+// Copy assets directory contents (recursively, so subfolders like assets/og/ work)
 const assetDir = path.join(srcDir, 'assets');
 if (fs.existsSync(assetDir)) {
-  fs.readdirSync(assetDir).forEach(file => {
-    fs.copyFileSync(path.join(assetDir, file), path.join(distDir, 'assets', file));
-  });
+  fs.cpSync(assetDir, path.join(distDir, 'assets'), { recursive: true });
 }
 
 // Copy api directory contents (Vercel serverless function files, kept as-is)
