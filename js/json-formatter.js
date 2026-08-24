@@ -410,20 +410,37 @@ function repairStructuralIssues(text) {
 
 let _pendingAutoFixNote = false;
 
-function applyJsonRepair() {
-  const text = document.getElementById('jsonInput').value;
+function repairAndUpdateInput() {
+  const inputEl = document.getElementById('jsonInput');
+  const text = inputEl.value;
+  if (!text.trim()) return false;
+
+  let wasAlreadyValid = false;
+  try { JSON.parse(text); wasAlreadyValid = true; } catch (_) {}
+
   const repaired = tryRepairJson(text);
-  document.getElementById('jsonInput').value = repaired;
-  _pendingAutoFixNote = true;
+  // the structural pass reconstructs the token stream flat (single spaces
+  // between tokens) since it doesn't track original indentation -- pretty
+  // print it back so the input box doesn't turn into a squished one-liner
+  let toSet = repaired;
+  try {
+    toSet = JSON.stringify(JSON.parse(repaired), null, getIndent());
+  } catch (_) {
+    // repair didn't fully succeed -- fall back to the raw attempt as-is
+  }
+
+  inputEl.value = toSet;
+  _pendingAutoFixNote = !wasAlreadyValid;
+  return true;
+}
+
+function applyJsonRepair() {
+  if (!repairAndUpdateInput()) return;
   formatJson();
 }
 
 function autoFixJson() {
-  const text = document.getElementById('jsonInput').value;
-  if (!text.trim()) return;
-  const repaired = tryRepairJson(text);
-  document.getElementById('jsonInput').value = repaired;
-  _pendingAutoFixNote = true;
+  if (!repairAndUpdateInput()) return;
   formatJson();
 }
 
