@@ -1,0 +1,1 @@
+function copyToClipboard(e,t){e&&navigator.clipboard.writeText(e).then(function(){"function"==typeof flashCopied&&flashCopied(t)})}function copyElementValue(e,t){var o=document.getElementById(e);if(o){var n="value"in o?o.value:o.textContent;n&&("function"==typeof o.select&&o.select(),copyToClipboard(n,t))}}

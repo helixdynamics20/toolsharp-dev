@@ -210,12 +210,6 @@ async function retrieveShare() {
   }
 }
 
-function copyValue(btn, id) {
-  const el = document.getElementById(id);
-  navigator.clipboard.writeText(el.value);
-  flashCopied(btn);
-}
-
 function clearPlainInput() {
   document.getElementById('plainInput').value = '';
   document.getElementById('outputBlock').style.display = 'none';
@@ -236,12 +230,6 @@ function showError(msg) {
 
 function clearError() {
   document.getElementById('shareError').style.display = 'none';
-}
-
-function copyAutoLoaded(btn) {
-  const val = document.getElementById('autoLoadedOutput').value;
-  navigator.clipboard.writeText(val);
-  flashCopied(btn);
 }
 
 function dismissAutoLoaded() {

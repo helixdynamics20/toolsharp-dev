@@ -128,8 +128,3 @@ function highlightConnString(str) {
   }).join('<span class="cs-sep">;</span>') + '<span class="cs-sep">;</span>';
 }
 
-function copyText(id, btn) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text);
-  flashCopied(btn);
-}

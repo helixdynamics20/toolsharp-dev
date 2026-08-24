@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -92,25 +93,25 @@
           <label>Binary</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="binOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
-            <button class="btn" onclick="copyValue('binOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('binOutput', this)">Copy</button>
           </div>
 
           <label>Octal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="octOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyValue('octOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('octOutput', this)">Copy</button>
           </div>
 
           <label>Decimal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="decOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyValue('decOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('decOutput', this)">Copy</button>
           </div>
 
           <label>Hexadecimal</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
-            <button class="btn" onclick="copyValue('hexOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('hexOutput', this)">Copy</button>
           </div>
         </div>
       </div>

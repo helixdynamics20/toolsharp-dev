@@ -66,11 +66,6 @@ function clearB64() {
   document.getElementById('b64Meta').innerHTML = '';
 }
 
-function copyB64Out(btn) {
-  navigator.clipboard.writeText(document.getElementById('b64Output').textContent);
-  flashCopied(btn);
-}
-
 // Drag & Drop File Handling
 function handleFileSelect(inputEl) {
   if (inputEl.files && inputEl.files[0]) {

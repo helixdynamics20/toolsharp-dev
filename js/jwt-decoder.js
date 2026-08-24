@@ -62,11 +62,11 @@ async function decodeJwt() {
   resultDiv.innerHTML = `
     <div class="tool-grid" style="margin-top:20px;">
       <div class="config-block">
-        <div class="tab">header <button class="copy-btn" onclick="copyJson('jwtHeaderOut', this)">copy</button></div>
+        <div class="tab">header <button class="copy-btn" onclick="copyElementValue('jwtHeaderOut', this)">copy</button></div>
         <div class="output-block"><pre id="jwtHeaderOut">${highlightJsonText(JSON.stringify(header, null, 2))}</pre></div>
       </div>
       <div class="config-block">
-        <div class="tab">payload <button class="copy-btn" onclick="copyJson('jwtPayloadOut', this)">copy</button></div>
+        <div class="tab">payload <button class="copy-btn" onclick="copyElementValue('jwtPayloadOut', this)">copy</button></div>
         <div class="output-block"><pre id="jwtPayloadOut">${highlightJsonText(JSON.stringify(payload, null, 2))}</pre></div>
       </div>
     </div>
@@ -196,4 +196,3 @@ function highlightJsonText(jsonString) {
   });
 }
 
-function copyJson(id, btn) { navigator.clipboard.writeText(document.getElementById(id).textContent); flashCopied(btn); }

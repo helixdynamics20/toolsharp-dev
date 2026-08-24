@@ -45,13 +45,6 @@ function convertCase() {
   document.getElementById(OUTPUT_IDS.lower).value = words.join(' ');
 }
 
-function copyValue(id, btn) {
-  const input = document.getElementById(id);
-  if (!input || !input.value) return;
-  input.select();
-  navigator.clipboard.writeText(input.value);
-  flashCopied(btn);
-}
 
 function clearCaseInput() {
   document.getElementById('caseInput').value = '';

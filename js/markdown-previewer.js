@@ -131,10 +131,7 @@ That's the basics — try editing this to see the preview update live.
 }
 
 function copyRenderedHtml(btn) {
-  if (!lastRenderedHtml) return;
-  navigator.clipboard.writeText(lastRenderedHtml).then(() => {
-    if (typeof flashCopied === 'function') flashCopied(btn);
-  });
+  copyToClipboard(lastRenderedHtml, btn);
 }
 
 document.addEventListener('DOMContentLoaded', renderMarkdown);

@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <style>
@@ -103,19 +104,19 @@
           <label>ISO 8601</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="isoOutput" readonly>
-            <button class="btn" onclick="copyResult('isoOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('isoOutput', this)">Copy</button>
           </div>
 
           <label>Result UTC Time</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="utcOutput" readonly>
-            <button class="btn" onclick="copyResult('utcOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('utcOutput', this)">Copy</button>
           </div>
 
           <label>Result Local Time</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="localOutput" readonly>
-            <button class="btn" onclick="copyResult('localOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('localOutput', this)">Copy</button>
           </div>
         </div>
       </div>
@@ -134,13 +135,13 @@
           <label>Epoch in Seconds</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="epochSecOutput" readonly>
-            <button class="btn" onclick="copyResult('epochSecOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('epochSecOutput', this)">Copy</button>
           </div>
 
           <label>Epoch in Milliseconds</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="epochMsOutput" readonly>
-            <button class="btn" onclick="copyResult('epochMsOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('epochMsOutput', this)">Copy</button>
           </div>
         </div>
       </div>

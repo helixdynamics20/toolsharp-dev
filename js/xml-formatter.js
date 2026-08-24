@@ -214,7 +214,7 @@ function renderXmlResult(checks, outputText) {
     <div class="config-block" style="margin-top:16px;">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
-        <button class="copy-btn" onclick="copyXmlOut(this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('xmlOutputPre', this)">copy</button>
       </div>
       <div class="output-block">
         <pre id="xmlOutputPre">${highlightXmlText(escapeHtml(outputText))}</pre>
@@ -285,12 +285,6 @@ function minifyXml() {
   renderXmlResult([{ type: 'ok', msg: 'Well-formed XML.' }], m.minified);
 }
 
-function copyXmlOut(btn) {
-  const pre = document.getElementById('xmlOutputPre');
-  if (!pre) return;
-  navigator.clipboard.writeText(pre.textContent);
-  flashCopied(btn);
-}
 
 function clearXmlInput() {
   document.getElementById('xmlInput').value = '';

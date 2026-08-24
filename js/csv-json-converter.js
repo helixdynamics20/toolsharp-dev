@@ -296,9 +296,3 @@ function clearJsonInput() {
 
 // ── copy ──
 
-function copyOutput(id, btn) {
-  const el = document.getElementById(id);
-  if (!el || el.classList.contains('empty') || !el.textContent) return;
-  navigator.clipboard.writeText(el.textContent);
-  flashCopied(btn);
-}

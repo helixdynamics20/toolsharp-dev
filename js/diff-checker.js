@@ -253,13 +253,13 @@ function runDiff() {
         <span class="dot"></span>
         <strong>${removalsCount}</strong> removal${removalsCount === 1 ? '' : 's'}
         <span class="linecount">&nbsp;·&nbsp;${aLines.length} line${aLines.length === 1 ? '' : 's'}</span>
-        <button class="copy-btn" onclick="copyText('diffOriginal', this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('diffOriginal', this)">copy</button>
       </div>
       <div class="diff-summary-side additions">
         <span class="dot"></span>
         <strong>${additionsCount}</strong> addition${additionsCount === 1 ? '' : 's'}
         <span class="linecount">&nbsp;·&nbsp;${bLines.length} line${bLines.length === 1 ? '' : 's'}</span>
-        <button class="copy-btn" onclick="copyText('diffChanged', this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('diffChanged', this)">copy</button>
       </div>
     </div>`;
 
@@ -330,18 +330,6 @@ file = /var/log/myapp.log
 json_format = true`;
 
   runDiff();
-}
-
-/* ── copy helper ── */
-
-function copyText(id, btn) {
-  navigator.clipboard.writeText(document.getElementById(id).value).then(() => flashCopied(btn));
-}
-
-function flashCopied(btn) {
-  const orig = btn.textContent;
-  btn.textContent = 'copied!';
-  setTimeout(() => { btn.textContent = orig; }, 1500);
 }
 
 /* ── file loading ── */
