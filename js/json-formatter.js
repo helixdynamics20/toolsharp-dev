@@ -281,8 +281,13 @@ function validateOnly(text) {
   }
 }
 
+let _pendingPasteFormat = false;
+
 function onJsonInput() {
   const text = document.getElementById('jsonInput').value;
+  const wasPaste = _pendingPasteFormat;
+  _pendingPasteFormat = false;
+
   if (!text.trim()) {
     document.getElementById('jsonResult').innerHTML = '<div class="config-block"><div class="output-block"><div class="empty">Paste JSON on the left and click Format, Minify, or just start typing to validate.</div></div></div>';
     return;
@@ -294,6 +299,10 @@ function onJsonInput() {
       msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
+  } else if (wasPaste) {
+    // pretty-print automatically once a full, valid paste lands
+    const formatted = JSON.stringify(result.parsed, null, getIndent());
+    renderResult(result.checks, formatted, result.parsed);
   } else {
     renderResult(result.checks);
   }
@@ -407,14 +416,10 @@ function escapeHtml(str) {
 window.addEventListener('DOMContentLoaded', () => {
   const inputEl = document.getElementById('jsonInput');
   if (inputEl) {
-    inputEl.addEventListener('paste', () => {
-      setTimeout(() => {
-        const text = inputEl.value;
-        const result = validateOnly(text);
-        if (result && !result.error) {
-          formatJson();
-        }
-      }, 50);
-    });
+    // the browser fires 'input' right after 'paste' commits the new value,
+    // so just flag it here instead of re-reading .value on a fixed delay
+    // (a delay-based re-read can catch a large paste mid-write and validate
+    // a truncated snapshot, flashing a false "invalid JSON" error).
+    inputEl.addEventListener('paste', () => { _pendingPasteFormat = true; });
   }
 });
