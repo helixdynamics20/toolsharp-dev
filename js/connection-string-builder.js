@@ -59,7 +59,7 @@ function buildConnectionString() {
 
   const result = parts.join(';') + ';';
   const out = document.getElementById('csOutput');
-  out.textContent = result;
+  out.innerHTML = highlightConnString(result);
   out.classList.remove('empty');
 
   let warnings = [];
@@ -105,7 +105,7 @@ function parseConnectionString() {
     <div class="config-block" style="margin-top:18px;">
       <div class="tab">parsed fields</div>
       <div class="result-list">
-        ${rows.map(r => `<div class="result-item"><span class="k">${escapeHtml(r.key)}</span><span class="v">${escapeHtml(r.val)}</span></div>`).join('')}
+        ${rows.map(r => `<div class="result-item"><span class="k">${escapeHtml(r.key)}</span><span class="v${/password|pwd/i.test(r.key) ? ' secret' : ''}">${escapeHtml(r.val)}</span></div>`).join('')}
       </div>
     </div>
   `;
@@ -115,6 +115,17 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function highlightConnString(str) {
+  return str.split(';').filter(Boolean).map(part => {
+    const idx = part.indexOf('=');
+    if (idx === -1) return escapeHtml(part);
+    const key = part.slice(0, idx);
+    const val = part.slice(idx + 1);
+    const isSecret = /password|pwd/i.test(key);
+    return `<span class="cs-key">${escapeHtml(key)}</span><span class="cs-eq">=</span><span class="${isSecret ? 'cs-val-secret' : 'cs-val'}">${escapeHtml(val)}</span>`;
+  }).join('<span class="cs-sep">;</span>') + '<span class="cs-sep">;</span>';
 }
 
 function copyText(id, btn) {

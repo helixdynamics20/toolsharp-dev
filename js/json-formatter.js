@@ -68,6 +68,27 @@ function renderTreeHtml(obj) {
   return `<div class="json-tree">${val(obj)}</div>`;
 }
 
+// Syntax-highlight formatted/minified JSON text using the same jt-*
+// color classes as the tree view, so both views agree visually.
+function highlightJsonText(jsonString) {
+  const escaped = escapeHtml(jsonString);
+  const tokenRe = /"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+  return escaped.replace(tokenRe, (match, offset, full) => {
+    let cls;
+    if (match[0] === '"') {
+      const rest = full.slice(offset + match.length);
+      cls = /^\s*:/.test(rest) ? 'jt-key' : 'jt-str';
+    } else if (match === 'true' || match === 'false') {
+      cls = 'jt-bool';
+    } else if (match === 'null') {
+      cls = 'jt-null';
+    } else {
+      cls = 'jt-num';
+    }
+    return `<span class="${cls}">${match}</span>`;
+  });
+}
+
 function showJsonViewTab(tab) {
   const textEl = document.getElementById('jsonTextView');
   const treeEl = document.getElementById('jsonTreeView');
@@ -101,7 +122,7 @@ function renderResult(checks, formatted, parsed) {
         <button class="copy-btn" onclick="copyJsonOut(this)">copy</button>
       </div>
       <div class="output-block">
-        <div id="jsonTextView"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
+        <div id="jsonTextView"><pre id="jsonOutputPre">${hasTree ? highlightJsonText(formatted) : escapeHtml(formatted)}</pre></div>
         ${hasTree ? `<div id="jsonTreeView" style="display:none;padding:14px;"></div>` : ''}
       </div>
     </div>` : '';
@@ -116,7 +137,25 @@ function renderResult(checks, formatted, parsed) {
   `;
 }
 
+// Non-breaking spaces, other Unicode space separators, and zero-width
+// characters are common when text is copied from Jira, Confluence, or
+// Word. They look like ordinary whitespace but JSON's grammar only
+// permits space/tab/CR/LF, so they break parsing at the exact point
+// they appear — often right at the start of a line of "indentation".
+// Built from numeric codepoints (no literal invisible chars in source).
+// Normalized only where they act as structural whitespace below --
+// never inside a string's contents, so real string data isn't altered.
+const INVISIBLE_SPACE_CODEPOINTS = [
+  0x00A0, 0x1680,
+  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
+  0x202F, 0x205F, 0x3000, 0xFEFF,
+];
+const ZERO_WIDTH_CODEPOINTS = [0x200B, 0x200C, 0x200D, 0x2060];
+const INVISIBLE_SPACE_SET = new Set(INVISIBLE_SPACE_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
+const ZERO_WIDTH_SET = new Set(ZERO_WIDTH_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
+
 function tryRepairJson(text) {
+
   let output = '';
   let i = 0;
   const n = text.length;
@@ -182,9 +221,17 @@ function tryRepairJson(text) {
       continue;
     }
 
-    // 4. Handle whitespace
+    // 4. Handle whitespace (normalize invisible space-like chars to a
+    // real space -- only reached outside strings, since string contents
+    // are consumed whole by branch 3 above, so real data is untouched)
     if (/\s/.test(char)) {
-      output += char;
+      output += INVISIBLE_SPACE_SET.has(char) ? ' ' : char;
+      i++;
+      continue;
+    }
+
+    // 4b. Strip zero-width characters (also only reached outside strings)
+    if (ZERO_WIDTH_SET.has(char)) {
       i++;
       continue;
     }
@@ -226,21 +273,195 @@ function tryRepairJson(text) {
   // Clean up trailing commas before closing braces/brackets
   output = output.replace(/,\s*([\}\]])/g, '$1');
 
+  // Structural pass: fix missing commas/colons/brackets, mismatched
+  // bracket types, and missing values -- see repairStructure() below.
+  output = repairStructuralIssues(output);
+
   return output;
 }
 
-function applyJsonRepair() {
-  const text = document.getElementById('jsonInput').value;
+// ── structural repair: missing/mismatched commas, colons, and brackets ──
+// Runs on text already normalized by the character-level pass above (so
+// quotes are all double-quoted, comments are gone, literals normalized).
+// This is a small lenient/recovering parser: it walks the token stream
+// tracking what each open object/array currently expects next, and
+// inserts or corrects whatever's missing so the result parses. It is a
+// best-effort heuristic, not a mind-reader -- always spot-check the
+// result against the source before trusting it (the tool says so too).
+
+function tokenizeForStructuralRepair(text) {
+  const tokens = [];
+  let i = 0;
+  const n = text.length;
+  function isDelim(ch) {
+    return ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' ||
+      ch === '{' || ch === '}' || ch === '[' || ch === ']' ||
+      ch === ':' || ch === ',' || ch === '"';
+  }
+  while (i < n) {
+    const c = text[i];
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r') { i++; continue; }
+    if (c === '{' || c === '}' || c === '[' || c === ']' || c === ':' || c === ',') {
+      tokens.push({ type: c, value: c });
+      i++; continue;
+    }
+    if (c === '"') {
+      let j = i + 1;
+      let raw = '"';
+      let closed = false;
+      while (j < n) {
+        if (text[j] === '\\') { raw += text[j] + (text[j + 1] || ''); j += 2; continue; }
+        if (text[j] === '"') { raw += '"'; j++; closed = true; break; }
+        raw += text[j]; j++;
+      }
+      if (!closed) raw += '"'; // unterminated string at EOF -- close it
+      tokens.push({ type: 'STRING', value: raw });
+      i = j; continue;
+    }
+    let j = i;
+    while (j < n && !isDelim(text[j])) j++;
+    if (j === i) { i++; continue; } // stray char we don't recognize -- drop
+    tokens.push({ type: 'LITERAL', value: text.slice(i, j) });
+    i = j;
+  }
+  return tokens;
+}
+
+function repairTokenStructure(tokens) {
+  const out = [];
+  const stack = [];
+  let rootDone = false;
+
+  function isCloser(tok) { return tok && (tok.type === '}' || tok.type === ']'); }
+  function isValueStart(tok) { return tok && (tok.type === 'STRING' || tok.type === 'LITERAL' || tok.type === '{' || tok.type === '['); }
+  function afterClose() {
+    const newTop = stack[stack.length - 1];
+    if (!newTop) { rootDone = true; return; }
+    newTop.state = 'comma';
+    newTop.empty = false;
+  }
+
+  let idx = 0;
+  let guard = 0;
+  const guardMax = tokens.length * 4 + 10;
+  while (idx < tokens.length) {
+    if (++guard > guardMax) break; // safety valve -- should be unreachable
+    const tok = tokens[idx];
+    const top = stack[stack.length - 1];
+
+    if (!top) {
+      if (rootDone) { idx++; continue; }
+      if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+      if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+      if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); rootDone = true; idx++; continue; }
+      idx++; continue; // stray closer/colon/comma at root
+    }
+
+    if (top.type === 'obj') {
+      if (top.state === 'key') {
+        if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
+        if (tok.type === 'STRING') { out.push(tok); top.state = 'colon'; idx++; continue; }
+        if (tok.type === 'LITERAL') { out.push({ type: 'STRING', value: '"' + tok.value.replace(/"/g, '\\"') + '"' }); top.state = 'colon'; idx++; continue; }
+        idx++; continue; // stray comma/colon while expecting a key
+      }
+      if (top.state === 'colon') {
+        if (tok.type === ':') { out.push(tok); top.state = 'value'; idx++; continue; }
+        out.push({ type: ':', value: ':' });
+        top.state = 'value';
+        continue; // reprocess tok as the value
+      }
+      if (top.state === 'value') {
+        if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+        if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); top.state = 'comma'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        if (tok.type === ',') { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        idx++; continue; // stray colon
+      }
+      if (top.state === 'comma') {
+        if (tok.type === ',') { out.push(tok); top.state = 'key'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
+        if (isValueStart(tok)) { out.push({ type: ',', value: ',' }); top.state = 'key'; continue; }
+        idx++; continue; // stray colon
+      }
+    }
+
+    if (top.type === 'arr') {
+      if (top.state === 'value') {
+        if (isCloser(tok)) { out.push({ type: ']', value: ']' }); stack.pop(); afterClose(); idx++; continue; }
+        top.empty = false;
+        if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+        if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); top.state = 'comma'; idx++; continue; }
+        if (tok.type === ',') { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        idx++; continue; // stray colon
+      }
+      if (top.state === 'comma') {
+        if (tok.type === ',') { out.push(tok); top.state = 'value'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: ']', value: ']' }); stack.pop(); afterClose(); idx++; continue; }
+        if (isValueStart(tok)) { out.push({ type: ',', value: ',' }); top.state = 'value'; continue; }
+        idx++; continue; // stray colon
+      }
+    }
+  }
+
+  // EOF: close any still-open containers, synthesizing missing pieces
+  while (stack.length) {
+    const c = stack.pop();
+    if (c.type === 'obj') {
+      if (c.state === 'colon') { out.push({ type: ':', value: ':' }); out.push({ type: 'LITERAL', value: 'null' }); }
+      else if (c.state === 'value') { out.push({ type: 'LITERAL', value: 'null' }); }
+      out.push({ type: '}', value: '}' });
+    } else {
+      if (c.state === 'value' && !c.empty) { out.push({ type: 'LITERAL', value: 'null' }); }
+      out.push({ type: ']', value: ']' });
+    }
+  }
+
+  return out;
+}
+
+function repairStructuralIssues(text) {
+  const tokens = tokenizeForStructuralRepair(text);
+  const repaired = repairTokenStructure(tokens);
+  let result = repaired.map(t => t.value).join(' ');
+  result = result.replace(/,\s*([}\]])/g, '$1');
+  return result;
+}
+
+let _pendingAutoFixNote = false;
+
+function repairAndUpdateInput() {
+  const inputEl = document.getElementById('jsonInput');
+  const text = inputEl.value;
+  if (!text.trim()) return false;
+
+  let wasAlreadyValid = false;
+  try { JSON.parse(text); wasAlreadyValid = true; } catch (_) {}
+
   const repaired = tryRepairJson(text);
-  document.getElementById('jsonInput').value = repaired;
+  // the structural pass reconstructs the token stream flat (single spaces
+  // between tokens) since it doesn't track original indentation -- pretty
+  // print it back so the input box doesn't turn into a squished one-liner
+  let toSet = repaired;
+  try {
+    toSet = JSON.stringify(JSON.parse(repaired), null, getIndent());
+  } catch (_) {
+    // repair didn't fully succeed -- fall back to the raw attempt as-is
+  }
+
+  inputEl.value = toSet;
+  _pendingAutoFixNote = !wasAlreadyValid;
+  return true;
+}
+
+function applyJsonRepair() {
+  if (!repairAndUpdateInput()) return;
   formatJson();
 }
 
 function autoFixJson() {
-  const text = document.getElementById('jsonInput').value;
-  if (!text.trim()) return;
-  const repaired = tryRepairJson(text);
-  document.getElementById('jsonInput').value = repaired;
+  if (!repairAndUpdateInput()) return;
   formatJson();
 }
 
@@ -281,8 +502,13 @@ function validateOnly(text) {
   }
 }
 
+let _pendingPasteFormat = false;
+
 function onJsonInput() {
   const text = document.getElementById('jsonInput').value;
+  const wasPaste = _pendingPasteFormat;
+  _pendingPasteFormat = false;
+
   if (!text.trim()) {
     document.getElementById('jsonResult').innerHTML = '<div class="config-block"><div class="output-block"><div class="empty">Paste JSON on the left and click Format, Minify, or just start typing to validate.</div></div></div>';
     return;
@@ -294,6 +520,10 @@ function onJsonInput() {
       msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
+  } else if (wasPaste) {
+    // pretty-print automatically once a full, valid paste lands
+    const formatted = JSON.stringify(result.parsed, null, getIndent());
+    renderResult(result.checks, formatted, result.parsed);
   } else {
     renderResult(result.checks);
   }
@@ -312,7 +542,12 @@ function formatJson() {
     return;
   }
   const formatted = JSON.stringify(result.parsed, null, getIndent());
-  renderResult(result.checks, formatted, result.parsed);
+  const checks = result.checks.slice();
+  if (_pendingAutoFixNote) {
+    _pendingAutoFixNote = false;
+    checks.push({type: 'warn', msg: 'This was auto-fixed — missing commas, colons, brackets, quotes, or values may have been added or corrected automatically. Please review the result below against what you actually intended before relying on it.'});
+  }
+  renderResult(checks, formatted, result.parsed);
 }
 
 function minifyJson() {
@@ -407,14 +642,10 @@ function escapeHtml(str) {
 window.addEventListener('DOMContentLoaded', () => {
   const inputEl = document.getElementById('jsonInput');
   if (inputEl) {
-    inputEl.addEventListener('paste', () => {
-      setTimeout(() => {
-        const text = inputEl.value;
-        const result = validateOnly(text);
-        if (result && !result.error) {
-          formatJson();
-        }
-      }, 50);
-    });
+    // the browser fires 'input' right after 'paste' commits the new value,
+    // so just flag it here instead of re-reading .value on a fixed delay
+    // (a delay-based re-read can catch a large paste mid-write and validate
+    // a truncated snapshot, flashing a false "invalid JSON" error).
+    inputEl.addEventListener('paste', () => { _pendingPasteFormat = true; });
   }
 });

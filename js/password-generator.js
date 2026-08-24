@@ -32,11 +32,11 @@ function entropyBits(length, charsetSize) {
 }
 
 function entropyLabel(bits) {
-  if (bits < 28) return { label: 'very weak', cls: 'ent-very-weak' };
-  if (bits < 40) return { label: 'weak',      cls: 'ent-weak' };
-  if (bits < 56) return { label: 'fair',      cls: 'ent-fair' };
-  if (bits < 80) return { label: 'strong',    cls: 'ent-strong' };
-  return              { label: 'very strong', cls: 'ent-very-strong' };
+  if (bits < 28) return { label: 'very weak', cls: 's-danger' };
+  if (bits < 40) return { label: 'weak',      cls: 's-warn' };
+  if (bits < 56) return { label: 'fair',      cls: 's-caution' };
+  if (bits < 80) return { label: 'strong',    cls: 's-ok' };
+  return              { label: 'very strong', cls: 's-good' };
 }
 
 /* ── password generator ── */
@@ -162,7 +162,7 @@ function autoResizeResult(el) {
 }
 
 function entropyHtml(bits, label, cls) {
-  return `<span class="pw-entropy ${cls}">${bits} bits — ${label}</span>`;
+  return `<span class="status-pill ${cls}">${bits} bits — ${label}</span>`;
 }
 
 /* ── copy ── */

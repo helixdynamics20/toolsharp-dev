@@ -197,6 +197,20 @@ code, kbd, .mono { font-family: var(--mono); }
 .dir-category:first-of-type { border-top: none; }
 .dir-category::before { content: '//'; color: var(--violet); font-weight: 600; }
 body.dark-theme .dir-category { background: #0f0d1a; }
+
+/* a rotating accent per category, so the directory listing reads as
+   distinct sections rather than one long identical list */
+.dir-category { border-left: 3px solid transparent; }
+#cat-json     { border-left-color: var(--violet); }
+#cat-json::before     { color: var(--violet); }
+#cat-encoding { border-left-color: var(--amber); }
+#cat-encoding::before { color: var(--amber); }
+#cat-text     { border-left-color: var(--green); }
+#cat-text::before     { color: var(--green); }
+#cat-hashes   { border-left-color: var(--red); }
+#cat-hashes::before   { color: var(--red); }
+#cat-dev      { border-left-color: var(--violet-dark); }
+#cat-dev::before      { color: var(--violet-dark); }
 .dir-row:hover { background: var(--violet-wash); }
 .dir-row a.path-link {
   font-family: var(--mono);
@@ -355,6 +369,25 @@ body.dark-theme .dir-category { background: #0f0d1a; }
   text-align: center;
 }
 
+/* JSON syntax highlighting -- shared across json-formatter, jwt-decoder,
+   appsettings-validator, and any other tool that renders JSON output */
+.json-tree { font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+.jt-node { margin-left: 4px; }
+.jt-node > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 4px; }
+.jt-node > summary::before { content: '▾'; color: var(--violet); font-size: 10px; width: 12px; flex-shrink: 0; }
+.jt-node[open] > summary::before { content: '▾'; }
+.jt-node:not([open]) > summary::before { content: '▸'; }
+.jt-children { margin-left: 20px; border-left: 1px solid var(--rule); padding-left: 10px; }
+.jt-item { padding: 1px 0; }
+.jt-key { color: var(--violet-dark); font-weight: 500; }
+.jt-idx { color: var(--ink-faint); font-size: 11px; }
+.jt-sep { color: var(--ink-faint); }
+.jt-str { color: var(--green); }
+.jt-num { color: var(--amber); }
+.jt-bool { color: var(--violet); font-weight: 600; }
+.jt-null { color: var(--ink-faint); font-style: italic; }
+.jt-meta { color: var(--ink-soft); font-size: 12px; }
+
 .copy-btn {
   font-family: var(--mono);
   font-size: 11px;
@@ -381,6 +414,20 @@ body.dark-theme .dir-category { background: #0f0d1a; }
 .callout.error { border-color: var(--red); background: var(--red-wash); color: var(--red); }
 .callout.ok { border-color: var(--green); background: var(--green-wash); color: #206B47; }
 
+/* status pill -- a small colored severity/quality badge, reused for
+   password entropy, hash algorithm safety, and similar strength readouts */
+.status-pill { display: inline-block; font-weight: 600; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-family: var(--mono); }
+.status-pill.s-danger  { background: #FDE8E8; color: #9B1F1F; }
+.status-pill.s-warn    { background: var(--amber-wash); color: #8A4A00; }
+.status-pill.s-caution { background: #FFF8D6; color: #7A6000; }
+.status-pill.s-ok      { background: var(--green-wash); color: #1D6840; }
+.status-pill.s-good    { background: #D0F0E0; color: #0F4D2C; }
+body.dark-theme .status-pill.s-danger  { background: #3B1010; color: #F8A0A0; }
+body.dark-theme .status-pill.s-warn    { background: #3A2000; color: #F0B060; }
+body.dark-theme .status-pill.s-caution { background: #302800; color: #E0C040; }
+body.dark-theme .status-pill.s-ok      { background: #0F2E1C; color: #6DD9A0; }
+body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
+
 /* result field list (e.g. GUID formats, JWT claims) */
 .result-list { display: flex; flex-direction: column; }
 .result-item {
@@ -391,8 +438,9 @@ body.dark-theme .dir-category { background: #0f0d1a; }
   font-size: 13px;
 }
 .result-item:last-child { border-bottom: none; }
-.result-item .k { color: var(--ink-faint); flex-shrink: 0; }
+.result-item .k { color: var(--violet-dark); font-weight: 500; flex-shrink: 0; }
 .result-item .v { color: var(--ink); word-break: break-all; text-align: right; }
+.result-item .v.secret { color: var(--red); font-style: italic; }
 
 /* ---------------- Notes / explanation section ---------------- */
 
@@ -435,6 +483,7 @@ footer {
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 footer a { color: var(--ink-faint); }
 footer a:hover { color: var(--violet); }
+footer .wrap span:last-child { color: var(--green); }
 
 .repair-link {
   font-family: var(--mono);

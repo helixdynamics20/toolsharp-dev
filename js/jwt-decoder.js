@@ -63,11 +63,11 @@ async function decodeJwt() {
     <div class="tool-grid" style="margin-top:20px;">
       <div class="config-block">
         <div class="tab">header <button class="copy-btn" onclick="copyJson('jwtHeaderOut', this)">copy</button></div>
-        <div class="output-block"><pre id="jwtHeaderOut">${escapeHtml(JSON.stringify(header, null, 2))}</pre></div>
+        <div class="output-block"><pre id="jwtHeaderOut">${highlightJsonText(JSON.stringify(header, null, 2))}</pre></div>
       </div>
       <div class="config-block">
         <div class="tab">payload <button class="copy-btn" onclick="copyJson('jwtPayloadOut', this)">copy</button></div>
-        <div class="output-block"><pre id="jwtPayloadOut">${escapeHtml(JSON.stringify(payload, null, 2))}</pre></div>
+        <div class="output-block"><pre id="jwtPayloadOut">${highlightJsonText(JSON.stringify(payload, null, 2))}</pre></div>
       </div>
     </div>
     ${timeCallouts ? '<div style="margin-top:6px;">' + timeCallouts + '</div>' : ''}
@@ -175,4 +175,25 @@ function escapeHtml(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+// Syntax-highlight JSON text using the shared .jt-* classes (css/style.css)
+function highlightJsonText(jsonString) {
+  const escaped = escapeHtml(jsonString);
+  const tokenRe = /"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+  return escaped.replace(tokenRe, (match, offset, full) => {
+    let cls;
+    if (match[0] === '"') {
+      const rest = full.slice(offset + match.length);
+      cls = /^\s*:/.test(rest) ? 'jt-key' : 'jt-str';
+    } else if (match === 'true' || match === 'false') {
+      cls = 'jt-bool';
+    } else if (match === 'null') {
+      cls = 'jt-null';
+    } else {
+      cls = 'jt-num';
+    }
+    return `<span class="${cls}">${match}</span>`;
+  });
+}
+
 function copyJson(id, btn) { navigator.clipboard.writeText(document.getElementById(id).textContent); flashCopied(btn); }
