@@ -68,27 +68,27 @@
       <div class="tab">hash-values.json</div>
       <div class="body">
         <div class="field">
-          <label>SHA-256 <span style="font-family:var(--mono);font-size:11px;color:var(--green);font-weight:400;">— recommended for most uses</span></label>
+          <label>SHA-256 <span class="status-pill s-ok" style="font-size:10.5px;padding:1px 7px;">recommended</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="sha256Output" readonly style="font-family: var(--mono); font-size: 13px;">
+            <input type="text" id="sha256Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
             <button class="btn" onclick="copyValue('sha256Output', this)">Copy</button>
           </div>
 
-          <label>SHA-512 <span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);font-weight:400;">— longer, more collision-resistant</span></label>
+          <label>SHA-512 <span class="status-pill s-good" style="font-size:10.5px;padding:1px 7px;">strongest</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="sha512Output" readonly style="font-family: var(--mono); font-size: 13px;">
+            <input type="text" id="sha512Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
             <button class="btn" onclick="copyValue('sha512Output', this)">Copy</button>
           </div>
 
-          <label>SHA-1 <span style="font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:400;">— deprecated for security, ok for checksums</span></label>
+          <label>SHA-1 <span class="status-pill s-warn" style="font-size:10.5px;padding:1px 7px;">deprecated</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="sha1Output" readonly style="font-family: var(--mono); font-size: 13px;">
+            <input type="text" id="sha1Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
             <button class="btn" onclick="copyValue('sha1Output', this)">Copy</button>
           </div>
 
-          <label>MD5 <span style="font-family:var(--mono);font-size:11px;color:var(--red);font-weight:400;">— broken for security, legacy use only</span></label>
+          <label>MD5 <span class="status-pill s-danger" style="font-size:10.5px;padding:1px 7px;">broken</span></label>
           <div style="display:flex; gap: 8px;">
-            <input type="text" id="md5Output" readonly style="font-family: var(--mono); font-size: 13px;">
+            <input type="text" id="md5Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
             <button class="btn" onclick="copyValue('md5Output', this)">Copy</button>
           </div>
         </div>

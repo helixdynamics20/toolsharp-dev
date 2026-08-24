@@ -68,6 +68,27 @@ function renderTreeHtml(obj) {
   return `<div class="json-tree">${val(obj)}</div>`;
 }
 
+// Syntax-highlight formatted/minified JSON text using the same jt-*
+// color classes as the tree view, so both views agree visually.
+function highlightJsonText(jsonString) {
+  const escaped = escapeHtml(jsonString);
+  const tokenRe = /"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+  return escaped.replace(tokenRe, (match, offset, full) => {
+    let cls;
+    if (match[0] === '"') {
+      const rest = full.slice(offset + match.length);
+      cls = /^\s*:/.test(rest) ? 'jt-key' : 'jt-str';
+    } else if (match === 'true' || match === 'false') {
+      cls = 'jt-bool';
+    } else if (match === 'null') {
+      cls = 'jt-null';
+    } else {
+      cls = 'jt-num';
+    }
+    return `<span class="${cls}">${match}</span>`;
+  });
+}
+
 function showJsonViewTab(tab) {
   const textEl = document.getElementById('jsonTextView');
   const treeEl = document.getElementById('jsonTreeView');
@@ -101,7 +122,7 @@ function renderResult(checks, formatted, parsed) {
         <button class="copy-btn" onclick="copyJsonOut(this)">copy</button>
       </div>
       <div class="output-block">
-        <div id="jsonTextView"><pre id="jsonOutputPre">${escapeHtml(formatted)}</pre></div>
+        <div id="jsonTextView"><pre id="jsonOutputPre">${hasTree ? highlightJsonText(formatted) : escapeHtml(formatted)}</pre></div>
         ${hasTree ? `<div id="jsonTreeView" style="display:none;padding:14px;"></div>` : ''}
       </div>
     </div>` : '';

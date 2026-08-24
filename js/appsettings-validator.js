@@ -265,7 +265,7 @@ function validateAppsettings() {
     </div>
     <div class="config-block" style="margin-top:16px;">
       <div class="tab">formatted <button class="copy-btn" onclick="copyFormatted(this)">copy</button></div>
-      <div class="output-block"><pre id="asFormatted">${escapeHtml(formatted)}</pre></div>
+      <div class="output-block"><pre id="asFormatted">${highlightJsonText(formatted)}</pre></div>
     </div>
   `;
 }
@@ -278,6 +278,26 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// Syntax-highlight JSON text using the shared .jt-* classes (css/style.css)
+function highlightJsonText(jsonString) {
+  const escaped = escapeHtml(jsonString);
+  const tokenRe = /"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+  return escaped.replace(tokenRe, (match, offset, full) => {
+    let cls;
+    if (match[0] === '"') {
+      const rest = full.slice(offset + match.length);
+      cls = /^\s*:/.test(rest) ? 'jt-key' : 'jt-str';
+    } else if (match === 'true' || match === 'false') {
+      cls = 'jt-bool';
+    } else if (match === 'null') {
+      cls = 'jt-null';
+    } else {
+      cls = 'jt-num';
+    }
+    return `<span class="${cls}">${match}</span>`;
+  });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
