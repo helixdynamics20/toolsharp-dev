@@ -223,6 +223,12 @@ function escHtml(str) {
 /* ── init ── */
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('password-generator', [
+    'modePassword', 'modePassphrase', 'pwLength',
+    'chkUpper', 'chkLower', 'chkDigits', 'chkSymbols', 'chkNoAmbig',
+    'wordCount', 'wordSep', 'chkCapWords', 'bulkCount'
+  ]);
+  onModeChange();
   syncSlider();
   syncWordCount();
   generate();

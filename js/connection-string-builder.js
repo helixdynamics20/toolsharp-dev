@@ -3,6 +3,10 @@ function toggleCreds() {
   document.getElementById('csCreds').style.display = (auth === 'sql' || auth === 'azuread-password') ? 'grid' : 'none';
 }
 document.getElementById('csAuth').addEventListener('change', toggleCreds);
+
+// Remember the auth type + flag preferences (not the server/credentials --
+// those are per-connection, not a personal default worth persisting).
+persistFormState('connection-string-builder', ['csAuth', 'csEncrypt', 'csTrust', 'csMars']);
 toggleCreds();
 
 function clearCsForm() {
