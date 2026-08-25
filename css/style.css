@@ -232,6 +232,16 @@ body.dark-theme .dir-category { background: #0f0d1a; }
 @media (max-width: 640px) {
   .dir-row, .dir-row-head { grid-template-columns: 1fr; gap: 4px; }
   .dir-row .status { text-align: left; }
+
+  .site-header .wrap {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .nav-links { flex-wrap: wrap; row-gap: 6px; }
+  .nav-dropdown-trigger { padding: 5px 8px; font-size: 12.5px; }
 }
 
 /* ---------------- Tool page layout ---------------- */

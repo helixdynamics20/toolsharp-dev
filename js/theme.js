@@ -325,6 +325,7 @@
     dropdownContainer.style.display = 'flex';
     dropdownContainer.style.gap = '6px';
     dropdownContainer.style.alignItems = 'center';
+    dropdownContainer.style.flexWrap = 'wrap';
 
     var guidesLink = document.createElement('a');
     guidesLink.className = 'nav-dropdown-trigger';
