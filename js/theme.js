@@ -38,6 +38,26 @@
     setTimeout(function () { btn.textContent = orig; }, 1200);
   };
 
+  // Recently Used Tools (client-side only, read by index.html)
+  var RECENT_KEY = 'toolsharp-recent-tools';
+  var RECENT_MAX = 6;
+
+  (function recordRecentTool() {
+    var m = window.location.pathname.match(/\/tools\/([^\/]+\.html)$/);
+    if (!m) return;
+    var file = m[1];
+    try {
+      var recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+      recent = recent.filter(function (f) { return f !== file; });
+      recent.unshift(file);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, RECENT_MAX)));
+    } catch (e) {}
+  })();
+
+  window.getRecentToolFiles = function () {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch (e) { return []; }
+  };
+
   // Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
