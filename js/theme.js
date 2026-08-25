@@ -43,7 +43,7 @@
   var RECENT_MAX = 6;
 
   (function recordRecentTool() {
-    var m = window.location.pathname.match(/\/tools\/([^\/]+\.html)$/);
+    var m = window.location.pathname.match(/\/tools\/([^\/]+)$/);
     if (!m) return;
     var file = m[1];
     try {
@@ -71,28 +71,28 @@
 
   // Command Palette Logic
   var toolsList = [
-    { name: 'Connection String Builder', path: '/tools/connection-string-builder.html' },
-    { name: 'Cron Builder & Explainer', path: '/tools/cron-builder.html' },
-    { name: 'JWT Decoder', path: '/tools/jwt-decoder.html' },
-    { name: 'GUID Formatter & Generator', path: '/tools/guid-formatter.html' },
-    { name: 'Regex Tester', path: '/tools/regex-tester.html' },
-    { name: 'AppSettings Validator', path: '/tools/appsettings-validator.html' },
-    { name: 'JSON Formatter & Minifier', path: '/tools/json-formatter.html' },
-    { name: 'Diff Checker', path: '/tools/diff-checker.html' },
-    { name: 'Base64 Converter', path: '/tools/base64-converter.html' },
-    { name: 'Share Pad', path: '/tools/share-pad.html' },
-    { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator.html' },
-    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter.html' },
-    { name: 'URL Encoder & Decoder', path: '/tools/url-encoder.html' },
-    { name: 'SQL Formatter & Beautifier', path: '/tools/sql-formatter.html' },
-    { name: 'Password Generator', path: '/tools/password-generator.html' },
-    { name: 'Case Converter', path: '/tools/case-converter.html' },
-    { name: 'XML Formatter & Validator', path: '/tools/xml-formatter.html' },
-    { name: 'Number Base Converter', path: '/tools/base-converter.html' },
-    { name: 'CSV / JSON Converter', path: '/tools/csv-json-converter.html' },
-    { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter.html' },
-    { name: 'Markdown Previewer', path: '/tools/markdown-previewer.html' },
-    { name: 'QR Code Generator', path: '/tools/qr-code-generator.html' }
+    { name: 'Connection String Builder', path: '/tools/connection-string-builder' },
+    { name: 'Cron Builder & Explainer', path: '/tools/cron-builder' },
+    { name: 'JWT Decoder', path: '/tools/jwt-decoder' },
+    { name: 'GUID Formatter & Generator', path: '/tools/guid-formatter' },
+    { name: 'Regex Tester', path: '/tools/regex-tester' },
+    { name: 'AppSettings Validator', path: '/tools/appsettings-validator' },
+    { name: 'JSON Formatter & Minifier', path: '/tools/json-formatter' },
+    { name: 'Diff Checker', path: '/tools/diff-checker' },
+    { name: 'Base64 Converter', path: '/tools/base64-converter' },
+    { name: 'Share Pad', path: '/tools/share-pad' },
+    { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator' },
+    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter' },
+    { name: 'URL Encoder & Decoder', path: '/tools/url-encoder' },
+    { name: 'SQL Formatter & Beautifier', path: '/tools/sql-formatter' },
+    { name: 'Password Generator', path: '/tools/password-generator' },
+    { name: 'Case Converter', path: '/tools/case-converter' },
+    { name: 'XML Formatter & Validator', path: '/tools/xml-formatter' },
+    { name: 'Number Base Converter', path: '/tools/base-converter' },
+    { name: 'CSV / JSON Converter', path: '/tools/csv-json-converter' },
+    { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter' },
+    { name: 'Markdown Previewer', path: '/tools/markdown-previewer' },
+    { name: 'QR Code Generator', path: '/tools/qr-code-generator' }
   ];
 
   var paletteActive = false;
@@ -275,48 +275,48 @@
       {
         name: 'json',
         items: [
-          { name: 'JSON Formatter', path: 'tools/json-formatter.html' },
-          { name: 'AppSettings Validator', path: 'tools/appsettings-validator.html' },
-          { name: 'CSV / JSON Converter', path: 'tools/csv-json-converter.html' }
+          { name: 'JSON Formatter', path: 'tools/json-formatter' },
+          { name: 'AppSettings Validator', path: 'tools/appsettings-validator' },
+          { name: 'CSV / JSON Converter', path: 'tools/csv-json-converter' }
         ]
       },
       {
         name: 'encoding',
         items: [
-          { name: 'Base64 Converter', path: 'tools/base64-converter.html' },
-          { name: 'URL Encoder', path: 'tools/url-encoder.html' },
-          { name: 'JWT Decoder', path: 'tools/jwt-decoder.html' },
-          { name: 'Color Converter', path: 'tools/color-converter.html' },
-          { name: 'QR Code Generator', path: 'tools/qr-code-generator.html' }
+          { name: 'Base64 Converter', path: 'tools/base64-converter' },
+          { name: 'URL Encoder', path: 'tools/url-encoder' },
+          { name: 'JWT Decoder', path: 'tools/jwt-decoder' },
+          { name: 'Color Converter', path: 'tools/color-converter' },
+          { name: 'QR Code Generator', path: 'tools/qr-code-generator' }
         ]
       },
       {
         name: 'text',
         items: [
-          { name: 'Diff Checker', path: 'tools/diff-checker.html' },
-          { name: 'SQL Formatter', path: 'tools/sql-formatter.html' },
-          { name: 'Case Converter', path: 'tools/case-converter.html' },
-          { name: 'XML Formatter', path: 'tools/xml-formatter.html' },
-          { name: 'Markdown Previewer', path: 'tools/markdown-previewer.html' },
-          { name: 'Share Pad', path: 'tools/share-pad.html' }
+          { name: 'Diff Checker', path: 'tools/diff-checker' },
+          { name: 'SQL Formatter', path: 'tools/sql-formatter' },
+          { name: 'Case Converter', path: 'tools/case-converter' },
+          { name: 'XML Formatter', path: 'tools/xml-formatter' },
+          { name: 'Markdown Previewer', path: 'tools/markdown-previewer' },
+          { name: 'Share Pad', path: 'tools/share-pad' }
         ]
       },
       {
         name: 'hashes',
         items: [
-          { name: 'Hash Generator', path: 'tools/hash-generator.html' }
+          { name: 'Hash Generator', path: 'tools/hash-generator' }
         ]
       },
       {
         name: 'dev-helpers',
         items: [
-          { name: 'Connection String Builder', path: 'tools/connection-string-builder.html' },
-          { name: 'Cron Builder & Explainer', path: 'tools/cron-builder.html' },
-          { name: 'Epoch Converter', path: 'tools/epoch-converter.html' },
-          { name: 'GUID Formatter', path: 'tools/guid-formatter.html' },
-          { name: 'Regex Tester', path: 'tools/regex-tester.html' },
-          { name: 'Password Generator', path: 'tools/password-generator.html' },
-          { name: 'Base Converter', path: 'tools/base-converter.html' }
+          { name: 'Connection String Builder', path: 'tools/connection-string-builder' },
+          { name: 'Cron Builder & Explainer', path: 'tools/cron-builder' },
+          { name: 'Epoch Converter', path: 'tools/epoch-converter' },
+          { name: 'GUID Formatter', path: 'tools/guid-formatter' },
+          { name: 'Regex Tester', path: 'tools/regex-tester' },
+          { name: 'Password Generator', path: 'tools/password-generator' },
+          { name: 'Base Converter', path: 'tools/base-converter' }
         ]
       }
     ];
@@ -328,7 +328,7 @@
 
     var guidesLink = document.createElement('a');
     guidesLink.className = 'nav-dropdown-trigger';
-    guidesLink.href = pathPrefix + 'guides/index.html';
+    guidesLink.href = pathPrefix + 'guides';
     guidesLink.textContent = 'guides/';
     dropdownContainer.appendChild(guidesLink);
 
