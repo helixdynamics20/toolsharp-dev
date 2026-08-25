@@ -268,7 +268,8 @@
     if (!navLinks) return;
 
     var isToolSubpage = window.location.pathname.includes('/tools/');
-    var pathPrefix = isToolSubpage ? '../' : '';
+    var isGuideSubpage = window.location.pathname.includes('/guides/');
+    var pathPrefix = (isToolSubpage || isGuideSubpage) ? '../' : '';
 
     var categories = [
       {
@@ -324,6 +325,12 @@
     dropdownContainer.style.display = 'flex';
     dropdownContainer.style.gap = '6px';
     dropdownContainer.style.alignItems = 'center';
+
+    var guidesLink = document.createElement('a');
+    guidesLink.className = 'nav-dropdown-trigger';
+    guidesLink.href = pathPrefix + 'guides/index.html';
+    guidesLink.textContent = 'guides/';
+    dropdownContainer.appendChild(guidesLink);
 
     categories.forEach(function(cat) {
       var dropdown = document.createElement('div');

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Server Connection String Examples — SQL Auth, Windows Auth, Azure AD — ToolSharp.dev</title>
+<meta name="description" content="SQL auth, Windows auth, and every Azure AD variant — real SQL Server connection string examples, plus the Azure SQL requirements that trip people up.">
+<link rel="canonical" href="https://toolsharp.dev/guides/sql-server-connection-string-examples.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/sql-server-connection-string-examples.html">
+<meta property="og:title" content="SQL Server Connection String Examples — SQL Auth, Windows Auth, Azure AD">
+<meta property="og:description" content="SQL auth, Windows auth, and every Azure AD variant — real connection string examples, plus the Azure SQL requirements that trip people up.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/sql-server-connection-string-examples.html">
+<meta name="twitter:title" content="SQL Server Connection String Examples — SQL Auth, Windows Auth, Azure AD">
+<meta name="twitter:description" content="SQL auth, Windows auth, and every Azure AD variant — real connection string examples, plus the Azure SQL requirements that trip people up.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"SQL Server Connection String Examples","url":"https://toolsharp.dev/guides/sql-server-connection-string-examples.html","description":"SQL auth, Windows auth, and every Azure AD variant, plus the Azure SQL requirements that trip people up.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="index.html">guides</a><span class="sep">/</span><span class="current">sql-server-connection-string-examples</span></div>
+
+  <div class="tool-header">
+    <h1>SQL Server Connection String Examples</h1>
+    <p class="sub">The same six or seven key=value pairs, rearranged slightly for every auth method. Here's a working example of each, and the two settings that cause the most support tickets on Azure SQL.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">SQL Server</span>
+      <span class="badge">Azure SQL</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// anatomy</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A connection string is a semicolon-separated list of <code>Key=Value</code> pairs. Order doesn't matter, keys aren't case-sensitive, and most drivers tolerate a handful of alternate spellings for the same key (<code>User Id</code> / <code>UID</code>, <code>Server</code> / <code>Data Source</code>). What changes between the examples below is only which keys are present.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// sql authentication</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A username and password stored on the SQL Server instance itself, independent of Windows or Azure AD accounts. Most common for on-prem servers and for services that shouldn't have a domain identity.</p></div>
+    <div class="config-block">
+      <div class="tab">example</div>
+      <div class="body"><pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-all;">Server=tcp:myserver.database.windows.net,1433;Database=StoredValueDb;User Id=app_user;Password=***;Encrypt=True;</pre></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// windows / integrated authentication</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The connecting process's Windows identity is passed through — no username or password in the string at all. Only works when the app and the SQL Server are on the same domain (or a trusted one), which rules it out for most cloud-hosted apps talking to Azure SQL.</p></div>
+    <div class="config-block">
+      <div class="tab">example</div>
+      <div class="body"><pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-all;">Server=localhost\SQLEXPRESS;Database=StoredValueDb;Integrated Security=True;Encrypt=False;</pre></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// azure ad variants</h2>
+    <div class="config-block">
+      <div class="tab">three flavors</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Default</span><span class="v">tries managed identity, then environment credentials, then a chain of fallbacks — the right choice for apps already running in Azure</span></div>
+        <div class="result-item"><span class="k">Interactive</span><span class="v">pops a browser login prompt — for local development, never for a running service</span></div>
+        <div class="result-item"><span class="k">Password</span><span class="v">a literal Azure AD username/password in the string — works, but is being phased out in favor of the above two wherever possible</span></div>
+      </div>
+    </div>
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">example (Active Directory Default)</div>
+      <div class="body"><pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-all;">Server=tcp:myserver.database.windows.net,1433;Database=StoredValueDb;Authentication=Active Directory Default;Encrypt=True;</pre></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// what trips people up on azure sql</h2>
+    <div class="callout error" style="margin-bottom:14px;"><strong>Azure SQL rejects connections without <code>Encrypt=True</code>.</strong> It's not optional the way it is for an on-prem server — a connection string that works fine locally against SQL Express will fail outright against <code>*.database.windows.net</code> until this is set.</div>
+    <div class="callout warn" style="margin-bottom:14px;"><strong><code>TrustServerCertificate=True</code> skips certificate validation entirely</strong> — it's a workaround for a self-signed cert on a local dev instance, not something that belongs in a connection string pointed at a real Azure SQL server. Its presence there is usually a leftover from copy-pasting a local dev string.</div>
+    <div class="callout warn"><strong>Integrated Security and a User Id/Password in the same string don't combine</strong> — one wins silently depending on the driver, and it's easy to leave stale credentials in a string after switching an app to Windows auth without noticing they're now ignored.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Build a connection string for any of these auth methods, or paste an existing one to see it broken into fields (with the password masked), using the <a href="../tools/connection-string-builder.html">Connection String Builder</a> — it also flags the Azure SQL/Encrypt mismatch above automatically.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
