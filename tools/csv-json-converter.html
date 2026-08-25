@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <style>
@@ -99,7 +100,7 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.json</span>
-        <button class="copy-btn" onclick="copyOutput('csvJsonOutput', this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('csvJsonOutput', this)">copy</button>
       </div>
       <div id="csvJsonMsg" style="padding: 0 16px;"></div>
       <div class="output-block"><pre id="csvJsonOutput" class="empty">Result appears here.</pre></div>
@@ -134,7 +135,7 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.csv</span>
-        <button class="copy-btn" onclick="copyOutput('jsonToCsvOutput', this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('jsonToCsvOutput', this)">copy</button>
       </div>
       <div id="jsonToCsvMsg" style="padding: 0 16px;"></div>
       <div class="output-block"><pre id="jsonToCsvOutput" class="empty">Result appears here.</pre></div>

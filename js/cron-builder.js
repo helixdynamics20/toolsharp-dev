@@ -242,4 +242,3 @@ function formatRun(d) {
   return `${days[d.getDay()]} ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function copyText(id, btn) { navigator.clipboard.writeText(document.getElementById(id).textContent); flashCopied(btn); }

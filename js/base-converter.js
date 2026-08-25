@@ -132,11 +132,3 @@ function clearBaseInput() {
   showError('');
   clearOutputs();
 }
-
-function copyValue(id, btn) {
-  const input = document.getElementById(id);
-  if (!input || !input.value) return;
-  input.select();
-  navigator.clipboard.writeText(input.value);
-  flashCopied(btn);
-}

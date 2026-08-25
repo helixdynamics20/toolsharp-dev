@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -129,7 +130,7 @@
       <div class="config-block">
         <div class="tab">
           output — generated connection string
-          <button class="copy-btn" onclick="copyText('csOutput', this)">copy</button>
+          <button class="copy-btn" onclick="copyElementValue('csOutput', this)">copy</button>
         </div>
         <div class="output-block"><pre id="csOutput" class="empty">Fill in the fields on the left, then click "Build string".</pre></div>
       </div>

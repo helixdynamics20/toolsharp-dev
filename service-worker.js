@@ -5,6 +5,7 @@ const ASSETS = [
   '/404.html',
   '/css/style.css',
   '/js/theme.js',
+  '/js/utils.js',
   '/favicon.svg',
   '/robots.txt',
   '/sitemap.xml',

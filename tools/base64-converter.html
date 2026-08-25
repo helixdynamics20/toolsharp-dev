@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -66,7 +67,7 @@
             Drag & Drop a file here to convert to Base64, or click to upload.
             <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(this)">
           </div>
-          <textarea id="b64Input" rows="7" placeholder="Type or paste text to encode, or a Base64 string to decode..." oninput="autoDetect()"></textarea>
+          <textarea id="b64Input" rows="7" placeholder="Type or paste text to encode, or a Base64 string to decode..."></textarea>
         </div>
         <div class="check-row">
           <input type="checkbox" id="b64UrlSafe">
@@ -83,7 +84,7 @@
     <div class="config-block">
       <div class="tab">
         output
-        <button class="copy-btn" onclick="copyB64Out(this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('b64Output', this)">copy</button>
       </div>
       <div class="output-block"><pre id="b64Output" class="empty">Result appears here.</pre></div>
       <div id="b64Meta" style="padding: 0 20px 16px;"></div>

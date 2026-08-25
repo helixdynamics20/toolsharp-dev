@@ -64,13 +64,6 @@ function setPickerToNow() {
   convertDateToEpoch();
 }
 
-function copyResult(id, btn) {
-  const el = document.getElementById(id);
-  if (!el || !el.value) return;
-  el.select();
-  navigator.clipboard.writeText(el.value);
-  flashCopied(btn);
-}
 
 function setEpochFromClock(unit) {
   const now = Date.now();

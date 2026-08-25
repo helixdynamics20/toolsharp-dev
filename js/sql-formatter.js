@@ -383,12 +383,6 @@ function updateLineCount(sql) {
   el.textContent = `${lines} line${lines === 1 ? '' : 's'}`;
 }
 
-function copyOutput(btn) {
-  const val = document.getElementById('sqlOutput').value;
-  if (!val) return;
-  navigator.clipboard.writeText(val).then(() => flash(btn, 'copied!', 'copy'));
-}
-
 function clearAll() {
   document.getElementById('sqlInput').value = '';
   document.getElementById('sqlOutput').value = '';
@@ -414,10 +408,6 @@ function escHtml(str) {
   return d.innerHTML;
 }
 
-function flash(btn, active, orig) {
-  btn.textContent = active;
-  setTimeout(() => { btn.textContent = orig; }, 1500);
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sqlInput').addEventListener('input', scheduleAuto);

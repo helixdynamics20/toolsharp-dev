@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -74,25 +75,25 @@
           <label>SHA-256 <span class="status-pill s-ok" style="font-size:10.5px;padding:1px 7px;">recommended</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha256Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyValue('sha256Output', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('sha256Output', this)">Copy</button>
           </div>
 
           <label>SHA-512 <span class="status-pill s-good" style="font-size:10.5px;padding:1px 7px;">strongest</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha512Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyValue('sha512Output', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('sha512Output', this)">Copy</button>
           </div>
 
           <label>SHA-1 <span class="status-pill s-warn" style="font-size:10.5px;padding:1px 7px;">deprecated</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha1Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyValue('sha1Output', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('sha1Output', this)">Copy</button>
           </div>
 
           <label>MD5 <span class="status-pill s-danger" style="font-size:10.5px;padding:1px 7px;">broken</span></label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="md5Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
-            <button class="btn" onclick="copyValue('md5Output', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('md5Output', this)">Copy</button>
           </div>
         </div>
       </div>

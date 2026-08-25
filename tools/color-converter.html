@@ -28,6 +28,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -147,19 +148,19 @@ body.dark-theme .color-swatch {
           <label>HEX</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
-            <button class="btn" onclick="copyValue('hexOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('hexOutput', this)">Copy</button>
           </div>
 
           <label>RGB</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="rgbOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyValue('rgbOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('rgbOutput', this)">Copy</button>
           </div>
 
           <label>HSL</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="hslOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyValue('hslOutput', this)">Copy</button>
+            <button class="btn" onclick="copyElementValue('hslOutput', this)">Copy</button>
           </div>
         </div>
       </div>

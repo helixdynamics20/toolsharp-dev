@@ -175,13 +175,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // ── DOM wiring ───────────────────────────────────────────────────────
 
-function copyValue(id, btn) {
-  const input = document.getElementById(id);
-  if (!input || !input.value) return;
-  input.select();
-  navigator.clipboard.writeText(input.value);
-  if (window.flashCopied) flashCopied(btn);
-}
 
 function syncPickerFromColor(pickerId, c) {
   const picker = document.getElementById(pickerId);

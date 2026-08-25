@@ -47,12 +47,6 @@ function updateCharCount(val) {
     val ? `${val.length} chars` : '';
 }
 
-function copyOutput(btn) {
-  const val = document.getElementById('urlOutput').value;
-  if (!val) return;
-  navigator.clipboard.writeText(val).then(() => flash(btn, 'copied!', 'copy'));
-}
-
 function swapInputOutput() {
   const inp = document.getElementById('urlInput');
   const out = document.getElementById('urlOutput');
@@ -153,17 +147,12 @@ function buildUrl() {
   document.getElementById('buildResult').innerHTML = `
     <div class="config-block">
       <div class="tab">generated URL
-        <button class="copy-btn" onclick="copyBuilt(this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('builtUrl', this)">copy</button>
       </div>
       <div class="output-block">
         <pre id="builtUrl" style="white-space:pre-wrap;word-break:break-all;">${escHtml(final)}</pre>
       </div>
     </div>`;
-}
-
-function copyBuilt(btn) {
-  const el = document.getElementById('builtUrl');
-  if (el) navigator.clipboard.writeText(el.textContent).then(() => flash(btn, 'copied!', 'copy'));
 }
 
 function addParamRow() {
@@ -192,10 +181,6 @@ function escHtml(str) {
   return d.innerHTML;
 }
 
-function flash(btn, active, orig) {
-  btn.textContent = active;
-  setTimeout(() => { btn.textContent = orig; }, 1500);
-}
 
 /* ── init ── */
 

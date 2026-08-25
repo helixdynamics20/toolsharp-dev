@@ -168,14 +168,11 @@ function entropyHtml(bits, label, cls) {
 /* ── copy ── */
 
 function copyPasswords(btn) {
-  if (!lastPasswords.length) return;
-  navigator.clipboard.writeText(lastPasswords.join('\n')).then(() => flash(btn, 'copied!', 'copy'));
+  copyToClipboard(lastPasswords.join('\n'), btn);
 }
 
 function copySingle(btn, i) {
-  const pw = lastPasswords[i];
-  if (!pw) return;
-  navigator.clipboard.writeText(pw).then(() => flash(btn, 'copied!', 'copy'));
+  copyToClipboard(lastPasswords[i], btn);
 }
 
 /* ── download ── */
@@ -222,10 +219,6 @@ function escHtml(str) {
   return d.innerHTML;
 }
 
-function flash(btn, active, orig) {
-  btn.textContent = active;
-  setTimeout(() => { btn.textContent = orig; }, 1500);
-}
 
 /* ── init ── */
 

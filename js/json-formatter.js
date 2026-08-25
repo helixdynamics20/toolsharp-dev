@@ -119,7 +119,7 @@ function renderResult(checks, formatted, parsed) {
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
         ${hasTree ? `<span class="json-view-tabs"><button id="jsonTabText" class="json-tab-btn active" onclick="showJsonViewTab('text')">text</button><button id="jsonTabTree" class="json-tab-btn" onclick="showJsonViewTab('tree')">tree</button></span>` : ''}
-        <button class="copy-btn" onclick="copyJsonOut(this)">copy</button>
+        <button class="copy-btn" onclick="copyElementValue('jsonOutputPre', this)">copy</button>
       </div>
       <div class="output-block">
         <div id="jsonTextView"><pre id="jsonOutputPre">${hasTree ? highlightJsonText(formatted) : escapeHtml(formatted)}</pre></div>
@@ -629,10 +629,6 @@ function convertToYaml() {
   }
 }
 
-function copyJsonOut(btn) {
-  navigator.clipboard.writeText(document.getElementById('jsonOutputPre').textContent);
-  flashCopied(btn);
-}
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;

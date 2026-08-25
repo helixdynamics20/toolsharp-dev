@@ -264,16 +264,12 @@ function validateAppsettings() {
       </div>
     </div>
     <div class="config-block" style="margin-top:16px;">
-      <div class="tab">formatted <button class="copy-btn" onclick="copyFormatted(this)">copy</button></div>
+      <div class="tab">formatted <button class="copy-btn" onclick="copyElementValue('asFormatted', this)">copy</button></div>
       <div class="output-block"><pre id="asFormatted">${highlightJsonText(formatted)}</pre></div>
     </div>
   `;
 }
 
-function copyFormatted(btn) {
-  navigator.clipboard.writeText(document.getElementById('asFormatted').textContent);
-  flashCopied(btn);
-}
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;

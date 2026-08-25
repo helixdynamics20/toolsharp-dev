@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -69,7 +70,7 @@
         <textarea id="autoLoadedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn" onclick="copyAutoLoaded(this)">Copy Text</button>
+        <button class="btn" onclick="copyElementValue('autoLoadedOutput', this)">Copy Text</button>
         <button class="btn secondary" onclick="dismissAutoLoaded()">Create New Share</button>
       </div>
     </div>
@@ -93,21 +94,21 @@
             <label><span class="key">6-Digit Dictation Code</span></label>
             <div style="display: flex; gap: 8px; align-items: center;">
               <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
-              <button class="btn secondary" onclick="copyValue(this,'shareCode')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyElementValue('shareCode', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 12px;">
             <label><span class="key">Quick Share Link</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="shareLink" readonly style="flex: 1;">
-              <button class="btn secondary" onclick="copyValue(this,'shareLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyElementValue('shareLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 0;">
             <label><span class="key">Offline Fallback Link (No database)</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="offlineLink" readonly style="flex: 1; font-size: 11px;">
-              <button class="btn secondary" onclick="copyValue(this,'offlineLink')" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" onclick="copyElementValue('offlineLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
         </div>
@@ -132,7 +133,7 @@
             <textarea id="retrievedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
           </div>
           <div class="btn-row">
-            <button class="btn secondary" onclick="copyValue(this,'retrievedOutput')">Copy Output</button>
+            <button class="btn secondary" onclick="copyElementValue('retrievedOutput', this)">Copy Output</button>
           </div>
         </div>
       </div>
