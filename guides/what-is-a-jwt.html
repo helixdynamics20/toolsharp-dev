@@ -5,21 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>What Is a JWT? A Plain-English Guide to JSON Web Tokens — ToolSharp.dev</title>
 <meta name="description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted — read before your token expires.">
-<link rel="canonical" href="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<link rel="canonical" href="https://toolsharp.dev/guides/what-is-a-jwt">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#6C4CE0">
 <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
 
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<meta property="og:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta property="og:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
 <meta property="og:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
 <meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta name="twitter:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
 <meta name="twitter:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
@@ -32,7 +32,7 @@
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TechArticle","headline":"What Is a JWT? A Plain-English Guide to JSON Web Tokens","url":"https://toolsharp.dev/guides/what-is-a-jwt.html","description":"What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+{"@context":"https://schema.org","@type":"TechArticle","headline":"What Is a JWT? A Plain-English Guide to JSON Web Tokens","url":"https://toolsharp.dev/guides/what-is-a-jwt","description":"What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
 </script>
 </head>
 <body>
@@ -46,7 +46,7 @@
 </header>
 
 <main class="wrap">
-  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="index.html">guides</a><span class="sep">/</span><span class="current">what-is-a-jwt</span></div>
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">what-is-a-jwt</span></div>
 
   <div class="tool-header">
     <h1>What Is a JWT?</h1>
@@ -60,7 +60,7 @@
 
   <section class="notes">
     <h2>// the shape of a jwt</h2>
-    <div class="comment-line"><span class="bar">│</span><p>A JWT is three Base64URL-encoded segments joined by dots: <code>header.payload.signature</code>. Base64URL is the same idea as regular Base64 (see the <a href="../tools/base64-converter.html">Base64 Converter</a>) but swaps <code>+</code>/<code>/</code> for <code>-</code>/<code>_</code> so the token is safe to put directly in a URL or an HTTP header without escaping.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>A JWT is three Base64URL-encoded segments joined by dots: <code>header.payload.signature</code>. Base64URL is the same idea as regular Base64 (see the <a href="../tools/base64-converter">Base64 Converter</a>) but swaps <code>+</code>/<code>/</code> for <code>-</code>/<code>_</code> so the token is safe to put directly in a URL or an HTTP header without escaping.</p></div>
 
     <div class="config-block">
       <div class="tab">the three parts</div>
@@ -101,13 +101,13 @@
 
   <section class="notes">
     <h2>// try it yourself</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Paste a token into the <a href="../tools/jwt-decoder.html">JWT Decoder</a> to see its header and payload broken out, check <code>exp</code>/<code>nbf</code> against the current time, and verify HS256, RS256, or ES256 signatures — entirely in your browser, the token never leaves your machine.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Paste a token into the <a href="../tools/jwt-decoder">JWT Decoder</a> to see its header and payload broken out, check <code>exp</code>/<code>nbf</code> against the current time, and verify HS256, RS256, or ES256 signatures — entirely in your browser, the token never leaves your machine.</p></div>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span><a href="../">← toolsharp.dev</a></span>
     <span>runs entirely in your browser</span>
   </div>
 </footer>
