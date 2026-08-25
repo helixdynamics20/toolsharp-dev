@@ -16,6 +16,7 @@ fs.mkdirSync(distDir);
 fs.mkdirSync(path.join(distDir, 'css'));
 fs.mkdirSync(path.join(distDir, 'js'));
 fs.mkdirSync(path.join(distDir, 'tools'));
+fs.mkdirSync(path.join(distDir, 'guides'));
 fs.mkdirSync(path.join(distDir, 'assets'));
 fs.mkdirSync(path.join(distDir, 'api'));
 
@@ -129,6 +130,21 @@ async function processHtml() {
       console.log(`Minified HTML: tools/${file}`);
     } catch (err) {
       console.error(`Error minifying HTML tools/${file}:`, err);
+    }
+  }
+
+  // Minify guides HTML files
+  const guidesDir = path.join(srcDir, 'guides');
+  const guideFiles = fs.readdirSync(guidesDir).filter(f => f.endsWith('.html'));
+  for (const file of guideFiles) {
+    const srcPath = path.join(guidesDir, file);
+    const input = fs.readFileSync(srcPath, 'utf8');
+    try {
+      const output = await minifyHtml(input, htmlMinifyOptions);
+      fs.writeFileSync(path.join(distDir, 'guides', file), output);
+      console.log(`Minified HTML: guides/${file}`);
+    } catch (err) {
+      console.error(`Error minifying HTML guides/${file}:`, err);
     }
   }
 }

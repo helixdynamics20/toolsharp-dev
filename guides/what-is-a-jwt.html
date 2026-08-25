@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is a JWT? A Plain-English Guide to JSON Web Tokens — ToolSharp.dev</title>
+<meta name="description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted — read before your token expires.">
+<link rel="canonical" href="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<meta property="og:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
+<meta property="og:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/what-is-a-jwt.html">
+<meta name="twitter:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
+<meta name="twitter:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"What Is a JWT? A Plain-English Guide to JSON Web Tokens","url":"https://toolsharp.dev/guides/what-is-a-jwt.html","description":"What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="index.html">guides</a><span class="sep">/</span><span class="current">what-is-a-jwt</span></div>
+
+  <div class="tool-header">
+    <h1>What Is a JWT?</h1>
+    <p class="sub">A JSON Web Token is how most modern APIs prove "this request came from someone who already logged in" without the server having to remember anything. Here's what's actually inside one, and the two mistakes that account for most JWT-related security bugs.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">auth</span>
+      <span class="badge">JSON Web Token</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// the shape of a jwt</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A JWT is three Base64URL-encoded segments joined by dots: <code>header.payload.signature</code>. Base64URL is the same idea as regular Base64 (see the <a href="../tools/base64-converter.html">Base64 Converter</a>) but swaps <code>+</code>/<code>/</code> for <code>-</code>/<code>_</code> so the token is safe to put directly in a URL or an HTTP header without escaping.</p></div>
+
+    <div class="config-block">
+      <div class="tab">the three parts</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">header</span><span class="v">which algorithm signed this token — e.g. <code>{"alg":"HS256","typ":"JWT"}</code></span></div>
+        <div class="result-item"><span class="k">payload</span><span class="v">the claims — who this token represents and when it expires</span></div>
+        <div class="result-item"><span class="k">signature</span><span class="v">proof the header + payload weren't tampered with since signing</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// claims worth knowing</h2>
+    <div class="config-block">
+      <div class="tab">registered claims</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>iss</code></span><span class="v">issuer — who created and signed this token</span></div>
+        <div class="result-item"><span class="k"><code>sub</code></span><span class="v">subject — who the token is about, usually a user ID</span></div>
+        <div class="result-item"><span class="k"><code>aud</code></span><span class="v">audience — who this token is intended for</span></div>
+        <div class="result-item"><span class="k"><code>exp</code></span><span class="v">expiration — a Unix timestamp; the token is invalid after this</span></div>
+        <div class="result-item"><span class="k"><code>nbf</code></span><span class="v">not-before — the token isn't valid until this timestamp</span></div>
+        <div class="result-item"><span class="k"><code>iat</code></span><span class="v">issued-at — when the token was created</span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">Everything past these is application-specific — roles, permissions, tenant IDs, whatever the issuer decided to include. There's no schema enforcement; the payload is just JSON, so anything the signer puts there arrives at the consumer as-is.</p>
+  </section>
+
+  <section class="notes">
+    <h2>// symmetric vs asymmetric signing</h2>
+    <div class="comment-line"><span class="bar">│</span><p><strong>HS256</strong> uses one shared secret to both sign and verify — simple, but every service that needs to verify a token also needs the secret that can forge one. <strong>RS256</strong> and <strong>ES256</strong> use a private/public key pair: only the issuer holds the private key that signs tokens, while any number of services can hold the public key and verify without ever being able to mint a valid token themselves. For anything beyond a single trusted backend, asymmetric signing is almost always the right default.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// the two mistakes that matter</h2>
+    <div class="callout error" style="margin-bottom:14px;"><strong>A JWT is encoded, not encrypted.</strong> Base64URL is trivially reversible by anyone — there is no key required to read a JWT's header or payload, only to verify its signature. Never put a password, secret, or anything sensitive directly in the payload; assume every claim is public the moment the token exists.</div>
+    <div class="callout error"><strong>Always verify the signature server-side before trusting any claim.</strong> A client can send back any JWT-shaped string it wants, including one with <code>exp</code> pushed into the future or <code>role: admin</code> added by hand. The signature is the only thing that proves the payload wasn't altered after the real issuer signed it — reading claims without verifying first means trusting user input.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Paste a token into the <a href="../tools/jwt-decoder.html">JWT Decoder</a> to see its header and payload broken out, check <code>exp</code>/<code>nbf</code> against the current time, and verify HS256, RS256, or ES256 signatures — entirely in your browser, the token never leaves your machine.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

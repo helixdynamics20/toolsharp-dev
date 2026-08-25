@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples — ToolSharp.dev</title>
+<meta name="description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, special characters, and the mistakes that silently break a schedule.">
+<link rel="canonical" href="https://toolsharp.dev/guides/cron-expression-cheat-sheet.html">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/cron-expression-cheat-sheet.html">
+<meta property="og:title" content="Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples">
+<meta property="og:description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, special characters, and the mistakes that silently break a schedule.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/cron-expression-cheat-sheet.html">
+<meta name="twitter:title" content="Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples">
+<meta name="twitter:description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, special characters, and the mistakes that silently break a schedule.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Cron Expression Cheat Sheet","url":"https://toolsharp.dev/guides/cron-expression-cheat-sheet.html","description":"Every cron field explained, side-by-side Hangfire and Quartz.NET examples, and the mistakes that silently break a schedule.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></div>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../index.html">toolsharp.dev</a><span class="sep">/</span><a href="index.html">guides</a><span class="sep">/</span><span class="current">cron-expression-cheat-sheet</span></div>
+
+  <div class="tool-header">
+    <h1>Cron Expression Cheat Sheet</h1>
+    <p class="sub">Cron syntax looks cryptic until you've memorized it, then you forget it again the moment you switch jobs. This is the reference: every field, both major dialects, and the mistakes that pass validation but run at the wrong time.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">Hangfire</span>
+      <span class="badge">Quartz.NET</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// the two dialects</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Almost every scheduler you'll meet uses one of two cron dialects. <strong>Standard cron</strong> (what Hangfire, Linux <code>crontab</code>, and most CI systems use) has <strong>5 fields</strong>: minute, hour, day-of-month, month, day-of-week. <strong>Quartz.NET</strong> adds a leading seconds field and uses <code>?</code> instead of <code>*</code> in whichever of day-of-month/day-of-week isn't in use — <strong>6 fields</strong> total (a 7th, optional year field also exists but is rarely set).</p></div>
+
+    <div class="config-block">
+      <div class="tab">field order</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Standard / Hangfire (5 fields)</span><span class="v">minute hour day-of-month month day-of-week</span></div>
+        <div class="result-item"><span class="k">Quartz.NET (6 fields)</span><span class="v">second minute hour day-of-month month day-of-week</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// special characters</h2>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>*</code></span><span class="v">every value in this field</span></div>
+        <div class="result-item"><span class="k"><code>,</code></span><span class="v">a list — <code>MON,WED,FRI</code></span></div>
+        <div class="result-item"><span class="k"><code>-</code></span><span class="v">a range — <code>9-17</code> means 9 through 17</span></div>
+        <div class="result-item"><span class="k"><code>/</code></span><span class="v">a step — <code>*/15</code> means every 15 units, starting at 0</span></div>
+        <div class="result-item"><span class="k"><code>?</code></span><span class="v">"no specific value" — Quartz.NET only, used on whichever of day-of-month/day-of-week you're not constraining</span></div>
+        <div class="result-item"><span class="k"><code>L</code></span><span class="v">"last" — Quartz.NET only; last day of the month, or last given weekday</span></div>
+        <div class="result-item"><span class="k"><code>#</code></span><span class="v">"nth weekday of the month" — Quartz.NET only; <code>6#3</code> = third Friday</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// common schedules, both dialects</h2>
+    <div class="config-block">
+      <div class="tab">examples</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Every minute</span><span class="v"><code>* * * * *</code> / <code>0 * * * * ?</code></span></div>
+        <div class="result-item"><span class="k">Every 15 minutes</span><span class="v"><code>*/15 * * * *</code> / <code>0 */15 * * * ?</code></span></div>
+        <div class="result-item"><span class="k">Every hour, on the hour</span><span class="v"><code>0 * * * *</code> / <code>0 0 * * * ?</code></span></div>
+        <div class="result-item"><span class="k">Daily at 2:30 AM</span><span class="v"><code>30 2 * * *</code> / <code>0 30 2 * * ?</code></span></div>
+        <div class="result-item"><span class="k">Every weekday at 9 AM</span><span class="v"><code>0 9 * * 1-5</code> / <code>0 0 9 ? * 2-6</code></span></div>
+        <div class="result-item"><span class="k">Every Monday at 6 AM</span><span class="v"><code>0 6 * * 1</code> / <code>0 0 6 ? * 2</code></span></div>
+        <div class="result-item"><span class="k">First day of every month, midnight</span><span class="v"><code>0 0 1 * *</code> / <code>0 0 0 1 * ?</code></span></div>
+        <div class="result-item"><span class="k">Every 6 hours</span><span class="v"><code>0 */6 * * *</code> / <code>0 0 */6 * * ?</code></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// mistakes that pass validation but run wrong</h2>
+    <div class="callout error" style="margin-bottom:14px;">Setting both day-of-month and day-of-week to specific values doesn't mean "AND" — in standard cron it means "OR" (either condition triggers it), which almost never matches what you intended. If you want a specific weekday, leave day-of-month as <code>*</code>.</div>
+    <div class="callout warn" style="margin-bottom:14px;">Day-of-week numbering differs by dialect: standard cron is 0–6 with <strong>0 = Sunday</strong>. Quartz.NET is 1–7 with <strong>1 = Sunday</strong>. The same digit means a different day depending which dialect you're reading — always check which one you're in before trusting a number.</div>
+    <div class="callout warn" style="margin-bottom:14px;">Cron expressions run in whatever timezone the scheduler process is configured for — not necessarily UTC, and not necessarily the server's local time if the app sets one explicitly. A schedule that looks right can drift by hours after a timezone or daylight-saving change if this isn't pinned down.</div>
+    <div class="callout warn">A step value like <code>*/5</code> always starts counting from the field's zero point, not from "5 units from now." <code>*/5</code> on minutes fires at :00, :05, :10 — never at :02, :07, :12, no matter what minute you deployed at.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Build a schedule field-by-field, or paste an existing expression to get a plain-English explanation and its next five run times, with the <a href="../tools/cron-builder.html">Cron Builder &amp; Explainer</a>.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../index.html">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
