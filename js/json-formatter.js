@@ -636,6 +636,8 @@ function escapeHtml(str) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  persistFormState('json-formatter', ['jsonIndent', 'jsonStrict']);
+
   const inputEl = document.getElementById('jsonInput');
   if (inputEl) {
     // the browser fires 'input' right after 'paste' commits the new value,

@@ -36,6 +36,8 @@ function onFreqChange() {
     addField('Minute (0-59)', 'cronMinute', 'number', 'e.g. 0', true);
   }
 }
+
+persistFormState('cron-builder', ['cronFlavor', 'cronFreq']);
 onFreqChange();
 
 function clampField(id, min, max) {
