@@ -1,1 +1,0 @@
-window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments)},function(){const e=document.createElement("script");e.src="/_vercel/speed-insights/script.js",e.defer=!0,e.onerror=function(){console.log("[Vercel Speed Insights] Failed to load script. This is expected in local development.")},document.head.appendChild(e)}();
