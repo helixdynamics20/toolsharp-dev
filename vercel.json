@@ -1,3 +1,15 @@
 {
-  "cleanUrls": true
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/guides", "destination": "/guides/index.html" },
+    { "source": "/tools/:slug", "destination": "/tools/:slug.html" },
+    { "source": "/guides/:slug", "destination": "/guides/:slug.html" }
+  ],
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/guides/index.html", "destination": "/guides", "permanent": true },
+    { "source": "/tools/:slug.html", "destination": "/tools/:slug", "permanent": true },
+    { "source": "/guides/:slug.html", "destination": "/guides/:slug", "permanent": true }
+  ]
 }
