@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Cheat Sheet — Syntax, Flags & Patterns That Actually Work — ToolSharp.dev</title>
+<meta name="description" content="Anchors, character classes, greedy vs lazy quantifiers, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems.">
+<link rel="canonical" href="https://toolsharp.dev/guides/regex-cheat-sheet">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/regex-cheat-sheet">
+<meta property="og:title" content="Regex Cheat Sheet — Syntax, Flags & Patterns That Actually Work">
+<meta property="og:description" content="Anchors, character classes, greedy vs lazy quantifiers, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/regex-cheat-sheet">
+<meta name="twitter:title" content="Regex Cheat Sheet — Syntax, Flags & Patterns That Actually Work">
+<meta name="twitter:description" content="Anchors, character classes, greedy vs lazy quantifiers, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Regex Cheat Sheet — Syntax, Flags & Patterns That Actually Work","url":"https://toolsharp.dev/guides/regex-cheat-sheet","description":"Anchors, character classes, greedy vs lazy quantifiers, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">regex-cheat-sheet</span></div>
+
+  <div class="tool-header">
+    <h1>Regex Cheat Sheet</h1>
+    <p class="sub">The syntax always looks the same three seconds after you stop needing it. This is the reference: every token, why <code>.*</code> is usually the wrong answer, how the same pattern is spelled differently in .NET vs JavaScript vs Python, and the one mistake that has taken down Stack Overflow and Cloudflare.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">.NET</span>
+      <span class="badge">JavaScript</span>
+      <span class="badge">PCRE / Python</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// anchors &amp; boundaries</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Anchors don't match a character — they match a <em>position</em>. That's why <code>^$</code> alone matches an empty line, and why forgetting one is the single most common reason a pattern matches more than you intended.</p></div>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>^</code></span><span class="v">start of string (or start of line, with the multiline flag)</span></div>
+        <div class="result-item"><span class="k"><code>$</code></span><span class="v">end of string (or end of line, with the multiline flag)</span></div>
+        <div class="result-item"><span class="k"><code>\b</code></span><span class="v">a word boundary — between a <code>\w</code> and a non-<code>\w</code> character, matches nothing itself</span></div>
+        <div class="result-item"><span class="k"><code>\B</code></span><span class="v">not a word boundary — the inverse of <code>\b</code></span></div>
+        <div class="result-item"><span class="k"><code>\A</code></span><span class="v">absolute start of string, unaffected by the multiline flag — .NET, Python, PCRE (not JavaScript)</span></div>
+        <div class="result-item"><span class="k"><code>\z</code></span><span class="v">absolute end of string, unaffected by the multiline flag — .NET, Python, PCRE (not JavaScript)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// character classes</h2>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>.</code></span><span class="v">any character except a newline (unless the dotAll/Singleline flag is set)</span></div>
+        <div class="result-item"><span class="k"><code>\d</code> / <code>\D</code></span><span class="v">a digit / not a digit — <code>[0-9]</code> and its inverse</span></div>
+        <div class="result-item"><span class="k"><code>\w</code> / <code>\W</code></span><span class="v">a word character / not one — <code>[A-Za-z0-9_]</code> and its inverse</span></div>
+        <div class="result-item"><span class="k"><code>\s</code> / <code>\S</code></span><span class="v">whitespace / not whitespace — includes space, tab, newline</span></div>
+        <div class="result-item"><span class="k"><code>[abc]</code></span><span class="v">any one of a, b, or c</span></div>
+        <div class="result-item"><span class="k"><code>[^abc]</code></span><span class="v">any character <em>except</em> a, b, or c</span></div>
+        <div class="result-item"><span class="k"><code>[a-z]</code></span><span class="v">a range — any lowercase letter</span></div>
+        <div class="result-item"><span class="k"><code>\p{L}</code></span><span class="v">a Unicode property class — e.g. any letter in any script. Needs the <code>u</code>/<code>v</code> flag in JS</span></div>
+      </div>
+    </div>
+    <div class="callout warn">Inside a character class, most metacharacters lose their special meaning — <code>[.]</code> means a literal dot, not "any character." The exceptions that still need escaping inside <code>[ ]</code> are <code>]</code>, <code>\</code>, <code>^</code> (if it's the first character), and <code>-</code> (if it isn't first or last).</div>
+  </section>
+
+  <section class="notes">
+    <h2>// quantifiers — and why greedy surprises people</h2>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>*</code></span><span class="v">0 or more, greedy</span></div>
+        <div class="result-item"><span class="k"><code>+</code></span><span class="v">1 or more, greedy</span></div>
+        <div class="result-item"><span class="k"><code>?</code></span><span class="v">0 or 1, greedy (also marks a group as lazy — see below)</span></div>
+        <div class="result-item"><span class="k"><code>{n}</code></span><span class="v">exactly n times</span></div>
+        <div class="result-item"><span class="k"><code>{n,}</code></span><span class="v">n or more times</span></div>
+        <div class="result-item"><span class="k"><code>{n,m}</code></span><span class="v">between n and m times</span></div>
+        <div class="result-item"><span class="k">add <code>?</code> after any of the above</span><span class="v">makes it lazy — matches as <em>few</em> repetitions as possible instead of as many</span></div>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>Given the input <code>&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;</code>, the greedy pattern <code>&lt;.*&gt;</code> matches the <strong>entire string</strong> — from the first <code>&lt;</code> to the very last <code>&gt;</code> — because greedy means "grab as much as possible, then backtrack only if forced to." The lazy version <code>&lt;.*?&gt;</code> matches just <code>&lt;b&gt;</code>, stopping at the first <code>&gt;</code> it finds. Reaching for <code>.*</code> against tag-like or delimiter-like text is the single most common source of an "it matched way too much" bug.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// groups &amp; backreferences — syntax differs by engine</h2>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>(...)</code></span><span class="v">capturing group — saved and numbered left-to-right by opening parenthesis</span></div>
+        <div class="result-item"><span class="k"><code>(?:...)</code></span><span class="v">non-capturing group — groups for precedence/quantifying without saving a match</span></div>
+        <div class="result-item"><span class="k"><code>|</code></span><span class="v">alternation — <code>cat|dog</code> matches either, scoped to the nearest group</span></div>
+        <div class="result-item"><span class="k"><code>\1</code>, <code>\2</code>...</span><span class="v">backreference to a numbered group — "whatever group 1 matched, again"</span></div>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>Named groups exist in every mainstream engine, but the syntax genuinely differs — this trips people up when copying a pattern between a .NET backend and a JS frontend:</p></div>
+    <div class="config-block">
+      <div class="tab">named group syntax by engine</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">.NET (C# / VB.NET)</span><span class="v"><code>(?&lt;name&gt;...)</code> — backreference <code>\k&lt;name&gt;</code></span></div>
+        <div class="result-item"><span class="k">JavaScript (ES2018+)</span><span class="v"><code>(?&lt;name&gt;...)</code> — same as .NET; backreference <code>\k&lt;name&gt;</code></span></div>
+        <div class="result-item"><span class="k">PCRE (PHP, older engines)</span><span class="v"><code>(?&lt;name&gt;...)</code> or <code>(?P&lt;name&gt;...)</code> — both accepted</span></div>
+        <div class="result-item"><span class="k">Python</span><span class="v"><code>(?P&lt;name&gt;...)</code> — backreference <code>(?P=name)</code>, the <code>P</code> is required</span></div>
+      </div>
+    </div>
+    <div class="callout">Python pioneered named groups with <code>(?P&lt;name&gt;...)</code>, but every other major engine, including PCRE, later converged on the angle-bracket form without the <code>P</code>. If a pattern with <code>(?P&lt;...&gt;)</code> fails in .NET or JavaScript, that's why.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// lookaround</h2>
+    <div class="config-block">
+      <div class="tab">syntax</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>(?=...)</code></span><span class="v">positive lookahead — must be followed by this, but it isn't part of the match</span></div>
+        <div class="result-item"><span class="k"><code>(?!...)</code></span><span class="v">negative lookahead — must <em>not</em> be followed by this</span></div>
+        <div class="result-item"><span class="k"><code>(?&lt;=...)</code></span><span class="v">positive lookbehind — must be preceded by this</span></div>
+        <div class="result-item"><span class="k"><code>(?&lt;!...)</code></span><span class="v">negative lookbehind — must <em>not</em> be preceded by this</span></div>
+      </div>
+    </div>
+    <div class="callout warn">Lookbehind is newer than lookahead in JavaScript — it only shipped in ES2018 (Chrome/V8, then other engines followed). It's been in .NET and PCRE for far longer. If a lookbehind pattern works everywhere except an old Safari build, that's the reason — check current engine support before relying on it for a public-facing site.</div>
+    <div class="comment-line"><span class="bar">│</span><p>Lookaround is how you match "a digit that's followed by <code>px</code>" without capturing the <code>px</code> itself: <code>\d+(?=px)</code> against <code>16px</code> matches <code>16</code> only. It's a zero-width assertion — it checks, then discards, contributing nothing to the matched text.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// flags — JS engine names vs .NET RegexOptions</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The regex-tester tool on this site runs on JavaScript's engine but labels its checkboxes to match .NET's <code>RegexOptions</code> enum, since that's the more common naming most people learn. Here's how the two map:</p></div>
+    <div class="config-block">
+      <div class="tab">flags</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">JS <code>i</code> / .NET <code>IgnoreCase</code></span><span class="v">case-insensitive matching</span></div>
+        <div class="result-item"><span class="k">JS <code>m</code> / .NET <code>Multiline</code></span><span class="v"><code>^</code> and <code>$</code> match at every line break, not just string start/end</span></div>
+        <div class="result-item"><span class="k">JS <code>s</code> (dotAll) / .NET <code>Singleline</code></span><span class="v">makes <code>.</code> match newlines too — .NET's name is famously the opposite of what it sounds like it does</span></div>
+        <div class="result-item"><span class="k">JS <code>g</code></span><span class="v">global — find all matches, not just the first (implicit in .NET's <code>Matches()</code>)</span></div>
+        <div class="result-item"><span class="k">JS <code>y</code></span><span class="v">sticky — match only starting exactly at <code>lastIndex</code>, no scanning forward</span></div>
+        <div class="result-item"><span class="k">JS <code>u</code> / <code>v</code></span><span class="v">Unicode mode — <code>v</code> (ES2024) is a stricter superset of <code>u</code> that also enables set operations in character classes; a pattern can't use both at once</span></div>
+        <div class="result-item"><span class="k">JS <code>d</code></span><span class="v">hasIndices — also return the start/end index of each match, not just the text</span></div>
+      </div>
+    </div>
+    <div class="callout warn">.NET's <code>Singleline</code> and JavaScript's <code>m</code>/multiline sound related but aren't the same axis — <strong>.NET Singleline</strong> = JS <code>s</code> (dotAll: affects <code>.</code>), while <strong>Multiline</strong> in both languages affects <code>^</code>/<code>$</code>. Reading ".NET Singleline" as "the opposite of multiline" is the natural but wrong assumption.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// patterns worth memorizing (and one that's a trap)</h2>
+    <div class="config-block">
+      <div class="tab">common patterns</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Digits only</span><span class="v"><code>^\d+$</code></span></div>
+        <div class="result-item"><span class="k">IPv4 address</span><span class="v"><code>^(\d{1,3}\.){3}\d{1,3}$</code> — matches shape only, not that each octet is ≤255</span></div>
+        <div class="result-item"><span class="k">Slug (URL-safe)</span><span class="v"><code>^[a-z0-9]+(-[a-z0-9]+)*$</code></span></div>
+        <div class="result-item"><span class="k">Trim outer whitespace</span><span class="v"><code>^\s+|\s+$</code> → replace with empty string</span></div>
+        <div class="result-item"><span class="k">Split on any whitespace run</span><span class="v"><code>\s+</code></span></div>
+        <div class="result-item"><span class="k">Hex color code</span><span class="v"><code>^#([0-9a-fA-F]{3}){1,2}$</code></span></div>
+      </div>
+    </div>
+    <div class="callout error"><strong>There is no correct "email regex."</strong> The actual email spec (RFC 5322) is absurd — quoted local parts, comments, IP-literal domains — and the patterns copy-pasted from Stack Overflow either reject valid addresses or accept garbage. If you need to know an email is real, send a verification email; use a regex like <code>^[^\s@]+@[^\s@]+\.[^\s@]+$</code> only as a cheap first-pass sanity check, never as the source of truth.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// the mistake that takes down production: catastrophic backtracking</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Backtracking engines (JS, .NET, PCRE, Python — everything except a few regex-fixed-time engines like RE2) try a match, and if it fails, rewind and try a different split. Certain patterns create <em>ambiguous</em> ways to split the same input — nested or overlapping quantifiers like <code>(a+)+</code> or <code>(a|a)*</code> — and the number of ways to backtrack grows exponentially with input length. A 20-character string can take milliseconds; a 40-character string of the wrong shape can take longer than the universe has left. This is a real, named vulnerability class: <strong>ReDoS</strong> (Regular expression Denial of Service).</p></div>
+    <div class="callout error">This isn't theoretical: a catastrophic-backtracking regex caused a <strong>34-minute Stack Overflow outage in July 2016</strong>, and a faulty WAF rule caused a <strong>27-minute global Cloudflare outage in July 2019</strong>. Both were shipped patterns that looked reasonable and passed code review.</div>
+    <div class="config-block">
+      <div class="tab">what to watch for</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Nested quantifiers</span><span class="v"><code>(a+)+</code>, <code>(a*)*</code> — a quantified group inside another quantifier</span></div>
+        <div class="result-item"><span class="k">Overlapping alternation</span><span class="v"><code>(a|a)*</code>, <code>(a|ab)*</code> — branches that can match the same text multiple ways</span></div>
+        <div class="result-item"><span class="k">Any user-controlled pattern</span><span class="v">a regex built from user input, or run against untrusted input with no length/time limit, is the actual attack surface</span></div>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>The fix is usually straightforward once you see it: make the repeated unit unambiguous (<code>a+</code> instead of <code>(a+)+</code>), prefer a possessive or atomic group where the engine supports one, or cap input length before running the pattern at all.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// two more that only bite in production</h2>
+    <div class="callout warn" style="margin-bottom:14px;"><strong>The <code>g</code> flag makes a JavaScript RegExp object stateful.</strong> With <code>g</code> set, calling <code>.test()</code> or <code>.exec()</code> repeatedly on the <em>same</em> compiled regex object advances its internal <code>lastIndex</code> each time — reusing one global-flagged regex across multiple independent checks silently skips matches after the first call. Create a fresh regex (or reset <code>lastIndex = 0</code>) per independent check.</div>
+    <div class="callout warn">Forgetting to escape a literal special character — a period in a version number, a <code>+</code> in an email's local part, a <code>$</code> in a price — makes the pattern match more than intended rather than throwing an error, since almost every metacharacter is also valid-looking as "any character" or "one or more." A dot meant to match a literal <code>.</code> will happily match <em>any</em> character instead, and the bug only surfaces on input that exploits the difference.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Paste a pattern into the <a href="../tools/regex-tester">Regex Tester</a> for live match and capture-group highlighting, a plain-English breakdown of each token, and generated C# and JavaScript code — entirely in your browser, nothing sent anywhere.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

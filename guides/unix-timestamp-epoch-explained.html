@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet — ToolSharp.dev</title>
+<meta name="description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<link rel="canonical" href="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
+<meta property="og:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
+<meta property="og:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
+<meta name="twitter:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
+<meta name="twitter:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Unix Timestamp & Epoch Time Explained — DST, Leap Seconds & Cross-Language Cheat Sheet","url":"https://toolsharp.dev/guides/unix-timestamp-epoch-explained","description":"Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">unix-timestamp-epoch-explained</span></div>
+
+  <div class="tool-header">
+    <h1>Unix Timestamp &amp; Epoch Time Explained</h1>
+    <p class="sub">Every Unix timestamp is UTC, always — that's not a convention, it's the entire reason the format is useful. Here's why storing local "wall-clock" time instead causes bugs that only appear twice a year, what leap seconds do to the count, and how to get "now" as epoch across five languages.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">UTC</span>
+      <span class="badge">cross-language</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// why "UTC by definition" is the whole point</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A Unix timestamp has no timezone attached because it doesn't need one — it's a count of seconds from a single fixed instant, so <code>1735689600</code> means the exact same moment everywhere on Earth. The timezone only re-enters the picture when you convert it to a human-readable string for display. This is precisely why storing timestamps as epoch (or any UTC value) and converting to local time only at the display layer is the correct default — the alternative, storing "local wall-clock time," runs straight into a problem epoch time was designed to avoid entirely.</p></div>
+    <div class="callout error"><strong>Local wall-clock time is ambiguous twice a year.</strong> During a "spring forward" DST transition, a clock jumps from 1:59 AM straight to 3:00 AM — the local time <code>2:30 AM</code> never happens that day. During "fall back," 1:00–1:59 AM occurs <em>twice</em> — a stored local timestamp of <code>1:30 AM</code> doesn't say which occurrence it means. Neither problem can happen to a Unix timestamp, because it isn't wall-clock time — it's a single, unambiguous instant. A scheduled job or event stored as local time can silently fire twice, not at all, or at the wrong hour on transition days; the same job stored as epoch/UTC never has this failure mode.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// getting "now" as epoch, by language</h2>
+    <div class="config-block">
+      <div class="tab">current timestamp</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">JavaScript</span><span class="v"><code>Date.now()</code> — milliseconds</span></div>
+        <div class="result-item"><span class="k">.NET</span><span class="v"><code>DateTimeOffset.UtcNow.ToUnixTimeSeconds()</code> / <code>ToUnixTimeMilliseconds()</code></span></div>
+        <div class="result-item"><span class="k">Python</span><span class="v"><code>time.time()</code> — float seconds, sub-second precision included</span></div>
+        <div class="result-item"><span class="k">PostgreSQL</span><span class="v"><code>EXTRACT(EPOCH FROM NOW())</code> — seconds, with a fractional part</span></div>
+        <div class="result-item"><span class="k">MySQL</span><span class="v"><code>UNIX_TIMESTAMP()</code> — seconds</span></div>
+        <div class="result-item"><span class="k">Linux shell</span><span class="v"><code>date +%s</code> — seconds</span></div>
+      </div>
+    </div>
+    <div class="callout warn">Three of these return seconds and one (JavaScript) returns milliseconds by default — mixing a JS-generated timestamp with a backend expecting seconds is the single most common cause of a "date 47 years in the past" or "date in the year 56,000" bug. Always check the unit at each boundary a timestamp crosses, not just once.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// leap seconds: ignored by design, not by accident</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Real UTC occasionally inserts a leap second to stay aligned with Earth's slightly irregular rotation. POSIX time explicitly does not count them — the standard defines every day as exactly 86,400 seconds, full stop. When a leap second is inserted in reality, Unix time either repeats a second or is adjusted by the OS ("smeared" across the surrounding hours) depending on the system — either way, the raw count quietly diverges from true elapsed seconds by design, not by bug. As of 2025, 27 leap seconds have accumulated since 1972; international standards bodies (BIPM) have agreed to stop inserting new ones by 2035, with a final vote expected in 2026, which will freeze this drift rather than reverse it.</p></div>
+    <div class="callout">In practice this almost never matters for application code — it's a fact worth knowing exists, not something to write handling logic for. It explains why "elapsed real-world seconds" and "difference between two Unix timestamps" aren't perfectly identical concepts at the margins, which occasionally matters for scientific/astronomical timing systems but essentially never for web applications.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// epoch vs. ISO 8601 — different tools for different jobs</h2>
+    <div class="config-block">
+      <div class="tab">trade-offs</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Epoch (number)</span><span class="v">compact, sorts correctly as a number, not human-readable, unit ambiguity (s vs ms)</span></div>
+        <div class="result-item"><span class="k">ISO 8601 (string)</span><span class="v">human-readable, sorts correctly as a plain string too, timezone-explicit, more bytes</span></div>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>ISO 8601's field order (year → month → day → hour...) means lexicographic string sorting matches chronological order — a rare and genuinely useful property, which is why log files and filenames often use it. Epoch numbers sort correctly too, but only when compared as actual numbers; naively comparing them as zero-padded strings of different lengths breaks the same way any numeric string comparison does. Pick epoch for compact storage and arithmetic (durations, comparisons), ISO 8601 for anything a human will read directly — logs, API responses meant for debugging, config files.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Convert a Unix timestamp (seconds or milliseconds, auto-detected) to a readable date in both UTC and your local timezone, or go the other way, with the <a href="../tools/epoch-converter">Unix Timestamp / Epoch Converter</a> — including a live clock showing the current epoch value as it ticks.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
