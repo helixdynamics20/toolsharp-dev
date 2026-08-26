@@ -456,8 +456,8 @@
       }
 
       navLinks.appendChild(dropdownContainer);
-      navLinks.appendChild(mobileMenuToggle);
       navLinks.appendChild(toggleBtn);
+      navLinks.appendChild(mobileMenuToggle);
       var header = document.querySelector('.site-header');
       if (header) header.appendChild(mobileMenu);
     }
