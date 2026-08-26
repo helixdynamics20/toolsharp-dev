@@ -261,7 +261,13 @@ function runDiff() {
   const aMid = aLines.slice(prefixLen, aLines.length - suffixLen);
   const bMid = bLines.slice(prefixLen, bLines.length - suffixLen);
 
-  if (aMid.length * bMid.length > 16_000_000) {
+  /* The product cap alone lets a lopsided shape slip through (e.g. one
+     side with 16,000,000 lines, the other with 1 — same product as a
+     balanced 4000x4000, but diffArrays allocates one Int32Array per row
+     of the longer side, so a huge single dimension is its own hazard
+     regardless of the product). Cap each dimension too. */
+  const DIM_CAP = 20_000;
+  if (aMid.length > DIM_CAP || bMid.length > DIM_CAP || aMid.length * bMid.length > 16_000_000) {
     resultDiv.innerHTML = '<div class="callout error">The changed region is too large to diff in-browser (~4 000 differing lines each side — identical leading/trailing lines don\'t count against this). Paste a smaller excerpt, or use your editor\'s built-in diff view.</div>';
     return;
   }

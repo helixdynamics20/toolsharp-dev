@@ -63,8 +63,10 @@
 .toolbar-label { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .04em; }
 
 /* ── wider stage for this tool specifically — a side-by-side compare
-   benefits from more width than the site's default text-column layout ── */
-main.wrap { max-width: 1240px; }
+   benefits from more width than the site's default text-column layout.
+   Applies to header/main/footer alike so the page stays aligned instead
+   of the content column bulging past a narrower header/footer bar. ── */
+.wrap { max-width: 1240px; }
 
 /* ── input area ── */
 .diff-inputs {
