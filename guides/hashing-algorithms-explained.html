@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hashing Algorithms Explained — MD5, SHA-256, bcrypt &amp; When to Use Which — ToolSharp.dev</title>
+<meta name="description" content="Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.">
+<link rel="canonical" href="https://toolsharp.dev/guides/hashing-algorithms-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/hashing-algorithms-explained">
+<meta property="og:title" content="Hashing Algorithms Explained — MD5, SHA-256, bcrypt &amp; When to Use Which">
+<meta property="og:description" content="Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/hashing-algorithms-explained">
+<meta name="twitter:title" content="Hashing Algorithms Explained — MD5, SHA-256, bcrypt &amp; When to Use Which">
+<meta name="twitter:description" content="Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Hashing Algorithms Explained — MD5, SHA-256, bcrypt & When to Use Which","url":"https://toolsharp.dev/guides/hashing-algorithms-explained","description":"Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">hashing-algorithms-explained</span></div>
+
+  <div class="tool-header">
+    <h1>Hashing Algorithms Explained</h1>
+    <p class="sub">"Just hash the password with SHA-256" is one of the most common mistakes in application security — not because SHA-256 is weak, but because it's <em>fast</em>, and fast is the wrong property for a password hash. Here's the distinction that actually matters, and what's currently recommended instead.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">security</span>
+      <span class="badge">OWASP-sourced</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// the split that matters more than the algorithm name</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Every hash function you'll meet falls into one of two categories with opposite design goals. <strong>Fast/general-purpose hashes</strong> (MD5, SHA-1, SHA-256, SHA-512) are built to process gigabytes per second — perfect for checksums and integrity checks, and exactly wrong for passwords, because an attacker with a stolen hash database can also compute billions of guesses per second. <strong>Password KDFs</strong> (bcrypt, scrypt, Argon2) are deliberately, tunably <em>slow</em> — that's the entire feature. The same property that makes SHA-256 great at hashing a 2GB file makes it bad at protecting a password.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 420 168" role="img" aria-label="Diagram comparing SHA-256, which hashes input in about one microsecond, against Argon2id, which deliberately takes about one hundred milliseconds and a slice of memory per hash.">
+        <defs>
+          <marker id="rx-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/></marker>
+          <marker id="rx-arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/></marker>
+        </defs>
+        <rect x="20" y="30" width="70" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="55" y="49" font-family="var(--mono)" font-size="10.5" fill="var(--ink)" text-anchor="middle">input</text>
+        <line x1="94" y1="45" x2="188" y2="45" stroke="var(--red)" stroke-width="1.5" marker-end="url(#rx-arrow-red)"/>
+        <text x="141" y="38" font-family="var(--sans)" font-size="10.5" fill="var(--red)" text-anchor="middle">SHA-256 · ~1 µs</text>
+        <rect x="200" y="30" width="70" height="30" rx="4" fill="var(--red-wash)" stroke="var(--red)"/>
+        <text x="235" y="49" font-family="var(--mono)" font-size="10.5" fill="var(--red)" text-anchor="middle">hash</text>
+        <text x="235" y="78" font-family="var(--sans)" font-size="10" fill="var(--red)" text-anchor="middle">≈ billions of guesses/sec</text>
+        <rect x="20" y="105" width="70" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="55" y="124" font-family="var(--mono)" font-size="10.5" fill="var(--ink)" text-anchor="middle">input</text>
+        <line x1="94" y1="120" x2="188" y2="120" stroke="var(--green)" stroke-width="1.5" marker-end="url(#rx-arrow-green)"/>
+        <text x="141" y="113" font-family="var(--sans)" font-size="10.5" fill="var(--green)" text-anchor="middle">Argon2id · ~100 ms</text>
+        <rect x="200" y="105" width="70" height="30" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="235" y="124" font-family="var(--mono)" font-size="10.5" fill="var(--green)" text-anchor="middle">hash</text>
+        <text x="235" y="153" font-family="var(--sans)" font-size="10" fill="var(--green)" text-anchor="middle">≈ tens of guesses/sec</text>
+      </svg>
+      <figcaption>The same input through two different kinds of hash. SHA-256 finishes in microseconds — great for checksums, but it lets an attacker who steals a hash database try billions of password guesses per second. Argon2id is deliberately slow and memory-hungry, cutting that to a manageable handful of guesses per second.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
+    <h2>// fast hashes: file integrity, checksums, content addressing</h2>
+    <div class="config-block">
+      <div class="tab">which one</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">SHA-256 <span class="status-pill s-ok" style="font-size:10px;">recommended</span></span><span class="v">the right default — file integrity, signing, content-addressable IDs, Git's newer SHA-256 mode</span></div>
+        <div class="result-item"><span class="k">SHA-512 <span class="status-pill s-good" style="font-size:10px;">strongest</span></span><span class="v">same security family as SHA-256, 128-char hex output, faster than SHA-256 on 64-bit hardware for large data</span></div>
+        <div class="result-item"><span class="k">SHA-1 <span class="status-pill s-warn" style="font-size:10px;">deprecated</span></span><span class="v">broken for security since 2017; still seen in Git commit IDs and legacy systems as a non-security checksum</span></div>
+        <div class="result-item"><span class="k">MD5 <span class="status-pill s-danger" style="font-size:10px;">broken</span></span><span class="v">cryptographically broken since 2004; fine only for detecting accidental corruption, never for anything adversarial</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// password hashing needs a KDF, not a hash</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A Key Derivation Function adds two things a plain hash doesn't have: deliberate slowness (a tunable work factor) and, for the modern ones, deliberate memory cost — which makes cracking expensive even on specialized hardware (GPUs, ASICs) that laugh at plain SHA-256. Current OWASP Password Storage Cheat Sheet guidance, in order of preference:</p></div>
+    <div class="config-block">
+      <div class="tab">current OWASP-recommended parameters</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Argon2id <span class="status-pill s-good" style="font-size:10px;">preferred</span></span><span class="v">min. 19 MiB memory, iteration count 2, parallelism 1 — memory-hard, resists GPU/ASIC cracking best</span></div>
+        <div class="result-item"><span class="k">scrypt</span><span class="v">if Argon2id unavailable — CPU/memory cost 2¹⁷, block size 8, parallelization 1</span></div>
+        <div class="result-item"><span class="k">bcrypt</span><span class="v">legacy systems — work factor 10+, note the hard 72-byte password input limit</span></div>
+        <div class="result-item"><span class="k">PBKDF2</span><span class="v">only when FIPS-140 compliance is required — 600,000+ iterations with HMAC-SHA-256</span></div>
+      </div>
+    </div>
+    <div class="callout error">These numbers are a moving floor, not a ceiling — hardware gets faster every year, so OWASP revises them upward over time. Whatever you pick, use a library's default/adaptive settings rather than hand-picking a work factor once and never revisiting it.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// salting — why the same password shouldn't produce the same hash</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A salt is random data mixed into the input before hashing, unique per record and stored alongside the hash (it isn't secret). Without one, two users with the password <code>hunter2</code> get identical hash values, and an attacker can precompute a <strong>rainbow table</strong> — a lookup of hash → plaintext for common passwords — once, then crack every unsalted database instantly on lookup. Every modern password KDF (bcrypt, scrypt, Argon2) generates and manages a salt automatically as part of its output format; you don't add one manually.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 420 185" role="img" aria-label="Diagram showing that hashing the same password without a salt produces identical hashes for two different users, while adding a unique per-user salt produces two different hashes.">
+        <text x="20" y="16" font-family="var(--sans)" font-size="12" font-weight="600" fill="var(--red)">no salt</text>
+        <text x="20" y="42" font-family="var(--mono)" font-size="10.5" fill="var(--ink)">user A: hunter2</text>
+        <text x="20" y="64" font-family="var(--mono)" font-size="10.5" fill="var(--ink)">user B: hunter2</text>
+        <line x1="150" y1="42" x2="283" y2="50" stroke="var(--red)" stroke-width="1.2"/>
+        <line x1="150" y1="64" x2="283" y2="56" stroke="var(--red)" stroke-width="1.2"/>
+        <rect x="285" y="40" width="115" height="26" rx="4" fill="var(--red-wash)" stroke="var(--red)"/>
+        <text x="342.5" y="57" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--red)" text-anchor="middle">same hash</text>
+        <line x1="10" y1="98" x2="410" y2="98" stroke="var(--rule)" stroke-width="1"/>
+        <text x="20" y="112" font-family="var(--sans)" font-size="12" font-weight="600" fill="var(--green)">unique salt</text>
+        <text x="20" y="138" font-family="var(--mono)" font-size="10" fill="var(--ink)">user A: hunter2 + saltA</text>
+        <text x="20" y="162" font-family="var(--mono)" font-size="10" fill="var(--ink)">user B: hunter2 + saltB</text>
+        <line x1="196" y1="138" x2="288" y2="138" stroke="var(--green)" stroke-width="1.2"/>
+        <line x1="196" y1="162" x2="288" y2="162" stroke="var(--green)" stroke-width="1.2"/>
+        <rect x="290" y="126" width="110" height="24" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="345" y="142" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--green)" text-anchor="middle">hash A</text>
+        <rect x="290" y="150" width="110" height="24" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="345" y="166" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--green)" text-anchor="middle">hash B</text>
+      </svg>
+      <figcaption>Hashing the same password without a salt produces the same hash for every user who picked it — one entry in a precomputed rainbow table cracks all of them at once. A random per-user salt mixed in before hashing makes identical passwords produce different hashes, so a precomputed table no longer applies.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
+    <h2>// HMAC — a different tool, often confused with plain hashing</h2>
+    <div class="comment-line"><span class="bar">│</span><p><strong>HMAC</strong> (Hash-based Message Authentication Code) combines a hash function with a secret key to prove both integrity <em>and</em> authenticity — that a message wasn't altered <em>and</em> that it came from someone who holds the key. A plain SHA-256 hash proves integrity only: anyone can compute a SHA-256 of anything, so a bare hash alongside a message proves nothing about who sent it. This is why webhook signatures, JWT's HS256 algorithm, and API request signing use HMAC-SHA256, not raw SHA-256 — the key is what turns "a hash" into "a hash only the real sender could have produced."</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// what "broken" actually means — real collision attacks</h2>
+    <div class="config-block">
+      <div class="tab">collision resistance, defined</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Preimage resistance</span><span class="v">given a hash, you can't find <em>any</em> input that produces it</span></div>
+        <div class="result-item"><span class="k">Second-preimage resistance</span><span class="v">given input A, you can't find a different input B with the same hash</span></div>
+        <div class="result-item"><span class="k">Collision resistance</span><span class="v">you can't find <em>any two</em> inputs that hash to the same value — the property MD5 and SHA-1 lost</span></div>
+      </div>
+    </div>
+    <div class="callout error"><strong>MD5</strong> — broken in 2004: Xiaoyun Wang's team published practical collisions, later refined into fast, deliberate collision generation. <strong>SHA-1</strong> — broken in practice on February 23, 2017, when Google and CWI Amsterdam published "SHAttered," the first real SHA-1 collision, produced for roughly $110,000 of cloud compute. Both algorithms still run instantly and produce a hash for any input — they're "broken" in the specific sense that an attacker can now deliberately construct two different inputs sharing one hash, which defeats any use case relying on that not being possible (signatures, integrity proofs). Neither is safe for new security-relevant work.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// checksums vs cryptographic hashes — not the same category</h2>
+    <div class="comment-line"><span class="bar">│</span><p>CRC32 and similar checksums are designed to catch <em>accidental</em> corruption (a flipped bit from a bad network or disk) cheaply — they are not designed to resist someone deliberately engineering a collision, and take microseconds even on huge inputs. Cryptographic hashes (the SHA family) are slower but resist deliberate tampering. Using CRC32 where you need tamper-resistance is a common quiet mistake — it looks the same as a real hash in a hex string, but offers none of the security guarantee.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Compute MD5, SHA-1, SHA-256, and SHA-512 of any text with the <a href="../tools/hash-generator">Hash Generator</a> — computed locally via the browser's Web Crypto API, nothing sent to any server.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

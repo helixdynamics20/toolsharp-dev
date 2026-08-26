@@ -471,6 +471,41 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
 .notes ul { color: var(--ink-soft); padding-left: 20px; max-width: 66ch; }
 .notes li { margin-bottom: 6px; }
 
+.notes .guide-figure {
+  margin: 18px 0 20px;
+  padding: 18px 20px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.notes .guide-figure svg { display: block; width: 100%; height: auto; }
+.notes .guide-figure figcaption {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--rule);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+
+/* backtracking diagram: staggered reveal shows the tree growing one level at a time */
+.rxb-root, .rxb-l1, .rxb-l2, .rxb-dots { animation: rxbReveal 6s ease-in-out infinite; }
+.rxb-root { animation-delay: 0s; }
+.rxb-l1 { animation-delay: 0.6s; }
+.rxb-l2 { animation-delay: 1.2s; }
+.rxb-dots { animation-delay: 1.8s; }
+@keyframes rxbReveal {
+  0%, 100% { opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  90% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rxb-root, .rxb-l1, .rxb-l2, .rxb-dots { animation: none; opacity: 1; }
+}
+
 /* ---------------- Footer ---------------- */
 
 footer {
