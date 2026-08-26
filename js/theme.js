@@ -322,10 +322,7 @@
     ];
 
     var dropdownContainer = document.createElement('div');
-    dropdownContainer.style.display = 'flex';
-    dropdownContainer.style.gap = '6px';
-    dropdownContainer.style.alignItems = 'center';
-    dropdownContainer.style.flexWrap = 'wrap';
+    dropdownContainer.className = 'nav-category-dropdowns';
 
     var guidesLink = document.createElement('a');
     guidesLink.className = 'nav-dropdown-trigger';
@@ -387,6 +384,65 @@
 
     document.addEventListener('click', closeAllDropdowns);
 
+    // Mobile menu: a single toggle button instead of wrapping every
+    // category chip onto its own line. Reuses the same categories/guidesLink
+    // data as the desktop dropdowns; <details>/<summary> gives free
+    // accordion behavior with no extra JS.
+    var mobileMenuToggle = document.createElement('button');
+    mobileMenuToggle.type = 'button';
+    mobileMenuToggle.className = 'mobile-menu-toggle';
+    mobileMenuToggle.textContent = '☰';
+    mobileMenuToggle.setAttribute('aria-label', 'Open menu');
+    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+
+    var mobileMenu = document.createElement('div');
+    mobileMenu.className = 'mobile-menu';
+
+    var mobileGuidesLink = document.createElement('a');
+    mobileGuidesLink.className = 'mobile-menu-link';
+    mobileGuidesLink.href = pathPrefix + 'guides';
+    mobileGuidesLink.textContent = 'guides/';
+    mobileMenu.appendChild(mobileGuidesLink);
+
+    categories.forEach(function(cat) {
+      var details = document.createElement('details');
+      var summary = document.createElement('summary');
+      summary.textContent = cat.name + '/';
+      details.appendChild(summary);
+
+      cat.items.forEach(function(item) {
+        var a = document.createElement('a');
+        a.href = pathPrefix + item.path;
+        a.textContent = item.name;
+        details.appendChild(a);
+      });
+
+      mobileMenu.appendChild(details);
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('active');
+      mobileMenuToggle.setAttribute('aria-expanded', 'false');
+      mobileMenuToggle.textContent = '☰';
+    }
+
+    mobileMenuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isActive = mobileMenu.classList.contains('active');
+      if (isActive) {
+        closeMobileMenu();
+      } else {
+        mobileMenu.classList.add('active');
+        mobileMenuToggle.setAttribute('aria-expanded', 'true');
+        mobileMenuToggle.textContent = '✕';
+      }
+    });
+    mobileMenu.addEventListener('click', function(e) { e.stopPropagation(); });
+    document.addEventListener('click', closeMobileMenu);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMobileMenu();
+    });
+
     var toggleBtn = document.getElementById('darkModeToggle');
     if (toggleBtn) {
       var existingAllTools = Array.from(navLinks.querySelectorAll('a')).find(function(el) {
@@ -400,7 +456,10 @@
       }
 
       navLinks.appendChild(dropdownContainer);
+      navLinks.appendChild(mobileMenuToggle);
       navLinks.appendChild(toggleBtn);
+      var header = document.querySelector('.site-header');
+      if (header) header.appendChild(mobileMenu);
     }
 
     // Inject Vercel Web Analytics & Speed Insights
