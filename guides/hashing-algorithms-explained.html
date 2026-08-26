@@ -61,6 +61,30 @@
   <section class="notes">
     <h2>// the split that matters more than the algorithm name</h2>
     <div class="comment-line"><span class="bar">│</span><p>Every hash function you'll meet falls into one of two categories with opposite design goals. <strong>Fast/general-purpose hashes</strong> (MD5, SHA-1, SHA-256, SHA-512) are built to process gigabytes per second — perfect for checksums and integrity checks, and exactly wrong for passwords, because an attacker with a stolen hash database can also compute billions of guesses per second. <strong>Password KDFs</strong> (bcrypt, scrypt, Argon2) are deliberately, tunably <em>slow</em> — that's the entire feature. The same property that makes SHA-256 great at hashing a 2GB file makes it bad at protecting a password.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 420 168" role="img" aria-label="Diagram comparing SHA-256, which hashes input in about one microsecond, against Argon2id, which deliberately takes about one hundred milliseconds and a slice of memory per hash.">
+        <defs>
+          <marker id="rx-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/></marker>
+          <marker id="rx-arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/></marker>
+        </defs>
+        <rect x="20" y="30" width="70" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="55" y="49" font-family="var(--mono)" font-size="10.5" fill="var(--ink)" text-anchor="middle">input</text>
+        <line x1="94" y1="45" x2="188" y2="45" stroke="var(--red)" stroke-width="1.5" marker-end="url(#rx-arrow-red)"/>
+        <text x="141" y="38" font-family="var(--sans)" font-size="10.5" fill="var(--red)" text-anchor="middle">SHA-256 · ~1 µs</text>
+        <rect x="200" y="30" width="70" height="30" rx="4" fill="var(--red-wash)" stroke="var(--red)"/>
+        <text x="235" y="49" font-family="var(--mono)" font-size="10.5" fill="var(--red)" text-anchor="middle">hash</text>
+        <text x="235" y="78" font-family="var(--sans)" font-size="10" fill="var(--red)" text-anchor="middle">≈ billions of guesses/sec</text>
+        <rect x="20" y="105" width="70" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="55" y="124" font-family="var(--mono)" font-size="10.5" fill="var(--ink)" text-anchor="middle">input</text>
+        <line x1="94" y1="120" x2="188" y2="120" stroke="var(--green)" stroke-width="1.5" marker-end="url(#rx-arrow-green)"/>
+        <text x="141" y="113" font-family="var(--sans)" font-size="10.5" fill="var(--green)" text-anchor="middle">Argon2id · ~100 ms</text>
+        <rect x="200" y="105" width="70" height="30" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="235" y="124" font-family="var(--mono)" font-size="10.5" fill="var(--green)" text-anchor="middle">hash</text>
+        <text x="235" y="153" font-family="var(--sans)" font-size="10" fill="var(--green)" text-anchor="middle">≈ tens of guesses/sec</text>
+      </svg>
+      <figcaption>The same input through two different kinds of hash. SHA-256 finishes in microseconds — great for checksums, but it lets an attacker who steals a hash database try billions of password guesses per second. Argon2id is deliberately slow and memory-hungry, cutting that to a manageable handful of guesses per second.</figcaption>
+    </figure>
   </section>
 
   <section class="notes">
@@ -94,6 +118,29 @@
   <section class="notes">
     <h2>// salting — why the same password shouldn't produce the same hash</h2>
     <div class="comment-line"><span class="bar">│</span><p>A salt is random data mixed into the input before hashing, unique per record and stored alongside the hash (it isn't secret). Without one, two users with the password <code>hunter2</code> get identical hash values, and an attacker can precompute a <strong>rainbow table</strong> — a lookup of hash → plaintext for common passwords — once, then crack every unsalted database instantly on lookup. Every modern password KDF (bcrypt, scrypt, Argon2) generates and manages a salt automatically as part of its output format; you don't add one manually.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 420 185" role="img" aria-label="Diagram showing that hashing the same password without a salt produces identical hashes for two different users, while adding a unique per-user salt produces two different hashes.">
+        <text x="20" y="16" font-family="var(--sans)" font-size="12" font-weight="600" fill="var(--red)">no salt</text>
+        <text x="20" y="42" font-family="var(--mono)" font-size="10.5" fill="var(--ink)">user A: hunter2</text>
+        <text x="20" y="64" font-family="var(--mono)" font-size="10.5" fill="var(--ink)">user B: hunter2</text>
+        <line x1="150" y1="42" x2="283" y2="50" stroke="var(--red)" stroke-width="1.2"/>
+        <line x1="150" y1="64" x2="283" y2="56" stroke="var(--red)" stroke-width="1.2"/>
+        <rect x="285" y="40" width="115" height="26" rx="4" fill="var(--red-wash)" stroke="var(--red)"/>
+        <text x="342.5" y="57" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--red)" text-anchor="middle">same hash</text>
+        <line x1="10" y1="98" x2="410" y2="98" stroke="var(--rule)" stroke-width="1"/>
+        <text x="20" y="112" font-family="var(--sans)" font-size="12" font-weight="600" fill="var(--green)">unique salt</text>
+        <text x="20" y="138" font-family="var(--mono)" font-size="10" fill="var(--ink)">user A: hunter2 + saltA</text>
+        <text x="20" y="162" font-family="var(--mono)" font-size="10" fill="var(--ink)">user B: hunter2 + saltB</text>
+        <line x1="196" y1="138" x2="288" y2="138" stroke="var(--green)" stroke-width="1.2"/>
+        <line x1="196" y1="162" x2="288" y2="162" stroke="var(--green)" stroke-width="1.2"/>
+        <rect x="290" y="126" width="110" height="24" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="345" y="142" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--green)" text-anchor="middle">hash A</text>
+        <rect x="290" y="150" width="110" height="24" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="345" y="166" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--green)" text-anchor="middle">hash B</text>
+      </svg>
+      <figcaption>Hashing the same password without a salt produces the same hash for every user who picked it — one entry in a precomputed rainbow table cracks all of them at once. A random per-user salt mixed in before hashing makes identical passwords produce different hashes, so a precomputed table no longer applies.</figcaption>
+    </figure>
   </section>
 
   <section class="notes">

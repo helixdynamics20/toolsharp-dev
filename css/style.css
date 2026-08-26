@@ -471,6 +471,25 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
 .notes ul { color: var(--ink-soft); padding-left: 20px; max-width: 66ch; }
 .notes li { margin-bottom: 6px; }
 
+.notes .guide-figure {
+  margin: 18px 0 20px;
+  padding: 18px 20px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.notes .guide-figure svg { display: block; width: 100%; height: auto; }
+.notes .guide-figure figcaption {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--rule);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+
 /* ---------------- Footer ---------------- */
 
 footer {

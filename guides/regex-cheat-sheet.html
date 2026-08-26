@@ -108,6 +108,21 @@
       </div>
     </div>
     <div class="comment-line"><span class="bar">│</span><p>Given the input <code>&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;</code>, the greedy pattern <code>&lt;.*&gt;</code> matches the <strong>entire string</strong> — from the first <code>&lt;</code> to the very last <code>&gt;</code> — because greedy means "grab as much as possible, then backtrack only if forced to." The lazy version <code>&lt;.*?&gt;</code> matches just <code>&lt;b&gt;</code>, stopping at the first <code>&gt;</code> it finds. Reaching for <code>.*</code> against tag-like or delimiter-like text is the single most common source of an "it matched way too much" bug.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 300 120" role="img" aria-label="Diagram comparing a greedy and a lazy regex match on the same string: the greedy pattern spans from the first opening angle bracket to the very last closing one, while the lazy pattern stops at the first closing bracket it reaches.">
+        <text y="38" font-family="var(--mono)" font-size="13" fill="var(--ink)"><tspan x="16">&lt;</tspan><tspan x="25">b</tspan><tspan x="34">&gt;</tspan><tspan x="43">b</tspan><tspan x="52">o</tspan><tspan x="61">l</tspan><tspan x="70">d</tspan><tspan x="79">&lt;</tspan><tspan x="88">/</tspan><tspan x="97">b</tspan><tspan x="106">&gt;</tspan><tspan x="115">&#160;</tspan><tspan x="124">a</tspan><tspan x="133">n</tspan><tspan x="142">d</tspan><tspan x="151">&#160;</tspan><tspan x="160">&lt;</tspan><tspan x="169">i</tspan><tspan x="178">&gt;</tspan><tspan x="187">i</tspan><tspan x="196">t</tspan><tspan x="205">a</tspan><tspan x="214">l</tspan><tspan x="223">i</tspan><tspan x="232">c</tspan><tspan x="241">&lt;</tspan><tspan x="250">/</tspan><tspan x="259">i</tspan><tspan x="268">&gt;</tspan></text>
+        <line x1="12" y1="48" x2="12" y2="54" stroke="var(--red)" stroke-width="1.5"/>
+        <line x1="281" y1="48" x2="281" y2="54" stroke="var(--red)" stroke-width="1.5"/>
+        <line x1="12" y1="54" x2="281" y2="54" stroke="var(--red)" stroke-width="1.5"/>
+        <text x="146.5" y="70" font-family="var(--sans)" font-size="11" font-weight="600" fill="var(--red)" text-anchor="middle">greedy</text>
+        <line x1="12" y1="80" x2="12" y2="86" stroke="var(--green)" stroke-width="1.5"/>
+        <line x1="47" y1="80" x2="47" y2="86" stroke="var(--green)" stroke-width="1.5"/>
+        <line x1="12" y1="86" x2="47" y2="86" stroke="var(--green)" stroke-width="1.5"/>
+        <text x="29.5" y="102" font-family="var(--sans)" font-size="11" font-weight="600" fill="var(--green)" text-anchor="middle">lazy</text>
+      </svg>
+      <figcaption>Same input, two quantifiers: <code>&lt;.*&gt;</code> (greedy) consumes from the first <code>&lt;</code> all the way to the very last <code>&gt;</code>. <code>&lt;.*?&gt;</code> (lazy) stops at the first <code>&gt;</code> it finds.</figcaption>
+    </figure>
   </section>
 
   <section class="notes">
@@ -186,6 +201,38 @@
   <section class="notes">
     <h2>// the mistake that takes down production: catastrophic backtracking</h2>
     <div class="comment-line"><span class="bar">│</span><p>Backtracking engines (JS, .NET, PCRE, Python — everything except a few regex-fixed-time engines like RE2) try a match, and if it fails, rewind and try a different split. Certain patterns create <em>ambiguous</em> ways to split the same input — nested or overlapping quantifiers like <code>(a+)+</code> or <code>(a|a)*</code> — and the number of ways to backtrack grows exponentially with input length. A 20-character string can take milliseconds; a 40-character string of the wrong shape can take longer than the universe has left. This is a real, named vulnerability class: <strong>ReDoS</strong> (Regular expression Denial of Service).</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 400 190" role="img" aria-label="Diagram comparing a single-path safe quantifier against a nested quantifier whose backtracking attempts branch out and roughly double with each extra character.">
+        <line x1="200" y1="15" x2="200" y2="175" stroke="var(--rule)" stroke-width="1"/>
+        <text x="100" y="18" font-family="var(--sans)" font-size="11.5" font-weight="600" fill="var(--green)" text-anchor="middle">a+ — one way to match</text>
+        <circle cx="100" cy="45" r="4" fill="var(--green)"/>
+        <line x1="100" y1="49" x2="100" y2="145" stroke="var(--green)" stroke-width="1.5"/>
+        <circle cx="100" cy="145" r="4" fill="var(--green)"/>
+        <text x="100" y="162" font-family="var(--sans)" font-size="10.5" fill="var(--green)" text-anchor="middle">always the same path</text>
+        <text x="300" y="18" font-family="var(--sans)" font-size="11.5" font-weight="600" fill="var(--red)" text-anchor="middle">(a+)+ — many ways to split it</text>
+        <circle cx="300" cy="45" r="4" fill="var(--red)"/>
+        <line x1="300" y1="49" x2="260" y2="80" stroke="var(--red)" stroke-width="1.3"/>
+        <line x1="300" y1="49" x2="340" y2="80" stroke="var(--red)" stroke-width="1.3"/>
+        <circle cx="260" cy="80" r="3.5" fill="var(--red)"/>
+        <circle cx="340" cy="80" r="3.5" fill="var(--red)"/>
+        <line x1="260" y1="83" x2="235" y2="115" stroke="var(--red)" stroke-width="1.1"/>
+        <line x1="260" y1="83" x2="285" y2="115" stroke="var(--red)" stroke-width="1.1"/>
+        <line x1="340" y1="83" x2="315" y2="115" stroke="var(--red)" stroke-width="1.1"/>
+        <line x1="340" y1="83" x2="365" y2="115" stroke="var(--red)" stroke-width="1.1"/>
+        <circle cx="235" cy="115" r="3" fill="var(--red)"/>
+        <circle cx="285" cy="115" r="3" fill="var(--red)"/>
+        <circle cx="315" cy="115" r="3" fill="var(--red)"/>
+        <circle cx="365" cy="115" r="3" fill="var(--red)"/>
+        <text x="235" y="132" font-family="var(--sans)" font-size="11" fill="var(--ink-faint)" text-anchor="middle">⋯</text>
+        <text x="285" y="132" font-family="var(--sans)" font-size="11" fill="var(--ink-faint)" text-anchor="middle">⋯</text>
+        <text x="315" y="132" font-family="var(--sans)" font-size="11" fill="var(--ink-faint)" text-anchor="middle">⋯</text>
+        <text x="365" y="132" font-family="var(--sans)" font-size="11" fill="var(--ink-faint)" text-anchor="middle">⋯</text>
+        <text x="300" y="162" font-family="var(--sans)" font-size="10.5" fill="var(--red)" text-anchor="middle">doubles with each extra character</text>
+      </svg>
+      <figcaption>A safe quantifier like <code>a+</code> has exactly one way to consume a run of characters. A nested quantifier like <code>(a+)+</code> can split the same run many different ways — the count roughly doubles with each extra character, which is what turns backtracking exponential instead of linear.</figcaption>
+    </figure>
+
     <div class="callout error">This isn't theoretical: a catastrophic-backtracking regex caused a <strong>34-minute Stack Overflow outage in July 2016</strong>, and a faulty WAF rule caused a <strong>27-minute global Cloudflare outage in July 2019</strong>. Both were shipped patterns that looked reasonable and passed code review.</div>
     <div class="config-block">
       <div class="tab">what to watch for</div>
