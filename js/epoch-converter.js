@@ -13,7 +13,7 @@ function convertEpoch() {
     return;
   }
 
-  let num = parseInt(val, 10);
+  let num = Number(val);
   if (isNaN(num)) {
     document.getElementById('isoOutput').value = 'Invalid timestamp';
     document.getElementById('utcOutput').value = 'Invalid timestamp';
@@ -21,13 +21,19 @@ function convertEpoch() {
     return;
   }
 
-  // Detect seconds vs milliseconds (millisecond values typically have > 11 digits)
-  if (val.length <= 11) {
+  // Detect seconds vs milliseconds by the digit count of the integer part
+  // only (millisecond values typically have > 11 digits). Using the whole
+  // string's length here would misclassify a fractional-seconds timestamp
+  // like "1713876000.5" (common from Python's time.time()) as milliseconds
+  // because of its decimal digits, truncating it to a bogus 1970 date.
+  const intPartLen = val.replace(/^-/, '').split('.')[0].length;
+  if (intPartLen <= 11) {
     num = num * 1000;
   }
 
   const d = new Date(num);
   if (isNaN(d.getTime())) {
+    document.getElementById('isoOutput').value = 'Invalid Date';
     document.getElementById('utcOutput').value = 'Invalid Date';
     document.getElementById('localOutput').value = 'Invalid Date';
     return;

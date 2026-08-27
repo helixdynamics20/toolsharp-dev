@@ -20,6 +20,26 @@ function setPrecision(p) {
   runDiff();
 }
 
+/* ── common prefix/suffix trim ──
+   Real-world diffs are almost always "mostly the same file, a few lines
+   changed." Trimming the identical head and tail before running the O(n*m)
+   LCS table means the expensive part only has to cover the region that
+   actually differs, instead of the whole file. */
+
+function commonPrefixLen(a, b) {
+  const n = Math.min(a.length, b.length);
+  let i = 0;
+  while (i < n && a[i] === b[i]) i++;
+  return i;
+}
+
+function commonSuffixLen(a, b, prefixLen) {
+  const n = Math.min(a.length, b.length) - prefixLen;
+  let i = 0;
+  while (i < n && a[a.length - 1 - i] === b[b.length - 1 - i]) i++;
+  return i;
+}
+
 /* ── LCS diff on arrays ── */
 
 function diffArrays(a, b) {
@@ -51,8 +71,23 @@ function tokenize(line) {
 
 /* ── inline-diff rendering ── */
 
+// The file-level size guard in runDiff() only bounds line *count* — a
+// single very long line (e.g. one line of minified JS/CSS with no
+// newlines) still reaches here and would otherwise run an unbounded O(n*m)
+// LCS on tens of thousands of tokens in char-precision mode. Cap it and
+// fall back to showing the whole line as changed, without inline
+// highlighting, rather than hang the tab on one pathological line.
+const INLINE_DIFF_DIM_CAP = 2500;
+const INLINE_DIFF_PRODUCT_CAP = 800_000;
+
 function renderInlineDiff(oldLine, newLine) {
-  const ops = diffArrays(tokenize(oldLine), tokenize(newLine));
+  const oldToks = tokenize(oldLine);
+  const newToks = tokenize(newLine);
+  if (oldToks.length > INLINE_DIFF_DIM_CAP || newToks.length > INLINE_DIFF_DIM_CAP ||
+      oldToks.length * newToks.length > INLINE_DIFF_PRODUCT_CAP) {
+    return { left: escapeHtml(oldLine), right: escapeHtml(newLine) };
+  }
+  const ops = diffArrays(oldToks, newToks);
   let left = '', right = '';
   for (const op of ops) {
     const e = escapeHtml(op.item);
@@ -236,12 +271,27 @@ function runDiff() {
   let bLines = changedRaw.split('\n');
   if (ignoreWs) { aLines = aLines.map(l => l.trim()); bLines = bLines.map(l => l.trim()); }
 
-  if (aLines.length * bLines.length > 4_000_000) {
-    resultDiv.innerHTML = '<div class="callout error">Inputs are too large to diff in-browser (limit: ~2 000 lines each). Paste a smaller excerpt, or use your editor\'s built-in diff view.</div>';
+  const prefixLen = commonPrefixLen(aLines, bLines);
+  const suffixLen = commonSuffixLen(aLines, bLines, prefixLen);
+  const aMid = aLines.slice(prefixLen, aLines.length - suffixLen);
+  const bMid = bLines.slice(prefixLen, bLines.length - suffixLen);
+
+  /* The product cap alone lets a lopsided shape slip through (e.g. one
+     side with 16,000,000 lines, the other with 1 — same product as a
+     balanced 4000x4000, but diffArrays allocates one Int32Array per row
+     of the longer side, so a huge single dimension is its own hazard
+     regardless of the product). Cap each dimension too. */
+  const DIM_CAP = 20_000;
+  if (aMid.length > DIM_CAP || bMid.length > DIM_CAP || aMid.length * bMid.length > 16_000_000) {
+    resultDiv.innerHTML = '<div class="callout error">The changed region is too large to diff in-browser (~4 000 differing lines each side — identical leading/trailing lines don\'t count against this). Paste a smaller excerpt, or use your editor\'s built-in diff view.</div>';
     return;
   }
 
-  const lineOps = diffArrays(aLines, bLines);
+  const lineOps = [
+    ...aLines.slice(0, prefixLen).map(item => ({ type: 'same', item })),
+    ...diffArrays(aMid, bMid),
+    ...aLines.slice(aLines.length - suffixLen).map(item => ({ type: 'same', item })),
+  ];
   const rows = buildRows(lineOps);
 
   const removalsCount = rows.filter(r => r.type === 'removed' || r.type === 'modified').length;
@@ -280,6 +330,17 @@ function expandSection(el, startIdx, count) {
   /* rebuild without hideUnchanged for now — simplest safe approach */
   document.getElementById('chkHideUnchanged').checked = false;
   runDiff();
+}
+
+/* ── swap sides ── */
+
+function swapDiffSides() {
+  const orig = document.getElementById('diffOriginal');
+  const changed = document.getElementById('diffChanged');
+  const tmp = orig.value;
+  orig.value = changed.value;
+  changed.value = tmp;
+  if (document.getElementById('chkAuto').checked) runDiff();
 }
 
 /* ── clear ── */

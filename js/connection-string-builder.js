@@ -36,6 +36,17 @@ function tryCsExample() {
   buildConnectionString();
 }
 
+// ADO.NET connection string value escaping: a value containing ; = ' " or
+// leading/trailing whitespace must be quoted or it silently truncates the
+// value at the special character and corrupts the rest of the string.
+// Prefer single quotes; switch to double quotes (doubling any embedded
+// double quotes) when the value itself contains a single quote.
+function escapeCsValue(val) {
+  if (!/[;='"]/.test(val) && val === val.trim()) return val;
+  if (!val.includes("'")) return `'${val}'`;
+  return `"${val.replace(/"/g, '""')}"`;
+}
+
 function buildConnectionString() {
   const server = document.getElementById('csServer').value.trim();
   const db = document.getElementById('csDatabase').value.trim();
@@ -51,13 +62,14 @@ function buildConnectionString() {
   let parts = [];
   if (server) {
     const isNamedInstance = server.includes('\\');
-    parts.push(isNamedInstance ? `Server=${server}` : `Server=tcp:${server},1433`);
+    const serverValue = isNamedInstance ? server : `tcp:${server},1433`;
+    parts.push(`Server=${escapeCsValue(serverValue)}`);
   }
-  if (db) parts.push(`Database=${db}`);
+  if (db) parts.push(`Database=${escapeCsValue(db)}`);
 
   if (auth === 'sql') {
-    if (user) parts.push(`User Id=${user}`);
-    if (pass) parts.push(`Password=${pass}`);
+    if (user) parts.push(`User Id=${escapeCsValue(user)}`);
+    if (pass) parts.push(`Password=${escapeCsValue(pass)}`);
   } else if (auth === 'windows') {
     parts.push('Integrated Security=True');
   } else if (auth === 'azuread-default') {
@@ -66,15 +78,15 @@ function buildConnectionString() {
     parts.push('Authentication=Active Directory Interactive');
   } else if (auth === 'azuread-password') {
     parts.push('Authentication=Active Directory Password');
-    if (user) parts.push(`User Id=${user}`);
-    if (pass) parts.push(`Password=${pass}`);
+    if (user) parts.push(`User Id=${escapeCsValue(user)}`);
+    if (pass) parts.push(`Password=${escapeCsValue(pass)}`);
   }
 
   parts.push(`Encrypt=${encrypt ? 'True' : 'False'}`);
   if (trust) parts.push('TrustServerCertificate=True');
   if (mars) parts.push('MultipleActiveResultSets=True');
-  if (timeout) parts.push(`Connect Timeout=${timeout}`);
-  if (appName) parts.push(`Application Name=${appName}`);
+  if (timeout) parts.push(`Connect Timeout=${escapeCsValue(timeout)}`);
+  if (appName) parts.push(`Application Name=${escapeCsValue(appName)}`);
 
   const result = parts.join(';') + ';';
   const out = document.getElementById('csOutput');

@@ -166,6 +166,15 @@ const KEYWORDS = new Set([
   'ALTER TABLE', 'DROP TABLE', 'DROP VIEW', 'DROP INDEX',
 ]);
 
+// Keywords that keep a space before an opening paren (boolean/clause
+// operators used for grouping — "AND (a OR b)", "IN (1,2,3)"). Everything
+// else hugs the paren, including built-in function names that are also
+// KEYWORDS entries (SUM, COUNT, CAST, CONCAT, ...): SUM(x), not SUM (x).
+const SPACE_BEFORE_PAREN = new Set([
+  'AND', 'OR', 'NOT', 'IN', 'NOT IN', 'EXISTS', 'NOT EXISTS',
+  'VALUES', 'WHERE', 'ON', 'HAVING', 'SET', 'WHEN', 'RETURNING', 'USING',
+]);
+
 /* ── formatter ── */
 
 function formatSQL(sql, opts = {}) {
@@ -176,6 +185,7 @@ function formatSQL(sql, opts = {}) {
   let out = '';
   let depth = 0;
   let lineTokens = [];
+  let parenDepthInLine = 0; // unclosed '(' currently sitting in lineTokens
   let inSelectList = false;
 
   function smartJoin(toks) {
@@ -187,9 +197,9 @@ function formatSQL(sql, opts = {}) {
       if (prev === '.') { s += t; continue; }
       if (t === ',' || t === ')') { s = s.trimEnd() + t; continue; }
       if (t === '(') {
-        // function calls hug the paren (SUM(x)); keywords like IN/WHERE keep a space
-        const noSpace = prev !== undefined && !isKw(prev) && prev !== ',' && prev !== '(';
-        s += (s && !noSpace ? ' ' : '') + t;
+        const prevUp = prev !== undefined ? prev.toUpperCase() : undefined;
+        const needsSpace = prev === ',' || (prevUp !== undefined && SPACE_BEFORE_PAREN.has(prevUp));
+        s += (s && needsSpace ? ' ' : '') + t;
         continue;
       }
       if (prev === '(') { s += t; continue; }
@@ -202,6 +212,7 @@ function formatSQL(sql, opts = {}) {
     const line = smartJoin(lineTokens).trim();
     if (line) out += indent(depth + extraIndent) + line + '\n';
     lineTokens = [];
+    parenDepthInLine = 0;
   }
 
   function indent(d) { return pad.repeat(Math.max(0, d)); }
@@ -243,6 +254,7 @@ function formatSQL(sql, opts = {}) {
         inSelectList = false;
       } else {
         lineTokens.push('(');
+        parenDepthInLine++;
       }
       i++; continue;
     }
@@ -259,6 +271,7 @@ function formatSQL(sql, opts = {}) {
         out += indent(depth) + ')\n';
       } else {
         lineTokens.push(')');
+        parenDepthInLine = Math.max(0, parenDepthInLine - 1);
       }
       inSelectList = false;
       i++; continue;
@@ -288,7 +301,11 @@ function formatSQL(sql, opts = {}) {
 
     // comma
     if (tok.value === ',') {
-      if (commaStyle === 'leading') {
+      if (parenDepthInLine > 0) {
+        // inside an unclosed function-call/list paren (e.g. CONCAT(a, b),
+        // IN (1, 2, 3)) — this comma separates arguments, not clauses.
+        lineTokens.push(',');
+      } else if (commaStyle === 'leading') {
         flushLine();
         lineTokens.push(',');
       } else {

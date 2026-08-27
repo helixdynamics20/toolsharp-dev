@@ -1,4 +1,13 @@
+let rxDebounceHandle = null;
+
 function runRegex() {
+  // Light debounce: matching now runs in a worker (async round-trip), and
+  // this avoids spawning a fresh worker on every single keystroke.
+  clearTimeout(rxDebounceHandle);
+  rxDebounceHandle = setTimeout(runRegexNow, 150);
+}
+
+function runRegexNow() {
   const pattern = document.getElementById('rxPattern').value;
   const testStr = document.getElementById('rxTestString').value;
   const highlightDiv = document.getElementById('regexHighlighted');
@@ -23,9 +32,11 @@ function runRegex() {
   const findAll = document.getElementById('rxGlobal').checked;
   if (findAll) flags += 'g';
 
-  let re;
+  // Constructing a RegExp is always fast and safe to validate synchronously
+  // — it's only *executing* it against text that can hang on a pathological
+  // pattern, which is why the actual matching below runs in a worker.
   try {
-    re = new RegExp(pattern, flags);
+    new RegExp(pattern, flags);
   } catch (e) {
     highlightDiv.classList.remove('empty');
     highlightDiv.innerHTML = '';
@@ -43,38 +54,77 @@ function runRegex() {
   }
 
   highlightDiv.classList.remove('empty');
+  runRegexInWorker(pattern, flags, testStr, findAll);
+}
 
-  let matches = [];
-  if (findAll) {
-    let m;
-    const globalRe = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
-    while ((m = globalRe.exec(testStr)) !== null) {
-      matches.push(m);
-      if (m[0] === '') globalRe.lastIndex++;
+let rxWorker = null;
+let rxRequestId = 0;
+let rxTimeoutHandle = null;
+const RX_TIMEOUT_MS = 2000;
+
+function runRegexInWorker(pattern, flags, testStr, findAll) {
+  const requestId = ++rxRequestId;
+  if (rxWorker) rxWorker.terminate();
+  clearTimeout(rxTimeoutHandle);
+
+  rxWorker = new Worker('../js/regex-tester-worker.js');
+
+  rxTimeoutHandle = setTimeout(() => {
+    if (requestId !== rxRequestId) return;
+    rxWorker.terminate();
+    rxWorker = null;
+    document.getElementById('regexHighlighted').innerHTML = '';
+    document.getElementById('rxMeta').innerHTML = '<div class="callout error">This pattern took too long to match — likely catastrophic backtracking (e.g. a nested quantifier like <code>(a+)+</code> against text that almost matches). Simplify the pattern or shorten the test string.</div>';
+    document.getElementById('rxGroups').innerHTML = '';
+  }, RX_TIMEOUT_MS);
+
+  rxWorker.onmessage = (e) => {
+    if (requestId !== rxRequestId) return; // superseded by a newer keystroke
+    clearTimeout(rxTimeoutHandle);
+    if (e.data.ok) {
+      renderMatches(e.data.matches, testStr);
+    } else {
+      showRegexError(e.data.error);
     }
-  } else {
-    const m = re.exec(testStr);
-    if (m) matches.push(m);
-  }
+  };
+  rxWorker.onerror = (err) => {
+    if (requestId !== rxRequestId) return;
+    clearTimeout(rxTimeoutHandle);
+    showRegexError(err.message || 'Something went wrong while matching.');
+  };
+
+  rxWorker.postMessage({ pattern, flags, testStr, findAll });
+}
+
+function showRegexError(msg) {
+  document.getElementById('regexHighlighted').innerHTML = '';
+  document.getElementById('rxMeta').innerHTML = `<div class="callout error">${escapeHtml(msg || 'Something went wrong while matching.')}</div>`;
+  document.getElementById('rxGroups').innerHTML = '';
+}
+
+function renderMatches(matches, testStr) {
+  const highlightDiv = document.getElementById('regexHighlighted');
+  const metaDiv = document.getElementById('rxMeta');
+  const groupsDiv = document.getElementById('rxGroups');
 
   let html = '';
   let lastIndex = 0;
   matches.forEach((m, idx) => {
     html += escapeHtml(testStr.slice(lastIndex, m.index));
-    html += `<mark class="${idx % 2 ? 'alt' : ''}">${escapeHtml(m[0])}</mark>`;
-    lastIndex = m.index + m[0].length;
+    html += `<mark class="${idx % 2 ? 'alt' : ''}">${escapeHtml(m.value)}</mark>`;
+    lastIndex = m.index + m.value.length;
   });
   html += escapeHtml(testStr.slice(lastIndex));
   highlightDiv.innerHTML = html || '<span class="empty">No matches.</span>';
 
   metaDiv.innerHTML = `<div class="callout ${matches.length ? 'ok' : 'warn'}" style="margin-top:14px;">${matches.length} match${matches.length === 1 ? '' : 'es'} found.</div>`;
 
-  if (matches.length && matches.some(m => m.length > 1)) {
+  if (matches.length && matches.some(m => m.captures.length > 0)) {
     let rows = [];
     matches.forEach((m, mi) => {
-      for (let gi = 1; gi < m.length; gi++) {
-        if (m[gi] !== undefined) rows.push({k: `match ${mi+1}, group ${gi}`, v: m[gi]});
-      }
+      m.captures.forEach((c, gi) => {
+        if (c !== undefined) rows.push({k: `match ${mi+1}, group ${gi+1}`, v: c});
+      });
       if (m.groups) {
         Object.entries(m.groups).forEach(([name, val]) => {
           if (val !== undefined) rows.push({k: `match ${mi+1}, ${name}`, v: val});
