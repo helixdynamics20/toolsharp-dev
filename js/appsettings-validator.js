@@ -296,24 +296,3 @@ function highlightJsonText(jsonString) {
   });
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const inputEl = document.getElementById('asInput');
-  if (inputEl) {
-    inputEl.addEventListener('paste', () => {
-      setTimeout(() => {
-        const text = inputEl.value;
-        try {
-          JSON.parse(text);
-          validateAppsettings();
-        } catch (_) {
-          // Check if repairable
-          const repaired = tryRepairJson(text);
-          try {
-            JSON.parse(repaired);
-            validateAppsettings();
-          } catch (__) {}
-        }
-      }, 50);
-    });
-  }
-});
