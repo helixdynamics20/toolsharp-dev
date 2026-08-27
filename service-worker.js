@@ -1,10 +1,12 @@
-const CACHE_NAME = 'toolsharp-cache-v3';
+const CACHE_NAME = 'toolsharp-cache-v4';
 const ASSETS = [
   '/',
   '/404.html',
   '/css/style.css',
   '/js/theme.js',
   '/js/utils.js',
+  '/js/analytics.bundle.js',
+  '/js/speed-insights.js',
   '/favicon.svg',
   '/robots.txt',
   '/sitemap.xml',
