@@ -36,6 +36,20 @@ async function decompressText(code) {
 
 
 
+// A non-2xx response from the API can come back as an HTML error page
+// (Vercel cold-start/gateway-timeout pages, for instance) instead of JSON.
+// response.json() on that throws a raw SyntaxError like "Unexpected token
+// '<'" that surfaces straight to the user with no actionable meaning.
+// Parse as text first so a non-JSON body produces a clear message instead.
+async function safeJson(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
+}
+
 // Generate a random 6-digit code
 function generateCode() {
   const num = Math.floor(100000 + Math.random() * 900000);
@@ -140,7 +154,12 @@ async function generateShare() {
       body: JSON.stringify({ code, value: encryptedText })
     });
     
-    const resData = await response.json();
+    const resData = await safeJson(response);
+    if (!resData) {
+      throw new Error(response.ok
+        ? 'The server returned an unexpected response.'
+        : `Server error (${response.status}). Please try again in a moment.`);
+    }
     if (!response.ok || resData.error) {
       throw new Error(resData.error || 'Database sharing failed.');
     }
@@ -188,7 +207,12 @@ async function retrieveShare() {
       const pass = code;
       
       const response = await fetch(`${API_URL}?code=${code}`);
-      const resData = await response.json();
+      const resData = await safeJson(response);
+      if (!resData) {
+        throw new Error(response.ok
+          ? 'The server returned an unexpected response.'
+          : `Server error (${response.status}). Please try again in a moment.`);
+      }
       if (!response.ok || resData.error) {
         throw new Error(resData.error || 'Code not found or expired.');
       }
@@ -247,13 +271,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       const pass = code;
       
       const response = await fetch(`${API_URL}?code=${code}`);
-      const resData = await response.json();
-      if (response.ok && resData.result) {
+      const resData = await safeJson(response);
+      if (response.ok && resData && resData.result) {
         const decoded = await decryptPayload(resData.result, pass);
         document.getElementById('autoLoadedOutput').value = decoded;
         document.getElementById('autoLoadedPanel').style.display = 'block';
       } else {
-        showError(resData.error || 'The shared link has expired or is invalid.');
+        showError((resData && resData.error) || 'The shared link has expired or is invalid.');
       }
     } catch (e) {
       showError('Failed to retrieve or decrypt shared text.');
