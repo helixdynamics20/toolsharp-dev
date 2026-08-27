@@ -410,5 +410,6 @@ function escHtml(str) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('sql-formatter', ['chkCapitalize', 'indentSize', 'commaStyle', 'chkAuto']);
   document.getElementById('sqlInput').addEventListener('input', scheduleAuto);
 });
