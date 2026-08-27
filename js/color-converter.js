@@ -35,16 +35,28 @@ function splitFnArgs(inner) {
 
 function parseHex(str) {
   let hex = str.trim().replace(/^#/, '');
-  if (hex.length === 3) {
+  // #RGB and #RGBA shorthand both expand by doubling every digit
+  // (#RGBA -> #RRGGBBAA), same rule, just four digits instead of three.
+  if (hex.length === 3 || hex.length === 4) {
     hex = hex.split('').map(c => c + c).join('');
   }
-  if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
-  return {
-    r: parseInt(hex.slice(0, 2), 16),
-    g: parseInt(hex.slice(2, 4), 16),
-    b: parseInt(hex.slice(4, 6), 16),
-    a: 1
-  };
+  if (hex.length === 6 && /^[0-9a-f]{6}$/i.test(hex)) {
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+      a: 1
+    };
+  }
+  if (hex.length === 8 && /^[0-9a-f]{8}$/i.test(hex)) {
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+      a: clamp(parseInt(hex.slice(6, 8), 16) / 255, 0, 1)
+    };
+  }
+  return null;
 }
 
 function parseRgbFn(str) {
