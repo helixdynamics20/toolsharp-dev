@@ -36,7 +36,15 @@ function buildConnectionString() {
   let parts = [];
   if (server) {
     const isNamedInstance = server.includes('\\');
-    parts.push(isNamedInstance ? `Server=${server}` : `Server=tcp:${server},1433`);
+    // a server value pasted from somewhere that already specifies a port
+    // (e.g. "myserver.database.windows.net,3342") shouldn't also get the
+    // default ",1433" appended, or the port ends up doubled/malformed.
+    const hasExplicitPort = /,\s*\d+\s*$/.test(server);
+    let serverValue;
+    if (isNamedInstance) serverValue = server;
+    else if (hasExplicitPort) serverValue = `tcp:${server}`;
+    else serverValue = `tcp:${server},1433`;
+    parts.push(`Server=${serverValue}`);
   }
   if (db) parts.push(`Database=${db}`);
 
