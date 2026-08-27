@@ -270,6 +270,11 @@ function validateAppsettings() {
   `;
 }
 
+function clearAppsettingsInput() {
+  document.getElementById('asInput').value = '';
+  validateAppsettings();
+}
+
 function tryAppsettingsExample() {
   document.getElementById('asInput').value = JSON.stringify({
     Logging: { LogLevel: { Default: 'Information' } },

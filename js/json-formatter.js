@@ -629,6 +629,11 @@ function convertToYaml() {
   }
 }
 
+function clearJsonInput() {
+  document.getElementById('jsonInput').value = '';
+  onJsonInput();
+}
+
 function tryJsonExample() {
   document.getElementById('jsonInput').value = JSON.stringify({
     name: 'example',
