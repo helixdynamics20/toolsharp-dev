@@ -76,7 +76,11 @@ function handleFileSelect(inputEl) {
 function processFile(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
-    const rawB64 = e.target.result.split(',')[1] || e.target.result;
+    // for a 0-byte file, split(',')[1] is '' (empty, not undefined) --
+    // the old `|| e.target.result` fallback treated that falsy empty
+    // string as "missing" and used the entire data URI as the result
+    const parts = e.target.result.split(',');
+    const rawB64 = parts.length > 1 ? parts[1] : e.target.result;
     let finalB64 = rawB64;
     if (document.getElementById('b64UrlSafe').checked) {
       finalB64 = toUrlSafe(rawB64);
