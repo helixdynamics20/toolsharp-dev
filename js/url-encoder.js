@@ -57,6 +57,13 @@ function swapInputOutput() {
   parseUrlLive();
 }
 
+function tryUrlExample() {
+  document.getElementById('modeFull').checked = true;
+  document.getElementById('urlInput').value = 'https://example.com/search?q=hello world&category=books&sort=price desc';
+  encodeUrl();
+  parseUrlLive();
+}
+
 function clearAll() {
   document.getElementById('urlInput').value = '';
   document.getElementById('urlOutput').value = '';

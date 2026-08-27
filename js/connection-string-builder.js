@@ -21,6 +21,21 @@ function clearCsForm() {
   toggleCreds();
 }
 
+function tryCsExample() {
+  document.getElementById('csServer').value = 'myserver.database.windows.net';
+  document.getElementById('csDatabase').value = 'StoredValueDb';
+  document.getElementById('csAuth').value = 'sql';
+  document.getElementById('csUser').value = 'app_user';
+  document.getElementById('csPass').value = 'ExamplePassword123!';
+  document.getElementById('csEncrypt').checked = true;
+  document.getElementById('csTrust').checked = false;
+  document.getElementById('csMars').checked = false;
+  document.getElementById('csTimeout').value = '30';
+  document.getElementById('csAppName').value = 'StoredValue.Api';
+  toggleCreds();
+  buildConnectionString();
+}
+
 // ADO.NET connection string value escaping: a value containing ; = ' " or
 // leading/trailing whitespace must be quoted or it silently truncates the
 // value at the special character and corrupts the rest of the string.

@@ -423,6 +423,7 @@
     function closeMobileMenu() {
       mobileMenu.classList.remove('active');
       mobileMenuToggle.setAttribute('aria-expanded', 'false');
+      mobileMenuToggle.setAttribute('aria-label', 'Open menu');
       mobileMenuToggle.textContent = '☰';
     }
 
@@ -434,6 +435,7 @@
       } else {
         mobileMenu.classList.add('active');
         mobileMenuToggle.setAttribute('aria-expanded', 'true');
+        mobileMenuToggle.setAttribute('aria-label', 'Close menu');
         mobileMenuToggle.textContent = '✕';
       }
     });

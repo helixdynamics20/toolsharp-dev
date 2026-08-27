@@ -130,6 +130,11 @@ function dowName(v) {
   return names[parseInt(v,10)] || v;
 }
 
+function tryCronExample() {
+  document.getElementById('cronParseInput').value = '0 0 6 ? * 2';
+  explainPasted();
+}
+
 function explainPasted() {
   const input = document.getElementById('cronParseInput').value.trim();
   const resultDiv = document.getElementById('cronPastedResult');
