@@ -46,6 +46,7 @@ const ASSETS = [
   '/js/jwt-decoder.js',
   '/js/guid-formatter.js',
   '/js/regex-tester.js',
+  '/js/regex-tester-worker.js',
   '/js/appsettings-validator.js',
   '/js/json-formatter.js',
   '/js/diff-checker.js',

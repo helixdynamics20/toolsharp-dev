@@ -51,8 +51,23 @@ function tokenize(line) {
 
 /* ── inline-diff rendering ── */
 
+// The file-level size guard in runDiff() only bounds line *count* — a
+// single very long line (e.g. one line of minified JS/CSS with no
+// newlines) still reaches here and would otherwise run an unbounded O(n*m)
+// LCS on tens of thousands of tokens in char-precision mode. Cap it and
+// fall back to showing the whole line as changed, without inline
+// highlighting, rather than hang the tab on one pathological line.
+const INLINE_DIFF_DIM_CAP = 2500;
+const INLINE_DIFF_PRODUCT_CAP = 800_000;
+
 function renderInlineDiff(oldLine, newLine) {
-  const ops = diffArrays(tokenize(oldLine), tokenize(newLine));
+  const oldToks = tokenize(oldLine);
+  const newToks = tokenize(newLine);
+  if (oldToks.length > INLINE_DIFF_DIM_CAP || newToks.length > INLINE_DIFF_DIM_CAP ||
+      oldToks.length * newToks.length > INLINE_DIFF_PRODUCT_CAP) {
+    return { left: escapeHtml(oldLine), right: escapeHtml(newLine) };
+  }
+  const ops = diffArrays(oldToks, newToks);
   let left = '', right = '';
   for (const op of ops) {
     const e = escapeHtml(op.item);

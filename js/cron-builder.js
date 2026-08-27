@@ -154,7 +154,7 @@ function explainPasted() {
   resultDiv.innerHTML = `<div class="config-block" style="margin-top:18px;"><div class="tab">explanation</div><div class="body"><div class="callout ok">${html}${nextHtml}</div></div></div>`;
 }
 
-function describeFieldValue(name, value) {
+function describeFieldValue(name, value, quartzDow) {
   if (value === '*') return 'every ' + name;
   if (value === '?') return 'any (wildcard)';
   if (value.startsWith('*/')) return 'every ' + value.slice(2) + ' ' + name + (parseInt(value.slice(2)) > 1 ? 's' : '');
@@ -163,7 +163,14 @@ function describeFieldValue(name, value) {
     if (name === 'hour') return 'at ' + String(value).padStart(2, '0') + ':xx';
     if (name === 'second') return 'at second ' + value;
     if (name === 'month') return 'in ' + (['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+value] || 'month ' + value);
-    if (name === 'day-of-week') return 'on ' + (['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][+value] || 'day ' + value);
+    if (name === 'day-of-week') {
+      // Quartz.NET numbers day-of-week 1-7 (Sun=1); standard/Hangfire cron
+      // uses 0-6 (Sun=0) same as the display array below — shift Quartz
+      // values back by one before indexing, or "Monday" (Quartz "2")
+      // displays as "Tue".
+      const idx = quartzDow ? +value - 1 : +value;
+      return 'on ' + (['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][idx] || 'day ' + value);
+    }
     return 'on day ' + value;
   }
   if (value.includes('-')) { const [a, b] = value.split('-'); return `${a} through ${b}`; }
@@ -179,7 +186,7 @@ function describeFields(f) {
   rows.push({ field: 'hour',       value: f.hour,  desc: describeFieldValue('hour', f.hour) });
   rows.push({ field: 'day-of-month', value: f.dom, desc: describeFieldValue('day-of-month', f.dom) });
   rows.push({ field: 'month',      value: f.month, desc: describeFieldValue('month', f.month) });
-  rows.push({ field: 'day-of-week', value: f.dow,  desc: describeFieldValue('day-of-week', f.dow) });
+  rows.push({ field: 'day-of-week', value: f.dow,  desc: describeFieldValue('day-of-week', f.dow, f.hasSeconds) });
 
   const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
   const hourDesc = f.hour === '*' ? 'around the clock' : `at hour ${f.hour}`;
@@ -219,10 +226,12 @@ function matchesField(field, value) {
 function getNextRuns(expr, count) {
   const fields = expr.trim().split(/\s+/);
   let minF, hourF, domF, monF, dowF;
+  let isQuartz = false;
   if (fields.length === 5) {
     [minF, hourF, domF, monF, dowF] = fields;
   } else if (fields.length >= 6) {
     [, minF, hourF, domF, monF, dowF] = fields;
+    isQuartz = true; // Quartz.NET numbers day-of-week 1-7 (Sun=1), not 0-6 (Sun=0)
   } else return [];
 
   const results = [];
@@ -230,7 +239,8 @@ function getNextRuns(expr, count) {
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
 
   for (let i = 0; i < 525960 && results.length < count; i++) {
-    const m = d.getMinutes(), h = d.getHours(), dom = d.getDate(), mon = d.getMonth() + 1, dow = d.getDay();
+    const m = d.getMinutes(), h = d.getHours(), dom = d.getDate(), mon = d.getMonth() + 1;
+    const dow = isQuartz ? d.getDay() + 1 : d.getDay();
     if (matchesField(minF, m) && matchesField(hourF, h) && matchesField(domF, dom) && matchesField(monF, mon) && matchesField(dowF, dow)) {
       results.push(new Date(d));
     }
