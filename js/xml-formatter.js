@@ -58,13 +58,54 @@ function isWhitespaceOnlyText(node) {
   return node.nodeType === 3 && node.nodeValue.trim() === '';
 }
 
-function formatElement(el, depth, indentUnit, lines) {
+// xml:space="preserve" means whitespace inside that element is meaningful
+// content, not formatting -- it must not be trimmed, collapsed, or
+// re-indented. The attribute is inheritable: a descendant without its own
+// xml:space keeps whatever the nearest ancestor set ("default" resets it).
+function resolvePreserve(el, inherited) {
+  const v = el.getAttribute && el.getAttribute('xml:space');
+  if (v === 'preserve') return true;
+  if (v === 'default') return false;
+  return inherited;
+}
+
+// Re-serializes a subtree exactly as parsed -- no trimming, no added
+// whitespace/indentation -- for use under an xml:space="preserve" element.
+function serializeVerbatim(node) {
+  switch (node.nodeType) {
+    case 1: {
+      const tagName = node.tagName;
+      let open = '<' + tagName;
+      for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        open += ' ' + attr.name + '="' + escapeXmlAttr(attr.value) + '"';
+      }
+      if (node.childNodes.length === 0) return open + '/>';
+      return open + '>' + Array.from(node.childNodes).map(serializeVerbatim).join('') + '</' + tagName + '>';
+    }
+    case 3: return escapeXmlText(node.nodeValue);
+    case 4: return '<![CDATA[' + node.nodeValue + ']]>';
+    case 8: return '<!--' + node.nodeValue + '-->';
+    case 7: return '<?' + node.target + (node.nodeValue ? ' ' + node.nodeValue : '') + '?>';
+    default: return '';
+  }
+}
+
+function formatElement(el, depth, indentUnit, lines, preserveWs) {
   const indent = indentUnit.repeat(depth);
   const tagName = el.tagName;
   let open = '<' + tagName;
   for (let i = 0; i < el.attributes.length; i++) {
     const attr = el.attributes[i];
     open += ' ' + attr.name + '="' + escapeXmlAttr(attr.value) + '"';
+  }
+
+  const effectivePreserve = resolvePreserve(el, preserveWs);
+  if (effectivePreserve) {
+    if (el.childNodes.length === 0) { lines.push(indent + open + '/>'); return; }
+    const inner = Array.from(el.childNodes).map(serializeVerbatim).join('');
+    lines.push(indent + open + '>' + inner + '</' + tagName + '>');
+    return;
   }
 
   const children = Array.from(el.childNodes).filter(n => !isWhitespaceOnlyText(n));
@@ -86,19 +127,23 @@ function formatElement(el, depth, indentUnit, lines) {
   }
 
   lines.push(indent + open + '>');
-  children.forEach(child => formatNode(child, depth + 1, indentUnit, lines));
+  children.forEach(child => formatNode(child, depth + 1, indentUnit, lines, effectivePreserve));
   lines.push(indent + '</' + tagName + '>');
 }
 
-function formatNode(node, depth, indentUnit, lines) {
+function formatNode(node, depth, indentUnit, lines, preserveWs) {
   const indent = indentUnit.repeat(depth);
   switch (node.nodeType) {
     case 1: // ELEMENT_NODE
-      formatElement(node, depth, indentUnit, lines);
+      formatElement(node, depth, indentUnit, lines, preserveWs);
       break;
     case 3: { // TEXT_NODE (mixed content -- only reached when siblings exist)
-      const t = node.nodeValue.trim();
-      if (t) lines.push(indent + escapeXmlText(t));
+      if (preserveWs) {
+        lines.push(indent + escapeXmlText(node.nodeValue));
+      } else {
+        const t = node.nodeValue.trim();
+        if (t) lines.push(indent + escapeXmlText(t));
+      }
       break;
     }
     case 4: // CDATA_SECTION_NODE
@@ -126,36 +171,48 @@ function formatXmlString(text, indentUnit) {
   if (declMatch) lines.push(declMatch[0].trim());
   const result = parseXmlDoc(text);
   if (result.error) return result;
-  Array.from(result.doc.childNodes).forEach(node => formatNode(node, 0, indentUnit, lines));
+  Array.from(result.doc.childNodes).forEach(node => formatNode(node, 0, indentUnit, lines, false));
   return { formatted: lines.join('\n') };
 }
 
 // ── minify: same tree walk, no indentation, whitespace-only text nodes
 // between tags dropped, meaningful text content left exactly as-is ──
-function minifyElement(el, out) {
+function minifyElement(el, out, preserveWs) {
   const tagName = el.tagName;
   let open = '<' + tagName;
   for (let i = 0; i < el.attributes.length; i++) {
     const attr = el.attributes[i];
     open += ' ' + attr.name + '="' + escapeXmlAttr(attr.value) + '"';
   }
+
+  const effectivePreserve = resolvePreserve(el, preserveWs);
+  if (effectivePreserve) {
+    if (el.childNodes.length === 0) { out.push(open + '/>'); return; }
+    out.push(open + '>' + Array.from(el.childNodes).map(serializeVerbatim).join('') + '</' + tagName + '>');
+    return;
+  }
+
   const children = Array.from(el.childNodes).filter(n => !isWhitespaceOnlyText(n));
   if (children.length === 0) {
     out.push(open + '/>');
     return;
   }
   out.push(open + '>');
-  children.forEach(child => minifyNode(child, out));
+  children.forEach(child => minifyNode(child, out, effectivePreserve));
   out.push('</' + tagName + '>');
 }
 
-function minifyNode(node, out) {
+function minifyNode(node, out, preserveWs) {
   switch (node.nodeType) {
     case 1:
-      minifyElement(node, out);
+      minifyElement(node, out, preserveWs);
       break;
     case 3:
-      if (node.nodeValue.trim() !== '') out.push(escapeXmlText(node.nodeValue));
+      if (preserveWs) {
+        out.push(escapeXmlText(node.nodeValue));
+      } else if (node.nodeValue.trim() !== '') {
+        out.push(escapeXmlText(node.nodeValue));
+      }
       break;
     case 4:
       out.push('<![CDATA[' + node.nodeValue + ']]>');
@@ -180,7 +237,7 @@ function minifyXmlString(text) {
   if (declMatch) out.push(declMatch[0].trim());
   const result = parseXmlDoc(text);
   if (result.error) return result;
-  Array.from(result.doc.childNodes).forEach(node => minifyNode(node, out));
+  Array.from(result.doc.childNodes).forEach(node => minifyNode(node, out, false));
   return { minified: out.join('') };
 }
 
