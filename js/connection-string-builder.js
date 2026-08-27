@@ -21,6 +21,21 @@ function clearCsForm() {
   toggleCreds();
 }
 
+function tryCsExample() {
+  document.getElementById('csServer').value = 'myserver.database.windows.net';
+  document.getElementById('csDatabase').value = 'StoredValueDb';
+  document.getElementById('csAuth').value = 'sql';
+  document.getElementById('csUser').value = 'app_user';
+  document.getElementById('csPass').value = 'ExamplePassword123!';
+  document.getElementById('csEncrypt').checked = true;
+  document.getElementById('csTrust').checked = false;
+  document.getElementById('csMars').checked = false;
+  document.getElementById('csTimeout').value = '30';
+  document.getElementById('csAppName').value = 'StoredValue.Api';
+  toggleCreds();
+  buildConnectionString();
+}
+
 function buildConnectionString() {
   const server = document.getElementById('csServer').value.trim();
   const db = document.getElementById('csDatabase').value.trim();

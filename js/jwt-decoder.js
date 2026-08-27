@@ -164,6 +164,17 @@ async function verifyES256(headerB64, payloadB64, sigB64, pem) {
   return await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, sig, data);
 }
 
+function tryJwtExample() {
+  document.getElementById('jwtInput').value =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  decodeJwt();
+}
+
+function clearJwtInput() {
+  document.getElementById('jwtInput').value = '';
+  decodeJwt();
+}
+
 function onAlgChange() {
   const alg = document.getElementById('jwtAlgSelect').value;
   document.getElementById('jwtSecretRow').style.display = alg === 'HS256' ? '' : 'none';

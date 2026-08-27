@@ -93,6 +93,18 @@ function runRegex() {
   updateCodeGen();
 }
 
+function tryRegexExample() {
+  document.getElementById('rxPattern').value = '(?<code>[A-Z]{3})-(?<num>\\d{4})';
+  document.getElementById('rxTestString').value = 'Order ABC-1234 shipped. Order XYZ-5678 pending. Invalid: AB-99.';
+  runRegex();
+}
+
+function clearRegexInputs() {
+  document.getElementById('rxPattern').value = '';
+  document.getElementById('rxTestString').value = '';
+  runRegex();
+}
+
 let activeTab = 'cs';
 function showTab(lang) {
   activeTab = lang;

@@ -270,6 +270,17 @@ function validateAppsettings() {
   `;
 }
 
+function tryAppsettingsExample() {
+  document.getElementById('asInput').value = JSON.stringify({
+    Logging: { LogLevel: { Default: 'Information' } },
+    ConnectionStrings: { Default: '' },
+    ApiKey: 'sk_live_12345',
+    AllowedHosts: '*'
+  }, null, 2);
+  document.getElementById('asStrict').checked = true;
+  validateAppsettings();
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;

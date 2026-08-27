@@ -629,6 +629,15 @@ function convertToYaml() {
   }
 }
 
+function tryJsonExample() {
+  document.getElementById('jsonInput').value = JSON.stringify({
+    name: 'example',
+    values: [1, 2, 3],
+    nested: { active: true, tags: ['a', 'b'] }
+  }, null, 2);
+  formatJson();
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
