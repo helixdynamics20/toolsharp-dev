@@ -579,16 +579,43 @@ function convertToYaml() {
     return;
   }
 
+  // A string that happens to look like another YAML scalar type (a bool,
+  // null, or number) must be quoted, or it silently changes type on
+  // re-parse -- {"flag":"true"} would otherwise round-trip as a boolean.
+  function yamlNeedsQuoting(str) {
+    if (str === '') return true;
+    if (/^(true|false|yes|no|on|off|null|~)$/i.test(str)) return true;
+    if (/^[-+]?(\.inf|\.nan)$/i.test(str)) return true;
+    if (/^[-+]?\d+$/.test(str)) return true;
+    if (/^[-+]?\d*\.\d+([eE][-+]?\d+)?$/.test(str)) return true;
+    if (/^[-+]?0x[0-9a-fA-F]+$/.test(str)) return true;
+    if (/^\s|\s$/.test(str)) return true;
+    if (/[\n\t\r]/.test(str)) return true;
+    if (/^[-?:,\[\]{}#&*!|>'"%@`]/.test(str)) return true;
+    if (str.includes(': ') || str.endsWith(':') || str.includes(' #')) return true;
+    return false;
+  }
+
+  // Double-quote style with proper backslash escaping -- safe for any
+  // content including embedded newlines, unlike wrapping in quotes and
+  // leaving a literal newline in place (which is invalid YAML flow-scalar
+  // syntax, not just cosmetically wrong).
+  function yamlEscapeString(str) {
+    return '"' + str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\t/g, '\\t')
+      .replace(/\r/g, '\\r') + '"';
+  }
+
   function jsonToYaml(obj, depth = 0) {
     const spacing = '  '.repeat(depth);
     if (obj === null) return 'null';
     if (typeof obj === 'undefined') return '';
     if (typeof obj !== 'object') {
       if (typeof obj === 'string') {
-        if (obj.includes('\n') || obj.includes(':') || obj.startsWith(' ') || obj.includes('#')) {
-          return `"${obj.replace(/"/g, '\\"')}"`;
-        }
-        return obj;
+        return yamlNeedsQuoting(obj) ? yamlEscapeString(obj) : obj;
       }
       return String(obj);
     }
