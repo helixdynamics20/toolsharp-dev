@@ -117,15 +117,24 @@ function parseCsv(text, delimiter) {
 // are skipped rather than turned into a spurious record.
 function rowsToObjects(rows) {
   const filtered = rows.filter(r => !(r.length === 1 && r[0] === ''));
-  if (!filtered.length) return [];
+  if (!filtered.length) return { data: [], duplicateHeaders: [] };
   const header = filtered[0];
-  return filtered.slice(1).map(r => {
+
+  const seen = new Set();
+  const duplicateHeaders = [];
+  header.forEach(h => {
+    if (seen.has(h)) { if (!duplicateHeaders.includes(h)) duplicateHeaders.push(h); }
+    seen.add(h);
+  });
+
+  const data = filtered.slice(1).map(r => {
     const obj = {};
     header.forEach((h, i) => {
       obj[h] = r[i] !== undefined ? r[i] : '';
     });
     return obj;
   });
+  return { data, duplicateHeaders };
 }
 
 // ── CSV serialization ──
@@ -153,7 +162,11 @@ function jsonToCsvString(data, delimiter) {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
       throw new Error('Every array element must be a flat JSON object.');
     }
-    Object.keys(obj).forEach(k => {
+    Object.entries(obj).forEach(([k, v]) => {
+      if (v !== null && typeof v === 'object') {
+        const kind = Array.isArray(v) ? 'an array' : 'an object';
+        throw new Error(`Every array element must be a flat JSON object — "${k}" contains ${kind}, which CSV can't represent as a single cell. Flatten it first (e.g. "${k}.subfield") or remove it.`);
+      }
       if (!seen.has(k)) { seen.add(k); keys.push(k); }
     });
   }
@@ -187,12 +200,14 @@ function convertCsvToJson() {
   try {
     const delimiter = getDelimiterChar('csvDelimiter');
     const rows = parseCsv(text, delimiter);
-    const data = rowsToObjects(rows);
+    const { data, duplicateHeaders } = rowsToObjects(rows);
     const json = JSON.stringify(data, null, 2);
     outEl.className = '';
     outEl.innerHTML = highlightJsonText(json);
     if (!data.length) {
       msgEl.innerHTML = '<div class="callout warn">No data rows found (only a header row, or empty input).</div>';
+    } else if (duplicateHeaders.length) {
+      msgEl.innerHTML = `<div class="callout warn">Duplicate column header(s): ${duplicateHeaders.map(h => `<code>${escapeHtml(h)}</code>`).join(', ')} — for each duplicate, only the last matching column's value was kept per row.</div>`;
     }
   } catch (e) {
     outEl.className = 'empty';

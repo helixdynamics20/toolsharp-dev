@@ -4,6 +4,13 @@ let currentView = 'split';      // 'split' | 'unified'
 let currentPrecision = 'word';  // 'word' | 'char'
 let autoTimer = null;
 
+// Row indices the user has individually expanded via "click to expand".
+// Keyed to the diffed content itself (not cleared on view/precision/
+// checkbox toggles, which re-render the same diff) so expanding a section
+// survives switching Split/Unified, but a genuinely new diff starts fresh.
+let expandedRowIndices = new Set();
+let _lastDiffContentKey = null;
+
 /* ── state controls ── */
 
 function setView(v) {
@@ -142,6 +149,7 @@ function renderSplit(rows, hideUnchanged) {
       }
     }
     if (!hideUnchanged) visible.add(idx);
+    if (expandedRowIndices.has(idx)) visible.add(idx);
   });
 
   const chunks = [];
@@ -218,15 +226,21 @@ function renderUnified(rows, hideUnchanged) {
       }
     }
     if (!hideUnchanged) visible.add(idx);
+    if (expandedRowIndices.has(idx)) visible.add(idx);
   });
 
   const lines = [];
   let hiddenCount = 0;
+  let hiddenStart = -1;
   for (let idx = 0; idx < rows.length; idx++) {
     const row = rows[idx];
-    if (!visible.has(idx)) { hiddenCount++; continue; }
+    if (!visible.has(idx)) {
+      if (hiddenCount === 0) hiddenStart = idx;
+      hiddenCount++;
+      continue;
+    }
     if (hiddenCount > 0) {
-      lines.push(`<div class="diff-hidden-lines">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'}</div>`);
+      lines.push(`<div class="diff-hidden-lines" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
       hiddenCount = 0;
     }
 
@@ -246,7 +260,7 @@ function renderUnified(rows, hideUnchanged) {
       rightNo++;
     }
   }
-  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'}</div>`);
+  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
 
   return `<div class="diff-split-body">${lines.join('') || '<div style="padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);">No changes — the texts are identical.</div>'}</div>`;
 }
@@ -265,6 +279,12 @@ function runDiff() {
   if (!origRaw || !changedRaw) {
     resultDiv.innerHTML = '<div class="callout warn">Paste content into both boxes to compare.</div>';
     return;
+  }
+
+  const contentKey = origRaw + ' ' + changedRaw;
+  if (contentKey !== _lastDiffContentKey) {
+    expandedRowIndices = new Set();
+    _lastDiffContentKey = contentKey;
   }
 
   let aLines = origRaw.split('\n');
@@ -327,8 +347,7 @@ function runDiff() {
 /* ── expand hidden section (split view) ── */
 
 function expandSection(el, startIdx, count) {
-  /* rebuild without hideUnchanged for now — simplest safe approach */
-  document.getElementById('chkHideUnchanged').checked = false;
+  for (let i = startIdx; i < startIdx + count; i++) expandedRowIndices.add(i);
   runDiff();
 }
 

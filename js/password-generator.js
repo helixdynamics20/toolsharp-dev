@@ -100,7 +100,14 @@ let lastMode = 'password';
 function generate() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
   const metaEl = document.getElementById('pwMeta');
-  const bulkN = parseInt(document.getElementById('bulkCount').value, 10) || 1;
+  const bulkInput = document.getElementById('bulkCount');
+  // the input's max="50" only stops the spinner arrows -- typing a value
+  // directly and tabbing/pressing Enter bypasses it entirely, and without
+  // this clamp a huge typed count would synchronously generate that many
+  // passwords and freeze the tab.
+  let bulkN = parseInt(bulkInput.value, 10) || 1;
+  bulkN = Math.min(Math.max(bulkN, 1), 50);
+  if (String(bulkN) !== bulkInput.value) bulkInput.value = bulkN;
   lastMode = mode;
 
   if (mode === 'passphrase') {

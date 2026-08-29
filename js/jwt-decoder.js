@@ -23,7 +23,7 @@ async function decodeJwt() {
   if (!input) { resultDiv.innerHTML = ''; verifyResult.style.display = 'none'; return; }
 
   const parts = input.split('.');
-  if (parts.length < 2) {
+  if (parts.length !== 3) {
     resultDiv.innerHTML = `<div class="callout error" style="margin-top:20px;">That doesn't look like a JWT — expected three dot-separated segments (header.payload.signature), found ${parts.length}.</div>`;
     verifyResult.style.display = 'none';
     return;
@@ -47,16 +47,36 @@ async function decodeJwt() {
 
   const now = Math.floor(Date.now() / 1000);
   let timeCallouts = '';
-  if (payload.exp) {
-    const expired = payload.exp < now;
-    timeCallouts += `<div class="callout ${expired ? 'error' : 'ok'}">exp: ${formatTs(payload.exp)} — ${expired ? 'expired' : 'valid'} ${expired ? '(' + Math.round((now - payload.exp)/60) + ' min ago)' : '(' + Math.round((payload.exp - now)/60) + ' min from now)'}</div>`;
+  // exp/nbf/iat are defined as NumericDate (a JSON number) per the JWT spec.
+  // A token can claim any value here, including a non-numeric one -- feeding
+  // that straight into `new Date(ts * 1000).toISOString()` throws
+  // (RangeError: Invalid time value), which previously aborted the whole
+  // decode with an uncaught exception instead of rendering the header and
+  // payload the tool had already successfully parsed.
+  const isValidNumericDate = v => typeof v === 'number' && Number.isFinite(v);
+
+  if (payload.exp !== undefined) {
+    if (isValidNumericDate(payload.exp)) {
+      const expired = payload.exp < now;
+      timeCallouts += `<div class="callout ${expired ? 'error' : 'ok'}">exp: ${formatTs(payload.exp)} — ${expired ? 'expired' : 'valid'} ${expired ? '(' + Math.round((now - payload.exp)/60) + ' min ago)' : '(' + Math.round((payload.exp - now)/60) + ' min from now)'}</div>`;
+    } else {
+      timeCallouts += `<div class="callout warn">exp claim is present but isn't a valid NumericDate (${escapeHtml(JSON.stringify(payload.exp))}) — can't evaluate expiry.</div>`;
+    }
   }
-  if (payload.nbf) {
-    const notYetValid = payload.nbf > now;
-    timeCallouts += `<div class="callout ${notYetValid ? 'warn' : 'ok'}">nbf: ${formatTs(payload.nbf)} — ${notYetValid ? 'not valid yet' : 'already active'}</div>`;
+  if (payload.nbf !== undefined) {
+    if (isValidNumericDate(payload.nbf)) {
+      const notYetValid = payload.nbf > now;
+      timeCallouts += `<div class="callout ${notYetValid ? 'warn' : 'ok'}">nbf: ${formatTs(payload.nbf)} — ${notYetValid ? 'not valid yet' : 'already active'}</div>`;
+    } else {
+      timeCallouts += `<div class="callout warn">nbf claim is present but isn't a valid NumericDate (${escapeHtml(JSON.stringify(payload.nbf))}).</div>`;
+    }
   }
-  if (payload.iat) {
-    timeCallouts += `<div class="callout ok">iat (issued at): ${formatTs(payload.iat)}</div>`;
+  if (payload.iat !== undefined) {
+    if (isValidNumericDate(payload.iat)) {
+      timeCallouts += `<div class="callout ok">iat (issued at): ${formatTs(payload.iat)}</div>`;
+    } else {
+      timeCallouts += `<div class="callout warn">iat claim is present but isn't a valid NumericDate (${escapeHtml(JSON.stringify(payload.iat))}).</div>`;
+    }
   }
 
   resultDiv.innerHTML = `

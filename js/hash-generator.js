@@ -104,8 +104,15 @@ async function cryptoHash(algo, text) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Fires on every keystroke with no debounce, and each digest is itself
+// async -- without a guard, an older (slower) call's writes could land
+// after a newer call's, showing a hash that no longer matches the input.
+let hashGenToken = 0;
+
 async function generateHashes() {
   const input = document.getElementById('hashInput').value;
+  const token = ++hashGenToken;
+
   if (!input) {
     document.getElementById('sha256Output').value = '';
     document.getElementById('sha512Output').value = '';
@@ -116,14 +123,18 @@ async function generateHashes() {
 
   try {
     const sha256 = await cryptoHash('SHA-256', input);
+    if (token !== hashGenToken) return; // superseded by a newer keystroke
     document.getElementById('sha256Output').value = sha256;
 
     const sha512 = await cryptoHash('SHA-512', input);
+    if (token !== hashGenToken) return;
     document.getElementById('sha512Output').value = sha512;
 
     const sha1 = await cryptoHash('SHA-1', input);
+    if (token !== hashGenToken) return;
     document.getElementById('sha1Output').value = sha1;
 
+    if (token !== hashGenToken) return;
     document.getElementById('md5Output').value = md5(input);
   } catch (e) {
     console.error('Error generating hashes:', e);
