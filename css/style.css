@@ -466,10 +466,11 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   margin: 34px 0 16px;
 }
 .notes h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-.notes p { color: var(--ink-soft); max-width: 68ch; }
+.notes p { color: var(--ink-soft); max-width: 68ch; overflow-wrap: break-word; }
 .notes .comment-line {
   display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start;
 }
+.notes .comment-line p { min-width: 0; }
 .notes .comment-line .bar {
   font-family: var(--mono);
   color: var(--violet);
@@ -477,7 +478,7 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   padding-top: 1px;
 }
 .notes ul { color: var(--ink-soft); padding-left: 20px; max-width: 66ch; }
-.notes li { margin-bottom: 6px; }
+.notes li { margin-bottom: 6px; overflow-wrap: break-word; }
 
 .notes .guide-figure {
   margin: 18px 0 20px;
