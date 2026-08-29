@@ -11,16 +11,16 @@ let autoTimer = null;
 let expandedRowIndices = new Set();
 let _lastDiffContentKey = null;
 
-/* ── merge: pick a side per changed line or per block. The result is built
-   and shown entirely inside the diff view (a read-only "merged result"
-   panel below it) -- it never overwrites either pasted textarea, so you
-   can always re-compare from the original two versions. ── */
-let mergeTarget = 'right'; // default side for any line the user hasn't explicitly picked
-let mergeResolution = new Map(); // rowIndex -> 'left' | 'right', explicit overrides only
+/* ── merge: pick a side per changed line or per block. The right column
+   IS the result -- it shows its own (new/changed) content by default, and
+   picking "left" for a row swaps that row's right-column display to show
+   the left/original content instead. The left column always shows the
+   true original, unaffected, so it stays a stable reference to compare
+   against. Neither pasted textarea is ever modified. ── */
+let mergeResolution = new Map(); // rowIndex -> 'left' | 'right'; unset = default (right)
 let currentRows = [];
 let currentALen = 0;
 let currentBLen = 0;
-let currentBlockIdx = 0; // which change block "Previous/Next change" is on
 
 /* ── state controls ── */
 
@@ -208,6 +208,14 @@ function renderSplit(rows, hideUnchanged) {
       </div>` });
     }
 
+    // The left column always shows the true original line -- it's a fixed
+    // reference. The right column IS the result: by default it shows its
+    // own (new/changed) content, but picking "left" for this row swaps the
+    // right column's display to the left content instead ("restoring" a
+    // removal, "excluding" an addition, or replacing a modified line).
+    const resolved = row.type !== 'same' ? (mergeResolution.get(idx) || 'right') : null;
+    const overridden = resolved === 'left';
+
     let leftContent = '', rightContent = '', leftBg = '', rightBg = '';
     let leftGutter = ln - (row.type === 'added' ? 1 : 0);
     let rightGutter = rn - (row.type === 'removed' ? 1 : 0);
@@ -216,33 +224,38 @@ function renderSplit(rows, hideUnchanged) {
       leftContent = escapeHtml(row.left); rightContent = escapeHtml(row.right);
       leftGutter = ln; rightGutter = rn;
     } else if (row.type === 'modified') {
-      const { left, right } = renderInlineDiff(row.left, row.right);
-      leftContent = left; rightContent = right;
-      leftBg = 'bg-remove'; rightBg = 'bg-add';
       leftGutter = ln; rightGutter = rn;
+      if (overridden) {
+        leftContent = escapeHtml(row.left);
+        rightContent = escapeHtml(row.left);
+        leftBg = 'bg-remove'; rightBg = 'resolved';
+      } else {
+        const { left, right } = renderInlineDiff(row.left, row.right);
+        leftContent = left; rightContent = right;
+        leftBg = 'bg-remove'; rightBg = 'bg-add';
+      }
     } else if (row.type === 'removed') {
       leftContent = escapeHtml(row.left);
-      leftBg = 'bg-remove'; rightBg = 'empty';
+      leftBg = 'bg-remove';
       leftGutter = ln; rightGutter = '';
+      if (overridden) { rightContent = escapeHtml(row.left); rightBg = 'resolved'; }
+      else { rightBg = 'empty'; rightContent = '<span class="omit-label">omit</span>'; }
     } else {
-      rightContent = escapeHtml(row.right);
-      leftBg = 'empty'; rightBg = 'bg-add';
-      leftGutter = ''; rightGutter = rn;
+      leftBg = 'empty'; leftGutter = '';
+      leftContent = '<span class="omit-label">omit</span>';
+      if (overridden) { rightBg = 'empty'; rightGutter = ''; rightContent = '<span class="omit-label">omit</span>'; }
+      else { rightContent = escapeHtml(row.right); rightBg = 'bg-add'; rightGutter = rn; }
     }
 
-    // A changed line can be picked into the merge target -- both sides are
-    // always clickable, even the empty "no content here" side, since
-    // picking that side means "adopt the removal/addition" rather than
-    // "keep the original".
+    // Both sides are always clickable on a changed row: the left cell
+    // always sets 'left' (show this row's original on the right); the
+    // right cell always sets 'right' (go back to the default/new content).
     let leftPickCls = '', rightPickCls = '', leftClick = '', rightClick = '';
     if (row.type !== 'same') {
-      const resolved = mergeResolution.get(idx) || mergeTarget;
-      leftPickCls = ' pickable' + (resolved === 'left' ? ' picked' : '');
-      rightPickCls = ' pickable' + (resolved === 'right' ? ' picked' : '');
+      leftPickCls = ' pickable' + (overridden ? ' picked' : '');
+      rightPickCls = ' pickable';
       leftClick = ` onclick="pickMergeSide(${idx}, 'left')"`;
       rightClick = ` onclick="pickMergeSide(${idx}, 'right')"`;
-      if (leftBg === 'empty') leftContent = '<span class="omit-label">omit</span>';
-      if (rightBg === 'empty') rightContent = '<span class="omit-label">omit</span>';
     }
 
     chunks.push({ type: 'row', html: `<div class="diff-row">
@@ -305,26 +318,38 @@ function renderUnified(rows, hideUnchanged) {
       </div>`);
     }
 
+    // As in split view: the "-" line is always the fixed original. The "+"
+    // line (or the single line, for a pure removal/addition) IS the result
+    // -- picking "left" swaps its content/style to reflect the original
+    // instead of the new version.
+    const resolved = row.type !== 'same' ? (mergeResolution.get(idx) || 'right') : null;
+    const overridden = resolved === 'left';
+
     if (row.type === 'same') {
       lines.push(`<div class="unified-row ur-same"><span class="sign"> </span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
       leftNo++; rightNo++;
     } else if (row.type === 'modified') {
-      const { left, right } = renderInlineDiff(row.left, row.right);
-      const resolved = mergeResolution.get(idx) || mergeTarget;
-      lines.push(`<div class="unified-row ur-remove pickable${resolved === 'left' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'left')"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${left}</span></div>`);
-      lines.push(`<div class="unified-row ur-add pickable${resolved === 'right' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'right')"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${right}</span></div>`);
+      const inline = overridden ? null : renderInlineDiff(row.left, row.right);
+      const removeContent = overridden ? escapeHtml(row.left) : inline.left;
+      const addContent = overridden ? escapeHtml(row.left) : inline.right;
+      lines.push(`<div class="unified-row ur-remove pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'left')"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${removeContent}</span></div>`);
+      lines.push(`<div class="unified-row ${overridden ? 'ur-resolved' : 'ur-add'} pickable" onclick="pickMergeSide(${idx}, 'right')"><span class="sign">${overridden ? '•' : '+'}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${addContent}</span></div>`);
       leftNo++; rightNo++;
     } else if (row.type === 'removed') {
-      // Only one side has a line to click here -- clicking it toggles
-      // between keeping the line (left) and adopting the removal (right).
-      const resolved = mergeResolution.get(idx) || mergeTarget;
-      const toggleTo = resolved === 'left' ? 'right' : 'left';
-      lines.push(`<div class="unified-row ur-remove pickable${resolved === 'left' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${resolved === 'left' ? 'omit' : 'keep'} this line"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
+      // Only one line exists here -- click it to toggle between accepting
+      // the removal (default) and restoring the line into the result.
+      const cls = overridden ? 'ur-resolved' : 'ur-remove';
+      const sign = overridden ? '•' : '−';
+      const toggleTo = overridden ? 'right' : 'left';
+      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${overridden ? 'omit' : 'restore'} this line"><span class="sign">${sign}</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
       leftNo++;
     } else {
-      const resolved = mergeResolution.get(idx) || mergeTarget;
-      const toggleTo = resolved === 'right' ? 'left' : 'right';
-      lines.push(`<div class="unified-row ur-add pickable${resolved === 'right' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${resolved === 'right' ? 'omit' : 'keep'} this line"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
+      // Single added line -- click to toggle between including it
+      // (default) and excluding it from the result.
+      const cls = overridden ? 'ur-excluded' : 'ur-add';
+      const sign = overridden ? '•' : '+';
+      const toggleTo = overridden ? 'right' : 'left';
+      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${overridden ? 'include' : 'exclude'} this line"><span class="sign">${sign}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
       rightNo++;
     }
   }
@@ -354,7 +379,6 @@ function runDiff() {
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
     mergeResolution = new Map();
-    currentBlockIdx = 0;
     _lastDiffContentKey = contentKey;
   }
 
@@ -403,25 +427,9 @@ function renderDiffUI() {
   const removalsCount = rows.filter(r => r.type === 'removed' || r.type === 'modified').length;
   const additionsCount = rows.filter(r => r.type === 'added' || r.type === 'modified').length;
 
-  const blocks = computeBlocks(rows);
-  if (currentBlockIdx >= blocks.length) currentBlockIdx = 0;
-  const navLabel = blocks.length ? `Change ${currentBlockIdx + 1} of ${blocks.length}` : 'No changes';
-
   const mergeBarHtml = `
     <div class="diff-merge-bar">
-      <span class="toolbar-label">Default unpicked lines to</span>
-      <div class="view-toggle">
-        <button id="mergeTargetLeftBtn" class="${mergeTarget === 'left' ? 'active' : ''}" onclick="setMergeTarget('left')">Left</button>
-        <button id="mergeTargetRightBtn" class="${mergeTarget === 'right' ? 'active' : ''}" onclick="setMergeTarget('right')">Right</button>
-      </div>
-      <div class="diff-nav">
-        <span class="toolbar-label" id="diffChangeLabel">${navLabel}</span>
-        <div class="view-toggle">
-          <button onclick="jumpToChange(-1)" ${blocks.length ? '' : 'disabled'}>↑ Prev</button>
-          <button onclick="jumpToChange(1)" ${blocks.length ? '' : 'disabled'}>Next ↓</button>
-        </div>
-      </div>
-      <span class="merge-hint">Click a line or a block button to resolve it — the merged result builds up below, without touching what you pasted above.</span>
+      <span class="merge-hint">Click a line, or a block's "Use left / Use right" buttons, to resolve it — the right side updates in place to show the result. Nothing you pasted above is ever changed.</span>
     </div>`;
 
   const summaryHtml = `
@@ -436,7 +444,7 @@ function renderDiffUI() {
         <span class="dot"></span>
         <strong>${additionsCount}</strong> addition${additionsCount === 1 ? '' : 's'}
         <span class="linecount">&nbsp;·&nbsp;${currentBLen} line${currentBLen === 1 ? '' : 's'}</span>
-        <button class="copy-btn" onclick="copyElementValue('diffChanged', this)">copy</button>
+        <button class="copy-btn" onclick="copyMergedResult(this)" title="Copies the right side as currently resolved">copy result</button>
       </div>
     </div>`;
 
@@ -454,16 +462,7 @@ function renderDiffUI() {
     ? '<div class="callout ok" style="margin-top:12px;">No differences — the two inputs are identical.</div>'
     : '';
 
-  const mergedHtml = `
-    <div class="config-block diff-merged-panel">
-      <div class="tab" style="display:flex;align-items:center;gap:6px;">
-        <span style="flex:1;">merged result</span>
-        <button class="copy-btn" onclick="copyElementValue('diffMergedOutput', this)">copy</button>
-      </div>
-      <div class="output-block"><pre id="diffMergedOutput" style="padding:16px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word;margin:0;">${escapeHtml(computeMergedText())}</pre></div>
-    </div>`;
-
-  resultDiv.innerHTML = mergeBarHtml + summaryHtml + bodyHtml + identicalNote + mergedHtml;
+  resultDiv.innerHTML = mergeBarHtml + summaryHtml + bodyHtml + identicalNote;
 
   const newBody = resultDiv.querySelector('.diff-split-body');
   if (newBody) {
@@ -479,8 +478,8 @@ function renderDiffUI() {
 }
 
 /* ── merge: pick a side for one changed line, or a whole block at once.
-   The result only ever lands in the "merged result" panel built inside
-   renderDiffUI() -- picking never touches the pasted textareas. ── */
+   Picking never touches the pasted textareas -- it only changes what the
+   right column of the diff itself renders for that row. ── */
 
 function pickMergeBlock(start, count, side) {
   for (let i = start; i < start + count; i++) mergeResolution.set(i, side);
@@ -492,16 +491,13 @@ function pickMergeSide(idx, side) {
   renderDiffUI();
 }
 
-function setMergeTarget(side) {
-  mergeTarget = side;
-  renderDiffUI();
-}
-
+// The right column already displays exactly this, row by row -- this just
+// serves as flat text for the "copy result" button.
 function computeMergedText() {
   const parts = [];
   currentRows.forEach((row, idx) => {
     if (row.type === 'same') { parts.push(row.left); return; }
-    const pick = mergeResolution.get(idx) || mergeTarget;
+    const pick = mergeResolution.get(idx) || 'right';
     if (row.type === 'modified') parts.push(pick === 'left' ? row.left : row.right);
     else if (row.type === 'removed') { if (pick === 'left') parts.push(row.left); }
     else if (row.type === 'added') { if (pick === 'right') parts.push(row.right); }
@@ -509,19 +505,8 @@ function computeMergedText() {
   return parts.join('\n');
 }
 
-/* ── jump between change blocks without hand-scrolling ── */
-
-function jumpToChange(delta) {
-  const blocks = computeBlocks(currentRows);
-  if (!blocks.length) return;
-  currentBlockIdx = ((currentBlockIdx + delta) % blocks.length + blocks.length) % blocks.length;
-  const label = document.getElementById('diffChangeLabel');
-  if (label) label.textContent = `Change ${currentBlockIdx + 1} of ${blocks.length}`;
-  const target = document.querySelector(`[data-block-start="${blocks[currentBlockIdx].start}"]`);
-  if (!target) return;
-  target.scrollIntoView({ block: 'center' });
-  target.classList.add('current-change');
-  setTimeout(() => target.classList.remove('current-change'), 1200);
+function copyMergedResult(btn) {
+  copyToClipboard(computeMergedText(), btn);
 }
 
 /* ── expand hidden section (split view) ── */
