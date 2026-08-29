@@ -26,8 +26,11 @@ let currentBLen = 0;
 
 function setView(v) {
   currentView = v;
-  document.getElementById('btnSplit').classList.toggle('active', v === 'split');
-  document.getElementById('btnUnified').classList.toggle('active', v === 'unified');
+  const split = document.getElementById('btnSplit'), unified = document.getElementById('btnUnified');
+  split.classList.toggle('active', v === 'split');
+  split.setAttribute('aria-pressed', v === 'split');
+  unified.classList.toggle('active', v === 'unified');
+  unified.setAttribute('aria-pressed', v === 'unified');
   // Re-render from the frozen currentRows rather than re-diffing -- view mode
   // never changes the diff itself, and re-diffing here would re-read the
   // textareas, which a merge-in-progress may have already written into.
@@ -36,8 +39,11 @@ function setView(v) {
 
 function setPrecision(p) {
   currentPrecision = p;
-  document.getElementById('btnWord').classList.toggle('active', p === 'word');
-  document.getElementById('btnChar').classList.toggle('active', p === 'char');
+  const word = document.getElementById('btnWord'), char = document.getElementById('btnChar');
+  word.classList.toggle('active', p === 'word');
+  word.setAttribute('aria-pressed', p === 'word');
+  char.classList.toggle('active', p === 'char');
+  char.setAttribute('aria-pressed', p === 'char');
   if (currentRows.length) renderDiffUI();
 }
 

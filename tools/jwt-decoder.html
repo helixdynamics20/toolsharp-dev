@@ -76,7 +76,7 @@
       <div class="tab">signature verification</div>
       <div class="body">
         <div class="field">
-          <label><span class="key">Algorithm</span></label>
+          <label for="jwtAlgSelect"><span class="key">Algorithm</span></label>
           <select id="jwtAlgSelect" onchange="onAlgChange(); decodeJwt();">
             <option value="HS256">HS256 — HMAC-SHA256 (shared secret)</option>
             <option value="RS256">RS256 — RSA-SHA256 (public key)</option>
@@ -84,11 +84,11 @@
           </select>
         </div>
         <div class="field" id="jwtSecretRow">
-          <label><span class="key">Secret (HS256)</span></label>
+          <label for="jwtSecret"><span class="key">Secret (HS256)</span></label>
           <input type="text" id="jwtSecret" placeholder="Paste shared secret…" oninput="decodeJwt()">
         </div>
         <div class="field" id="jwtPemRow" style="display:none;">
-          <label><span class="key">Public Key (PEM)</span></label>
+          <label for="jwtPem"><span class="key">Public Key (PEM)</span></label>
           <textarea id="jwtPem" rows="5" placeholder="-----BEGIN PUBLIC KEY-----&#10;…&#10;-----END PUBLIC KEY-----" oninput="decodeJwt()" spellcheck="false" style="font-family:var(--mono);font-size:12px;"></textarea>
         </div>
         <div id="verifyResult" class="callout" style="margin-top:12px;display:none;"></div>

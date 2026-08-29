@@ -33,6 +33,11 @@ async function generateQr() {
     canvas.style.display = 'block';
     empty.style.display = 'none';
     actions.style.display = '';
+    // Canvas pixels are invisible to screen readers -- describe what was
+    // actually encoded instead of a generic "image" announcement.
+    canvas.setAttribute('aria-label', text.length > 80
+      ? `Generated QR code encoding: ${text.slice(0, 80)}…`
+      : `Generated QR code encoding: ${text}`);
   } catch (e) {
     if (token !== qrGenToken) return;
     canvas.style.display = 'none';

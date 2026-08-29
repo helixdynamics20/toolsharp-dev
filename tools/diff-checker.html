@@ -287,14 +287,14 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
   <div class="diff-toolbar">
     <span class="toolbar-label">View</span>
     <div class="view-toggle">
-      <button id="btnSplit" class="active" onclick="setView('split')">Split</button>
-      <button id="btnUnified" onclick="setView('unified')">Unified</button>
+      <button id="btnSplit" class="active" aria-pressed="true" onclick="setView('split')">Split</button>
+      <button id="btnUnified" aria-pressed="false" onclick="setView('unified')">Unified</button>
     </div>
     <div class="sep"></div>
     <span class="toolbar-label">Precision</span>
     <div class="precision-toggle">
-      <button id="btnWord" class="active" onclick="setPrecision('word')">Word</button>
-      <button id="btnChar" onclick="setPrecision('char')">Char</button>
+      <button id="btnWord" class="active" aria-pressed="true" onclick="setPrecision('word')">Word</button>
+      <button id="btnChar" aria-pressed="false" onclick="setPrecision('char')">Char</button>
     </div>
     <div class="sep"></div>
     <label><input type="checkbox" id="chkHideUnchanged"> Hide unchanged lines</label>

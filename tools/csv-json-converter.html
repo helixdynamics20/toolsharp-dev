@@ -83,7 +83,7 @@
           <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="scheduleConvertCsvToJson()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
-          <label><span class="key">Delimiter</span></label>
+          <label for="csvDelimiter"><span class="key">Delimiter</span></label>
           <select id="csvDelimiter" onchange="convertCsvToJson()">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
@@ -120,7 +120,7 @@
           <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="scheduleConvertJsonToCsv()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
-          <label><span class="key">Delimiter</span></label>
+          <label for="jsonToCsvDelimiter"><span class="key">Delimiter</span></label>
           <select id="jsonToCsvDelimiter" onchange="convertJsonToCsv()">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
