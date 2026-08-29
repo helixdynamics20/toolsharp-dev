@@ -616,7 +616,8 @@ body.dark-theme .site-header {
   flex-shrink: 0;
   white-space: nowrap;
 }
-#toolFilter {
+#toolFilter,
+#guideFilter {
   background: transparent;
   border: none !important;
   color: var(--ink);
@@ -627,7 +628,8 @@ body.dark-theme .site-header {
   padding: 0 !important;
   margin: 0 !important;
 }
-#toolFilter::placeholder {
+#toolFilter::placeholder,
+#guideFilter::placeholder {
   color: var(--ink-soft);
   opacity: 0.8; /* was 0.55 (~2.8:1 vs bg-raised, fails WCAG AA); 0.8 clears 4.5:1 in both themes */
 }
