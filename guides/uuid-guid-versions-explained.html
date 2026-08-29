@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UUID/GUID Versions Explained — v1 Through v7, and the .NET Byte-Order Trap — ToolSharp.dev</title>
-<meta name="description" content="What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database performance problem, and a .NET byte-order quirk that breaks interop.">
+<meta name="description" content="What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database performance problem, and the .NET byte-order quirk that breaks interop with other systems.">
 <link rel="canonical" href="https://toolsharp.dev/guides/uuid-guid-versions-explained">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -15,14 +15,14 @@
 <meta property="og:url" content="https://toolsharp.dev/guides/uuid-guid-versions-explained">
 <meta property="og:title" content="UUID/GUID Versions Explained — v1 Through v7, and the .NET Byte-Order Trap">
 <meta property="og:description" content="What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database performance problem, and the .NET byte-order quirk that breaks interop with other systems.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-uuid-guid-versions-explained.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/uuid-guid-versions-explained">
 <meta name="twitter:title" content="UUID/GUID Versions Explained — v1 Through v7, and the .NET Byte-Order Trap">
 <meta name="twitter:description" content="What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database performance problem, and the .NET byte-order quirk that breaks interop with other systems.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-uuid-guid-versions-explained.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,7 +93,7 @@
 
   <section class="notes">
     <h2>// why v7 exists: random UUIDs quietly wreck index performance</h2>
-    <div class="comment-line"><span class="bar">│</span><p>A v4 UUID as a primary key lands at a random position in a B-tree index every single insert. On a small table that's invisible. At millions of rows, every insert forces a random page read, and pages that fill up have to split — over time the index fills with half-empty pages, fragments badly, and range scans degrade into random I/O instead of sequential reads.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>A v4 UUID as a primary key lands at a random position in a B-tree index every single insert. On a small table that's invisible. At millions of rows, every insert forces a random page read, and pages that fill up have to split — over time the index fills with half-empty pages, fragments badly, and range scans degrade into random I/O instead of sequential reads. v7 fixes this by putting a 48-bit Unix millisecond timestamp — see <a href="unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a> for what that actually counts from — directly in the UUID's first 6 bytes, so values generated later always sort after values generated earlier and inserts land at the end of the index instead of scattering across it.</p></div>
     <div class="config-block">
       <div class="tab">measured impact (published benchmarks)</div>
       <div class="result-list">

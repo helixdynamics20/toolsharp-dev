@@ -14,15 +14,15 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toolsharp.dev/guides">
 <meta property="og:title" content="Guides — ToolSharp.dev">
-<meta property="og:description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, and more.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, regex, and more — read once, bookmarked.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-index.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides">
 <meta name="twitter:title" content="Guides — ToolSharp.dev">
-<meta name="twitter:description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, and more.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, regex, and more — read once, bookmarked.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-index.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"CollectionPage","name":"ToolSharp.dev Guides","url":"https://toolsharp.dev/guides","description":"Reference guides for the syntax and formats developers look up most."}
+{"@context":"https://schema.org","@type":"CollectionPage","name":"ToolSharp.dev Guides","url":"https://toolsharp.dev/guides","description":"Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, regex, and more — read once, bookmarked."}
 </script>
 </head>
 <body>
@@ -54,6 +54,11 @@
     <p class="sub">The syntax and formats you look up every few months, explained once and written down — cron fields, JWT structure, connection string variants. Each guide links to the matching tool so you can go straight from reading to building.</p>
   </div>
 
+  <div class="search-container">
+    <span class="search-prompt">[filter] &gt;</span>
+    <input type="text" id="guideFilter" placeholder="type to filter guides..." autocomplete="off" oninput="filterGuides()">
+  </div>
+
   <section class="dir-listing">
     <div class="dir-row-head">
       <div>path</div>
@@ -69,13 +74,13 @@
 
     <div class="dir-row" onclick="location.href='/guides/what-is-a-jwt'">
       <a class="path-link" href="/guides/what-is-a-jwt">/what-is-a-jwt</a>
-      <div class="desc">What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted</div>
+      <div class="desc">What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why it can't be revoked before it expires</div>
       <div class="status">● ready</div>
     </div>
 
     <div class="dir-row" onclick="location.href='/guides/sql-server-connection-string-examples'">
       <a class="path-link" href="/guides/sql-server-connection-string-examples">/sql-server-connection-string-examples</a>
-      <div class="desc">SQL auth, Windows auth, and every Azure AD variant — real connection string examples plus the Azure SQL requirements that trip people up</div>
+      <div class="desc">SQL auth, Windows auth, Azure AD, pooling, MARS, Connect vs Command timeout, and where the connection string lives in appsettings.json vs environment variables</div>
       <div class="status">● ready</div>
     </div>
 
@@ -112,5 +117,15 @@
   </div>
 </footer>
 
+<script>
+  function filterGuides() {
+    const q = document.getElementById('guideFilter').value.toLowerCase();
+    document.querySelectorAll('.dir-listing .dir-row').forEach(row => {
+      const path = row.querySelector('.path-link').textContent.toLowerCase();
+      const desc = row.querySelector('.desc').textContent.toLowerCase();
+      row.style.display = (!q || path.includes(q) || desc.includes(q)) ? 'grid' : 'none';
+    });
+  }
+</script>
 </body>
 </html>

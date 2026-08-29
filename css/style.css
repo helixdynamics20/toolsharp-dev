@@ -466,10 +466,11 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   margin: 34px 0 16px;
 }
 .notes h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-.notes p { color: var(--ink-soft); max-width: 68ch; }
+.notes p { color: var(--ink-soft); max-width: 68ch; overflow-wrap: break-word; }
 .notes .comment-line {
   display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start;
 }
+.notes .comment-line p { min-width: 0; }
 .notes .comment-line .bar {
   font-family: var(--mono);
   color: var(--violet);
@@ -477,7 +478,7 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   padding-top: 1px;
 }
 .notes ul { color: var(--ink-soft); padding-left: 20px; max-width: 66ch; }
-.notes li { margin-bottom: 6px; }
+.notes li { margin-bottom: 6px; overflow-wrap: break-word; }
 
 .notes .guide-figure {
   margin: 18px 0 20px;
@@ -616,7 +617,8 @@ body.dark-theme .site-header {
   flex-shrink: 0;
   white-space: nowrap;
 }
-#toolFilter {
+#toolFilter,
+#guideFilter {
   background: transparent;
   border: none !important;
   color: var(--ink);
@@ -627,7 +629,8 @@ body.dark-theme .site-header {
   padding: 0 !important;
   margin: 0 !important;
 }
-#toolFilter::placeholder {
+#toolFilter::placeholder,
+#guideFilter::placeholder {
   color: var(--ink-soft);
   opacity: 0.8; /* was 0.55 (~2.8:1 vs bg-raised, fails WCAG AA); 0.8 clears 4.5:1 in both themes */
 }

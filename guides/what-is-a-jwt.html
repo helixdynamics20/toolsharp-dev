@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>What Is a JWT? A Plain-English Guide to JSON Web Tokens — ToolSharp.dev</title>
-<meta name="description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
+<meta name="description" content="What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.">
 <link rel="canonical" href="https://toolsharp.dev/guides/what-is-a-jwt">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -14,15 +14,15 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta property="og:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
-<meta property="og:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:description" content="What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-what-is-a-jwt.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta name="twitter:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
-<meta name="twitter:description" content="What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:description" content="What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-what-is-a-jwt.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TechArticle","headline":"What Is a JWT? A Plain-English Guide to JSON Web Tokens","url":"https://toolsharp.dev/guides/what-is-a-jwt","description":"What a JWT actually is, how header.payload.signature is built, the claims worth knowing, and why a JWT is encoded but never encrypted.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+{"@context":"https://schema.org","@type":"TechArticle","headline":"What Is a JWT? A Plain-English Guide to JSON Web Tokens","url":"https://toolsharp.dev/guides/what-is-a-jwt","description":"What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
 </script>
 </head>
 <body>
@@ -74,6 +74,32 @@
   </section>
 
   <section class="notes">
+    <h2>// how the signature is actually computed</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The signature isn't computed over the decoded JSON — it's computed over the two encoded segments exactly as they appear in the token, joined by a dot: <code>base64url(header) + "." + base64url(payload)</code>. That concatenated string is fed into the algorithm named in the header, along with either a shared secret (HS256) or a private key (RS256/ES256), and the output is base64url-encoded and appended as the third segment. Verifying is the same computation run again on the received header and payload — if the freshly computed signature doesn't byte-for-byte match the one on the token, verification fails.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 420 175" role="img" aria-label="Diagram showing base64url-encoded header and payload concatenated with a dot, fed into a signing algorithm with a secret or private key, producing the signature segment.">
+        <defs>
+          <marker id="jwt-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--violet-dark)"/></marker>
+        </defs>
+        <rect x="15" y="18" width="110" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="70" y="37" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">base64url(header)</text>
+        <text x="132" y="37" font-family="var(--sans)" font-size="13" fill="var(--ink-faint)" text-anchor="middle">.</text>
+        <rect x="140" y="18" width="110" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="195" y="37" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">base64url(payload)</text>
+        <line x1="132" y1="52" x2="132" y2="80" stroke="var(--violet-dark)" stroke-width="1.5" marker-end="url(#jwt-arrow)"/>
+        <rect x="35" y="85" width="285" height="34" rx="4" fill="var(--violet-wash)" stroke="var(--violet-dark)"/>
+        <text x="177" y="106" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--violet-dark)" text-anchor="middle">HMAC-SHA256(secret) or RSA/ECDSA-sign(private key)</text>
+        <line x1="132" y1="119" x2="132" y2="140" stroke="var(--violet-dark)" stroke-width="1.5" marker-end="url(#jwt-arrow)"/>
+        <rect x="65" y="145" width="135" height="28" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="132" y="163" font-family="var(--mono)" font-size="10" fill="var(--green)" text-anchor="middle">base64url(signature)</text>
+        <text x="230" y="163" font-family="var(--sans)" font-size="10.5" fill="var(--ink-faint)">← appended as the third segment</text>
+      </svg>
+      <figcaption>The signature covers the encoded header and payload joined by a dot — not the decoded JSON. Verification recomputes this same operation and compares the result byte-for-byte to the signature on the token.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
     <h2>// claims worth knowing</h2>
     <div class="config-block">
       <div class="tab">registered claims</div>
@@ -91,7 +117,54 @@
 
   <section class="notes">
     <h2>// symmetric vs asymmetric signing</h2>
-    <div class="comment-line"><span class="bar">│</span><p><strong>HS256</strong> uses one shared secret to both sign and verify — simple, but every service that needs to verify a token also needs the secret that can forge one. <strong>RS256</strong> and <strong>ES256</strong> use a private/public key pair: only the issuer holds the private key that signs tokens, while any number of services can hold the public key and verify without ever being able to mint a valid token themselves. For anything beyond a single trusted backend, asymmetric signing is almost always the right default.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p><strong>HS256</strong> uses one shared secret to both sign and verify — simple, but every service that needs to verify a token also needs the secret that can forge one. <strong>RS256</strong> and <strong>ES256</strong> use a private/public key pair: only the issuer holds the private key that signs tokens, while any number of services can hold the public key and verify without ever being able to mint a valid token themselves. For anything beyond a single trusted backend, asymmetric signing is almost always the right default. HS256 specifically is HMAC-SHA256 under the hood — see <a href="hashing-algorithms-explained">Hashing Algorithms Explained</a> for what HMAC actually does differently from a plain hash.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// the algorithm-confusion attack</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The header's <code>alg</code> field is part of the token an attacker fully controls before signing — which means a verifier that blindly trusts it can be tricked into checking a signature the wrong way. The classic case: a service issues RS256 tokens and publishes its RSA public key (public keys are meant to be shared). If the verification code reads <code>alg</code> from the token and uses whatever algorithm it says, an attacker can craft a token with <code>"alg":"HS256"</code> and sign it using the public key as an HMAC secret. A verifier that obeys the header runs HMAC-SHA256 with that same public key, gets a match, and accepts a token it never issued.</p></div>
+    <div class="callout error">A related, older bug: some early JWT libraries accepted <code>"alg":"none"</code> and skipped signature verification entirely, treating an unsigned token as valid. Both issues have the same fix — <strong>never let the token's own header choose how it gets verified.</strong> Pin the expected algorithm (and reject <code>none</code>) in the verification call itself; every actively maintained JWT library supports this, and most enable it by default today.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// where should a JWT actually live in the browser</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Since a JWT is bearer proof of identity — anyone holding it can use it — where it sits between requests matters as much as how it's signed.</p></div>
+    <div class="config-block">
+      <div class="tab">the two common choices</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">localStorage / sessionStorage</span><span class="v">readable by any JS on the page — a single XSS bug anywhere in the app can exfiltrate every stored token</span></div>
+        <div class="result-item"><span class="k">httpOnly cookie</span><span class="v">invisible to JS, so XSS can't read it directly — but sent automatically by the browser, which reopens the door to CSRF unless paired with SameSite and a CSRF token</span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">There's no option that's simply "safe" — an httpOnly cookie trades an XSS-theft risk for a CSRF risk that needs its own mitigation (<code>SameSite=Strict</code> or <code>Lax</code>, plus a double-submit or synchronizer token for state-changing requests). Whichever is chosen, keep the token's lifetime short — the storage decision only limits <em>how</em> a stolen token gets used, not whether the underlying app vulnerability exists.</p>
+  </section>
+
+  <section class="notes">
+    <h2>// JWT vs session cookies</h2>
+    <div class="config-block">
+      <div class="tab">stateless vs stateful</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">state</span><span class="v">JWT: none held server-side, the token itself carries the claims · session cookie: server stores the session, the cookie holds only an opaque ID</span></div>
+        <div class="result-item"><span class="k">revocation</span><span class="v">JWT: can't be invalidated before <code>exp</code> without extra infrastructure · session: delete the server-side record, effective immediately</span></div>
+        <div class="result-item"><span class="k">scaling</span><span class="v">JWT: any server that holds the verification key can validate independently · session: needs a shared store (Redis, DB) across instances, or sticky sessions</span></div>
+        <div class="result-item"><span class="k">size</span><span class="v">JWT: sent on every request, typically several hundred bytes to a few KB · session: cookie is tiny, just an ID</span></div>
+        <div class="result-item"><span class="k">best fit</span><span class="v">JWT: cross-service auth, mobile/SPA clients talking to independently-scaled APIs · session: a single monolith or anywhere easy server-side revocation matters more than statelessness</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// can a JWT be revoked before it expires?</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Not natively — that statelessness is the whole point of a JWT, and it's also its biggest operational drawback. A stolen or leaked token stays valid until <code>exp</code> no matter what the issuer does afterward, unless one of these patterns is added on top:</p></div>
+    <div class="config-block">
+      <div class="tab">common workarounds</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">short expiry + refresh tokens</span><span class="v">keep the JWT itself short-lived (minutes), issue a separate longer-lived refresh token the server <em>can</em> revoke, used to mint new JWTs</span></div>
+        <div class="result-item"><span class="k">a denylist</span><span class="v">store revoked token IDs (<code>jti</code>) somewhere fast (Redis) and check it on every request — reintroduces server state, defeating part of the point</span></div>
+        <div class="result-item"><span class="k">a version claim</span><span class="v">stamp a <code>tokenVersion</code> claim from the user record; bump the stored version to invalidate every JWT issued before that point in one write</span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">There's no way around it: full statelessness and instant revocation are in direct tension, and every real system picks a point on that trade-off rather than getting both for free.</p>
   </section>
 
   <section class="notes">
