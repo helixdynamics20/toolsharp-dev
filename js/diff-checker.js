@@ -281,7 +281,7 @@ function runDiff() {
     return;
   }
 
-  const contentKey = origRaw + ' ' + changedRaw;
+  const contentKey = origRaw.length + ':' + origRaw + changedRaw.length + ':' + changedRaw + (ignoreWs ? ':ws' : '');
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
     _lastDiffContentKey = contentKey;

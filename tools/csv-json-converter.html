@@ -80,7 +80,7 @@
       <div class="tab">input.csv</div>
       <div class="body">
         <div class="field">
-          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="convertCsvToJson()"></textarea>
+          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="scheduleConvertCsvToJson()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label><span class="key">Delimiter</span></label>
@@ -115,7 +115,7 @@
       <div class="tab">input.json</div>
       <div class="body">
         <div class="field">
-          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="convertJsonToCsv()"></textarea>
+          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="scheduleConvertJsonToCsv()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label><span class="key">Delimiter</span></label>

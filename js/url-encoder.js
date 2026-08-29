@@ -80,9 +80,12 @@ function parseUrlLive() {
   const out = document.getElementById('parseResult');
   if (!raw) { out.innerHTML = ''; return; }
 
+  // A leading "scheme:" (mailto:, tel:, etc.) means the input already names
+  // its own protocol, even without "//" — don't force it under https://.
+  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(raw);
   let parsed;
   try {
-    parsed = new URL(raw.includes('://') || raw.startsWith('//') ? raw : 'https://' + raw);
+    parsed = new URL(hasScheme || raw.startsWith('//') ? raw : 'https://' + raw);
   } catch {
     out.innerHTML = '';
     return;

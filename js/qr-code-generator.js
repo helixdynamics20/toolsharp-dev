@@ -61,13 +61,21 @@ async function downloadSvg() {
   const level = document.getElementById('qrLevel').value;
   const dark = document.getElementById('qrDark').value || '#000000';
   const light = document.getElementById('qrLight').value || '#ffffff';
+  const errEl = document.getElementById('qrError');
 
-  const svg = await window.QRCode.toString(text, {
-    type: 'svg',
-    errorCorrectionLevel: level,
-    margin: 2,
-    color: { dark: dark, light: light }
-  });
+  let svg;
+  try {
+    svg = await window.QRCode.toString(text, {
+      type: 'svg',
+      errorCorrectionLevel: level,
+      margin: 2,
+      color: { dark: dark, light: light }
+    });
+  } catch (e) {
+    errEl.textContent = 'Could not generate the SVG: ' + e.message + '. Try a shorter input or a lower error-correction level.';
+    errEl.style.display = '';
+    return;
+  }
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

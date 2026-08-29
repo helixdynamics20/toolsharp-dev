@@ -71,6 +71,16 @@ const PREVIEW_STYLE = `
 
 const EMPTY_MESSAGE = '<p style="color:#8b949e; font-style: italic;">Nothing to preview yet — type some markdown on the left.</p>';
 
+let _mdInputTimer = null;
+
+// Each keystroke re-parses the whole document and rewrites the iframe's
+// srcdoc in full (forcing a full re-navigation of the sandboxed preview) --
+// debounce plain typing so a long document doesn't re-render every character.
+function scheduleRenderMarkdown() {
+  clearTimeout(_mdInputTimer);
+  _mdInputTimer = setTimeout(renderMarkdown, 200);
+}
+
 function renderMarkdown() {
   const input = document.getElementById('mdInput');
   const frame = document.getElementById('mdPreviewFrame');
