@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1200px; height: 630px;
+    background: #130f22;
+    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+    overflow: hidden;
+  }
+  .card { padding: 56px 64px; height: 100%; display: flex; flex-direction: column; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .dots { display: inline-flex; gap: 7px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; }
+  .dot:nth-child(1) { background: #E5A0A0; }
+  .dot:nth-child(2) { background: #E8C98A; }
+  .dot:nth-child(3) { background: #A6D2B4; }
+  .logo-text { font-size: 25px; font-weight: 600; color: #e2dfec; }
+  .logo-text .accent { color: #8c73ec; }
+  .logo-text .dim { color: #6c6488; }
+  .rule { height: 1px; background: rgba(255,255,255,0.1); margin: 26px 0 0; }
+  .category { font-size: 17px; color: #8c73ec; margin-top: 26px; font-weight: 600; }
+  .title { font-size: 54px; font-weight: 700; color: #f4f2fa; margin-top: 18px; line-height: 1.12; letter-spacing: -0.5px; }
+  .desc { font-size: 22px; color: #a8a2bc; margin-top: 22px; line-height: 1.5; max-width: 1010px; }
+  .spacer { flex: 1; }
+  .badges { display: flex; gap: 12px; flex-wrap: wrap; }
+  .badge { font-size: 16px; color: #a8a2bc; border: 1px solid #423b65; border-radius: 20px; padding: 8px 18px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+      <span class="logo-text">tool<span class="accent">sharp</span><span class="dim">.dev</span></span>
+    </div>
+    <div class="category" id="og-category">// guides/</div>
+    <div class="rule"></div>
+    <div class="title" id="og-title">Guide Title</div>
+    <div class="desc" id="og-desc">Description goes here.</div>
+    <div class="spacer"></div>
+    <div class="badges" id="og-badges"></div>
+  </div>
+</body>
+</html>
