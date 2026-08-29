@@ -42,7 +42,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -75,6 +75,23 @@
 
   <div id="guidResult"></div>
 
+  <div class="tool-grid single" style="margin-top:20px;">
+    <div class="config-block">
+      <div class="tab">bulk generate</div>
+      <div class="body">
+        <div class="field" style="max-width:160px;">
+          <label><span class="key">Count</span> (1-100)</label>
+          <input type="number" id="guidBulkCount" min="1" max="100" value="10">
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="generateBulkGuids()">Generate</button>
+          <button class="btn secondary" onclick="copyElementValue('guidBulkOutput', this)">Copy all</button>
+        </div>
+        <textarea id="guidBulkOutput" rows="8" readonly style="margin-top:14px; font-family: var(--mono);" placeholder="Generated GUIDs will appear here, one per line."></textarea>
+      </div>
+    </div>
+  </div>
+
   <section class="notes">
     <h2>// the five formats</h2>
     <ul>
@@ -87,6 +104,9 @@
 
     <h2>// where this actually bites</h2>
     <div class="comment-line"><span class="bar">│</span><p>SQL Server's <code>uniqueidentifier</code> type is happy with the D format (with or without braces) but will reject the N format outright since it expects the hyphens. Going the other way, some third-party APIs expect N format specifically and will fail silently or reject a request if you send hyphens. This mismatch is a common source of "works locally, breaks against this one API" bugs — worth checking the exact format a downstream system expects rather than assuming <code>.ToString()</code>'s default is universal.</p></div>
+
+    <h2>// learn more</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For what the different UUID/GUID versions actually encode and when to use each, see <a href="../guides/uuid-guid-versions-explained">UUID/GUID Versions Explained</a>.</p></div>
   </section>
 </main>
 

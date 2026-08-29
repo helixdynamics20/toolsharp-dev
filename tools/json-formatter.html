@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JSON Formatter &amp; Validator — ToolSharp.dev</title>
-<meta name="description" content="Validate, format, and minify JSON in your browser. Get exact line and column numbers on syntax errors, and a flag for duplicate keys that valid JSON silently allows.">
+<meta name="description" content="Validate, format, and minify JSON in your browser. Get exact line/column numbers on syntax errors, plus a flag for duplicate keys valid JSON silently allows.">
 <link rel="canonical" href="https://toolsharp.dev/tools/json-formatter">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -50,9 +50,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links">
-      <a href="../">← all tools</a>
-      <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
     </nav>
   </div>
 </header>
@@ -75,7 +73,7 @@
       <div class="tab">input.json</div>
       <div class="body">
         <div class="field">
-          <textarea id="jsonInput" rows="16" placeholder='{&#10;  "name": "example",&#10;  "values": [1, 2, 3],&#10;  "nested": { "active": true }&#10;}' oninput="onJsonInput()"></textarea>
+          <textarea id="jsonInput" rows="16" placeholder='{&#10;  "name": "example",&#10;  "values": [1, 2, 3],&#10;  "nested": { "active": true }&#10;}' oninput="scheduleJsonInput()"></textarea>
         </div>
         <div class="field">
           <label><span class="key">Indent</span></label>

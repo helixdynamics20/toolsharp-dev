@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diff Checker — Compare Text Online | ToolSharp.dev</title>
-<meta name="description" content="Free online diff checker. Compare two texts, configs, or code files side-by-side or in unified view with word and character-level highlighting. Runs entirely in your browser — nothing is uploaded.">
+<meta name="description" content="Free online diff checker. Compare two texts, configs, or code files side-by-side or unified, with word and character-level highlighting. Runs entirely in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/diff-checker">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -51,13 +51,13 @@
 .diff-toolbar .sep { width: 1px; height: 18px; background: var(--rule); flex-shrink: 0; }
 .view-toggle { display: flex; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
 .view-toggle button {
-  background: none; border: none; padding: 4px 10px;
+  background: none; border: none; padding: 10px 14px; min-height: 40px;
   font-family: var(--mono); font-size: 12px; color: var(--ink-soft); cursor: pointer;
 }
 .view-toggle button.active { background: var(--violet-wash); color: var(--violet-dark); font-weight: 600; }
 .precision-toggle { display: flex; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
 .precision-toggle button {
-  background: none; border: none; padding: 4px 10px;
+  background: none; border: none; padding: 10px 14px; min-height: 40px;
   font-family: var(--mono); font-size: 12px; color: var(--ink-soft); cursor: pointer;
 }
 .precision-toggle button.active { background: var(--violet-wash); color: var(--violet-dark); font-weight: 600; }
@@ -221,7 +221,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 

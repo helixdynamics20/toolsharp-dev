@@ -503,6 +503,17 @@ function validateOnly(text) {
 }
 
 let _pendingPasteFormat = false;
+let _jsonInputTimer = null;
+
+// While the text is invalid, onJsonInput() reruns the hand-rolled repair
+// parser from scratch — debounce plain typing so a long broken paste being
+// edited doesn't reparse on every keystroke. A paste itself still formats
+// immediately, since _pendingPasteFormat means a complete value just landed.
+function scheduleJsonInput() {
+  if (_pendingPasteFormat) { onJsonInput(); return; }
+  clearTimeout(_jsonInputTimer);
+  _jsonInputTimer = setTimeout(onJsonInput, 200);
+}
 
 function onJsonInput() {
   const text = document.getElementById('jsonInput').value;

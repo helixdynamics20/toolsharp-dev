@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSV to JSON Converter (and back) | ToolSharp.dev</title>
-<meta name="description" content="Convert CSV to JSON or JSON to CSV in your browser. A proper RFC 4180 parser handles quoted fields, embedded commas and newlines, escaped quotes, and comma/semicolon/tab delimiters — not a naive split(',').">
+<meta name="description" content="Convert CSV to JSON or JSON to CSV in your browser. An RFC 4180 parser handles quoted fields, embedded commas/newlines, and comma/semicolon/tab delimiters.">
 <link rel="canonical" href="https://toolsharp.dev/tools/csv-json-converter">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -56,7 +56,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -80,7 +80,7 @@
       <div class="tab">input.csv</div>
       <div class="body">
         <div class="field">
-          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="convertCsvToJson()"></textarea>
+          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="scheduleConvertCsvToJson()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label><span class="key">Delimiter</span></label>
@@ -93,7 +93,9 @@
         <div class="btn-row">
           <button class="btn" onclick="convertCsvToJson()">Convert to JSON</button>
           <button class="btn secondary" onclick="tryCsvExample()">Try example</button>
+          <button class="btn secondary" onclick="document.getElementById('csvFileInput').click()">Load file…</button>
           <button class="btn secondary" onclick="clearCsvInput()">Clear</button>
+          <input type="file" id="csvFileInput" accept=".csv,.tsv,text/csv,text/tab-separated-values,text/plain" style="display:none;" onchange="loadCsvFile(this)">
         </div>
       </div>
     </div>
@@ -115,7 +117,7 @@
       <div class="tab">input.json</div>
       <div class="body">
         <div class="field">
-          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="convertJsonToCsv()"></textarea>
+          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="scheduleConvertJsonToCsv()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label><span class="key">Delimiter</span></label>
@@ -128,7 +130,9 @@
         <div class="btn-row">
           <button class="btn" onclick="convertJsonToCsv()">Convert to CSV</button>
           <button class="btn secondary" onclick="tryJsonExample()">Try example</button>
+          <button class="btn secondary" onclick="document.getElementById('jsonFileInput').click()">Load file…</button>
           <button class="btn secondary" onclick="clearJsonInput()">Clear</button>
+          <input type="file" id="jsonFileInput" accept=".json,application/json,text/plain" style="display:none;" onchange="loadJsonFile(this)">
         </div>
       </div>
     </div>

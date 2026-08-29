@@ -100,6 +100,8 @@ function escapeHtml(str) {
 }
 
 window.addEventListener('load', function() {
+  persistFormState('base64-converter', ['b64UrlSafe']);
+
   const dropZone = document.getElementById('dropZone');
   if (!dropZone) return;
 

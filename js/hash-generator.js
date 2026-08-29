@@ -1,8 +1,10 @@
-// MD5 implementation in JavaScript (since Web Crypto doesn't support MD5)
-function md5(string) {
-  function k(n) { return Math.sin(n) * 0x100000000 | 0; }
-  var b = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-      s = [
+// MD5 implementation in JavaScript (since Web Crypto doesn't support MD5).
+// md5Core operates on raw bytes and returns the raw 16-byte digest, so the
+// same core can be reused for hashing text, hashing a file's bytes, and the
+// hand-rolled HMAC-MD5 construction below (all three just feed it different
+// byte arrays).
+function md5Core(bytes) {
+  var s = [
         7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
         5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
         4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
@@ -23,12 +25,10 @@ function md5(string) {
       h2 = 0x98badcfe,
       h3 = 0x10325476;
 
-  // UTF-8 encode the string first
-  var safeStr = unescape(encodeURIComponent(string));
-  var n = safeStr.length,
+  var n = bytes.length,
       words = [];
   for (var i = 0; i < n; i++) {
-    words[i >> 2] |= safeStr.charCodeAt(i) << ((i % 4) * 8);
+    words[i >> 2] |= bytes[i] << ((i % 4) * 8);
   }
   words[n >> 2] |= 0x80 << ((n % 4) * 8);
   var wordCount = ((n + 8) >> 6) * 16 + 14;
@@ -66,29 +66,54 @@ function md5(string) {
   }
 
   function rotateLeft(l, r) { return (l << r) | (l >>> (32 - r)); }
-  function hex(num) {
-    var str = "", temp;
-    for (var i = 0; i < 4; i++) {
-      temp = (num >> (i * 8)) & 255;
-      str += (temp < 16 ? "0" : "") + temp.toString(16);
-    }
-    return str;
-  }
-  return hex(h0) + hex(h1) + hex(h2) + hex(h3);
+
+  var out = new Uint8Array(16);
+  [h0, h1, h2, h3].forEach(function (h, idx) {
+    for (var k = 0; k < 4; k++) out[idx * 4 + k] = (h >> (k * 8)) & 255;
+  });
+  return out;
 }
 
-// Convert ArrayBuffer to Hex String
-function bufferToHex(buffer) {
-  var hexCodes = [];
-  var view = new DataView(buffer);
-  for (var i = 0; i < view.byteLength; i += 4) {
-    var value = view.getUint32(i);
-    var stringValue = value.toString(16);
-    var padding = '00000000';
-    var paddedValue = (padding + stringValue).slice(-8);
-    hexCodes.push(paddedValue);
+function hexFromBytes(bytes) {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function md5(string) {
+  return hexFromBytes(md5Core(encodeText(string)));
+}
+
+function md5Bytes(bytes) {
+  return hexFromBytes(md5Core(bytes));
+}
+
+// Generic HMAC construction (RFC 2104) built on md5Core, since Web Crypto's
+// HMAC support doesn't cover MD5. blockSize is 64 bytes for MD5, same as
+// SHA-1/256 (SubtleCrypto handles HMAC for those algorithms directly instead).
+function hmacMd5Bytes(keyBytes, msgBytes) {
+  const blockSize = 64;
+  let key = keyBytes;
+  if (key.length > blockSize) key = md5Core(key);
+  if (key.length < blockSize) {
+    const padded = new Uint8Array(blockSize);
+    padded.set(key);
+    key = padded;
   }
-  return hexCodes.join('');
+  const oKeyPad = new Uint8Array(blockSize);
+  const iKeyPad = new Uint8Array(blockSize);
+  for (let i = 0; i < blockSize; i++) {
+    oKeyPad[i] = key[i] ^ 0x5c;
+    iKeyPad[i] = key[i] ^ 0x36;
+  }
+  const inner = md5Core(concatBytes(iKeyPad, msgBytes));
+  const outer = md5Core(concatBytes(oKeyPad, inner));
+  return hexFromBytes(outer);
+}
+
+function concatBytes(a, b) {
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a, 0);
+  out.set(b, a.length);
+  return out;
 }
 
 // Helper to encode string to Uint8Array
@@ -96,48 +121,102 @@ function encodeText(text) {
   return new TextEncoder().encode(text);
 }
 
-// Web Crypto Hash Helper
-async function cryptoHash(algo, text) {
-  const msgUint8 = encodeText(text);
-  const hashBuffer = await crypto.subtle.digest(algo, msgUint8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+// Web Crypto Hash Helper -- msgBytes is a Uint8Array (text or file bytes)
+async function cryptoHash(algo, msgBytes) {
+  const hashBuffer = await crypto.subtle.digest(algo, msgBytes);
+  return hexFromBytes(new Uint8Array(hashBuffer));
 }
 
-// Fires on every keystroke with no debounce, and each digest is itself
-// async -- without a guard, an older (slower) call's writes could land
-// after a newer call's, showing a hash that no longer matches the input.
+// Web Crypto HMAC Helper, for the algorithms SubtleCrypto supports directly
+async function cryptoHmac(algo, keyBytes, msgBytes) {
+  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: algo }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, msgBytes);
+  return hexFromBytes(new Uint8Array(sig));
+}
+
+// Each digest is async -- without a guard, an older (slower) call's writes
+// could land after a newer call's, showing a hash that no longer matches
+// the input.
 let hashGenToken = 0;
+let _hashInputTimer = null;
+
+// md5() below is a synchronous hand-rolled implementation (the others go
+// through async crypto.subtle), so debounce plain typing to avoid running
+// it on every keystroke for a large pasted document.
+function scheduleGenerateHashes() {
+  clearTimeout(_hashInputTimer);
+  _hashInputTimer = setTimeout(generateHashes, 200);
+}
+
+// Set when a file is selected via loadHashFile(); hashing switches from the
+// textarea to these bytes until the file selection is cleared.
+let selectedFileBytes = null;
 
 async function generateHashes() {
-  const input = document.getElementById('hashInput').value;
+  const keyText = document.getElementById('hashHmacKey').value;
+  const hasKey = keyText.length > 0;
   const token = ++hashGenToken;
 
-  if (!input) {
-    document.getElementById('sha256Output').value = '';
-    document.getElementById('sha512Output').value = '';
-    document.getElementById('sha1Output').value = '';
-    document.getElementById('md5Output').value = '';
-    return;
+  let msgBytes;
+  if (selectedFileBytes) {
+    msgBytes = selectedFileBytes;
+  } else {
+    const input = document.getElementById('hashInput').value;
+    if (!input) {
+      document.getElementById('sha256Output').value = '';
+      document.getElementById('sha512Output').value = '';
+      document.getElementById('sha1Output').value = '';
+      document.getElementById('md5Output').value = '';
+      return;
+    }
+    msgBytes = encodeText(input);
   }
 
   try {
-    const sha256 = await cryptoHash('SHA-256', input);
+    const keyBytes = hasKey ? encodeText(keyText) : null;
+
+    const sha256 = hasKey ? await cryptoHmac('SHA-256', keyBytes, msgBytes) : await cryptoHash('SHA-256', msgBytes);
     if (token !== hashGenToken) return; // superseded by a newer keystroke
     document.getElementById('sha256Output').value = sha256;
 
-    const sha512 = await cryptoHash('SHA-512', input);
+    const sha512 = hasKey ? await cryptoHmac('SHA-512', keyBytes, msgBytes) : await cryptoHash('SHA-512', msgBytes);
     if (token !== hashGenToken) return;
     document.getElementById('sha512Output').value = sha512;
 
-    const sha1 = await cryptoHash('SHA-1', input);
+    const sha1 = hasKey ? await cryptoHmac('SHA-1', keyBytes, msgBytes) : await cryptoHash('SHA-1', msgBytes);
     if (token !== hashGenToken) return;
     document.getElementById('sha1Output').value = sha1;
 
     if (token !== hashGenToken) return;
-    document.getElementById('md5Output').value = md5(input);
+    document.getElementById('md5Output').value = hasKey ? hmacMd5Bytes(keyBytes, msgBytes) : md5Bytes(msgBytes);
   } catch (e) {
     console.error('Error generating hashes:', e);
   }
+}
+
+function loadHashFile(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    selectedFileBytes = new Uint8Array(e.target.result);
+    const input = document.getElementById('hashInput');
+    input.value = '';
+    input.disabled = true;
+    input.placeholder = `Hashing file: ${file.name} (${file.size.toLocaleString()} bytes)`;
+    document.getElementById('hashFileClear').style.display = '';
+    generateHashes();
+  };
+  reader.readAsArrayBuffer(file);
+  inputEl.value = '';
+}
+
+function clearHashFile() {
+  selectedFileBytes = null;
+  const input = document.getElementById('hashInput');
+  input.disabled = false;
+  input.placeholder = 'Type or paste text to hash...';
+  document.getElementById('hashFileClear').style.display = 'none';
+  generateHashes();
 }
 

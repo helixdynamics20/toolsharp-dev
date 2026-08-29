@@ -185,6 +185,15 @@ function getDelimiterChar(selectId) {
 
 // ── CSV -> JSON ──
 
+// Each keystroke reparses the whole input with a hand-rolled character-by-
+// character CSV parser -- debounce plain typing so a large pasted CSV
+// being edited doesn't reparse on every keystroke.
+let _csvInputTimer = null;
+function scheduleConvertCsvToJson() {
+  clearTimeout(_csvInputTimer);
+  _csvInputTimer = setTimeout(convertCsvToJson, 200);
+}
+
 function convertCsvToJson() {
   const text = document.getElementById('csvInput').value;
   const msgEl = document.getElementById('csvJsonMsg');
@@ -227,7 +236,26 @@ function clearCsvInput() {
   convertCsvToJson();
 }
 
+function loadCsvFile(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('csvInput').value = e.target.result;
+    if (/\.tsv$/i.test(file.name)) document.getElementById('csvDelimiter').value = 'tab';
+    convertCsvToJson();
+  };
+  reader.readAsText(file);
+  inputEl.value = '';
+}
+
 // ── JSON -> CSV ──
+
+let _jsonToCsvInputTimer = null;
+function scheduleConvertJsonToCsv() {
+  clearTimeout(_jsonToCsvInputTimer);
+  _jsonToCsvInputTimer = setTimeout(convertJsonToCsv, 200);
+}
 
 function convertJsonToCsv() {
   const text = document.getElementById('jsonToCsvInput').value;
@@ -308,6 +336,20 @@ function clearJsonInput() {
   document.getElementById('jsonToCsvInput').value = '';
   convertJsonToCsv();
 }
+
+function loadJsonFile(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('jsonToCsvInput').value = e.target.result;
+    convertJsonToCsv();
+  };
+  reader.readAsText(file);
+  inputEl.value = '';
+}
+
+persistFormState('csv-json-converter', ['csvDelimiter', 'jsonToCsvDelimiter']);
 
 // ── copy ──
 

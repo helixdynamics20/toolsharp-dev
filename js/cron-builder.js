@@ -183,6 +183,12 @@ function describeFieldValue(name, value, quartzDow) {
   return value;
 }
 
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
 function describeFields(f) {
   const flavor = f.hasSeconds ? 'Quartz.NET (6-field)' : 'Hangfire / standard (5-field)';
   const rows = [];
@@ -193,18 +199,20 @@ function describeFields(f) {
   rows.push({ field: 'month',      value: f.month, desc: describeFieldValue('month', f.month) });
   rows.push({ field: 'day-of-week', value: f.dow,  desc: describeFieldValue('day-of-week', f.dow, f.hasSeconds) });
 
-  const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${f.min.slice(2)} minutes` : `at minute ${f.min}`;
-  const hourDesc = f.hour === '*' ? 'around the clock' : `at hour ${f.hour}`;
-  const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `, day ${f.dom} of the month`;
-  const monthDesc = f.month === '*' ? '' : `, in month ${f.month}`;
-  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `, on day-of-week ${f.dow}`;
+  // f.* are raw fields split from a user-pasted cron string -- never trust
+  // them into HTML unescaped, here or in the table rows below.
+  const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${escapeHtml(f.min.slice(2))} minutes` : `at minute ${escapeHtml(f.min)}`;
+  const hourDesc = f.hour === '*' ? 'around the clock' : `at hour ${escapeHtml(f.hour)}`;
+  const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `, day ${escapeHtml(f.dom)} of the month`;
+  const monthDesc = f.month === '*' ? '' : `, in month ${escapeHtml(f.month)}`;
+  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `, on day-of-week ${escapeHtml(f.dow)}`;
   const summary = `Runs ${minDesc}, ${hourDesc}${domDesc}${monthDesc}${dowDesc}.`;
 
   const tableRows = rows.map(r =>
     `<div style="display:flex;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--mono);font-size:12px;">` +
     `<span style="width:110px;flex-shrink:0;color:var(--ink-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px;">${r.field}</span>` +
-    `<code style="width:60px;flex-shrink:0;color:var(--violet);">${r.value}</code>` +
-    `<span style="color:var(--ink-soft);">${r.desc}</span></div>`
+    `<code style="width:60px;flex-shrink:0;color:var(--violet);">${escapeHtml(r.value)}</code>` +
+    `<span style="color:var(--ink-soft);">${escapeHtml(r.desc)}</span></div>`
   ).join('');
 
   return `<div style="margin-bottom:8px;">${summary} <span style="color:var(--ink-faint);font-size:11px;">(${flavor})</span></div>` +

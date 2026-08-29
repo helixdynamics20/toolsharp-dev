@@ -281,7 +281,7 @@ function runDiff() {
     return;
   }
 
-  const contentKey = origRaw + ' ' + changedRaw;
+  const contentKey = origRaw.length + ':' + origRaw + changedRaw.length + ':' + changedRaw + (ignoreWs ? ':ws' : '');
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
     _lastDiffContentKey = contentKey;
@@ -445,6 +445,8 @@ function escapeHtml(str) {
 /* ── init ── */
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('diff-checker', ['chkHideUnchanged', 'chkIgnoreWs', 'chkAuto']);
+
   const orig = document.getElementById('diffOriginal');
   const changed = document.getElementById('diffChanged');
   orig.addEventListener('input', scheduleAuto);

@@ -42,7 +42,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -125,6 +125,9 @@
       <li><strong>Quartz.NET (6 fields):</strong> <code>second minute hour day-of-month month day-of-week</code> — a 7th optional year field can follow.</li>
       <li>In Quartz.NET, if you specify a value for day-of-month, day-of-week must be <code>?</code>, and vice versa — you can't constrain both at once.</li>
     </ul>
+
+    <h2>// learn more</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For more field syntax and worked examples, see the <a href="../guides/cron-expression-cheat-sheet">Cron Expression Cheat Sheet</a>.</p></div>
   </section>
 </main>
 

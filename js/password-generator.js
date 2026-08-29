@@ -41,6 +41,13 @@ function entropyLabel(bits) {
 
 /* ── password generator ── */
 
+function excludeCharsRegex() {
+  const raw = document.getElementById('excludeChars').value;
+  if (!raw) return null;
+  const unique = [...new Set([...raw])];
+  return new RegExp('[' + unique.map(c => c.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')).join('') + ']', 'g');
+}
+
 function buildCharset() {
   let charset = '';
   if (document.getElementById('chkUpper').checked)   charset += UPPER;
@@ -48,6 +55,8 @@ function buildCharset() {
   if (document.getElementById('chkDigits').checked)  charset += DIGITS;
   if (document.getElementById('chkSymbols').checked) charset += SYMS;
   if (document.getElementById('chkNoAmbig').checked) charset = charset.replace(AMBIG, '');
+  const exclude = excludeCharsRegex();
+  if (exclude) charset = charset.replace(exclude, '');
   return charset;
 }
 
@@ -60,9 +69,11 @@ function generateOne(length, charset) {
   if (document.getElementById('chkSymbols').checked) mustContain.push(SYMS);
 
   // guarantee at least one char from each enabled set
+  const exclude = excludeCharsRegex();
   const forced = mustContain.map(s => {
     let chars = s;
     if (document.getElementById('chkNoAmbig').checked) chars = chars.replace(AMBIG, '');
+    if (exclude) chars = chars.replace(exclude, '');
     return chars ? secureRandChar(chars) : '';
   }).filter(Boolean);
 
@@ -216,6 +227,7 @@ function onModeChange() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
   document.getElementById('passwordOptions').style.display = mode === 'password' ? '' : 'none';
   document.getElementById('passphraseOptions').style.display = mode === 'passphrase' ? '' : 'none';
+  generate();
 }
 
 /* ── helpers ── */
@@ -235,8 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'chkUpper', 'chkLower', 'chkDigits', 'chkSymbols', 'chkNoAmbig',
     'wordCount', 'wordSep', 'chkCapWords', 'bulkCount'
   ]);
-  onModeChange();
   syncSlider();
   syncWordCount();
-  generate();
+  onModeChange();
 });

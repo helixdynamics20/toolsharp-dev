@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Generator — Free, Client-Side | ToolSharp.dev</title>
-<meta name="description" content="Generate a QR code from any text or URL. Choose error correction level, size, and colors, then download as PNG or SVG. Generates entirely in your browser — nothing is uploaded.">
+<meta name="description" content="Generate a QR code from any text or URL. Choose error correction, size, and colors, then download as PNG or SVG. Generated entirely in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/qr-code-generator">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -41,7 +41,7 @@
 .qr-preview canvas { display: none; border-radius: var(--radius); max-width: 100%; height: auto; }
 .qr-preview .empty { color: var(--ink-faint); font-family: var(--mono); font-size: 13px; text-align: center; }
 .qr-color-row { display: flex; align-items: center; gap: 10px; }
-.qr-color-row input[type=color] { width: 36px; height: 30px; padding: 2px; border: 1px solid var(--rule-strong); border-radius: var(--radius); background: none; cursor: pointer; }
+.qr-color-row input[type=color] { width: 40px; height: 40px; padding: 2px; border: 1px solid var(--rule-strong); border-radius: var(--radius); background: none; cursor: pointer; }
 .qr-color-row label { font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); }
 </style>
 </head>
@@ -51,7 +51,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -124,6 +124,7 @@
         <div class="btn-row" id="qrActions" style="display:none;">
           <button class="btn" onclick="downloadPng()">⭳ Download PNG</button>
           <button class="btn secondary" onclick="downloadSvg()">⭳ Download SVG</button>
+          <button class="btn secondary" onclick="copyQrImage(this)">Copy image</button>
         </div>
       </div>
     </div>

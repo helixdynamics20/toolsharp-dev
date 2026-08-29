@@ -55,19 +55,47 @@ function downloadPng() {
   a.remove();
 }
 
+async function copyQrImage(btn) {
+  const errEl = document.getElementById('qrError');
+  if (typeof ClipboardItem === 'undefined' || !navigator.clipboard || !navigator.clipboard.write) {
+    errEl.textContent = 'Copying an image isn\'t supported in this browser — use Download PNG instead.';
+    errEl.style.display = '';
+    return;
+  }
+  const canvas = document.getElementById('qrCanvas');
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      if (typeof flashCopied === 'function') flashCopied(btn);
+    } catch (e) {
+      errEl.textContent = 'Could not copy the image: ' + e.message + '.';
+      errEl.style.display = '';
+    }
+  }, 'image/png');
+}
+
 async function downloadSvg() {
   const text = document.getElementById('qrInput').value;
   if (!text.trim()) return;
   const level = document.getElementById('qrLevel').value;
   const dark = document.getElementById('qrDark').value || '#000000';
   const light = document.getElementById('qrLight').value || '#ffffff';
+  const errEl = document.getElementById('qrError');
 
-  const svg = await window.QRCode.toString(text, {
-    type: 'svg',
-    errorCorrectionLevel: level,
-    margin: 2,
-    color: { dark: dark, light: light }
-  });
+  let svg;
+  try {
+    svg = await window.QRCode.toString(text, {
+      type: 'svg',
+      errorCorrectionLevel: level,
+      margin: 2,
+      color: { dark: dark, light: light }
+    });
+  } catch (e) {
+    errEl.textContent = 'Could not generate the SVG: ' + e.message + '. Try a shorter input or a lower error-correction level.';
+    errEl.style.display = '';
+    return;
+  }
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -90,5 +118,7 @@ function tryQrExample() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('qr-code-generator', ['qrLevel', 'qrScale', 'qrDark', 'qrLight']);
   document.getElementById('qrScaleVal').textContent = document.getElementById('qrScale').value;
+  generateQr();
 });
