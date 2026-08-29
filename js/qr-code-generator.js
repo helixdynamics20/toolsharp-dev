@@ -55,6 +55,26 @@ function downloadPng() {
   a.remove();
 }
 
+async function copyQrImage(btn) {
+  const errEl = document.getElementById('qrError');
+  if (typeof ClipboardItem === 'undefined' || !navigator.clipboard || !navigator.clipboard.write) {
+    errEl.textContent = 'Copying an image isn\'t supported in this browser — use Download PNG instead.';
+    errEl.style.display = '';
+    return;
+  }
+  const canvas = document.getElementById('qrCanvas');
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      if (typeof flashCopied === 'function') flashCopied(btn);
+    } catch (e) {
+      errEl.textContent = 'Could not copy the image: ' + e.message + '.';
+      errEl.style.display = '';
+    }
+  }, 'image/png');
+}
+
 async function downloadSvg() {
   const text = document.getElementById('qrInput').value;
   if (!text.trim()) return;

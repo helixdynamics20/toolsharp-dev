@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSV to JSON Converter (and back) | ToolSharp.dev</title>
-<meta name="description" content="Convert CSV to JSON or JSON to CSV in your browser. A proper RFC 4180 parser handles quoted fields, embedded commas and newlines, escaped quotes, and comma/semicolon/tab delimiters — not a naive split(',').">
+<meta name="description" content="Convert CSV to JSON or JSON to CSV in your browser. An RFC 4180 parser handles quoted fields, embedded commas/newlines, and comma/semicolon/tab delimiters.">
 <link rel="canonical" href="https://toolsharp.dev/tools/csv-json-converter">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -93,7 +93,9 @@
         <div class="btn-row">
           <button class="btn" onclick="convertCsvToJson()">Convert to JSON</button>
           <button class="btn secondary" onclick="tryCsvExample()">Try example</button>
+          <button class="btn secondary" onclick="document.getElementById('csvFileInput').click()">Load file…</button>
           <button class="btn secondary" onclick="clearCsvInput()">Clear</button>
+          <input type="file" id="csvFileInput" accept=".csv,.tsv,text/csv,text/tab-separated-values,text/plain" style="display:none;" onchange="loadCsvFile(this)">
         </div>
       </div>
     </div>
@@ -128,7 +130,9 @@
         <div class="btn-row">
           <button class="btn" onclick="convertJsonToCsv()">Convert to CSV</button>
           <button class="btn secondary" onclick="tryJsonExample()">Try example</button>
+          <button class="btn secondary" onclick="document.getElementById('jsonFileInput').click()">Load file…</button>
           <button class="btn secondary" onclick="clearJsonInput()">Clear</button>
+          <input type="file" id="jsonFileInput" accept=".json,application/json,text/plain" style="display:none;" onchange="loadJsonFile(this)">
         </div>
       </div>
     </div>

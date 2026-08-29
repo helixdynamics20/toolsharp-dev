@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Generator — Free, Client-Side | ToolSharp.dev</title>
-<meta name="description" content="Generate a QR code from any text or URL. Choose error correction level, size, and colors, then download as PNG or SVG. Generates entirely in your browser — nothing is uploaded.">
+<meta name="description" content="Generate a QR code from any text or URL. Choose error correction, size, and colors, then download as PNG or SVG. Generated entirely in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/qr-code-generator">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -124,6 +124,7 @@
         <div class="btn-row" id="qrActions" style="display:none;">
           <button class="btn" onclick="downloadPng()">⭳ Download PNG</button>
           <button class="btn secondary" onclick="downloadSvg()">⭳ Download SVG</button>
+          <button class="btn secondary" onclick="copyQrImage(this)">Copy image</button>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hash Generator — MD5, SHA-1, SHA-256, SHA-512 | ToolSharp.dev</title>
-<meta name="description" content="Generate MD5, SHA-1, SHA-256, and SHA-512 cryptographic hashes from any text input. Everything runs locally in your browser via the Web Crypto API — no data is sent to any server.">
+<meta name="description" content="Generate MD5, SHA-1, SHA-256, and SHA-512 hashes from text or a file, plain or as a keyed HMAC. Runs locally via the Web Crypto API — nothing leaves your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/hash-generator">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -51,11 +51,12 @@
 
   <div class="tool-header">
     <h1>hash-generator</h1>
-    <p class="sub">Type or paste any text to instantly compute its MD5, SHA-1, SHA-256, and SHA-512 hash values. All computation runs locally in your browser — nothing leaves your machine.</p>
+    <p class="sub">Type or paste any text — or a file — to instantly compute its MD5, SHA-1, SHA-256, and SHA-512 hash values, plain or as a keyed HMAC. All computation runs locally in your browser — nothing leaves your machine.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
       <span class="badge">Web Crypto API</span>
-      <span class="badge">no signup</span>
+      <span class="badge">file hashing</span>
+      <span class="badge">HMAC</span>
     </div>
   </div>
 
@@ -65,6 +66,16 @@
       <div class="body">
         <div class="field">
           <textarea id="hashInput" rows="8" placeholder="Type or paste text to hash..." oninput="scheduleGenerateHashes()"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn secondary" onclick="document.getElementById('hashFileInput').click()">Hash a file instead…</button>
+          <button class="btn secondary" id="hashFileClear" onclick="clearHashFile()" style="display:none;">Clear file</button>
+          <input type="file" id="hashFileInput" style="display:none;" onchange="loadHashFile(this)">
+        </div>
+        <div class="field" style="margin-top:14px;margin-bottom:0;">
+          <label><span class="key">HMAC key</span> (optional)</label>
+          <input type="text" id="hashHmacKey" placeholder="Leave blank for a plain hash" oninput="scheduleGenerateHashes()">
+          <p class="hint">When set, all four outputs become a keyed HMAC of the input using that key, instead of a plain hash.</p>
         </div>
       </div>
     </div>
@@ -114,7 +125,10 @@
     <div class="comment-line"><span class="bar">│</span><p>A hash is a one-way function: the same input always produces the same output, but you cannot reconstruct the input from the hash. Encryption is two-way: a key encrypts data and a key decrypts it back. If you "hash" a password to store it in a database, that's correct — storing encrypted passwords means you have a key that can decrypt them, which is a security liability. If you need to be able to recover the original value, you want encryption, not hashing.</p></div>
 
     <h2>// how this tool computes the hashes</h2>
-    <div class="comment-line"><span class="bar">│</span><p>SHA-1, SHA-256, and SHA-512 are computed via the browser's <code>SubtleCrypto</code> API (<code>crypto.subtle.digest()</code>), which uses the browser's native cryptographic implementation — no third-party library involved. MD5 is not part of the Web Crypto API (it's considered legacy), so this tool uses a pure-JavaScript MD5 implementation. All inputs are UTF-8 encoded before hashing, matching how .NET's <code>Encoding.UTF8.GetBytes()</code> + <code>SHA256.HashData()</code> behaves.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>SHA-1, SHA-256, and SHA-512 are computed via the browser's <code>SubtleCrypto</code> API (<code>crypto.subtle.digest()</code>), which uses the browser's native cryptographic implementation — no third-party library involved. MD5 is not part of the Web Crypto API (it's considered legacy), so this tool uses a pure-JavaScript MD5 implementation. All inputs are UTF-8 encoded before hashing, matching how .NET's <code>Encoding.UTF8.GetBytes()</code> + <code>SHA256.HashData()</code> behaves. Choosing "Hash a file instead" reads the file's raw bytes directly, without any text/UTF-8 step, matching how <code>SHA256.HashData(File.ReadAllBytes(path))</code> works.</p></div>
+
+    <h2>// HMAC (keyed hashing)</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A plain hash proves data hasn't changed, but anyone can compute it — it doesn't prove who produced it. An HMAC mixes a secret key into the hash (per <a href="https://www.rfc-editor.org/rfc/rfc2104" target="_blank" rel="noopener">RFC 2104</a>), so only someone holding that key could have produced the given output — that's what webhook signature verification (Stripe, GitHub, etc.) and .NET's <code>HMACSHA256</code> class are for. Filling in the HMAC key field switches all four outputs to this keyed mode; SHA-1/256/512 use <code>crypto.subtle</code>'s native HMAC support, and MD5 uses the standard HMAC construction built on the same pure-JS implementation above.</p></div>
 
     <h2>// learn more</h2>
     <div class="comment-line"><span class="bar">│</span><p>For how each algorithm works internally and when to reach for which one, see <a href="../guides/hashing-algorithms-explained">Hashing Algorithms Explained</a>.</p></div>

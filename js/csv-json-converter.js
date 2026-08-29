@@ -236,6 +236,19 @@ function clearCsvInput() {
   convertCsvToJson();
 }
 
+function loadCsvFile(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('csvInput').value = e.target.result;
+    if (/\.tsv$/i.test(file.name)) document.getElementById('csvDelimiter').value = 'tab';
+    convertCsvToJson();
+  };
+  reader.readAsText(file);
+  inputEl.value = '';
+}
+
 // ── JSON -> CSV ──
 
 let _jsonToCsvInputTimer = null;
@@ -322,6 +335,18 @@ function tryJsonExample() {
 function clearJsonInput() {
   document.getElementById('jsonToCsvInput').value = '';
   convertJsonToCsv();
+}
+
+function loadJsonFile(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('jsonToCsvInput').value = e.target.result;
+    convertJsonToCsv();
+  };
+  reader.readAsText(file);
+  inputEl.value = '';
 }
 
 persistFormState('csv-json-converter', ['csvDelimiter', 'jsonToCsvDelimiter']);
