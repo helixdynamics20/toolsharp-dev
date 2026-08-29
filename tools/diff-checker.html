@@ -156,7 +156,11 @@ body.dark-theme .diff-summary-side.additions { color: #6dd9a0; }
   background: var(--violet-wash);
   font-family: var(--mono); font-size: 12.5px;
 }
-.diff-merge-bar .merge-hint { color: var(--ink-soft); font-size: 12px; }
+.diff-merge-bar .merge-hint { color: var(--ink-soft); font-size: 12px; flex-basis: 100%; }
+.diff-nav { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+/* ── merged result panel ── */
+.diff-merged-panel { margin-top: 16px; }
 
 /* ── split view ── */
 .diff-split-body {
@@ -247,6 +251,12 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 
 /* ── auto-compare indicator ── */
 .auto-badge { font-family: var(--mono); font-size: 11px; color: var(--green); opacity: .8; }
+
+/* ── "Previous/Next change" jump target flash ── */
+.diff-block-bar.current-change { box-shadow: inset 0 0 0 2px var(--violet); }
+@media (prefers-reduced-motion: no-preference) {
+  .diff-block-bar.current-change { transition: box-shadow .2s; }
+}
 </style>
 </head>
 <body>
@@ -264,7 +274,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 
   <div class="tool-header">
     <h1>diff-checker</h1>
-    <p class="sub">Paste two versions of text, config, or code to see what changed — split or unified view, word or character precision. Click a line to merge it into either side. Everything runs in your browser; nothing is uploaded.</p>
+    <p class="sub">Paste two versions of text, config, or code to see what changed — split or unified view, word or character precision. Click a line or a block to build a merged result, without touching what you pasted. Everything runs in your browser; nothing is uploaded.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
       <span class="badge">word &amp; char level</span>
@@ -342,7 +352,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
     <p>For full files or real pull requests, your editor's diff view or <code>git diff</code> handles renames, whitespace-only changes, and binary files better. This tool is for fast in-browser checks, not a replacement for VCS tooling.</p>
 
     <h2>// merging: line by line, or a whole block at once</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Once a comparison is up, the "Merge into" toggle picks which box — left or right — becomes your working result. Click any highlighted line (including the dashed "omit" side of a pure addition or removal) to pull just that line's version into the target box; unclicked lines default to whatever the target box already has. Each contiguous block of changes also gets its own "Use left / Use right for this block" buttons, for taking a whole hunk at once instead of line by line. The other box is left untouched, so you can always compare again from the original two versions.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Once a comparison is up, click any highlighted line (including the dashed "omit" side of a pure addition or removal) to resolve just that line, or use a block's "Use left / Use right for this block" buttons to resolve a whole hunk at once. "Default unpicked lines to" sets what an unresolved line falls back to. The result builds up in the "merged result" panel below the diff — it never overwrites what you pasted above, so you can always compare again from the original two versions. Use "↑ Prev / Next ↓" to jump straight to each change instead of scrolling through the whole file.</p></div>
   </section>
 </main>
 

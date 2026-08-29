@@ -11,13 +11,16 @@ let autoTimer = null;
 let expandedRowIndices = new Set();
 let _lastDiffContentKey = null;
 
-/* ── merge: pick a side per changed line, build the result into
-   whichever box ('left' | 'right') is currently the merge target ── */
-let mergeTarget = 'right';
+/* ── merge: pick a side per changed line or per block. The result is built
+   and shown entirely inside the diff view (a read-only "merged result"
+   panel below it) -- it never overwrites either pasted textarea, so you
+   can always re-compare from the original two versions. ── */
+let mergeTarget = 'right'; // default side for any line the user hasn't explicitly picked
 let mergeResolution = new Map(); // rowIndex -> 'left' | 'right', explicit overrides only
 let currentRows = [];
 let currentALen = 0;
 let currentBLen = 0;
+let currentBlockIdx = 0; // which change block "Previous/Next change" is on
 
 /* ── state controls ── */
 
@@ -199,7 +202,7 @@ function renderSplit(rows, hideUnchanged) {
 
     if (blockStarts.has(idx)) {
       const b = blockStarts.get(idx);
-      chunks.push({ type: 'row', html: `<div class="diff-block-bar">
+      chunks.push({ type: 'row', html: `<div class="diff-block-bar" data-block-start="${b.start}">
         <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
         <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
       </div>` });
@@ -296,7 +299,7 @@ function renderUnified(rows, hideUnchanged) {
 
     if (blockStarts.has(idx)) {
       const b = blockStarts.get(idx);
-      lines.push(`<div class="diff-block-bar">
+      lines.push(`<div class="diff-block-bar" data-block-start="${b.start}">
         <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
         <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
       </div>`);
@@ -351,6 +354,7 @@ function runDiff() {
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
     mergeResolution = new Map();
+    currentBlockIdx = 0;
     _lastDiffContentKey = contentKey;
   }
 
@@ -399,14 +403,25 @@ function renderDiffUI() {
   const removalsCount = rows.filter(r => r.type === 'removed' || r.type === 'modified').length;
   const additionsCount = rows.filter(r => r.type === 'added' || r.type === 'modified').length;
 
+  const blocks = computeBlocks(rows);
+  if (currentBlockIdx >= blocks.length) currentBlockIdx = 0;
+  const navLabel = blocks.length ? `Change ${currentBlockIdx + 1} of ${blocks.length}` : 'No changes';
+
   const mergeBarHtml = `
     <div class="diff-merge-bar">
-      <span class="toolbar-label">Merge into</span>
+      <span class="toolbar-label">Default unpicked lines to</span>
       <div class="view-toggle">
-        <button id="mergeTargetLeftBtn" class="${mergeTarget === 'left' ? 'active' : ''}" onclick="setMergeTarget('left')">← Left</button>
-        <button id="mergeTargetRightBtn" class="${mergeTarget === 'right' ? 'active' : ''}" onclick="setMergeTarget('right')">Right →</button>
+        <button id="mergeTargetLeftBtn" class="${mergeTarget === 'left' ? 'active' : ''}" onclick="setMergeTarget('left')">Left</button>
+        <button id="mergeTargetRightBtn" class="${mergeTarget === 'right' ? 'active' : ''}" onclick="setMergeTarget('right')">Right</button>
       </div>
-      <span class="merge-hint">Click a line to keep just that line, or a block button to take a whole change at once — the ${mergeTarget} box becomes your merged result.</span>
+      <div class="diff-nav">
+        <span class="toolbar-label" id="diffChangeLabel">${navLabel}</span>
+        <div class="view-toggle">
+          <button onclick="jumpToChange(-1)" ${blocks.length ? '' : 'disabled'}>↑ Prev</button>
+          <button onclick="jumpToChange(1)" ${blocks.length ? '' : 'disabled'}>Next ↓</button>
+        </div>
+      </div>
+      <span class="merge-hint">Click a line or a block button to resolve it — the merged result builds up below, without touching what you pasted above.</span>
     </div>`;
 
   const summaryHtml = `
@@ -439,7 +454,16 @@ function renderDiffUI() {
     ? '<div class="callout ok" style="margin-top:12px;">No differences — the two inputs are identical.</div>'
     : '';
 
-  resultDiv.innerHTML = mergeBarHtml + summaryHtml + bodyHtml + identicalNote;
+  const mergedHtml = `
+    <div class="config-block diff-merged-panel">
+      <div class="tab" style="display:flex;align-items:center;gap:6px;">
+        <span style="flex:1;">merged result</span>
+        <button class="copy-btn" onclick="copyElementValue('diffMergedOutput', this)">copy</button>
+      </div>
+      <div class="output-block"><pre id="diffMergedOutput" style="padding:16px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word;margin:0;">${escapeHtml(computeMergedText())}</pre></div>
+    </div>`;
+
+  resultDiv.innerHTML = mergeBarHtml + summaryHtml + bodyHtml + identicalNote + mergedHtml;
 
   const newBody = resultDiv.querySelector('.diff-split-body');
   if (newBody) {
@@ -454,33 +478,26 @@ function renderDiffUI() {
   }
 }
 
-/* ── merge: pick a side for one changed line, or a whole block at once ── */
+/* ── merge: pick a side for one changed line, or a whole block at once.
+   The result only ever lands in the "merged result" panel built inside
+   renderDiffUI() -- picking never touches the pasted textareas. ── */
 
 function pickMergeBlock(start, count, side) {
   for (let i = start; i < start + count; i++) mergeResolution.set(i, side);
   renderDiffUI();
-  applyMergedText();
 }
 
 function pickMergeSide(idx, side) {
   mergeResolution.set(idx, side);
   renderDiffUI();
-  applyMergedText();
 }
 
 function setMergeTarget(side) {
   mergeTarget = side;
   renderDiffUI();
-  applyMergedText();
 }
 
-function applyMergedText() {
-  if (!currentRows.length) return;
-  // A merge write is not a "genuine edit" that should trigger a fresh
-  // auto-compare -- cancel any pending auto-compare timer armed by earlier
-  // keystrokes, so it can't fire after this write and re-diff the already-
-  // merged content (which would silently reset the in-progress merge).
-  clearTimeout(autoTimer);
+function computeMergedText() {
   const parts = [];
   currentRows.forEach((row, idx) => {
     if (row.type === 'same') { parts.push(row.left); return; }
@@ -489,8 +506,22 @@ function applyMergedText() {
     else if (row.type === 'removed') { if (pick === 'left') parts.push(row.left); }
     else if (row.type === 'added') { if (pick === 'right') parts.push(row.right); }
   });
-  const targetId = mergeTarget === 'left' ? 'diffOriginal' : 'diffChanged';
-  document.getElementById(targetId).value = parts.join('\n');
+  return parts.join('\n');
+}
+
+/* ── jump between change blocks without hand-scrolling ── */
+
+function jumpToChange(delta) {
+  const blocks = computeBlocks(currentRows);
+  if (!blocks.length) return;
+  currentBlockIdx = ((currentBlockIdx + delta) % blocks.length + blocks.length) % blocks.length;
+  const label = document.getElementById('diffChangeLabel');
+  if (label) label.textContent = `Change ${currentBlockIdx + 1} of ${blocks.length}`;
+  const target = document.querySelector(`[data-block-start="${blocks[currentBlockIdx].start}"]`);
+  if (!target) return;
+  target.scrollIntoView({ block: 'center' });
+  target.classList.add('current-change');
+  setTimeout(() => target.classList.remove('current-change'), 1200);
 }
 
 /* ── expand hidden section (split view) ── */
