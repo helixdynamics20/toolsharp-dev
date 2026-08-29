@@ -127,7 +127,6 @@ body.dark-theme .diff-textarea:focus { border-color: var(--violet); }
   display: flex;
   border: 1px solid var(--rule);
   border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
   overflow: hidden;
   font-family: var(--mono);
   font-size: 12.5px;
@@ -147,6 +146,17 @@ body.dark-theme .diff-summary-side.additions { color: #6dd9a0; }
 .diff-summary-side .linecount { color: var(--ink-faint); }
 .diff-summary-side .copy-btn { margin-left: auto; }
 .diff-summary-unified .removals, .diff-summary-unified .additions { flex: unset; }
+
+/* ── merge bar ── */
+.diff-merge-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--rule); border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--violet-wash);
+  font-family: var(--mono); font-size: 12.5px;
+}
+.diff-merge-bar .merge-hint { color: var(--ink-soft); font-size: 12px; }
 
 /* ── split view ── */
 .diff-split-body {
@@ -172,12 +182,38 @@ body.dark-theme .diff-summary-side.additions { color: #6dd9a0; }
 .diff-cell .content { flex: 1; white-space: pre-wrap; word-break: break-word; padding: 0 10px 0 4px; min-width: 0; }
 .diff-cell.bg-remove { background: var(--red-wash); }
 .diff-cell.bg-add { background: var(--green-wash); }
+.diff-cell.resolved { background: var(--violet-wash); }
 body.dark-theme .diff-cell.bg-remove { background: #3b1a1a; }
 body.dark-theme .diff-cell.bg-add { background: #0f2e1c; }
+body.dark-theme .diff-cell.resolved { background: rgba(108, 76, 224, 0.18); }
 .diff-cell.empty {
   background: repeating-linear-gradient(45deg, var(--bg-raised), var(--bg-raised) 6px, var(--rule) 6px, var(--rule) 7px);
   opacity: .5;
 }
+.diff-cell .omit-label { color: var(--ink-faint); font-style: italic; }
+
+/* ── per-block merge bar ── */
+.diff-block-bar {
+  display: flex; gap: 8px; padding: 6px 10px;
+  background: var(--bg); border-top: 1px dashed var(--rule-strong); border-bottom: 1px dashed var(--rule-strong);
+}
+.diff-block-btn {
+  flex: 1; padding: 6px 10px; border-radius: var(--radius); border: 1px solid;
+  font-family: var(--mono); font-size: 11.5px; cursor: pointer; background: none;
+}
+.diff-block-btn.left { border-color: var(--red); color: var(--red); }
+.diff-block-btn.left:hover { background: var(--red-wash); }
+.diff-block-btn.right { border-color: var(--green); color: #1d6840; }
+.diff-block-btn.right:hover { background: var(--green-wash); }
+body.dark-theme .diff-block-btn.right { color: #6dd9a0; }
+
+/* ── merge pick state (split + unified) ── */
+.diff-cell.pickable, .unified-row.pickable { cursor: pointer; }
+.diff-cell.pickable:hover, .unified-row.pickable:hover { filter: brightness(0.94); }
+body.dark-theme .diff-cell.pickable:hover, body.dark-theme .unified-row.pickable:hover { filter: brightness(1.25); }
+.diff-cell.picked { box-shadow: inset 0 0 0 2px var(--violet); }
+.diff-cell.picked .gutter { color: var(--violet-dark); font-weight: 700; }
+.unified-row.picked { box-shadow: inset 0 0 0 2px var(--violet); }
 
 /* ── unified view ── */
 .unified-row { display: flex; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
@@ -192,8 +228,11 @@ body.dark-theme .diff-cell.bg-add { background: #0f2e1c; }
 .unified-row .u-content { flex: 1; white-space: pre-wrap; word-break: break-word; padding: 1px 10px 1px 4px; min-width: 0; }
 .unified-row.ur-remove { background: var(--red-wash); color: var(--red); }
 .unified-row.ur-add { background: var(--green-wash); color: #1d6840; }
+.unified-row.ur-resolved { background: var(--violet-wash); color: var(--violet-dark); }
+.unified-row.ur-excluded { background: var(--bg); color: var(--ink-faint); text-decoration: line-through; }
 body.dark-theme .unified-row.ur-remove { background: #3b1a1a; color: #f8b4b0; }
 body.dark-theme .unified-row.ur-add { background: #0f2e1c; color: #6dd9a0; }
+body.dark-theme .unified-row.ur-resolved { background: rgba(108, 76, 224, 0.18); color: #b9a6f7; }
 .unified-row.ur-same { color: var(--ink-soft); }
 
 /* ── hidden-lines indicator ── */
@@ -213,6 +252,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 
 /* ── auto-compare indicator ── */
 .auto-badge { font-family: var(--mono); font-size: 11px; color: var(--green); opacity: .8; }
+
 </style>
 </head>
 <body>
@@ -230,11 +270,12 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 
   <div class="tool-header">
     <h1>diff-checker</h1>
-    <p class="sub">Paste two versions of text, config, or code to see what changed — split or unified view, word or character precision. Everything runs in your browser; nothing is uploaded.</p>
+    <p class="sub">Paste two versions of text, config, or code to see what changed — split or unified view, word or character precision. Click a line or a block to resolve it right there in the diff, without touching what you pasted. Everything runs in your browser; nothing is uploaded.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
       <span class="badge">word &amp; char level</span>
       <span class="badge">split + unified view</span>
+      <span class="badge">line-by-line merge</span>
       <span class="badge">no signup</span>
     </div>
   </div>
@@ -305,6 +346,9 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
       <li>Quick spot-check on any two text blobs — logs, JSON responses, API payloads.</li>
     </ul>
     <p>For full files or real pull requests, your editor's diff view or <code>git diff</code> handles renames, whitespace-only changes, and binary files better. This tool is for fast in-browser checks, not a replacement for VCS tooling.</p>
+
+    <h2>// merging: line by line, or a whole block at once</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Once a comparison is up, the right column is the result: it shows the new/changed version by default, and clicking a line's left side swaps that one line's display on the right back to the original — clicking its right side undoes that. Use a block's "Use left / Use right for this block" buttons to resolve a whole hunk in one click instead of line by line. This never touches what you pasted above, so you can always compare again from the original two versions — grab the current result with the "copy result" button next to the additions count.</p></div>
   </section>
 </main>
 
