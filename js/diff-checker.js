@@ -63,7 +63,14 @@ function commonSuffixLen(a, b, prefixLen) {
 
 /* ── LCS diff on arrays ── */
 
-function diffArrays(a, b) {
+// aOut/bOut let the comparison run on one representation (e.g. whitespace-
+// trimmed lines, for "ignore whitespace") while the ops carry a different
+// one (the true original text) -- otherwise "ignore whitespace" would
+// silently rewrite every line's indentation in the rendered diff and in
+// whatever gets copied out of it, not just decide what counts as changed.
+function diffArrays(a, b, aOut, bOut) {
+  aOut = aOut || a;
+  bOut = bOut || b;
   const n = a.length, m = b.length;
   const dp = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
   for (let i = n - 1; i >= 0; i--)
@@ -72,12 +79,12 @@ function diffArrays(a, b) {
   let i = 0, j = 0;
   const ops = [];
   while (i < n && j < m) {
-    if (a[i] === b[j]) { ops.push({ type: 'same', item: a[i] }); i++; j++; }
-    else if (dp[i + 1][j] >= dp[i][j + 1]) { ops.push({ type: 'remove', item: a[i] }); i++; }
-    else { ops.push({ type: 'add', item: b[j] }); j++; }
+    if (a[i] === b[j]) { ops.push({ type: 'same', item: aOut[i] }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { ops.push({ type: 'remove', item: aOut[i] }); i++; }
+    else { ops.push({ type: 'add', item: bOut[j] }); j++; }
   }
-  while (i < n) { ops.push({ type: 'remove', item: a[i++] }); }
-  while (j < m) { ops.push({ type: 'add', item: b[j++] }); }
+  while (i < n) { ops.push({ type: 'remove', item: aOut[i++] }); }
+  while (j < m) { ops.push({ type: 'add', item: bOut[j++] }); }
   return ops;
 }
 
@@ -238,7 +245,10 @@ function renderSplit(rows, hideUnchanged) {
       leftContent = escapeHtml(row.left);
       leftBg = 'bg-remove';
       leftGutter = ln; rightGutter = '';
-      if (overridden) { rightContent = escapeHtml(row.left); rightBg = 'resolved'; }
+      // Restoring this line doesn't actually shift the real right-file
+      // numbering (rightNo isn't advanced for a 'removed' row), but showing
+      // the position it would occupy reads better than a blank gutter.
+      if (overridden) { rightContent = escapeHtml(row.left); rightBg = 'resolved'; rightGutter = rn; }
       else { rightBg = 'empty'; rightContent = '<span class="omit-label">omit</span>'; }
     } else {
       leftBg = 'empty'; leftGutter = '';
@@ -247,15 +257,19 @@ function renderSplit(rows, hideUnchanged) {
       else { rightContent = escapeHtml(row.right); rightBg = 'bg-add'; rightGutter = rn; }
     }
 
-    // Both sides are always clickable on a changed row: the left cell
-    // always sets 'left' (show this row's original on the right); the
-    // right cell always sets 'right' (go back to the default/new content).
+    // Both sides are always clickable (and keyboard-operable) on a changed
+    // row: the left cell always sets 'left' (show this row's original on
+    // the right); the right cell always sets 'right' (go back to the
+    // default/new content).
     let leftPickCls = '', rightPickCls = '', leftClick = '', rightClick = '';
     if (row.type !== 'same') {
+      // Both cells get the bold-gutter "picked" cue together when this row
+      // is overridden -- the right cell shouldn't rely on its violet
+      // background color alone to show it's displaying the left version.
       leftPickCls = ' pickable' + (overridden ? ' picked' : '');
-      rightPickCls = ' pickable';
-      leftClick = ` onclick="pickMergeSide(${idx}, 'left')"`;
-      rightClick = ` onclick="pickMergeSide(${idx}, 'right')"`;
+      rightPickCls = ' pickable' + (overridden ? ' picked' : '');
+      leftClick = pickAttrs(idx, 'left', 'Use left version for this line', overridden);
+      rightClick = pickAttrs(idx, 'right', 'Use right version for this line', !overridden);
     }
 
     chunks.push({ type: 'row', html: `<div class="diff-row">
@@ -268,7 +282,7 @@ function renderSplit(rows, hideUnchanged) {
   const html = chunks.map(c => {
     if (c.type === 'row') return c.html;
     const n = c.count || 1;
-    return `<div class="diff-hidden-lines" onclick="expandSection(this, ${c.idx}, ${n})" data-idx="${c.idx}" data-count="${n}">… ${n} unchanged line${n === 1 ? '' : 's'} — click to expand</div>`;
+    return `<div class="diff-hidden-lines" tabindex="0" role="button" onclick="expandSection(this, ${c.idx}, ${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();expandSection(this, ${c.idx}, ${n})}" data-idx="${c.idx}" data-count="${n}">… ${n} unchanged line${n === 1 ? '' : 's'} — click to expand</div>`;
   }).join('');
 
   return `<div class="diff-split-body">${html || '<div style="padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);">No changes — the texts are identical.</div>'}</div>`;
@@ -332,8 +346,8 @@ function renderUnified(rows, hideUnchanged) {
       const inline = overridden ? null : renderInlineDiff(row.left, row.right);
       const removeContent = overridden ? escapeHtml(row.left) : inline.left;
       const addContent = overridden ? escapeHtml(row.left) : inline.right;
-      lines.push(`<div class="unified-row ur-remove pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'left')"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${removeContent}</span></div>`);
-      lines.push(`<div class="unified-row ${overridden ? 'ur-resolved' : 'ur-add'} pickable" onclick="pickMergeSide(${idx}, 'right')"><span class="sign">${overridden ? '•' : '+'}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${addContent}</span></div>`);
+      lines.push(`<div class="unified-row ur-remove pickable${overridden ? ' picked' : ''}"${pickAttrs(idx, 'left', 'Use left version for this line', overridden)}><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${removeContent}</span></div>`);
+      lines.push(`<div class="unified-row ${overridden ? 'ur-resolved' : 'ur-add'} pickable${overridden ? ' picked' : ''}"${pickAttrs(idx, 'right', 'Use right version for this line', !overridden)}><span class="sign">${overridden ? '•' : '+'}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${addContent}</span></div>`);
       leftNo++; rightNo++;
     } else if (row.type === 'removed') {
       // Only one line exists here -- click it to toggle between accepting
@@ -341,7 +355,8 @@ function renderUnified(rows, hideUnchanged) {
       const cls = overridden ? 'ur-resolved' : 'ur-remove';
       const sign = overridden ? '•' : '−';
       const toggleTo = overridden ? 'right' : 'left';
-      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${overridden ? 'omit' : 'restore'} this line"><span class="sign">${sign}</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
+      const label = overridden ? 'Restored -- click to omit this line' : 'Removed -- click to restore this line';
+      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}"${pickAttrs(idx, toggleTo, label, overridden)} title="Click to ${overridden ? 'omit' : 'restore'} this line"><span class="sign">${sign}</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
       leftNo++;
     } else {
       // Single added line -- click to toggle between including it
@@ -349,11 +364,12 @@ function renderUnified(rows, hideUnchanged) {
       const cls = overridden ? 'ur-excluded' : 'ur-add';
       const sign = overridden ? '•' : '+';
       const toggleTo = overridden ? 'right' : 'left';
-      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${overridden ? 'include' : 'exclude'} this line"><span class="sign">${sign}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
+      const label = overridden ? 'Excluded -- click to include this line' : 'Added -- click to exclude this line';
+      lines.push(`<div class="unified-row ${cls} pickable${overridden ? ' picked' : ''}"${pickAttrs(idx, toggleTo, label, overridden)} title="Click to ${overridden ? 'include' : 'exclude'} this line"><span class="sign">${sign}</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
       rightNo++;
     }
   }
-  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
+  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines" tabindex="0" role="button" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();expandSection(this, ${hiddenStart}, ${hiddenCount})}" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
 
   return `<div class="diff-split-body">${lines.join('') || '<div style="padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);">No changes — the texts are identical.</div>'}</div>`;
 }
@@ -382,14 +398,20 @@ function runDiff() {
     _lastDiffContentKey = contentKey;
   }
 
-  let aLines = origRaw.split('\n');
-  let bLines = changedRaw.split('\n');
-  if (ignoreWs) { aLines = aLines.map(l => l.trim()); bLines = bLines.map(l => l.trim()); }
+  const aLines = origRaw.split('\n');
+  const bLines = changedRaw.split('\n');
+  // aCmp/bCmp are what "ignore whitespace" trims for the purpose of deciding
+  // what's different -- aLines/bLines (the true original text) are what
+  // actually gets shown and what "copy result" reconstructs from.
+  const aCmp = ignoreWs ? aLines.map(l => l.trim()) : aLines;
+  const bCmp = ignoreWs ? bLines.map(l => l.trim()) : bLines;
 
-  const prefixLen = commonPrefixLen(aLines, bLines);
-  const suffixLen = commonSuffixLen(aLines, bLines, prefixLen);
-  const aMid = aLines.slice(prefixLen, aLines.length - suffixLen);
-  const bMid = bLines.slice(prefixLen, bLines.length - suffixLen);
+  const prefixLen = commonPrefixLen(aCmp, bCmp);
+  const suffixLen = commonSuffixLen(aCmp, bCmp, prefixLen);
+  const aMidCmp = aCmp.slice(prefixLen, aCmp.length - suffixLen);
+  const bMidCmp = bCmp.slice(prefixLen, bCmp.length - suffixLen);
+  const aMidOrig = aLines.slice(prefixLen, aLines.length - suffixLen);
+  const bMidOrig = bLines.slice(prefixLen, bLines.length - suffixLen);
 
   /* The product cap alone lets a lopsided shape slip through (e.g. one
      side with 16,000,000 lines, the other with 1 — same product as a
@@ -397,7 +419,7 @@ function runDiff() {
      of the longer side, so a huge single dimension is its own hazard
      regardless of the product). Cap each dimension too. */
   const DIM_CAP = 20_000;
-  if (aMid.length > DIM_CAP || bMid.length > DIM_CAP || aMid.length * bMid.length > 16_000_000) {
+  if (aMidCmp.length > DIM_CAP || bMidCmp.length > DIM_CAP || aMidCmp.length * bMidCmp.length > 16_000_000) {
     resultDiv.innerHTML = '<div class="callout error">The changed region is too large to diff in-browser (~4 000 differing lines each side — identical leading/trailing lines don\'t count against this). Paste a smaller excerpt, or use your editor\'s built-in diff view.</div>';
     currentRows = [];
     return;
@@ -405,7 +427,7 @@ function runDiff() {
 
   const lineOps = [
     ...aLines.slice(0, prefixLen).map(item => ({ type: 'same', item })),
-    ...diffArrays(aMid, bMid),
+    ...diffArrays(aMidCmp, bMidCmp, aMidOrig, bMidOrig),
     ...aLines.slice(aLines.length - suffixLen).map(item => ({ type: 'same', item })),
   ];
   currentRows = buildRows(lineOps);
@@ -513,7 +535,10 @@ function copyMergedResult(btn) {
 
 function expandSection(el, startIdx, count) {
   for (let i = startIdx; i < startIdx + count; i++) expandedRowIndices.add(i);
-  runDiff();
+  // Expanding hidden context only changes what's visible, not the diff
+  // itself -- re-render from the frozen rows instead of re-running the
+  // full (up to O(20,000^2)) diff for every click.
+  if (currentRows.length) renderDiffUI();
 }
 
 /* ── swap sides ── */
@@ -605,6 +630,13 @@ function escapeHtml(str) {
   const d = document.createElement('div');
   d.textContent = str;
   return d.innerHTML;
+}
+
+// A pickable diff cell/row is a <div onclick>, which a mouse can activate
+// but a keyboard can't -- tabindex+role make it a stop in the tab order,
+// and the keydown handler makes Enter/Space act like a click.
+function pickAttrs(idx, side, label, pressed) {
+  return ` tabindex="0" role="button" aria-pressed="${pressed}" aria-label="${label}" onclick="pickMergeSide(${idx}, '${side}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pickMergeSide(${idx}, '${side}')}"`;
 }
 
 /* ── init ── */
