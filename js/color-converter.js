@@ -87,6 +87,26 @@ function parseHslFn(str) {
 }
 
 // Auto-detect format (hex "#", rgb(), rgba(), hsl(), hsla()) and parse.
+// Resolves a CSS named color ("tomato", "rebeccapurple", ...) by letting the
+// browser's own CSS parser validate and normalize it, rather than hand-
+// maintaining a 148-entry lookup table that could go stale or have typos.
+const CSS_COLOR_KEYWORD_EXCLUDE = /^(inherit|initial|unset|revert|currentcolor)$/i;
+function resolveNamedColor(name) {
+  if (!/^[a-z]+$/i.test(name) || CSS_COLOR_KEYWORD_EXCLUDE.test(name)) return null;
+  const probe = document.createElement('div');
+  probe.style.color = name;
+  if (!probe.style.color) return null; // the browser rejected the raw keyword outright
+  // A detached element's own .style.color just echoes back the keyword
+  // string -- getComputedStyle() is what actually resolves it to rgb(),
+  // and that requires the element to be part of the rendered document.
+  document.body.appendChild(probe);
+  const computed = getComputedStyle(probe).color;
+  probe.remove();
+  const m = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
+  if (!m) return null;
+  return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
+}
+
 function parseColor(input) {
   if (!input) return null;
   const str = input.trim();
@@ -94,7 +114,7 @@ function parseColor(input) {
   if (str[0] === '#') return parseHex(str);
   if (/^rgba?\(/i.test(str)) return parseRgbFn(str);
   if (/^hsla?\(/i.test(str)) return parseHslFn(str);
-  return null;
+  return resolveNamedColor(str);
 }
 
 function rgbToHex(r, g, b) {

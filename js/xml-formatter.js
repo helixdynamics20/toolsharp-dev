@@ -271,6 +271,7 @@ function renderXmlResult(checks, outputText) {
     <div class="config-block" style="margin-top:16px;">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
+        <button class="copy-btn" onclick="downloadElementValue('xmlOutputPre', 'formatted.xml')">download</button>
         <button class="copy-btn" onclick="copyElementValue('xmlOutputPre', this)">copy</button>
       </div>
       <div class="output-block">
