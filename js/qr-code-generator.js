@@ -7,6 +7,7 @@ async function generateQr() {
   const actions = document.getElementById('qrActions');
   const errEl = document.getElementById('qrError');
   errEl.textContent = '';
+  errEl.style.display = 'none';
 
   if (!text.trim()) {
     canvas.style.display = 'none';
@@ -40,6 +41,7 @@ async function generateQr() {
     // qrcode throws when the text is too long for even the largest
     // version at the chosen error-correction level
     errEl.textContent = 'Could not generate a QR code: ' + e.message + '. Try a shorter input or a lower error-correction level.';
+    errEl.style.display = '';
   }
 }
 

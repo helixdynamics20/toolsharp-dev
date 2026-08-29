@@ -371,6 +371,7 @@ function tryXmlExample() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  persistFormState('xml-formatter', ['xmlIndent']);
   const inputEl = document.getElementById('xmlInput');
   if (inputEl) {
     // Same reasoning as json-formatter.js: flag the paste and re-read on

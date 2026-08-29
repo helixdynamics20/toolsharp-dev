@@ -27,6 +27,7 @@
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/appsettings-validator.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
@@ -78,7 +79,8 @@
         <div class="btn-row">
           <button class="btn" onclick="validateAppsettings()">Validate &amp; format</button>
           <button class="btn secondary" onclick="autoFixAppsettings()">Auto-fix &amp; format</button>
-          <button class="btn secondary" onclick="document.getElementById('asInput').value=''; document.getElementById('asResult').innerHTML='';">Clear</button>
+          <button class="btn secondary" onclick="tryAppsettingsExample()">Try example</button>
+          <button class="btn secondary" onclick="clearAppsettingsInput()">Clear</button>
         </div>
       </div>
     </div>

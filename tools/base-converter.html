@@ -25,6 +25,7 @@
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/base-converter.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
@@ -76,7 +77,7 @@
           </div>
         </div>
         <div class="field">
-          <input type="text" id="baseInput" placeholder="e.g. 3735928559, DEADBEEF, 0b1010, 0o17..." spellcheck="false" autocomplete="off" oninput="convertBase()" style="font-family: var(--mono);">
+          <input type="text" id="baseInput" aria-label="Number to convert" placeholder="e.g. 3735928559, DEADBEEF, 0b1010, 0o17..." spellcheck="false" autocomplete="off" oninput="convertBase()" style="font-family: var(--mono);">
         </div>
         <div class="btn-row">
           <button class="btn secondary" onclick="tryBaseExample()">Try example</button>

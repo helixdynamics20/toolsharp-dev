@@ -234,6 +234,12 @@ async function retrieveShare() {
   }
 }
 
+function tryShareExample() {
+  document.getElementById('plainInput').value =
+    'appsettings.json snippet:\n{\n  "ConnectionStrings": {\n    "Default": "Server=.;Database=AppDb;"\n  }\n}';
+  generateShare();
+}
+
 function clearPlainInput() {
   document.getElementById('plainInput').value = '';
   document.getElementById('outputBlock').style.display = 'none';

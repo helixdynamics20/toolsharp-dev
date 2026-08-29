@@ -413,6 +413,7 @@ body.dark-theme .dir-category { background: #0f0d1a; }
 .callout.warn { border-color: var(--amber); background: var(--amber-wash); }
 .callout.error { border-color: var(--red); background: var(--red-wash); color: var(--red); }
 .callout.ok { border-color: var(--green); background: var(--green-wash); color: #206B47; }
+body.dark-theme .callout.ok { color: #6DD9A0; }
 
 /* status pill -- a small colored severity/quality badge, reused for
    password entropy, hash algorithm safety, and similar strength readouts */
