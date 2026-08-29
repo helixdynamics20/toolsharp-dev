@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples — ToolSharp.dev</title>
-<meta name="description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, and the mistakes that silently break a schedule.">
+<meta name="description" content="Cron fields explained with a Hangfire vs Quartz.NET field-shift diagram, timezone pitfalls, step/range combos, and Cron helper methods vs raw expressions.">
 <link rel="canonical" href="https://toolsharp.dev/guides/cron-expression-cheat-sheet">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -14,15 +14,15 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://toolsharp.dev/guides/cron-expression-cheat-sheet">
 <meta property="og:title" content="Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples">
-<meta property="og:description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, special characters, and the mistakes that silently break a schedule.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:description" content="Cron fields explained with a Hangfire vs Quartz.NET field-shift diagram, timezone pitfalls, step/range combos, and Cron helper methods vs raw expressions.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-cron-expression-cheat-sheet.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/cron-expression-cheat-sheet">
 <meta name="twitter:title" content="Cron Expression Cheat Sheet — Hangfire & Quartz.NET Examples">
-<meta name="twitter:description" content="Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, special characters, and the mistakes that silently break a schedule.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:description" content="Cron fields explained with a Hangfire vs Quartz.NET field-shift diagram, timezone pitfalls, step/range combos, and Cron helper methods vs raw expressions.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-cron-expression-cheat-sheet.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TechArticle","headline":"Cron Expression Cheat Sheet","url":"https://toolsharp.dev/guides/cron-expression-cheat-sheet","description":"Every cron field explained, side-by-side Hangfire and Quartz.NET examples, and the mistakes that silently break a schedule.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Cron Expression Cheat Sheet","url":"https://toolsharp.dev/guides/cron-expression-cheat-sheet","description":"Cron fields explained with a Hangfire vs Quartz.NET field-shift diagram, timezone pitfalls, step/range combos, and Cron helper methods vs raw expressions.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
 </script>
 </head>
 <body>
@@ -70,6 +70,43 @@
         <div class="result-item"><span class="k">Quartz.NET (6 fields)</span><span class="v">second minute hour day-of-month month day-of-week</span></div>
       </div>
     </div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 470 175" role="img" aria-label="Diagram showing that Quartz.NET's six fields are Hangfire's five fields shifted one position to the right by a prepended seconds field, so the same field position means a different value depending on the dialect.">
+        <text x="273" y="14" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--ink-soft)" text-anchor="middle">Hangfire / standard cron — 5 fields</text>
+        <rect x="90" y="22" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="125" y="42" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">min</text>
+        <rect x="164" y="22" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="199" y="42" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">hour</text>
+        <rect x="238" y="22" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="273" y="42" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">dom</text>
+        <rect x="312" y="22" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="347" y="42" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">month</text>
+        <rect x="386" y="22" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="421" y="42" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">dow</text>
+
+        <text x="286" y="80" font-family="var(--sans)" font-size="10.5" font-weight="600" fill="var(--ink-soft)" text-anchor="middle">Quartz.NET — 6 fields (seconds prepended)</text>
+        <rect x="16" y="88" width="70" height="32" rx="4" fill="var(--violet-wash)" stroke="var(--violet-dark)"/>
+        <text x="51" y="108" font-family="var(--mono)" font-size="10" fill="var(--violet-dark)" text-anchor="middle">sec</text>
+        <rect x="90" y="88" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="125" y="108" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">min</text>
+        <rect x="164" y="88" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="199" y="108" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">hour</text>
+        <rect x="238" y="88" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="273" y="108" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">dom</text>
+        <rect x="312" y="88" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="347" y="108" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">month</text>
+        <rect x="386" y="88" width="70" height="32" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
+        <text x="421" y="108" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">dow</text>
+
+        <line x1="125" y1="54" x2="125" y2="88" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="2,2"/>
+        <line x1="421" y1="54" x2="421" y2="88" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="51" y="133" font-family="var(--sans)" font-size="9.5" font-weight="600" fill="var(--violet-dark)" text-anchor="middle">the extra field</text>
+        <text x="243" y="152" font-family="var(--sans)" font-size="10" fill="var(--ink-faint)" text-anchor="middle">Drop a 5-field string into a 6-field scheduler (or vice versa) —</text>
+        <text x="243" y="166" font-family="var(--sans)" font-size="10" fill="var(--ink-faint)" text-anchor="middle">every field after the shift is read as the wrong one.</text>
+      </svg>
+      <figcaption>Quartz.NET's six fields are Hangfire's five fields shifted right by the prepended seconds field — the same position means a different field depending on the dialect.</figcaption>
+    </figure>
   </section>
 
   <section class="notes">
@@ -86,6 +123,21 @@
         <div class="result-item"><span class="k"><code>#</code></span><span class="v">"nth weekday of the month" — Quartz.NET only; <code>6#3</code> = third Friday</span></div>
       </div>
     </div>
+  </section>
+
+  <section class="notes">
+    <h2>// combining ranges and steps</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The characters above compose — a step can apply to a range instead of the whole field, which is where most of cron's real expressive power (and most misreadings) live.</p></div>
+    <div class="config-block">
+      <div class="tab">examples</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>10-30/5</code></span><span class="v">every 5 units, but only between 10 and 30 — fires at 10, 15, 20, 25, 30, not before or after</span></div>
+        <div class="result-item"><span class="k"><code>MON-FRI</code></span><span class="v">a named range — equivalent to <code>1-5</code> in most implementations, but check yours accepts names</span></div>
+        <div class="result-item"><span class="k"><code>0,30</code></span><span class="v">a list of two exact values — fires at :00 and :30, not a range</span></div>
+        <div class="result-item"><span class="k"><code>1-5,10-15</code></span><span class="v">multiple ranges in one field, comma-separated</span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">The step always starts counting from the beginning of whatever range it's attached to — <code>10-30/5</code> starts at 10, not at 0 clipped to the range. This is the same rule as a bare <code>*/5</code> starting at the field's zero point, just applied to a sub-range instead of the whole field.</p>
   </section>
 
   <section class="notes">
@@ -111,6 +163,35 @@
     <div class="callout warn" style="margin-bottom:14px;">Day-of-week numbering differs by dialect: standard cron is 0–6 with <strong>0 = Sunday</strong>. Quartz.NET is 1–7 with <strong>1 = Sunday</strong>. The same digit means a different day depending which dialect you're reading — always check which one you're in before trusting a number.</div>
     <div class="callout warn" style="margin-bottom:14px;">Cron expressions run in whatever timezone the scheduler process is configured for — not necessarily UTC, and not necessarily the server's local time if the app sets one explicitly. A schedule that looks right can drift by hours after a timezone or daylight-saving change if this isn't pinned down.</div>
     <div class="callout warn">A step value like <code>*/5</code> always starts counting from the field's zero point, not from "5 units from now." <code>*/5</code> on minutes fires at :00, :05, :10 — never at :02, :07, :12, no matter what minute you deployed at.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// pinning down the timezone</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A cron string has no timezone of its own — it's just field values, interpreted against whatever clock the scheduler evaluates it with. That clock is a separate, easy-to-miss setting, and getting it wrong doesn't throw an error; the job just quietly runs at the wrong wall-clock time.</p></div>
+    <div class="config-block">
+      <div class="tab">where the timezone actually gets set</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Hangfire</span><span class="v"><code>RecurringJob.AddOrUpdate(..., cron, new RecurringJobOptions { TimeZone = TimeZoneInfo.FindSystemTimeZoneById(...) })</code> — omit it and Hangfire schedules in UTC</span></div>
+        <div class="result-item"><span class="k">Quartz.NET</span><span class="v"><code>CronScheduleBuilder.CronSchedule(expr).InTimeZone(TimeZoneInfo...)</code> — omit it and Quartz uses <code>TimeZoneInfo.Local</code>, i.e. whatever the host machine is set to</span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">That default mismatch — Hangfire falling back to UTC, Quartz falling back to the host's local time — is itself a common source of "this ran three, four, or five hours off" bugs when a job moves between a developer's machine, a container, and a cloud region without the timezone ever being set explicitly on either side. Pin it explicitly in code rather than relying on either default, and remember that a timezone with daylight saving (unlike UTC) means the same cron expression covers a different number of real hours on the two days each year the clock shifts.</p>
+  </section>
+
+  <section class="notes">
+    <h2>// Cron helper methods vs raw expressions (Hangfire)</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Hangfire's <code>Cron</code> class ships a set of static helpers that return a cron string for the common cases, so most recurring jobs never need a hand-written expression at all.</p></div>
+    <div class="config-block">
+      <div class="tab">Hangfire.Cron helpers</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>Cron.Minutely()</code></span><span class="v">→ <code>* * * * *</code></span></div>
+        <div class="result-item"><span class="k"><code>Cron.Hourly()</code></span><span class="v">→ <code>0 * * * *</code></span></div>
+        <div class="result-item"><span class="k"><code>Cron.Daily(2, 30)</code></span><span class="v">→ <code>30 2 * * *</code></span></div>
+        <div class="result-item"><span class="k"><code>Cron.Weekly(DayOfWeek.Monday, 6)</code></span><span class="v">→ <code>0 6 * * 1</code></span></div>
+        <div class="result-item"><span class="k"><code>Cron.Monthly(1)</code></span><span class="v">→ <code>0 0 1 * *</code></span></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">The helpers exist because a call like <code>Cron.Daily(2, 30)</code> is self-documenting at the call site in a way <code>"30 2 * * *"</code> never is, and it can't be typo'd into a subtly different valid expression. Reach for a raw string only once a schedule needs something the helpers don't cover — a step value, a multi-day list, or anything Quartz-specific like <code>L</code>/<code>W</code>/<code>#</code> — and paste it into the <a href="../tools/cron-builder">Cron Builder</a> first to confirm it means what you think before it ships.</p>
   </section>
 
   <section class="notes">

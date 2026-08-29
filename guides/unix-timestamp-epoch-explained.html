@@ -15,14 +15,14 @@
 <meta property="og:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
 <meta property="og:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
 <meta property="og:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-unix-timestamp-epoch-explained.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
 <meta name="twitter:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
 <meta name="twitter:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-unix-timestamp-epoch-explained.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,7 +129,7 @@
         <div class="result-item"><span class="k">ISO 8601 (string)</span><span class="v">human-readable, sorts correctly as a plain string too, timezone-explicit, more bytes</span></div>
       </div>
     </div>
-    <div class="comment-line"><span class="bar">│</span><p>ISO 8601's field order (year → month → day → hour...) means lexicographic string sorting matches chronological order — a rare and genuinely useful property, which is why log files and filenames often use it. Epoch numbers sort correctly too, but only when compared as actual numbers; naively comparing them as zero-padded strings of different lengths breaks the same way any numeric string comparison does. Pick epoch for compact storage and arithmetic (durations, comparisons), ISO 8601 for anything a human will read directly — logs, API responses meant for debugging, config files.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>ISO 8601's field order (year → month → day → hour...) means lexicographic string sorting matches chronological order — a rare and genuinely useful property, which is why log files and filenames often use it. Epoch numbers sort correctly too, but only when compared as actual numbers; naively comparing them as zero-padded strings of different lengths breaks the same way any numeric string comparison does. Pick epoch for compact storage and arithmetic (durations, comparisons), ISO 8601 for anything a human will read directly — logs, API responses meant for debugging, config files. This same sortability is why UUIDv7 embeds an epoch millisecond timestamp directly in the identifier — see <a href="uuid-guid-versions-explained">UUID/GUID Versions Explained</a> for why that matters for database index performance.</p></div>
   </section>
 
   <section class="notes">

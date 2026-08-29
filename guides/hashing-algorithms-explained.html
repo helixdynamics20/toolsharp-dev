@@ -15,14 +15,14 @@
 <meta property="og:url" content="https://toolsharp.dev/guides/hashing-algorithms-explained">
 <meta property="og:title" content="Hashing Algorithms Explained — MD5, SHA-256, bcrypt &amp; When to Use Which">
 <meta property="og:description" content="Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-hashing-algorithms-explained.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/hashing-algorithms-explained">
 <meta name="twitter:title" content="Hashing Algorithms Explained — MD5, SHA-256, bcrypt &amp; When to Use Which">
 <meta name="twitter:description" content="Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id actually do differently, current OWASP-recommended parameters, salting, HMAC, and the real collision attacks that broke MD5 and SHA-1.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-hashing-algorithms-explained.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,7 +146,7 @@
 
   <section class="notes">
     <h2>// HMAC — a different tool, often confused with plain hashing</h2>
-    <div class="comment-line"><span class="bar">│</span><p><strong>HMAC</strong> (Hash-based Message Authentication Code) combines a hash function with a secret key to prove both integrity <em>and</em> authenticity — that a message wasn't altered <em>and</em> that it came from someone who holds the key. A plain SHA-256 hash proves integrity only: anyone can compute a SHA-256 of anything, so a bare hash alongside a message proves nothing about who sent it. This is why webhook signatures, JWT's HS256 algorithm, and API request signing use HMAC-SHA256, not raw SHA-256 — the key is what turns "a hash" into "a hash only the real sender could have produced."</p></div>
+    <div class="comment-line"><span class="bar">│</span><p><strong>HMAC</strong> (Hash-based Message Authentication Code) combines a hash function with a secret key to prove both integrity <em>and</em> authenticity — that a message wasn't altered <em>and</em> that it came from someone who holds the key. A plain SHA-256 hash proves integrity only: anyone can compute a SHA-256 of anything, so a bare hash alongside a message proves nothing about who sent it. This is why webhook signatures, JWT's HS256 algorithm, and API request signing use HMAC-SHA256, not raw SHA-256 — the key is what turns "a hash" into "a hash only the real sender could have produced." See <a href="what-is-a-jwt">What Is a JWT?</a> for how this same HMAC construction is what actually signs an HS256 token.</p></div>
   </section>
 
   <section class="notes">

@@ -15,14 +15,14 @@
 <meta property="og:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta property="og:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
 <meta property="og:description" content="What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.">
-<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-what-is-a-jwt.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/what-is-a-jwt">
 <meta name="twitter:title" content="What Is a JWT? A Plain-English Guide to JSON Web Tokens">
 <meta name="twitter:description" content="What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why a JWT can't be revoked before it expires.">
-<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-what-is-a-jwt.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +117,7 @@
 
   <section class="notes">
     <h2>// symmetric vs asymmetric signing</h2>
-    <div class="comment-line"><span class="bar">│</span><p><strong>HS256</strong> uses one shared secret to both sign and verify — simple, but every service that needs to verify a token also needs the secret that can forge one. <strong>RS256</strong> and <strong>ES256</strong> use a private/public key pair: only the issuer holds the private key that signs tokens, while any number of services can hold the public key and verify without ever being able to mint a valid token themselves. For anything beyond a single trusted backend, asymmetric signing is almost always the right default.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p><strong>HS256</strong> uses one shared secret to both sign and verify — simple, but every service that needs to verify a token also needs the secret that can forge one. <strong>RS256</strong> and <strong>ES256</strong> use a private/public key pair: only the issuer holds the private key that signs tokens, while any number of services can hold the public key and verify without ever being able to mint a valid token themselves. For anything beyond a single trusted backend, asymmetric signing is almost always the right default. HS256 specifically is HMAC-SHA256 under the hood — see <a href="hashing-algorithms-explained">Hashing Algorithms Explained</a> for what HMAC actually does differently from a plain hash.</p></div>
   </section>
 
   <section class="notes">
