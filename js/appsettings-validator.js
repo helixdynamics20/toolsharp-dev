@@ -169,6 +169,17 @@ function autoFixAppsettings() {
   validateAppsettings();
 }
 
+let _asInputTimer = null;
+
+// While the text is invalid, validateAppsettings() reruns tryRepairJson()
+// from scratch to check if an auto-fix link should show — debounce plain
+// typing so a long broken paste being edited doesn't reparse on every
+// keystroke.
+function scheduleValidateAppsettings() {
+  clearTimeout(_asInputTimer);
+  _asInputTimer = setTimeout(validateAppsettings, 200);
+}
+
 function validateAppsettings() {
   const text = document.getElementById('asInput').value;
   const resultDiv = document.getElementById('asResult');

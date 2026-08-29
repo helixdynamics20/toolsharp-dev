@@ -216,6 +216,7 @@ function onModeChange() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
   document.getElementById('passwordOptions').style.display = mode === 'password' ? '' : 'none';
   document.getElementById('passphraseOptions').style.display = mode === 'passphrase' ? '' : 'none';
+  generate();
 }
 
 /* ── helpers ── */
@@ -235,8 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'chkUpper', 'chkLower', 'chkDigits', 'chkSymbols', 'chkNoAmbig',
     'wordCount', 'wordSep', 'chkCapWords', 'bulkCount'
   ]);
-  onModeChange();
   syncSlider();
   syncWordCount();
-  generate();
+  onModeChange();
 });

@@ -104,10 +104,19 @@ async function cryptoHash(algo, text) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Fires on every keystroke with no debounce, and each digest is itself
-// async -- without a guard, an older (slower) call's writes could land
-// after a newer call's, showing a hash that no longer matches the input.
+// Each digest is async -- without a guard, an older (slower) call's writes
+// could land after a newer call's, showing a hash that no longer matches
+// the input.
 let hashGenToken = 0;
+let _hashInputTimer = null;
+
+// md5() below is a synchronous hand-rolled implementation (the others go
+// through async crypto.subtle), so debounce plain typing to avoid running
+// it on every keystroke for a large pasted document.
+function scheduleGenerateHashes() {
+  clearTimeout(_hashInputTimer);
+  _hashInputTimer = setTimeout(generateHashes, 200);
+}
 
 async function generateHashes() {
   const input = document.getElementById('hashInput').value;

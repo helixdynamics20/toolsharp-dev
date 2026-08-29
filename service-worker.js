@@ -96,7 +96,24 @@ self.addEventListener('fetch', (event) => {
         return response;
       }
       const responseToCache = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+      const requestUrl = new URL(event.request.url);
+      caches.open(CACHE_NAME).then(async (cache) => {
+        // Build-time query-string versioning (?v=...) on css/js means every
+        // deploy fetches a new URL per asset -- without pruning, the old
+        // version stays cached forever under its old URL and storage grows
+        // unbounded across deploys. Drop any other cached entry for the
+        // same path before storing the new version.
+        if (requestUrl.search) {
+          const keys = await cache.keys();
+          await Promise.all(keys.map((key) => {
+            const keyUrl = new URL(key.url);
+            if (keyUrl.pathname === requestUrl.pathname && keyUrl.search !== requestUrl.search) {
+              return cache.delete(key);
+            }
+          }));
+        }
+        cache.put(event.request, responseToCache);
+      });
       return response;
     }).catch(() => {
       return caches.match(event.request).then((cachedResponse) => {
