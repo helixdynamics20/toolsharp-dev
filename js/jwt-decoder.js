@@ -17,7 +17,10 @@ function formatTs(ts) {
 }
 
 async function decodeJwt() {
-  const input = document.getElementById('jwtInput').value.trim();
+  // The single most common real-world paste for this tool is straight out
+  // of a curl command or an API client's headers panel, which includes the
+  // scheme prefix -- strip it rather than making that a parse error.
+  const input = document.getElementById('jwtInput').value.trim().replace(/^Bearer\s+/i, '');
   const resultDiv = document.getElementById('jwtResult');
   const verifyResult = document.getElementById('verifyResult');
   if (!input) { resultDiv.innerHTML = ''; verifyResult.style.display = 'none'; return; }

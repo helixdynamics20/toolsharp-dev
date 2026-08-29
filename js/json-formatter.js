@@ -119,6 +119,7 @@ function renderResult(checks, formatted, parsed) {
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
         ${hasTree ? `<span class="json-view-tabs"><button id="jsonTabText" class="json-tab-btn active" onclick="showJsonViewTab('text')">text</button><button id="jsonTabTree" class="json-tab-btn" onclick="showJsonViewTab('tree')">tree</button></span>` : ''}
+        <button class="copy-btn" onclick="downloadElementValue('jsonOutputPre', 'formatted.json')">download</button>
         <button class="copy-btn" onclick="copyElementValue('jsonOutputPre', this)">copy</button>
       </div>
       <div class="output-block">

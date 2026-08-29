@@ -77,7 +77,7 @@
         </div>
 
         <div class="field">
-          <label><span class="key">Error correction</span></label>
+          <label for="qrLevel"><span class="key">Error correction</span></label>
           <select id="qrLevel" onchange="generateQr()">
             <option value="L">L — recovers ~7% (smallest code)</option>
             <option value="M" selected>M — recovers ~15% (default)</option>
@@ -87,7 +87,7 @@
         </div>
 
         <div class="field">
-          <label><span class="key">Size</span></label>
+          <label for="qrScale"><span class="key">Size</span></label>
           <div class="slider-row" style="display:flex;align-items:center;gap:10px;">
             <input type="range" id="qrScale" min="3" max="14" value="6" oninput="document.getElementById('qrScaleVal').textContent=this.value; generateQr()" style="flex:1;">
             <span id="qrScaleVal" class="mono" style="font-family:var(--mono);font-weight:600;color:var(--violet-dark);min-width:24px;">6</span>
@@ -96,7 +96,7 @@
         </div>
 
         <div class="field" style="margin-bottom:0;">
-          <label><span class="key">Colors</span></label>
+          <label for="qrDark"><span class="key">Colors</span></label>
           <div class="qr-color-row">
             <input type="color" id="qrDark" value="#000000" oninput="generateQr()">
             <label for="qrDark">foreground</label>
@@ -117,7 +117,7 @@
       <div class="tab">qrcode.png</div>
       <div class="body">
         <div class="qr-preview">
-          <canvas id="qrCanvas"></canvas>
+          <canvas id="qrCanvas" role="img" aria-label="Generated QR code"></canvas>
           <div class="empty" id="qrEmpty">Type something on the left to generate a QR code.</div>
         </div>
         <div id="qrError" class="callout error" style="display:none;"></div>

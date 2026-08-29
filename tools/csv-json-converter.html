@@ -83,7 +83,7 @@
           <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="scheduleConvertCsvToJson()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
-          <label><span class="key">Delimiter</span></label>
+          <label for="csvDelimiter"><span class="key">Delimiter</span></label>
           <select id="csvDelimiter" onchange="convertCsvToJson()">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
@@ -103,6 +103,7 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.json</span>
+        <button class="copy-btn" onclick="downloadElementValue('csvJsonOutput', 'converted.json')">download</button>
         <button class="copy-btn" onclick="copyElementValue('csvJsonOutput', this)">copy</button>
       </div>
       <div id="csvJsonMsg" style="padding: 0 16px;"></div>
@@ -120,7 +121,7 @@
           <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="scheduleConvertJsonToCsv()"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
-          <label><span class="key">Delimiter</span></label>
+          <label for="jsonToCsvDelimiter"><span class="key">Delimiter</span></label>
           <select id="jsonToCsvDelimiter" onchange="convertJsonToCsv()">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
@@ -140,6 +141,7 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.csv</span>
+        <button class="copy-btn" onclick="downloadElementValue('jsonToCsvOutput', 'converted.csv')">download</button>
         <button class="copy-btn" onclick="copyElementValue('jsonToCsvOutput', this)">copy</button>
       </div>
       <div id="jsonToCsvMsg" style="padding: 0 16px;"></div>

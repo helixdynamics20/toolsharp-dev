@@ -64,14 +64,14 @@
       <div class="tab">schedule.cron — build one</div>
       <div class="body">
         <div class="field">
-          <label><span class="key">Target</span></label>
+          <label for="cronFlavor"><span class="key">Target</span></label>
           <select id="cronFlavor" onchange="buildCron()">
             <option value="hangfire">Hangfire / standard 5-field cron</option>
             <option value="quartz">Quartz.NET (6-field, includes seconds)</option>
           </select>
         </div>
         <div class="field">
-          <label><span class="key">Frequency</span></label>
+          <label for="cronFreq"><span class="key">Frequency</span></label>
           <select id="cronFreq" onchange="onFreqChange()">
             <option value="everyMinute">Every minute</option>
             <option value="everyNMinutes">Every N minutes</option>

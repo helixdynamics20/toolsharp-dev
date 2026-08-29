@@ -71,15 +71,15 @@
       <div class="tab">build.env — fill in the fields</div>
       <div class="body">
         <div class="field">
-          <label><span class="key">Server</span></label>
+          <label for="csServer"><span class="key">Server</span></label>
           <input type="text" id="csServer" placeholder="e.g. myserver.database.windows.net or localhost\SQLEXPRESS">
         </div>
         <div class="field">
-          <label><span class="key">Database</span></label>
+          <label for="csDatabase"><span class="key">Database</span></label>
           <input type="text" id="csDatabase" placeholder="e.g. StoredValueDb">
         </div>
         <div class="field">
-          <label><span class="key">Authentication</span></label>
+          <label for="csAuth"><span class="key">Authentication</span></label>
           <select id="csAuth">
             <option value="sql">SQL Server Authentication (User Id / Password)</option>
             <option value="windows">Windows Authentication (Integrated Security)</option>
@@ -90,11 +90,11 @@
         </div>
         <div class="row-2" id="csCreds">
           <div class="field">
-            <label><span class="key">User Id</span></label>
+            <label for="csUser"><span class="key">User Id</span></label>
             <input type="text" id="csUser" placeholder="e.g. app_user">
           </div>
           <div class="field">
-            <label><span class="key">Password</span></label>
+            <label for="csPass"><span class="key">Password</span></label>
             <input type="password" id="csPass" placeholder="••••••••">
           </div>
         </div>
@@ -112,11 +112,11 @@
         </div>
         <div class="row-2">
           <div class="field">
-            <label><span class="key">Connect Timeout</span> (seconds)</label>
+            <label for="csTimeout"><span class="key">Connect Timeout</span> (seconds)</label>
             <input type="number" id="csTimeout" placeholder="30">
           </div>
           <div class="field">
-            <label><span class="key">Application Name</span></label>
+            <label for="csAppName"><span class="key">Application Name</span></label>
             <input type="text" id="csAppName" placeholder="e.g. StoredValue.Api">
           </div>
         </div>

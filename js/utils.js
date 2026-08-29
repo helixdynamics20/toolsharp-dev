@@ -19,6 +19,30 @@ function copyElementValue(id, btn) {
   copyToClipboard(text, btn);
 }
 
+// Saves arbitrary text as a downloaded file -- for tools whose output is
+// realistically too large to want to paste back out of a text field.
+function downloadTextAsFile(filename, text) {
+  if (!text) return;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Same as above but reads from a form field's .value or a plain element's
+// .textContent, mirroring copyElementValue's dual-purpose lookup.
+function downloadElementValue(id, filename) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var text = 'value' in el ? el.value : el.textContent;
+  downloadTextAsFile(filename, text);
+}
+
 // Persist a set of form-field values per tool (localStorage), so a
 // user's preferred options survive a reload/return visit. Call once on
 // init -- before the tool's own initial render -- with the tool's

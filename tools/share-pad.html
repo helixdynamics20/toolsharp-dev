@@ -91,21 +91,21 @@
 
         <div id="outputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
           <div class="field" style="margin-bottom: 12px;">
-            <label><span class="key">6-Digit Dictation Code</span></label>
+            <label for="shareCode"><span class="key">6-Digit Dictation Code</span></label>
             <div style="display: flex; gap: 8px; align-items: center;">
               <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
               <button class="btn secondary" onclick="copyElementValue('shareCode', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 12px;">
-            <label><span class="key">Quick Share Link</span></label>
+            <label for="shareLink"><span class="key">Quick Share Link</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="shareLink" readonly style="flex: 1;">
               <button class="btn secondary" onclick="copyElementValue('shareLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 0;">
-            <label><span class="key">Offline Fallback Link (No database)</span></label>
+            <label for="offlineLink"><span class="key">Offline Fallback Link (No database)</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="offlineLink" readonly style="flex: 1; font-size: 11px;">
               <button class="btn secondary" onclick="copyElementValue('offlineLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
@@ -129,7 +129,7 @@
 
         <div id="retrieveOutputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
           <div class="field" style="margin-bottom: 12px;">
-            <label><span class="key">Retrieved Output</span></label>
+            <label for="retrievedOutput"><span class="key">Retrieved Output</span></label>
             <textarea id="retrievedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
           </div>
           <div class="btn-row">

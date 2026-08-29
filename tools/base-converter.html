@@ -64,7 +64,7 @@
       <div class="tab">input.txt</div>
       <div class="body">
         <div class="field">
-          <label><span class="key">Input base</span></label>
+          <label for="baseBin"><span class="key">Input base</span></label>
           <div class="mode-toggle">
             <input type="radio" name="inputBase" id="baseBin" value="2" onchange="convertBase()">
             <label for="baseBin">Binary</label>
@@ -91,25 +91,25 @@
       <div class="tab">converted.txt</div>
       <div class="body">
         <div class="field">
-          <label>Binary</label>
+          <label for="binOutput">Binary</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="binOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
             <button class="btn" onclick="copyElementValue('binOutput', this)">Copy</button>
           </div>
 
-          <label>Octal</label>
+          <label for="octOutput">Octal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="octOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
             <button class="btn" onclick="copyElementValue('octOutput', this)">Copy</button>
           </div>
 
-          <label>Decimal</label>
+          <label for="decOutput">Decimal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="decOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
             <button class="btn" onclick="copyElementValue('decOutput', this)">Copy</button>
           </div>
 
-          <label>Hexadecimal</label>
+          <label for="hexOutput">Hexadecimal</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
             <button class="btn" onclick="copyElementValue('hexOutput', this)">Copy</button>

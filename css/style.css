@@ -8,7 +8,7 @@
   --bg-raised: #FBFAFE;
   --ink: #191330;
   --ink-soft: #4A4360;
-  --ink-faint: #8B84A3;
+  --ink-faint: #6A6288; /* ~4.99:1 vs --bg -- was #8B84A3 (~3.1:1, fails WCAG AA for the small meaningful text it's used on: hints, gutters, empty states) */
   --rule: #D6D2E8;
   --rule-strong: #B7B0D6;
   --violet: #6C4CE0;
@@ -546,7 +546,7 @@ body.dark-theme {
   --bg-raised: #1c1730;
   --ink: #e2dfec;
   --ink-soft: #a8a2bc;
-  --ink-faint: #6c6488;
+  --ink-faint: #8880A8; /* ~4.69:1 vs --bg-raised -- was #6c6488 (~3.1:1, fails WCAG AA) */
   --rule: #2a2444;
   --rule-strong: #423b65;
   --violet: #8c73ec;
@@ -629,7 +629,7 @@ body.dark-theme .site-header {
 }
 #toolFilter::placeholder {
   color: var(--ink-soft);
-  opacity: 0.55;
+  opacity: 0.8; /* was 0.55 (~2.8:1 vs bg-raised, fails WCAG AA); 0.8 clears 4.5:1 in both themes */
 }
 
 /* ---------------- Command Palette ---------------- */

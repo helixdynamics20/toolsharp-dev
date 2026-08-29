@@ -77,7 +77,7 @@
         <div class="tab">pattern.regex</div>
         <div class="body">
           <div class="field">
-            <label><span class="key">Pattern</span></label>
+            <label for="rxPattern"><span class="key">Pattern</span></label>
             <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$" oninput="runRegex()">
           </div>
           <div class="check-row"><input type="checkbox" id="rxIgnoreCase" onchange="runRegex()"><label for="rxIgnoreCase">IgnoreCase</label></div>
@@ -86,7 +86,7 @@
           <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
           <div id="rxExplain"></div>
           <div class="field" style="margin-top:14px;">
-            <label><span class="key">Test string</span></label>
+            <label for="rxTestString"><span class="key">Test string</span></label>
             <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
           </div>
           <div class="btn-row">

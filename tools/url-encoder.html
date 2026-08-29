@@ -95,7 +95,7 @@
       <div class="tab">input</div>
       <div class="body">
         <div class="field">
-          <label><span class="key">Mode</span></label>
+          <label for="modeComponent"><span class="key">Mode</span></label>
           <div class="mode-toggle">
             <input type="radio" name="urlMode" id="modeComponent" value="component" checked>
             <label for="modeComponent">encodeURIComponent</label>
@@ -146,7 +146,7 @@
     <div class="body">
       <div class="row-2" style="display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:12px;">
         <div class="field" style="margin:0;">
-          <label><span class="key">Protocol</span></label>
+          <label for="buildProtocol"><span class="key">Protocol</span></label>
           <select id="buildProtocol">
             <option value="https">https</option>
             <option value="http">http</option>
@@ -154,12 +154,12 @@
           </select>
         </div>
         <div class="field" style="margin:0;">
-          <label><span class="key">Host</span></label>
+          <label for="buildHost"><span class="key">Host</span></label>
           <input type="text" id="buildHost" placeholder="e.g. api.example.com">
         </div>
       </div>
       <div class="field">
-        <label><span class="key">Path</span></label>
+        <label for="buildPath"><span class="key">Path</span></label>
         <input type="text" id="buildPath" placeholder="/v1/users/123">
       </div>
       <div class="field">
@@ -168,7 +168,7 @@
         <button class="btn secondary" style="margin-top:6px;" onclick="addParamRow()">+ add param</button>
       </div>
       <div class="field">
-        <label><span class="key">Hash / Fragment</span></label>
+        <label for="buildHash"><span class="key">Hash / Fragment</span></label>
         <input type="text" id="buildHash" placeholder="#section-id">
       </div>
       <div class="btn-row">
