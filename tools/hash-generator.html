@@ -42,7 +42,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -115,6 +115,9 @@
 
     <h2>// how this tool computes the hashes</h2>
     <div class="comment-line"><span class="bar">│</span><p>SHA-1, SHA-256, and SHA-512 are computed via the browser's <code>SubtleCrypto</code> API (<code>crypto.subtle.digest()</code>), which uses the browser's native cryptographic implementation — no third-party library involved. MD5 is not part of the Web Crypto API (it's considered legacy), so this tool uses a pure-JavaScript MD5 implementation. All inputs are UTF-8 encoded before hashing, matching how .NET's <code>Encoding.UTF8.GetBytes()</code> + <code>SHA256.HashData()</code> behaves.</p></div>
+
+    <h2>// learn more</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For how each algorithm works internally and when to reach for which one, see <a href="../guides/hashing-algorithms-explained">Hashing Algorithms Explained</a>.</p></div>
   </section>
 </main>
 

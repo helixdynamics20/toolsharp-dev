@@ -42,7 +42,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -107,6 +107,9 @@
       <li><strong>exp</strong> (expiration) and <strong>nbf</strong> (not before) are Unix timestamps in seconds, not milliseconds — a common off-by-1000x bug when these get compared against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code> in .NET.</li>
       <li>Clock skew between your server and the token issuer is a frequent source of "valid token rejected" bugs — <code>Microsoft.IdentityModel.Tokens</code>' <code>TokenValidationParameters.ClockSkew</code> defaults to 5 minutes of leeway for exactly this reason.</li>
     </ul>
+
+    <h2>// learn more</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For a fuller breakdown of a JWT's structure and how signature verification actually works, see <a href="../guides/what-is-a-jwt">What Is a JWT?</a></p></div>
   </section>
 </main>
 

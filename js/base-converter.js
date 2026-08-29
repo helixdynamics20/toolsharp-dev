@@ -132,3 +132,5 @@ function clearBaseInput() {
   showError('');
   clearOutputs();
 }
+
+persistFormState('base-converter', ['baseBin', 'baseOct', 'baseDec', 'baseHex']);

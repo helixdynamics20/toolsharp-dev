@@ -342,5 +342,7 @@ function renderExplanation(pattern) {
 }
 
 window.addEventListener('load', function() {
+  persistFormState('regex-tester', ['rxIgnoreCase', 'rxMultiline', 'rxSingleline', 'rxGlobal']);
+  runRegex();
   updateCodeGen();
 });

@@ -312,3 +312,5 @@ function highlightJsonText(jsonString) {
   });
 }
 
+persistFormState('appsettings-validator', ['asStrict']);
+

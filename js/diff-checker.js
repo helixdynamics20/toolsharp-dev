@@ -445,6 +445,8 @@ function escapeHtml(str) {
 /* ── init ── */
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('diff-checker', ['chkHideUnchanged', 'chkIgnoreWs', 'chkAuto']);
+
   const orig = document.getElementById('diffOriginal');
   const changed = document.getElementById('diffChanged');
   orig.addEventListener('input', scheduleAuto);

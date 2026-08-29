@@ -90,5 +90,7 @@ function tryQrExample() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  persistFormState('qr-code-generator', ['qrLevel', 'qrScale', 'qrDark', 'qrLight']);
   document.getElementById('qrScaleVal').textContent = document.getElementById('qrScale').value;
+  generateQr();
 });

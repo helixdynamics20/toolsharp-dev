@@ -49,7 +49,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="../">← all tools</a><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
   </div>
 </header>
 
@@ -163,6 +163,9 @@
 
     <h2>// the year 2038 problem</h2>
     <div class="comment-line"><span class="bar">│</span><p>32-bit signed integers can hold Unix timestamps up to <code>2,147,483,647</code> — which corresponds to January 19, 2038 at 03:14:07 UTC. Systems that store timestamps in a 32-bit <code>int</code> will overflow on that date. Most modern systems use 64-bit integers for timestamps, but the problem still surfaces in embedded systems, legacy databases using <code>int</code> columns for timestamps, or old serialization formats that pack timestamps into 4 bytes. If you're designing a new system, always use a 64-bit type for timestamps.</p></div>
+
+    <h2>// learn more</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For more on epoch time and the seconds/milliseconds distinction, see <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a>.</p></div>
   </section>
 </main>
 

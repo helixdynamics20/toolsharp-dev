@@ -309,5 +309,7 @@ function clearJsonInput() {
   convertJsonToCsv();
 }
 
+persistFormState('csv-json-converter', ['csvDelimiter', 'jsonToCsvDelimiter']);
+
 // ── copy ──
 

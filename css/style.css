@@ -273,6 +273,12 @@ body.dark-theme .dir-category { background: #0f0d1a; }
 }
 .tool-grid.single { grid-template-columns: 1fr; max-width: 720px; }
 
+/* regex-tester: main column + a narrower cheat-sheet sidebar, not 1fr 1fr */
+.tool-grid.rx-grid { grid-template-columns: 1fr 300px; }
+@media (max-width: 800px) {
+  .tool-grid.rx-grid { grid-template-columns: 1fr; }
+}
+
 .config-block {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -395,7 +401,8 @@ body.dark-theme .dir-category { background: #0f0d1a; }
   background: var(--bg);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
-  padding: 4px 9px;
+  padding: 9px 12px;
+  min-height: 36px;
   cursor: pointer;
   margin-left: auto;
 }
@@ -791,6 +798,8 @@ body.dark-theme .nav-dropdown-item:hover {
   color: var(--ink);
   cursor: pointer;
   padding: 4px 6px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: var(--radius);
 }
 .mobile-menu-toggle:hover { background: var(--violet-wash); }
