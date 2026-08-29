@@ -25,14 +25,17 @@ function setView(v) {
   currentView = v;
   document.getElementById('btnSplit').classList.toggle('active', v === 'split');
   document.getElementById('btnUnified').classList.toggle('active', v === 'unified');
-  runDiff();
+  // Re-render from the frozen currentRows rather than re-diffing -- view mode
+  // never changes the diff itself, and re-diffing here would re-read the
+  // textareas, which a merge-in-progress may have already written into.
+  if (currentRows.length) renderDiffUI();
 }
 
 function setPrecision(p) {
   currentPrecision = p;
   document.getElementById('btnWord').classList.toggle('active', p === 'word');
   document.getElementById('btnChar').classList.toggle('active', p === 'char');
-  runDiff();
+  if (currentRows.length) renderDiffUI();
 }
 
 /* ── common prefix/suffix trim ──
@@ -140,6 +143,20 @@ function buildRows(lineOps) {
   return rows;
 }
 
+// Groups consecutive non-"same" rows into hunks, so a whole block of
+// changes can be merged in one click instead of one line at a time.
+function computeBlocks(rows) {
+  const blocks = [];
+  let i = 0;
+  while (i < rows.length) {
+    if (rows[i].type === 'same') { i++; continue; }
+    const start = i;
+    while (i < rows.length && rows[i].type !== 'same') i++;
+    blocks.push({ start, count: i - start });
+  }
+  return blocks;
+}
+
 /* ── split view HTML ── */
 
 function renderSplit(rows, hideUnchanged) {
@@ -147,6 +164,7 @@ function renderSplit(rows, hideUnchanged) {
   const CONTEXT = 3; // unchanged lines to show around changes
   const changed = new Set();
   rows.forEach((r, idx) => { if (r.type !== 'same') changed.add(idx); });
+  const blockStarts = new Map(computeBlocks(rows).map(b => [b.start, b]));
 
   const visible = new Set();
   rows.forEach((_, idx) => {
@@ -177,6 +195,14 @@ function renderSplit(rows, hideUnchanged) {
         chunks[chunks.length - 1].count = (chunks[chunks.length - 1].count || 1) + 1;
       }
       prev = idx; continue;
+    }
+
+    if (blockStarts.has(idx)) {
+      const b = blockStarts.get(idx);
+      chunks.push({ type: 'row', html: `<div class="diff-block-bar">
+        <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
+        <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
+      </div>` });
     }
 
     let leftContent = '', rightContent = '', leftBg = '', rightBg = '';
@@ -239,6 +265,7 @@ function renderUnified(rows, hideUnchanged) {
   const CONTEXT = 3;
   const changed = new Set();
   rows.forEach((r, idx) => { if (r.type !== 'same') changed.add(idx); });
+  const blockStarts = new Map(computeBlocks(rows).map(b => [b.start, b]));
 
   const visible = new Set();
   rows.forEach((_, idx) => {
@@ -265,6 +292,14 @@ function renderUnified(rows, hideUnchanged) {
     if (hiddenCount > 0) {
       lines.push(`<div class="diff-hidden-lines" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
       hiddenCount = 0;
+    }
+
+    if (blockStarts.has(idx)) {
+      const b = blockStarts.get(idx);
+      lines.push(`<div class="diff-block-bar">
+        <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
+        <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
+      </div>`);
     }
 
     if (row.type === 'same') {
@@ -371,7 +406,7 @@ function renderDiffUI() {
         <button id="mergeTargetLeftBtn" class="${mergeTarget === 'left' ? 'active' : ''}" onclick="setMergeTarget('left')">← Left</button>
         <button id="mergeTargetRightBtn" class="${mergeTarget === 'right' ? 'active' : ''}" onclick="setMergeTarget('right')">Right →</button>
       </div>
-      <span class="merge-hint">Click a highlighted line below to keep that side — the ${mergeTarget} box becomes your merged result.</span>
+      <span class="merge-hint">Click a line to keep just that line, or a block button to take a whole change at once — the ${mergeTarget} box becomes your merged result.</span>
     </div>`;
 
   const summaryHtml = `
@@ -419,7 +454,13 @@ function renderDiffUI() {
   }
 }
 
-/* ── merge: pick a side for one changed line ── */
+/* ── merge: pick a side for one changed line, or a whole block at once ── */
+
+function pickMergeBlock(start, count, side) {
+  for (let i = start; i < start + count; i++) mergeResolution.set(i, side);
+  renderDiffUI();
+  applyMergedText();
+}
 
 function pickMergeSide(idx, side) {
   mergeResolution.set(idx, side);
@@ -560,7 +601,14 @@ document.addEventListener('DOMContentLoaded', () => {
   orig.addEventListener('input', scheduleAuto);
   changed.addEventListener('input', scheduleAuto);
 
-  document.getElementById('chkHideUnchanged').addEventListener('change', runDiff);
+  // Hiding/showing unchanged lines only affects rendering, not the diff
+  // itself -- re-render from the frozen rows instead of re-diffing (which
+  // would re-read the textareas, risking a merge-in-progress). Ignoring
+  // whitespace does change the diff algorithm, so that one needs a real
+  // re-diff.
+  document.getElementById('chkHideUnchanged').addEventListener('change', () => {
+    if (currentRows.length) renderDiffUI();
+  });
   document.getElementById('chkIgnoreWs').addEventListener('change', runDiff);
   document.getElementById('chkAuto').addEventListener('change', () => {
     if (document.getElementById('chkAuto').checked) runDiff();
