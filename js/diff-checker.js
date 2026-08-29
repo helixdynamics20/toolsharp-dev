@@ -11,6 +11,14 @@ let autoTimer = null;
 let expandedRowIndices = new Set();
 let _lastDiffContentKey = null;
 
+/* ── merge: pick a side per changed line, build the result into
+   whichever box ('left' | 'right') is currently the merge target ── */
+let mergeTarget = 'right';
+let mergeResolution = new Map(); // rowIndex -> 'left' | 'right', explicit overrides only
+let currentRows = [];
+let currentALen = 0;
+let currentBLen = 0;
+
 /* ── state controls ── */
 
 function setView(v) {
@@ -193,9 +201,24 @@ function renderSplit(rows, hideUnchanged) {
       leftGutter = ''; rightGutter = rn;
     }
 
+    // A changed line can be picked into the merge target -- both sides are
+    // always clickable, even the empty "no content here" side, since
+    // picking that side means "adopt the removal/addition" rather than
+    // "keep the original".
+    let leftPickCls = '', rightPickCls = '', leftClick = '', rightClick = '';
+    if (row.type !== 'same') {
+      const resolved = mergeResolution.get(idx) || mergeTarget;
+      leftPickCls = ' pickable' + (resolved === 'left' ? ' picked' : '');
+      rightPickCls = ' pickable' + (resolved === 'right' ? ' picked' : '');
+      leftClick = ` onclick="pickMergeSide(${idx}, 'left')"`;
+      rightClick = ` onclick="pickMergeSide(${idx}, 'right')"`;
+      if (leftBg === 'empty') leftContent = '<span class="omit-label">omit</span>';
+      if (rightBg === 'empty') rightContent = '<span class="omit-label">omit</span>';
+    }
+
     chunks.push({ type: 'row', html: `<div class="diff-row">
-      <div class="diff-cell left ${leftBg}"><span class="gutter">${leftGutter}</span><span class="content">${leftContent}</span></div>
-      <div class="diff-cell right ${rightBg}"><span class="gutter">${rightGutter}</span><span class="content">${rightContent}</span></div>
+      <div class="diff-cell left ${leftBg}${leftPickCls}"${leftClick}><span class="gutter">${leftGutter}</span><span class="content">${leftContent}</span></div>
+      <div class="diff-cell right ${rightBg}${rightPickCls}"${rightClick}><span class="gutter">${rightGutter}</span><span class="content">${rightContent}</span></div>
     </div>` });
     prev = idx;
   }
@@ -249,14 +272,21 @@ function renderUnified(rows, hideUnchanged) {
       leftNo++; rightNo++;
     } else if (row.type === 'modified') {
       const { left, right } = renderInlineDiff(row.left, row.right);
-      lines.push(`<div class="unified-row ur-remove"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${left}</span></div>`);
-      lines.push(`<div class="unified-row ur-add"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${right}</span></div>`);
+      const resolved = mergeResolution.get(idx) || mergeTarget;
+      lines.push(`<div class="unified-row ur-remove pickable${resolved === 'left' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'left')"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${left}</span></div>`);
+      lines.push(`<div class="unified-row ur-add pickable${resolved === 'right' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, 'right')"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${right}</span></div>`);
       leftNo++; rightNo++;
     } else if (row.type === 'removed') {
-      lines.push(`<div class="unified-row ur-remove"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
+      // Only one side has a line to click here -- clicking it toggles
+      // between keeping the line (left) and adopting the removal (right).
+      const resolved = mergeResolution.get(idx) || mergeTarget;
+      const toggleTo = resolved === 'left' ? 'right' : 'left';
+      lines.push(`<div class="unified-row ur-remove pickable${resolved === 'left' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${resolved === 'left' ? 'omit' : 'keep'} this line"><span class="sign">−</span><span class="u-gutter">${leftNo}</span><span class="u-content">${escapeHtml(row.left)}</span></div>`);
       leftNo++;
     } else {
-      lines.push(`<div class="unified-row ur-add"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
+      const resolved = mergeResolution.get(idx) || mergeTarget;
+      const toggleTo = resolved === 'right' ? 'left' : 'right';
+      lines.push(`<div class="unified-row ur-add pickable${resolved === 'right' ? ' picked' : ''}" onclick="pickMergeSide(${idx}, '${toggleTo}')" title="Click to ${resolved === 'right' ? 'omit' : 'keep'} this line"><span class="sign">+</span><span class="u-gutter">${rightNo}</span><span class="u-content">${escapeHtml(row.right)}</span></div>`);
       rightNo++;
     }
   }
@@ -274,16 +304,18 @@ function runDiff() {
   const ignoreWs = document.getElementById('chkIgnoreWs').checked;
   const resultDiv = document.getElementById('diffResult');
 
-  if (!origRaw && !changedRaw) { resultDiv.innerHTML = ''; return; }
+  if (!origRaw && !changedRaw) { resultDiv.innerHTML = ''; currentRows = []; return; }
 
   if (!origRaw || !changedRaw) {
     resultDiv.innerHTML = '<div class="callout warn">Paste content into both boxes to compare.</div>';
+    currentRows = [];
     return;
   }
 
   const contentKey = origRaw.length + ':' + origRaw + changedRaw.length + ':' + changedRaw + (ignoreWs ? ':ws' : '');
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
+    mergeResolution = new Map();
     _lastDiffContentKey = contentKey;
   }
 
@@ -304,6 +336,7 @@ function runDiff() {
   const DIM_CAP = 20_000;
   if (aMid.length > DIM_CAP || bMid.length > DIM_CAP || aMid.length * bMid.length > 16_000_000) {
     resultDiv.innerHTML = '<div class="callout error">The changed region is too large to diff in-browser (~4 000 differing lines each side — identical leading/trailing lines don\'t count against this). Paste a smaller excerpt, or use your editor\'s built-in diff view.</div>';
+    currentRows = [];
     return;
   }
 
@@ -312,26 +345,56 @@ function runDiff() {
     ...diffArrays(aMid, bMid),
     ...aLines.slice(aLines.length - suffixLen).map(item => ({ type: 'same', item })),
   ];
-  const rows = buildRows(lineOps);
+  currentRows = buildRows(lineOps);
+  currentALen = aLines.length;
+  currentBLen = bLines.length;
+
+  renderDiffUI();
+}
+
+/* ── render the summary + body from the frozen currentRows ──
+   Called after runDiff() computes a new diff, and again (without
+   re-diffing) whenever a merge pick or merge-target changes, so picking
+   a side never perturbs the row structure mid-merge. */
+function renderDiffUI() {
+  const hideUnchanged = document.getElementById('chkHideUnchanged').checked;
+  const resultDiv = document.getElementById('diffResult');
+  const rows = currentRows;
 
   const removalsCount = rows.filter(r => r.type === 'removed' || r.type === 'modified').length;
   const additionsCount = rows.filter(r => r.type === 'added' || r.type === 'modified').length;
+
+  const mergeBarHtml = `
+    <div class="diff-merge-bar">
+      <span class="toolbar-label">Merge into</span>
+      <div class="view-toggle">
+        <button id="mergeTargetLeftBtn" class="${mergeTarget === 'left' ? 'active' : ''}" onclick="setMergeTarget('left')">← Left</button>
+        <button id="mergeTargetRightBtn" class="${mergeTarget === 'right' ? 'active' : ''}" onclick="setMergeTarget('right')">Right →</button>
+      </div>
+      <span class="merge-hint">Click a highlighted line below to keep that side — the ${mergeTarget} box becomes your merged result.</span>
+    </div>`;
 
   const summaryHtml = `
     <div class="diff-summary-row">
       <div class="diff-summary-side removals">
         <span class="dot"></span>
         <strong>${removalsCount}</strong> removal${removalsCount === 1 ? '' : 's'}
-        <span class="linecount">&nbsp;·&nbsp;${aLines.length} line${aLines.length === 1 ? '' : 's'}</span>
+        <span class="linecount">&nbsp;·&nbsp;${currentALen} line${currentALen === 1 ? '' : 's'}</span>
         <button class="copy-btn" onclick="copyElementValue('diffOriginal', this)">copy</button>
       </div>
       <div class="diff-summary-side additions">
         <span class="dot"></span>
         <strong>${additionsCount}</strong> addition${additionsCount === 1 ? '' : 's'}
-        <span class="linecount">&nbsp;·&nbsp;${bLines.length} line${bLines.length === 1 ? '' : 's'}</span>
+        <span class="linecount">&nbsp;·&nbsp;${currentBLen} line${currentBLen === 1 ? '' : 's'}</span>
         <button class="copy-btn" onclick="copyElementValue('diffChanged', this)">copy</button>
       </div>
     </div>`;
+
+  // Preserve scroll position across a merge-pick re-render -- the body
+  // element is fully rebuilt below, so its scrollTop would otherwise
+  // reset to 0 on every click.
+  const prevBody = resultDiv.querySelector('.diff-split-body');
+  const prevScroll = prevBody ? prevBody.scrollTop : 0;
 
   const bodyHtml = currentView === 'unified'
     ? renderUnified(rows, hideUnchanged)
@@ -341,7 +404,52 @@ function runDiff() {
     ? '<div class="callout ok" style="margin-top:12px;">No differences — the two inputs are identical.</div>'
     : '';
 
-  resultDiv.innerHTML = summaryHtml + bodyHtml + identicalNote;
+  resultDiv.innerHTML = mergeBarHtml + summaryHtml + bodyHtml + identicalNote;
+
+  const newBody = resultDiv.querySelector('.diff-split-body');
+  if (newBody) {
+    // The site sets `html { scroll-behavior: smooth }` globally, which
+    // browsers also apply to a programmatic scrollTop assignment on this
+    // scrollable container -- without forcing 'auto' here, restoring scroll
+    // position after every merge-pick re-render would animate instead of
+    // snapping back instantly, and the still-settling layout briefly makes
+    // elements underneath register as unclickable.
+    newBody.style.scrollBehavior = 'auto';
+    newBody.scrollTop = prevScroll;
+  }
+}
+
+/* ── merge: pick a side for one changed line ── */
+
+function pickMergeSide(idx, side) {
+  mergeResolution.set(idx, side);
+  renderDiffUI();
+  applyMergedText();
+}
+
+function setMergeTarget(side) {
+  mergeTarget = side;
+  renderDiffUI();
+  applyMergedText();
+}
+
+function applyMergedText() {
+  if (!currentRows.length) return;
+  // A merge write is not a "genuine edit" that should trigger a fresh
+  // auto-compare -- cancel any pending auto-compare timer armed by earlier
+  // keystrokes, so it can't fire after this write and re-diff the already-
+  // merged content (which would silently reset the in-progress merge).
+  clearTimeout(autoTimer);
+  const parts = [];
+  currentRows.forEach((row, idx) => {
+    if (row.type === 'same') { parts.push(row.left); return; }
+    const pick = mergeResolution.get(idx) || mergeTarget;
+    if (row.type === 'modified') parts.push(pick === 'left' ? row.left : row.right);
+    else if (row.type === 'removed') { if (pick === 'left') parts.push(row.left); }
+    else if (row.type === 'added') { if (pick === 'right') parts.push(row.right); }
+  });
+  const targetId = mergeTarget === 'left' ? 'diffOriginal' : 'diffChanged';
+  document.getElementById(targetId).value = parts.join('\n');
 }
 
 /* ── expand hidden section (split view) ── */
