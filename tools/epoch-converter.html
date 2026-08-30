@@ -38,6 +38,14 @@
 .live-clock-label { width:100px; flex-shrink:0; color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; }
 .live-clock-val { font-size:17px; font-weight:600; color:var(--violet-dark); flex:1; }
 .live-clock-str { color:var(--ink-soft); font-size:13px; flex:1; }
+@media (max-width: 480px) {
+  /* At this width, label + value + button no longer fit on one line --
+     without this, the button doesn't drop to its own line, it just gets
+     squeezed by flexbox's default shrink, wrapping "use as input" into
+     an unreadable two-line button instead. */
+  .live-clock-row { flex-wrap: wrap; row-gap: 4px; }
+  .live-clock-row .btn-sm { flex: 0 0 auto; margin-left: 112px; }
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Unix Timestamp / Epoch Converter","url":"https://toolsharp.dev/tools/epoch-converter","description":"Convert Unix timestamps in seconds or milliseconds to readable date-times and back. Shows both UTC and local time.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
