@@ -31,12 +31,14 @@
   "rewrites": [
     { "source": "/guides", "destination": "/guides/index.html" },
     { "source": "/tools/:slug", "destination": "/tools/:slug.html" },
-    { "source": "/guides/:slug", "destination": "/guides/:slug.html" }
+    { "source": "/guides/:slug", "destination": "/guides/:slug.html" },
+    { "source": "/privacy-policy", "destination": "/privacy-policy.html" }
   ],
   "redirects": [
     { "source": "/index.html", "destination": "/", "permanent": true },
     { "source": "/guides/index.html", "destination": "/guides", "permanent": true },
     { "source": "/tools/:slug.html", "destination": "/tools/:slug", "permanent": true },
-    { "source": "/guides/:slug.html", "destination": "/guides/:slug", "permanent": true }
+    { "source": "/guides/:slug.html", "destination": "/guides/:slug", "permanent": true },
+    { "source": "/privacy-policy.html", "destination": "/privacy-policy", "permanent": true }
   ]
 }
