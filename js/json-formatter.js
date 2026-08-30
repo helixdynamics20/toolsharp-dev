@@ -155,7 +155,83 @@ const ZERO_WIDTH_CODEPOINTS = [0x200B, 0x200C, 0x200D, 0x2060];
 const INVISIBLE_SPACE_SET = new Set(INVISIBLE_SPACE_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
 const ZERO_WIDTH_SET = new Set(ZERO_WIDTH_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
 
+// -- repair change-log: what tryRepairJson() actually fixed --
+// A single mutable log, reset at the start of every tryRepairJson() call.
+// Aggregated by "kind" (not one entry per occurrence) since a file can
+// have dozens of the same invisible character -- the useful summary is a
+// count plus one example location, not a line per occurrence.
+let _repairLog = [];
+
+function resetRepairLog() { _repairLog = []; }
+
+// Line/col of a specific index into text, computed on demand rather than
+// tracked through every advance of i in the main loop below -- changes
+// are rare relative to total characters, so this stays cheap in practice,
+// and it keeps the (already intricate) character-walk loop untouched.
+function posAt(text, index) {
+  let line = 1, lastNl = -1;
+  for (let k = 0; k < index && k < text.length; k++) {
+    if (text[k] === '\n') { line++; lastNl = k; }
+  }
+  return { line: line, col: index - lastNl };
+}
+
+// index of null/undefined means "no position to report" -- used for
+// repairs applied after the text has already been rewritten once
+// (trailing-comma cleanup, structural repair), where an index into that
+// rewritten text wouldn't map to a real position in the user's input.
+function logRepairChange(kind, label, text, index, count) {
+  count = count || 1;
+  if (count <= 0) return;
+  let entry = null;
+  for (let k = 0; k < _repairLog.length; k++) {
+    if (_repairLog[k].kind === kind) { entry = _repairLog[k]; break; }
+  }
+  if (!entry) {
+    entry = { kind: kind, label: label, count: 0 };
+    if (index !== null && index !== undefined) {
+      const pos = posAt(text, index);
+      entry.line = pos.line;
+      entry.col = pos.col;
+    }
+    _repairLog.push(entry);
+  }
+  entry.count += count;
+}
+
+// Turns the accumulated log into a specific, human-readable summary,
+// replacing what used to be a single generic "this was auto-fixed" note.
+function formatRepairSummary() {
+  return _repairLog.map(function (e) {
+    let text = e.label.replace('{n}', String(e.count)).replace('{s}', e.count === 1 ? '' : 's');
+    if (e.line !== undefined) text += " at line " + e.line + ", col " + e.col;
+    return text;
+  }).join(' · ');
+}
+// Structural repair works on a token stream with no position info tied
+// back to the original text, so instead of tracking exact insertions we
+// compare structural-character counts before/after: a net increase in
+// commas/colons/brackets means that many were missing and got inserted.
+// Approximate (a bracket-type correction can net to zero this way), but
+// it correctly captures the common cases without a much larger rewrite
+// of the tokenizer to carry position info through.
+function logStructuralDelta(before, after, originalText) {
+  function count(s, ch) {
+    let n = 0;
+    for (let k = 0; k < s.length; k++) if (s[k] === ch) n++;
+    return n;
+  }
+  const commaDelta = count(after, ',') - count(before, ',');
+  const colonDelta = count(after, ':') - count(before, ':');
+  const braceDelta = (count(after, '{') + count(after, '}')) - (count(before, '{') + count(before, '}'));
+  const bracketDelta = (count(after, '[') + count(after, ']')) - (count(before, '[') + count(before, ']'));
+  if (commaDelta > 0) logRepairChange('struct-comma', 'Inserted {n} missing comma{s}', originalText, null, commaDelta);
+  if (colonDelta > 0) logRepairChange('struct-colon', 'Inserted {n} missing colon{s}', originalText, null, colonDelta);
+  if (braceDelta > 0) logRepairChange('struct-brace', 'Inserted {n} missing brace{s}', originalText, null, braceDelta);
+  if (bracketDelta > 0) logRepairChange('struct-bracket', 'Inserted {n} missing bracket{s}', originalText, null, bracketDelta);
+}
 function tryRepairJson(text) {
+  resetRepairLog();
 
   let output = '';
   let i = 0;
@@ -166,6 +242,7 @@ function tryRepairJson(text) {
 
     // 1. Handle line comments
     if (char === '/' && text[i + 1] === '/') {
+      logRepairChange('comment', 'Removed {n} comment(s)', text, i);
       i += 2;
       while (i < n && text[i] !== '\n' && text[i] !== '\r') {
         i++;
@@ -175,6 +252,7 @@ function tryRepairJson(text) {
 
     // 2. Handle block comments
     if (char === '/' && text[i + 1] === '*') {
+      logRepairChange('comment', 'Removed {n} comment(s)', text, i);
       i += 2;
       while (i < n && !(text[i] === '*' && text[i + 1] === '/')) {
         i++;
@@ -186,6 +264,7 @@ function tryRepairJson(text) {
     // 3. Handle strings (single or double quoted)
     if (char === '"' || char === "'") {
       const quoteType = char;
+      if (quoteType === "'") logRepairChange('single-quote', 'Converted {n} single-quoted string{s} to double-quoted', text, i);
       output += '"'; // always output double quotes
       i++;
       while (i < n) {
@@ -235,6 +314,7 @@ function tryRepairJson(text) {
     // quote); a straight double quote also closes a smart-quoted string,
     // since copy/paste and manual edits can scramble pairing.
     if (char === '“' || char === '”') {
+      logRepairChange('smart-quote', 'Converted {n} smart quote{s}', text, i);
       output += '"';
       i++;
       while (i < n && text[i] !== '“' && text[i] !== '”' && text[i] !== '"') {
@@ -251,13 +331,21 @@ function tryRepairJson(text) {
     // real space -- only reached outside strings, since string contents
     // are consumed whole by branch 3 above, so real data is untouched)
     if (/\s/.test(char)) {
-      output += INVISIBLE_SPACE_SET.has(char) ? ' ' : char;
+      if (INVISIBLE_SPACE_SET.has(char)) {
+        const cp = 'U+' + char.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+        logRepairChange('invisible-space:' + cp, 'Normalized {n} invisible space{s} (' + cp + ')', text, i);
+        output += ' ';
+      } else {
+        output += char;
+      }
       i++;
       continue;
     }
 
     // 4b. Strip zero-width characters (also only reached outside strings)
     if (ZERO_WIDTH_SET.has(char)) {
+      const zcp = 'U+' + char.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      logRepairChange('zero-width:' + zcp, 'Removed {n} zero-width character{s} (' + zcp + ')', text, i);
       i++;
       continue;
     }
@@ -270,6 +358,7 @@ function tryRepairJson(text) {
     }
 
     // 6. Words/numbers/identifiers
+    const wordStart = i;
     let word = '';
     while (i < n && /[a-zA-Z0-9_\-\+\.]/.test(text[i])) {
       word += text[i];
@@ -278,16 +367,20 @@ function tryRepairJson(text) {
 
     if (word.length > 0) {
       if (word === 'True') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'true';
       } else if (word === 'False') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'false';
       } else if (word === 'None') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'null';
       } else if (word === 'true' || word === 'false' || word === 'null') {
         output += word;
       } else if (!isNaN(Number(word))) {
         output += word;
       } else {
+        logRepairChange('bare-word', 'Quoted {n} unquoted key/value{s}', text, wordStart);
         output += '"' + word + '"';
       }
     } else {
@@ -297,11 +390,15 @@ function tryRepairJson(text) {
   }
 
   // Clean up trailing commas before closing braces/brackets
+  const trailingCommaMatches = output.match(/,\s*([\}\]])/g);
+  if (trailingCommaMatches) logRepairChange('trailing-comma', 'Removed {n} trailing comma{s}', text, null, trailingCommaMatches.length);
   output = output.replace(/,\s*([\}\]])/g, '$1');
 
   // Structural pass: fix missing commas/colons/brackets, mismatched
   // bracket types, and missing values -- see repairStructure() below.
+  const beforeStruct = output;
   output = repairStructuralIssues(output);
+  logStructuralDelta(beforeStruct, output, text);
 
   return output;
 }
@@ -582,7 +679,9 @@ function formatJson() {
   const checks = result.checks.slice();
   if (_pendingAutoFixNote) {
     _pendingAutoFixNote = false;
-    checks.push({type: 'warn', msg: 'This was auto-fixed — missing commas, colons, brackets, quotes, or values may have been added or corrected automatically. Please review the result below against what you actually intended before relying on it.'});
+    const summary = formatRepairSummary();
+    const detail = summary ? summary + '. ' : '';
+    checks.push({type: 'warn', msg: detail + 'Please review the result below against what you actually intended before relying on it.'});
   }
   renderResult(checks, formatted, result.parsed);
 }
