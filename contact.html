@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — ToolSharp.dev</title>
+<meta name="description" content="Report a bug, suggest a tool or guide, or ask a question about ToolSharp.dev. Goes straight to a real inbox, no ticket system.">
+<link rel="canonical" href="https://toolsharp.dev/contact">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/contact">
+<meta property="og:title" content="Contact — ToolSharp.dev">
+<meta property="og:description" content="Report a bug, suggest a tool or guide, or ask a question about ToolSharp.dev. Goes straight to a real inbox, no ticket system.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/contact">
+<meta name="twitter:title" content="Contact — ToolSharp.dev">
+<meta name="twitter:description" content="Report a bug, suggest a tool or guide, or ask a question about ToolSharp.dev. Goes straight to a real inbox, no ticket system.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js" defer></script>
+<script src="js/utils.js" defer></script>
+<script src="js/speed-insights.js" defer></script>
+<script type="module" src="js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ContactPage","name":"Contact","url":"https://toolsharp.dev/contact","description":"Report a bug, suggest a tool or guide, or ask a question about ToolSharp.dev."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"contact"}]}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="/">toolsharp.dev</a><span class="sep">/</span><span class="current">contact</span></div>
+
+  <div class="tool-header">
+    <h1>Contact</h1>
+    <p class="sub">Found a bug, want a tool or guide added, or something here is broken or unclear? Send it below — it goes straight to a real inbox, no ticket system, no auto-reply bot.</p>
+  </div>
+
+  <div class="config-block" style="max-width:560px;">
+    <div class="tab">send a message</div>
+    <div class="body">
+      <form id="contactForm">
+        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="access_key" value="51126427-e89a-470c-b028-bebcc585f378">
+        <input type="hidden" name="subject" id="contactSubject" value="ToolSharp.dev contact form">
+        <input type="hidden" name="from_name" value="ToolSharp.dev contact form">
+
+        <div class="field">
+          <label for="contactName"><span class="key">Name</span> <span style="font-weight:400;">(optional)</span></label>
+          <input type="text" id="contactName" name="name" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="contactEmail"><span class="key">Email</span></label>
+          <input type="email" id="contactEmail" name="email" required autocomplete="email" placeholder="so I can reply">
+        </div>
+
+        <div class="field">
+          <label for="contactTopic"><span class="key">Topic</span></label>
+          <select id="contactTopic" name="topic">
+            <option value="General question">General question</option>
+            <option value="Bug report">Bug report</option>
+            <option value="Tool or guide suggestion">Tool or guide suggestion</option>
+            <option value="Advertising / business">Advertising / business inquiry</option>
+            <option value="Something else">Something else</option>
+          </select>
+        </div>
+
+        <div class="field" style="margin-bottom: 0;">
+          <label for="contactMessage"><span class="key">Message</span></label>
+          <textarea id="contactMessage" name="message" required rows="6" placeholder="What's up?"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" id="btnContactSubmit" class="btn">Send message</button>
+        </div>
+
+        <div id="contactStatus" style="margin-top:14px;"></div>
+      </form>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// where this goes</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This form submits directly to <a href="https://web3forms.com" target="_blank" rel="noopener">Web3Forms</a>, a third-party form-relay service, which forwards it to an inbox actually read by a real person. It's the one page on this site that sends something to a server on submit — every tool remains entirely browser-side, as described in the <a href="/privacy-policy">privacy policy</a>.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="/">← toolsharp.dev</a></span>
+    <span><a href="/privacy-policy">privacy policy</a> · <a href="/terms">terms</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script src="js/contact.js" defer></script>
+
+</body>
+</html>
