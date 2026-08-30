@@ -639,6 +639,7 @@ function scheduleJsonInput() {
 }
 
 function onJsonInput() {
+  if (document.getElementById('jsonShowInvisibles').checked) renderInvisibleView();
   const text = document.getElementById('jsonInput').value;
   const wasPaste = _pendingPasteFormat;
   _pendingPasteFormat = false;
@@ -822,6 +823,32 @@ function tryJsonExample() {
   formatJson();
 }
 
+// Renders the current input with invisible characters -- non-breaking/
+// exotic spaces and zero-width characters -- made visible as small red
+// markers, so someone can actually see the thing that broke their parser
+// instead of just being told about it. Read-only; never touches jsonInput.
+function renderInvisibleView() {
+  const text = document.getElementById('jsonInput').value;
+  let html = '';
+  for (const ch of text) {
+    if (INVISIBLE_SPACE_SET.has(ch)) {
+      const cp = 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      html += '<span class="invis-marker" title="' + cp + ' (invisible space)">·</span>';
+    } else if (ZERO_WIDTH_SET.has(ch)) {
+      const cp = 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      html += '<span class="invis-marker" title="' + cp + ' (zero-width)">█</span>';
+    } else {
+      html += escapeHtml(ch);
+    }
+  }
+  document.getElementById('jsonInvisibleView').innerHTML = html || '<span style="color:var(--ink-faint);">No invisible characters found in the input.</span>';
+}
+
+function toggleInvisibleView() {
+  const on = document.getElementById('jsonShowInvisibles').checked;
+  document.getElementById('jsonInvisibleViewField').style.display = on ? '' : 'none';
+  if (on) renderInvisibleView();
+}
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -843,6 +870,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('jsonInput').addEventListener('input', scheduleJsonInput);
 document.getElementById('jsonStrict').addEventListener('change', onJsonInput);
+document.getElementById('jsonShowInvisibles').addEventListener('change', toggleInvisibleView);
 document.getElementById('btnJsonFormat').addEventListener('click', formatJson);
 document.getElementById('btnJsonMinify').addEventListener('click', minifyJson);
 document.getElementById('btnJsonToYaml').addEventListener('click', convertToYaml);
