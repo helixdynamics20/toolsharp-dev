@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>Hangfire Cron Job Running on the Wrong Day — Day-of-Week Numbering Explained — ToolSharp.dev</title>
+<meta name="description" content="Your Hangfire cron expression validates fine but fires on the wrong day. The cause is almost always day-of-week numbering — Cronos, Quartz.NET, and traditional cron don't all agree on what digit means Sunday.">
+<link rel="canonical" href="https://toolsharp.dev/guides/hangfire-cron-wrong-day-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/hangfire-cron-wrong-day-explained">
+<meta property="og:title" content="Hangfire Cron Job Running on the Wrong Day — Day-of-Week Numbering Explained">
+<meta property="og:description" content="Your Hangfire cron expression validates fine but fires on the wrong day. The cause is almost always day-of-week numbering — Cronos, Quartz.NET, and traditional cron don't all agree on what digit means Sunday.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/hangfire-cron-wrong-day-explained">
+<meta name="twitter:title" content="Hangfire Cron Job Running on the Wrong Day — Day-of-Week Numbering Explained">
+<meta name="twitter:description" content="Your Hangfire cron expression validates fine but fires on the wrong day. The cause is almost always day-of-week numbering — Cronos, Quartz.NET, and traditional cron don't all agree on what digit means Sunday.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Hangfire Cron Job Running on the Wrong Day — Day-of-Week Numbering Explained","url":"https://toolsharp.dev/guides/hangfire-cron-wrong-day-explained","description":"Why a Hangfire cron expression that validates fine can still fire on the wrong day, and how Cronos, Quartz.NET, and traditional cron disagree on day-of-week numbering.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"hangfire-cron-wrong-day-explained"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">hangfire-cron-wrong-day-explained</span></div>
+
+  <div class="tool-header">
+    <h1>Hangfire Cron Job Running on the Wrong Day</h1>
+    <p class="sub">The expression parses. It validates. Hangfire's dashboard shows a perfectly reasonable next-run time. And it still fires on the wrong day of the week. This is almost always a day-of-week numbering mismatch — and the fix depends on knowing which scheduler's convention you actually copied the number from.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">Hangfire</span>
+      <span class="badge">Cronos</span>
+      <span class="badge">Quartz.NET</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// three schedulers, three numbering conventions</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Hangfire has used the <a href="https://github.com/HangfireIO/Cronos" target="_blank" rel="noopener">Cronos</a> library to parse cron expressions since Hangfire 1.7. Cronos accepts day-of-week values <strong>0 through 7</strong>, where <strong>both 0 and 7 mean Sunday</strong> (the Vixie cron convention) and 1–6 are Monday through Saturday. Quartz.NET uses a different range entirely: <strong>1 through 7</strong>, where <strong>1 means Sunday</strong> and 7 means Saturday. Traditional Unix cron — what most blog posts and Stack Overflow answers are actually demonstrating — uses <strong>0 through 6</strong>, 0 for Sunday.</p></div>
+
+    <div class="config-block">
+      <div class="tab">what each digit means, by scheduler</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Hangfire / Cronos</span><span class="v">0 or 7 = Sunday, 1 = Monday, … 6 = Saturday</span></div>
+        <div class="result-item"><span class="k">Quartz.NET</span><span class="v">1 = Sunday, 2 = Monday, … 7 = Saturday</span></div>
+        <div class="result-item"><span class="k">Traditional Unix cron</span><span class="v">0 = Sunday, 1 = Monday, … 6 = Saturday</span></div>
+      </div>
+    </div>
+
+    <div class="callout error">The digit <code>1</code> means <strong>Monday</strong> in a Hangfire/Cronos expression, but <strong>Sunday</strong> in a Quartz.NET expression. Copy a "run every Monday" example from a Quartz.NET tutorial straight into <code>RecurringJob.AddOrUpdate</code> and the job will run every Sunday instead — with no error, because <code>1</code> is a valid day-of-week value in both systems, just a different day.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// the fix that isn't a cron expression</h2>
+    <div class="comment-line"><span class="bar">│</span><p>If you're calling <code>RecurringJob.AddOrUpdate</code> with a helper instead of a raw string — <code>Cron.Daily()</code>, <code>Cron.Weekly(DayOfWeek.Monday)</code> — you're using .NET's own <code>System.DayOfWeek</code> enum, not a cron digit at all. <code>DayOfWeek.Sunday</code> is <code>0</code> and <code>DayOfWeek.Saturday</code> is <code>6</code>, which happens to line up with Cronos's 0–6 range exactly. This whole class of bug only exists for hand-written cron strings — the helper methods can't have this problem, because there's no ambiguous digit for the compiler to accept.</p></div>
+
+    <div class="config-block">
+      <div class="tab">side by side</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Every Monday at 6 AM (Hangfire, raw cron)</span><span class="v"><code>0 6 * * 1</code></span></div>
+        <div class="result-item"><span class="k">Every Monday at 6 AM (Hangfire, helper)</span><span class="v"><code>Cron.Weekly(DayOfWeek.Monday, 6)</code></span></div>
+        <div class="result-item"><span class="k">Every Monday at 6 AM (Quartz.NET, raw cron)</span><span class="v"><code>0 0 6 ? * 2</code></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// how to actually check which one you're looking at</h2>
+    <ol style="color:var(--ink-soft); max-width:66ch; padding-left:20px;">
+      <li>Find the day-of-week field — it's the last field in a 5-field expression, or the last of six in a Quartz.NET expression that starts with a seconds field.</li>
+      <li>Check whether the same expression has a <code>?</code> anywhere. Only Quartz.NET uses <code>?</code>, so its presence confirms the 1=Sunday convention applies.</li>
+      <li>No <code>?</code>, and it's a 5-field expression? It's standard cron — either Cronos's 0–7 or traditional 0–6, which only disagree on whether <code>7</code> is a second way to write Sunday or invalid. For anything Hangfire actually runs, that's Cronos.</li>
+    </ol>
+    <div class="comment-line"><span class="bar">│</span><p>When in doubt, don't count fields by hand — paste the expression into the <a href="../tools/cron-builder">Cron Builder &amp; Explainer</a> and it'll say which day it actually means, for both dialects, before anything gets deployed.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
