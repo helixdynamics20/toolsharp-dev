@@ -140,6 +140,9 @@
 
     <h2>// format vs. minify</h2>
     <div class="comment-line"><span class="bar">│</span><p>Formatting is for humans — reviewing a config file, debugging an API response, or preparing something to paste into a PR. Minifying is for machines — stripping whitespace before storing JSON in a database column, embedding it in a URL query param, or shipping it over the wire where every byte counts. Both produce identical data; only the whitespace changes.</p></div>
+
+    <h2>// "unexpected token" pointing at blank space</h2>
+    <div class="comment-line"><span class="bar">│</span><p>JSON copied from Jira, Confluence, or Word often fails to parse at what looks like an ordinary space — because it isn't one. See <a href="../guides/json-invisible-characters-explained">JSON Is Invalid But Looks Correct</a> for the 21 invisible Unicode characters responsible for this, or just check "Show invisible characters" above to see them directly in your own input.</p></div>
   </section>
 </main>
 

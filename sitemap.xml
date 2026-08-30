@@ -33,4 +33,6 @@
   <url><loc>https://toolsharp.dev/guides/hashing-algorithms-explained</loc><lastmod>2026-08-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/uuid-guid-versions-explained</loc><lastmod>2026-08-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/unix-timestamp-epoch-explained</loc><lastmod>2026-08-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/json-invisible-characters-explained</loc><lastmod>2026-08-30</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/json-unexpected-token-explained</loc><lastmod>2026-08-30</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

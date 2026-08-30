@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>"Unexpected Token in JSON at Position N" — What It Actually Means — ToolSharp.dev</title>
+<meta name="description" content="What JSON.parse's position number actually counts, why it usually points past your real mistake rather than at it, and how to convert it to a line and column yourself.">
+<link rel="canonical" href="https://toolsharp.dev/guides/json-unexpected-token-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/json-unexpected-token-explained">
+<meta property="og:title" content="&quot;Unexpected Token in JSON at Position N&quot; — What It Actually Means">
+<meta property="og:description" content="What JSON.parse's position number actually counts, why it usually points past your real mistake rather than at it, and how to convert it to a line and column yourself.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-json-unexpected-token-explained.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/json-unexpected-token-explained">
+<meta name="twitter:title" content="&quot;Unexpected Token in JSON at Position N&quot; — What It Actually Means">
+<meta name="twitter:description" content="What JSON.parse's position number actually counts, why it usually points past your real mistake rather than at it, and how to convert it to a line and column yourself.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-json-unexpected-token-explained.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"\"Unexpected Token in JSON at Position N\" — What It Actually Means","url":"https://toolsharp.dev/guides/json-unexpected-token-explained","description":"What JSON.parse's position number actually counts, why it usually points past your real mistake rather than at it, and how to convert it to a line and column yourself.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"json-unexpected-token-explained"}]}
+</script>
+</head>
+<body>
+<script>if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');</script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">json-unexpected-token-explained</span></div>
+
+  <div class="tool-header">
+    <h1>"Unexpected Token in JSON at Position N"</h1>
+    <p class="sub">"Position 47" is not a line number, not a column, and — more often than people expect — not even the location of your actual mistake. Here's what the number really counts, why it tends to point one token past the real problem, and how to turn it into something you can actually navigate to.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">JSON</span>
+      <span class="badge">JSON.parse</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// what "position" actually counts</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The position is a plain character count from the start of the string you handed to <code>JSON.parse</code> — index 0 is the first character, and every character counts once, including spaces, tabs, and newlines. It is not a line number, and it doesn't reset at the start of each line. For a one-line JSON payload that distinction doesn't matter; the moment your JSON spans multiple lines (which is most real JSON), "position 312" tells you almost nothing without doing the counting yourself.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// the exact wording depends on your JS engine, and it's less consistent than you'd expect</h2>
+    <p>These are real, verified outputs from V8 (the engine behind Chrome, Node.js, and Edge) — not paraphrased:</p>
+    <div class="config-block">
+      <div class="tab">JSON.parse('{"a": 1 "b": 2}') — missing comma</div>
+      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Expected ',' or '}' after property value in JSON at position 8 (line 1 column 9)</pre></div>
+    </div>
+    <div class="config-block" style="margin-top:12px;">
+      <div class="tab">JSON.parse('') — empty input</div>
+      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Unexpected end of JSON input</pre></div>
+    </div>
+    <div class="config-block" style="margin-top:12px;">
+      <div class="tab">JSON.parse('{"a":}') — missing value</div>
+      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Unexpected token '}', "{"a":}" is not valid JSON</pre></div>
+    </div>
+    <div class="callout warn">Notice the third example has <strong>no position at all</strong>. Modern V8 has gotten specific enough to include a line and column directly for some errors (first example) — a genuine improvement over the older, more generic <code>Unexpected token o in JSON at position 5</code> phrasing that's still what most people picture, and what other engines and older runtimes still produce. Don't assume there's always a number to chase down; sometimes the message is the only information you get.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// why the position points past your mistake, not at it</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Take the missing-comma example above: <code>{"a": 1 "b": 2}</code>. The reported position is <strong>8</strong> — the opening quote of <code>"b"</code>. But the actual mistake, the missing comma, belongs at position 7, right after the <code>1</code>. The parser can't report a problem at position 7, because nothing is wrong there yet — a value can legally be followed by whitespace. It's only when the parser reaches the next real token (the <code>"</code> starting <code>"b"</code>) and finds something that isn't a comma or a closing brace that it knows something's wrong, and by then it's already one token past where the fix actually belongs.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 460 110" role="img" aria-label="Diagram showing the string with a missing comma, the position where the comma should go, and the position 8 characters later where the parser actually reports the error.">
+        <text x="20" y="30" font-family="var(--mono)" font-size="14" fill="var(--ink)">{"a": 1 "b": 2}</text>
+        <line x1="76" y1="40" x2="76" y2="60" stroke="var(--amber)" stroke-width="1.5"/>
+        <text x="76" y="75" font-family="var(--sans)" font-size="10" fill="var(--amber)" text-anchor="middle">comma belongs here (pos 7)</text>
+        <line x1="90" y1="40" x2="90" y2="60" stroke="var(--red)" stroke-width="1.5"/>
+        <text x="90" y="92" font-family="var(--sans)" font-size="10" fill="var(--red)" text-anchor="middle">error reported here (pos 8)</text>
+      </svg>
+      <figcaption>The fix belongs one character before where the error is actually reported — the parser can only tell something is wrong once it reads far enough to find a token that doesn't fit.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
+    <h2>// converting position to line and column yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>If your engine's error doesn't already include a line and column, you can compute it the same way <a href="../tools/json-formatter">ToolSharp's JSON Formatter</a> does internally: slice the string up to the reported position, count the newlines in that slice (that's the line number), and the column is the distance from the last newline to the end of the slice.</p></div>
+    <div class="config-block">
+      <div class="tab">the whole function</div>
+      <div class="body"><pre style="margin:0;white-space:pre-wrap;">function findLineCol(text, index) {
+  const lines = text.slice(0, index).split('\n');
+  return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+}</pre></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// what's usually actually at that position</h2>
+    <div class="config-block">
+      <div class="tab">common root causes</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Missing comma</span><span class="v">error appears at the start of the next key/value, one token past the actual fix — see above</span></div>
+        <div class="result-item"><span class="k">Trailing comma</span><span class="v">error appears at the closing <code>}</code> or <code>]</code> right after the extra comma</span></div>
+        <div class="result-item"><span class="k">Unquoted or single-quoted key</span><span class="v">error appears at the key itself — JSON requires double-quoted keys, no exceptions</span></div>
+        <div class="result-item"><span class="k">A comment</span><span class="v"><code>//</code> and <code>/* */</code> aren't valid JSON at all, despite being legal in JS object literals and JSONC</span></div>
+        <div class="result-item"><span class="k">An invisible character</span><span class="v">looks like nothing's there at that position because, visually, there isn't — see <a href="json-invisible-characters-explained">JSON Is Invalid But Looks Correct</a></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Paste invalid JSON into the <a href="../tools/json-formatter">JSON Formatter</a> and it converts the raw position into a line and column automatically — no mental arithmetic required. Where the input is repairable, <strong>Auto-fix</strong> reports exactly what it changed instead of leaving you to guess whether the fix it applied matches what you actually meant.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
