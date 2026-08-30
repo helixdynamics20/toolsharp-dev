@@ -10,7 +10,7 @@ window.addEventListener('DOMContentLoaded', function () {
   var matched = recentFiles.map(function (file) {
     return allRows.filter(function (row) {
       var link = row.querySelector('.path-link');
-      return link && link.getAttribute('href') === 'tools/' + file;
+      return link && link.getAttribute('href') === '/tools/' + file;
     })[0];
   }).filter(Boolean);
   if (!matched.length) return;
@@ -46,6 +46,14 @@ function filterTools() {
       sib = sib.nextElementSibling;
     }
     cat.style.display = anyVisible ? '' : 'none';
+  });
+
+  // Hide a whole listing when nothing in it matched, so its column header
+  // isn't left floating above an empty section.
+  document.querySelectorAll('.dir-listing').forEach(listing => {
+    const anyVisible = Array.from(listing.querySelectorAll('.dir-row'))
+      .some(row => row.style.display !== 'none');
+    listing.style.display = anyVisible ? '' : 'none';
   });
 }
 

@@ -37,7 +37,6 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js" defer></script>
   <script src="js/utils.js" defer></script>
-  <script src="js/home.js" defer></script>
   <script src="js/speed-insights.js" defer></script>
   <script type="module" src="/js/analytics.bundle.js"></script>
   <script type="application/ld+json">
@@ -62,8 +61,8 @@
       <a class="logo" href="/"><span class="term-dots"><span></span><span></span><span></span></span>tool<span
           class="accent">sharp</span><span class="dim">.dev</span></a>
       <nav class="nav-links">
-        <a href="#tools">tools/</a>
-        <a href="#about">about</a>
+        <a href="/tools">tools/</a>
+        <a href="/guides">guides/</a>
         <a href="#" id="darkModeToggle"></a>
       </nav>
     </div>
@@ -71,177 +70,49 @@
 
   <main class="wrap">
     <section class="hero">
-      <div class="prompt-line"><span class="caret">&gt;</span> whoami &amp;&amp; ls tools/</div>
+      <div class="prompt-line"><span class="caret">&gt;</span> whoami</div>
       <h1>Small, sharp tools every developer reaches for.</h1>
-      <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up
-        every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
+      <p class="lede">Connection strings, cron expressions, JWTs, regex, appsettings.json — the stuff you look up
+        every few months and never remember. No signup, no server round-trip, and nothing you type ever leaves your
+        browser.</p>
     </section>
 
-    <div class="search-container">
-      <span class="search-prompt">[filter] &gt;</span>
-      <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off">
-    </div>
-
-<section id="tools" class="dir-listing">
-      <div class="dir-row-head">
-        <div>path</div>
-        <div>description</div>
-        <div>status</div>
-      </div>
-
-      <!-- json/ -->
-      <div class="dir-category" id="cat-json">json/</div>
-
-      <div class="dir-row" data-row-href="tools/json-formatter">
-        <a class="path-link" href="tools/json-formatter">/json-formatter</a>
-        <div class="desc">Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/appsettings-validator">
-        <a class="path-link" href="tools/appsettings-validator">/appsettings-validator</a>
-        <div class="desc">Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/csv-json-converter">
-        <a class="path-link" href="tools/csv-json-converter">/csv-json-converter</a>
-        <div class="desc">Convert CSV to JSON or JSON to CSV — proper quoted-field parsing handles embedded commas, quotes, and newlines; comma, semicolon, or tab delimiters</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- encoding/ -->
-      <div class="dir-category" id="cat-encoding">encoding/</div>
-
-      <div class="dir-row" data-row-href="tools/base64-converter">
-        <a class="path-link" href="tools/base64-converter">/base64-converter</a>
-        <div class="desc">Encode text or files to Base64 (standard or URL-safe) and decode it back — handles UTF-8 correctly, supports drag-and-drop file input</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/url-encoder">
-        <a class="path-link" href="tools/url-encoder">/url-encoder</a>
-        <div class="desc">Encode or decode URL / query string values, parse a full URL into its components (protocol, host, path, params, fragment), or build a URL from parts</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/color-converter">
-        <a class="path-link" href="tools/color-converter">/color-converter</a>
-        <div class="desc">Convert between HEX, RGB, and HSL — auto-detects the format you paste in — plus a WCAG 2.1 contrast ratio checker with AA/AAA pass-fail badges</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/qr-code-generator">
-        <a class="path-link" href="tools/qr-code-generator">/qr-code-generator</a>
-        <div class="desc">Generate a QR code from any text or URL — choose error correction level, size, and colors, then download as PNG or SVG</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- text/ -->
-      <div class="dir-category" id="cat-text">text/</div>
-
-      <div class="dir-row" data-row-href="tools/diff-checker">
-        <a class="path-link" href="tools/diff-checker">/diff-checker</a>
-        <div class="desc">Compare two texts side-by-side or in unified view with word or character precision — auto-compares as you type, supports file upload, hide unchanged lines</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/sql-formatter">
-        <a class="path-link" href="tools/sql-formatter">/sql-formatter</a>
-        <div class="desc">Format and indent messy SQL queries or minify them for logging — supports T-SQL, PostgreSQL, MySQL; handles JOINs, subqueries, CTEs, and compound keywords</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/case-converter">
-        <a class="path-link" href="tools/case-converter">/case-converter</a>
-        <div class="desc">Convert identifiers between camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, dot.case, and more — all nine formats at once, input format detected automatically</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/xml-formatter">
-        <a class="path-link" href="tools/xml-formatter">/xml-formatter</a>
-        <div class="desc">Format, validate, or minify XML — errors show the exact line and column; handles nested elements, attributes, comments, and CDATA correctly</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/markdown-previewer">
-        <a class="path-link" href="tools/markdown-previewer">/markdown-previewer</a>
-        <div class="desc">Live preview for Markdown — headings, lists, links, code blocks, tables, and blockquotes rendered as you type in a sandboxed preview pane</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- hashes/ -->
-      <div class="dir-category" id="cat-hashes">hashes/</div>
-
-      <div class="dir-row" data-row-href="tools/hash-generator">
-        <a class="path-link" href="tools/hash-generator">/hash-generator</a>
-        <div class="desc">Compute MD5, SHA-1, SHA-256, and SHA-512 hashes from any text — runs locally via the Web Crypto API, nothing is sent to any server</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <!-- dev-helpers/ -->
-      <div class="dir-category" id="cat-dev">dev-helpers/</div>
-
-      <div class="dir-row" data-row-href="tools/connection-string-builder">
-        <a class="path-link" href="tools/connection-string-builder">/connection-string-builder</a>
-        <div class="desc">Build or parse SQL Server connection strings — SQL auth, Windows auth, Azure AD, Encrypt and TrustServerCertificate flags, with runtime warnings for common mistakes</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/cron-builder">
-        <a class="path-link" href="tools/cron-builder">/cron-builder</a>
-        <div class="desc">Build and explain cron expressions for Hangfire (5-field) and Quartz.NET (6-field with seconds) — paste an expression to get a plain-English explanation</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/jwt-decoder">
-        <a class="path-link" href="tools/jwt-decoder">/jwt-decoder</a>
-        <div class="desc">Decode a JWT's header and payload, inspect all claims, check exp/nbf against the current time, and verify HS256 / RS256 / ES256 signatures in-browser</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/epoch-converter">
-        <a class="path-link" href="tools/epoch-converter">/epoch-converter</a>
-        <div class="desc">Convert Unix timestamps (seconds or milliseconds) to ISO 8601, UTC, and local time — live ticking clock, auto-detects seconds vs milliseconds</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/guid-formatter">
-        <a class="path-link" href="tools/guid-formatter">/guid-formatter</a>
-        <div class="desc">Generate a random GUID or reformat a pasted one across all five .NET Guid.ToString() formats — D, N, B, P, and the X hex-constructor form</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/base-converter">
-        <a class="path-link" href="tools/base-converter">/base-converter</a>
-        <div class="desc">Convert a number between binary, octal, decimal, and hexadecimal at once — full 64-bit range via BigInt, no precision loss on large values</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/regex-tester">
-        <a class="path-link" href="tools/regex-tester">/regex-tester</a>
-        <div class="desc">Test a regex with live match and capture-group highlighting — pattern explanation panel, options mapped to .NET RegexOptions, C#/JS code generator</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/password-generator">
-        <a class="path-link" href="tools/password-generator">/password-generator</a>
-        <div class="desc">Generate cryptographically secure passwords or passphrases — configure length, character sets, exclude ambiguous chars, see entropy in bits, bulk generate up to 50 at once</div>
-        <div class="status">● ready</div>
-      </div>
-
-      <div class="dir-row" data-row-href="tools/share-pad">
-        <a class="path-link" href="tools/share-pad">/share-pad</a>
-        <div class="desc">Share text snippets via a short 6-digit code (stored temporarily server-side) or an offline URL-hash link where the full content is compressed into the URL itself</div>
-        <div class="status">● ready</div>
+    <section class="home-section">
+      <div class="prompt-line"><span class="caret">&gt;</span> cat featured.md</div>
+      <div class="config-block">
+        <div class="tab">json-formatter — the one that catches what the others miss</div>
+        <div class="body">
+          <p style="margin-top:0;">Copy JSON out of Jira, Confluence, or Word and it quietly picks up characters you
+            cannot see. Most formatters stop at the parse error and point at what looks like empty space:</p>
+          <div class="throws-label">the input — one character here is not a space</div>
+          <pre class="parse-call" style="margin:0;white-space:pre-wrap;">{ "user": "Jane",&#160;"role": "admin" }</pre>
+          <div class="throws-label">most formatters</div>
+          <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Expected double-quoted property name in JSON at position 17 (line 1 column 18)</pre>
+          <div class="throws-label">this one</div>
+          <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">Normalized 1 invisible space (U+00A0) at line 1, col 18</pre>
+          <div class="btn-row">
+            <a class="btn" href="/tools/json-formatter">Open json-formatter</a>
+            <a class="btn secondary" href="/guides/json-invisible-characters-explained">Why this happens →</a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="guides" class="notes">
-      <h2>// guides</h2>
-      <div class="comment-line">
-        <span class="bar">│</span>
-        <p>Reference guides for the syntax you look up alongside these tools — <a href="guides/cron-expression-cheat-sheet">Cron Expression Cheat Sheet</a>, <a href="guides/what-is-a-jwt">What Is a JWT?</a>, <a href="guides/sql-server-connection-string-examples">SQL Server Connection String Examples</a>, <a href="guides/regex-cheat-sheet">Regex Cheat Sheet</a>, <a href="guides/hashing-algorithms-explained">Hashing Algorithms Explained</a>, <a href="guides/uuid-guid-versions-explained">UUID/GUID Versions Explained</a>, and <a href="guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a>. <a href="guides">See all guides →</a></p>
+    <section class="home-section">
+      <div class="prompt-line"><span class="caret">&gt;</span> ls</div>
+      <div class="dir-listing" style="margin-top:0;">
+        <div class="dir-row" data-row-href="/tools">
+          <a class="path-link" href="/tools">tools/</a>
+          <div class="desc">Browser-based utilities for JSON and config, encoding, text and diff, hashes, plus
+            .NET-specific helpers for cron expressions, connection strings, and GUIDs</div>
+          <div class="status">22 items</div>
+        </div>
+        <div class="dir-row" data-row-href="/guides">
+          <a class="path-link" href="/guides">guides/</a>
+          <div class="desc">Reference guides for the syntax and error messages developers look up most — the cron
+            fields, JWT internals, and JSON failure modes you would otherwise re-derive every few months</div>
+          <div class="status">9 items</div>
+        </div>
       </div>
     </section>
 
@@ -252,7 +123,8 @@
         <p>Built by a backend engineer who kept losing the same five minutes to Googling connection string syntax and
           cron field order. Every tool runs in your browser — no accounts, and nothing you type into one is ever sent
           anywhere. See the <a href="/privacy-policy">privacy policy</a> for what analytics and, eventually,
-          advertising on this site do collect. If a tool is wrong or missing something, that's useful to know.</p>
+          advertising on this site do collect. If a tool is wrong or missing something,
+          <a href="/contact">tell me</a>.</p>
       </div>
     </section>
   </main>
