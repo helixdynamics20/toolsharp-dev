@@ -295,6 +295,16 @@ body.dark-theme .dir-category { background: #0f0d1a; }
   color: var(--ink-soft);
 }
 .config-block .body { padding: 20px; }
+body.dark-theme .config-block .tab {
+  background: #2d2650;
+  border-bottom-color: #453c74;
+}
+.parse-call { color: var(--ink-soft); }
+.throws-label {
+  font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--ink-faint); margin: 12px 0 6px;
+}
+.throws-msg { border-left: 3px solid var(--red); padding-left: 12px; color: var(--ink); }
 
 .field { margin-bottom: 16px; }
 .field:last-child { margin-bottom: 0; }
