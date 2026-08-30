@@ -222,6 +222,31 @@ function tryRepairJson(text) {
       continue;
     }
 
+    // 3b. Handle smart/curly DOUBLE quotes -- what Word, Google Docs, and
+    // Outlook autocorrect straight double quotes into the moment you paste
+    // JSON out of them. Deliberately double-quote-only: the curly single
+    // quote (U+2019 '’') is what the same autocorrect produces for an
+    // ordinary apostrophe in "don't" or "it's", so treating it as a string
+    // delimiter would slice a natural-language string value in half the
+    // instant it contains a contraction. JSON's own syntax never uses
+    // single quotes as delimiters anyway, so nothing is lost by leaving
+    // curly single quotes alone. Not escape-aware like the straight-quote
+    // branch above (Word text never contains a backslash-escaped curly
+    // quote); a straight double quote also closes a smart-quoted string,
+    // since copy/paste and manual edits can scramble pairing.
+    if (char === '“' || char === '”') {
+      output += '"';
+      i++;
+      while (i < n && text[i] !== '“' && text[i] !== '”' && text[i] !== '"') {
+        if (text[i] === '\\') { output += '\\' + (text[i + 1] || ''); i += 2; continue; }
+        output += text[i];
+        i++;
+      }
+      i++; // consume the closing quote (harmless no-op if we hit EOF instead)
+      output += '"';
+      continue;
+    }
+
     // 4. Handle whitespace (normalize invisible space-like chars to a
     // real space -- only reached outside strings, since string contents
     // are consumed whole by branch 3 above, so real data is untouched)
@@ -673,6 +698,22 @@ function clearJsonInput() {
   onJsonInput();
 }
 
+// A sample built from four things that genuinely show up when JSON is
+// copied out of Jira, Confluence, or Word: smart/curly quotes, non-breaking
+// space indentation, a trailing comma, and a missing closing brace. Left
+// showing the raw error (not auto-fixed) so the "Auto-fix it" link has
+// something to demonstrate -- see onJsonInput() below.
+function tryJsonBrokenExample() {
+  const indent = '  '; // non-breaking spaces, not real indentation
+  document.getElementById('jsonInput').value =
+    '{\n' +
+    indent + '“user”: “Jane Doe”,\n' +
+    indent + '“role”: “admin”,\n' +
+    indent + '“tags”: [“ops”, “oncall”,],\n' +
+    indent + '“active”: true,';
+  onJsonInput();
+}
+
 function tryJsonExample() {
   document.getElementById('jsonInput').value = JSON.stringify({
     name: 'example',
@@ -708,6 +749,7 @@ document.getElementById('btnJsonMinify').addEventListener('click', minifyJson);
 document.getElementById('btnJsonToYaml').addEventListener('click', convertToYaml);
 document.getElementById('btnJsonAutoFix').addEventListener('click', autoFixJson);
 document.getElementById('btnJsonExample').addEventListener('click', tryJsonExample);
+document.getElementById('btnJsonBrokenExample').addEventListener('click', tryJsonBrokenExample);
 document.getElementById('btnJsonClear').addEventListener('click', clearJsonInput);
 
 document.addEventListener('click', function (e) {
