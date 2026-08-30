@@ -25,9 +25,8 @@
 <meta name="twitter:description" content="What ToolSharp.dev collects and what it never does: the text you paste into a tool is never sent to a server, and how analytics, cookies, and advertising work here.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 <script src="js/theme.js" defer></script>
 <script src="js/utils.js" defer></script>
@@ -80,7 +79,6 @@
     <div class="config-block">
       <div class="tab">what's loaded from elsewhere, and why</div>
       <div class="result-list">
-        <div class="result-item"><span class="k">Google Fonts</span><span class="v">Typefaces are loaded directly from Google's font CDN (fonts.googleapis.com / fonts.gstatic.com), which means Google can see the IP address of anyone loading a page here, per <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's own privacy policy</a>.</span></div>
         <div class="result-item"><span class="k">Vercel</span><span class="v">This site is hosted on Vercel, which operates the servers that serve these pages and (for share-pad's code mode only) the temporary text store.</span></div>
         <div class="result-item"><span class="k">Resend</span><span class="v">The <a href="/contact">contact page</a> sends your name, email, and message to a function on this site, which relays it through Resend, an email-delivery service, to an inbox — the only page here that sends anything to a server.</span></div>
       </div>
