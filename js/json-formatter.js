@@ -155,7 +155,83 @@ const ZERO_WIDTH_CODEPOINTS = [0x200B, 0x200C, 0x200D, 0x2060];
 const INVISIBLE_SPACE_SET = new Set(INVISIBLE_SPACE_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
 const ZERO_WIDTH_SET = new Set(ZERO_WIDTH_CODEPOINTS.map(cp => String.fromCodePoint(cp)));
 
+// -- repair change-log: what tryRepairJson() actually fixed --
+// A single mutable log, reset at the start of every tryRepairJson() call.
+// Aggregated by "kind" (not one entry per occurrence) since a file can
+// have dozens of the same invisible character -- the useful summary is a
+// count plus one example location, not a line per occurrence.
+let _repairLog = [];
+
+function resetRepairLog() { _repairLog = []; }
+
+// Line/col of a specific index into text, computed on demand rather than
+// tracked through every advance of i in the main loop below -- changes
+// are rare relative to total characters, so this stays cheap in practice,
+// and it keeps the (already intricate) character-walk loop untouched.
+function posAt(text, index) {
+  let line = 1, lastNl = -1;
+  for (let k = 0; k < index && k < text.length; k++) {
+    if (text[k] === '\n') { line++; lastNl = k; }
+  }
+  return { line: line, col: index - lastNl };
+}
+
+// index of null/undefined means "no position to report" -- used for
+// repairs applied after the text has already been rewritten once
+// (trailing-comma cleanup, structural repair), where an index into that
+// rewritten text wouldn't map to a real position in the user's input.
+function logRepairChange(kind, label, text, index, count) {
+  count = count || 1;
+  if (count <= 0) return;
+  let entry = null;
+  for (let k = 0; k < _repairLog.length; k++) {
+    if (_repairLog[k].kind === kind) { entry = _repairLog[k]; break; }
+  }
+  if (!entry) {
+    entry = { kind: kind, label: label, count: 0 };
+    if (index !== null && index !== undefined) {
+      const pos = posAt(text, index);
+      entry.line = pos.line;
+      entry.col = pos.col;
+    }
+    _repairLog.push(entry);
+  }
+  entry.count += count;
+}
+
+// Turns the accumulated log into a specific, human-readable summary,
+// replacing what used to be a single generic "this was auto-fixed" note.
+function formatRepairSummary() {
+  return _repairLog.map(function (e) {
+    let text = e.label.replace('{n}', String(e.count)).replace('{s}', e.count === 1 ? '' : 's');
+    if (e.line !== undefined) text += " at line " + e.line + ", col " + e.col;
+    return text;
+  }).join(' · ');
+}
+// Structural repair works on a token stream with no position info tied
+// back to the original text, so instead of tracking exact insertions we
+// compare structural-character counts before/after: a net increase in
+// commas/colons/brackets means that many were missing and got inserted.
+// Approximate (a bracket-type correction can net to zero this way), but
+// it correctly captures the common cases without a much larger rewrite
+// of the tokenizer to carry position info through.
+function logStructuralDelta(before, after, originalText) {
+  function count(s, ch) {
+    let n = 0;
+    for (let k = 0; k < s.length; k++) if (s[k] === ch) n++;
+    return n;
+  }
+  const commaDelta = count(after, ',') - count(before, ',');
+  const colonDelta = count(after, ':') - count(before, ':');
+  const braceDelta = (count(after, '{') + count(after, '}')) - (count(before, '{') + count(before, '}'));
+  const bracketDelta = (count(after, '[') + count(after, ']')) - (count(before, '[') + count(before, ']'));
+  if (commaDelta > 0) logRepairChange('struct-comma', 'Inserted {n} missing comma{s}', originalText, null, commaDelta);
+  if (colonDelta > 0) logRepairChange('struct-colon', 'Inserted {n} missing colon{s}', originalText, null, colonDelta);
+  if (braceDelta > 0) logRepairChange('struct-brace', 'Inserted {n} missing brace{s}', originalText, null, braceDelta);
+  if (bracketDelta > 0) logRepairChange('struct-bracket', 'Inserted {n} missing bracket{s}', originalText, null, bracketDelta);
+}
 function tryRepairJson(text) {
+  resetRepairLog();
 
   let output = '';
   let i = 0;
@@ -166,6 +242,7 @@ function tryRepairJson(text) {
 
     // 1. Handle line comments
     if (char === '/' && text[i + 1] === '/') {
+      logRepairChange('comment', 'Removed {n} comment(s)', text, i);
       i += 2;
       while (i < n && text[i] !== '\n' && text[i] !== '\r') {
         i++;
@@ -175,6 +252,7 @@ function tryRepairJson(text) {
 
     // 2. Handle block comments
     if (char === '/' && text[i + 1] === '*') {
+      logRepairChange('comment', 'Removed {n} comment(s)', text, i);
       i += 2;
       while (i < n && !(text[i] === '*' && text[i + 1] === '/')) {
         i++;
@@ -186,6 +264,7 @@ function tryRepairJson(text) {
     // 3. Handle strings (single or double quoted)
     if (char === '"' || char === "'") {
       const quoteType = char;
+      if (quoteType === "'") logRepairChange('single-quote', 'Converted {n} single-quoted string{s} to double-quoted', text, i);
       output += '"'; // always output double quotes
       i++;
       while (i < n) {
@@ -222,17 +301,51 @@ function tryRepairJson(text) {
       continue;
     }
 
+    // 3b. Handle smart/curly DOUBLE quotes -- what Word, Google Docs, and
+    // Outlook autocorrect straight double quotes into the moment you paste
+    // JSON out of them. Deliberately double-quote-only: the curly single
+    // quote (U+2019 '’') is what the same autocorrect produces for an
+    // ordinary apostrophe in "don't" or "it's", so treating it as a string
+    // delimiter would slice a natural-language string value in half the
+    // instant it contains a contraction. JSON's own syntax never uses
+    // single quotes as delimiters anyway, so nothing is lost by leaving
+    // curly single quotes alone. Not escape-aware like the straight-quote
+    // branch above (Word text never contains a backslash-escaped curly
+    // quote); a straight double quote also closes a smart-quoted string,
+    // since copy/paste and manual edits can scramble pairing.
+    if (char === '“' || char === '”') {
+      logRepairChange('smart-quote', 'Converted {n} smart quote{s}', text, i);
+      output += '"';
+      i++;
+      while (i < n && text[i] !== '“' && text[i] !== '”' && text[i] !== '"') {
+        if (text[i] === '\\') { output += '\\' + (text[i + 1] || ''); i += 2; continue; }
+        output += text[i];
+        i++;
+      }
+      i++; // consume the closing quote (harmless no-op if we hit EOF instead)
+      output += '"';
+      continue;
+    }
+
     // 4. Handle whitespace (normalize invisible space-like chars to a
     // real space -- only reached outside strings, since string contents
     // are consumed whole by branch 3 above, so real data is untouched)
     if (/\s/.test(char)) {
-      output += INVISIBLE_SPACE_SET.has(char) ? ' ' : char;
+      if (INVISIBLE_SPACE_SET.has(char)) {
+        const cp = 'U+' + char.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+        logRepairChange('invisible-space:' + cp, 'Normalized {n} invisible space{s} (' + cp + ')', text, i);
+        output += ' ';
+      } else {
+        output += char;
+      }
       i++;
       continue;
     }
 
     // 4b. Strip zero-width characters (also only reached outside strings)
     if (ZERO_WIDTH_SET.has(char)) {
+      const zcp = 'U+' + char.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      logRepairChange('zero-width:' + zcp, 'Removed {n} zero-width character{s} (' + zcp + ')', text, i);
       i++;
       continue;
     }
@@ -245,6 +358,7 @@ function tryRepairJson(text) {
     }
 
     // 6. Words/numbers/identifiers
+    const wordStart = i;
     let word = '';
     while (i < n && /[a-zA-Z0-9_\-\+\.]/.test(text[i])) {
       word += text[i];
@@ -253,16 +367,20 @@ function tryRepairJson(text) {
 
     if (word.length > 0) {
       if (word === 'True') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'true';
       } else if (word === 'False') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'false';
       } else if (word === 'None') {
+        logRepairChange('py-literal', 'Converted {n} Python literal{s} (True/False/None)', text, wordStart);
         output += 'null';
       } else if (word === 'true' || word === 'false' || word === 'null') {
         output += word;
       } else if (!isNaN(Number(word))) {
         output += word;
       } else {
+        logRepairChange('bare-word', 'Quoted {n} unquoted key/value{s}', text, wordStart);
         output += '"' + word + '"';
       }
     } else {
@@ -272,11 +390,15 @@ function tryRepairJson(text) {
   }
 
   // Clean up trailing commas before closing braces/brackets
+  const trailingCommaMatches = output.match(/,\s*([\}\]])/g);
+  if (trailingCommaMatches) logRepairChange('trailing-comma', 'Removed {n} trailing comma{s}', text, null, trailingCommaMatches.length);
   output = output.replace(/,\s*([\}\]])/g, '$1');
 
   // Structural pass: fix missing commas/colons/brackets, mismatched
   // bracket types, and missing values -- see repairStructure() below.
+  const beforeStruct = output;
   output = repairStructuralIssues(output);
+  logStructuralDelta(beforeStruct, output, text);
 
   return output;
 }
@@ -517,6 +639,7 @@ function scheduleJsonInput() {
 }
 
 function onJsonInput() {
+  if (document.getElementById('jsonShowInvisibles').checked) renderInvisibleView();
   const text = document.getElementById('jsonInput').value;
   const wasPaste = _pendingPasteFormat;
   _pendingPasteFormat = false;
@@ -557,7 +680,9 @@ function formatJson() {
   const checks = result.checks.slice();
   if (_pendingAutoFixNote) {
     _pendingAutoFixNote = false;
-    checks.push({type: 'warn', msg: 'This was auto-fixed — missing commas, colons, brackets, quotes, or values may have been added or corrected automatically. Please review the result below against what you actually intended before relying on it.'});
+    const summary = formatRepairSummary();
+    const detail = summary ? summary + '. ' : '';
+    checks.push({type: 'warn', msg: detail + 'Please review the result below against what you actually intended before relying on it.'});
   }
   renderResult(checks, formatted, result.parsed);
 }
@@ -673,6 +798,22 @@ function clearJsonInput() {
   onJsonInput();
 }
 
+// A sample built from four things that genuinely show up when JSON is
+// copied out of Jira, Confluence, or Word: smart/curly quotes, non-breaking
+// space indentation, a trailing comma, and a missing closing brace. Left
+// showing the raw error (not auto-fixed) so the "Auto-fix it" link has
+// something to demonstrate -- see onJsonInput() below.
+function tryJsonBrokenExample() {
+  const indent = '  '; // non-breaking spaces, not real indentation
+  document.getElementById('jsonInput').value =
+    '{\n' +
+    indent + '“user”: “Jane Doe”,\n' +
+    indent + '“role”: “admin”,\n' +
+    indent + '“tags”: [“ops”, “oncall”,],\n' +
+    indent + '“active”: true,';
+  onJsonInput();
+}
+
 function tryJsonExample() {
   document.getElementById('jsonInput').value = JSON.stringify({
     name: 'example',
@@ -682,6 +823,32 @@ function tryJsonExample() {
   formatJson();
 }
 
+// Renders the current input with invisible characters -- non-breaking/
+// exotic spaces and zero-width characters -- made visible as small red
+// markers, so someone can actually see the thing that broke their parser
+// instead of just being told about it. Read-only; never touches jsonInput.
+function renderInvisibleView() {
+  const text = document.getElementById('jsonInput').value;
+  let html = '';
+  for (const ch of text) {
+    if (INVISIBLE_SPACE_SET.has(ch)) {
+      const cp = 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      html += '<span class="invis-marker" title="' + cp + ' (invisible space)">·</span>';
+    } else if (ZERO_WIDTH_SET.has(ch)) {
+      const cp = 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      html += '<span class="invis-marker" title="' + cp + ' (zero-width)">█</span>';
+    } else {
+      html += escapeHtml(ch);
+    }
+  }
+  document.getElementById('jsonInvisibleView').innerHTML = html || '<span style="color:var(--ink-faint);">No invisible characters found in the input.</span>';
+}
+
+function toggleInvisibleView() {
+  const on = document.getElementById('jsonShowInvisibles').checked;
+  document.getElementById('jsonInvisibleViewField').style.display = on ? '' : 'none';
+  if (on) renderInvisibleView();
+}
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -703,11 +870,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('jsonInput').addEventListener('input', scheduleJsonInput);
 document.getElementById('jsonStrict').addEventListener('change', onJsonInput);
+document.getElementById('jsonShowInvisibles').addEventListener('change', toggleInvisibleView);
 document.getElementById('btnJsonFormat').addEventListener('click', formatJson);
 document.getElementById('btnJsonMinify').addEventListener('click', minifyJson);
 document.getElementById('btnJsonToYaml').addEventListener('click', convertToYaml);
 document.getElementById('btnJsonAutoFix').addEventListener('click', autoFixJson);
 document.getElementById('btnJsonExample').addEventListener('click', tryJsonExample);
+document.getElementById('btnJsonBrokenExample').addEventListener('click', tryJsonBrokenExample);
 document.getElementById('btnJsonClear').addEventListener('click', clearJsonInput);
 
 document.addEventListener('click', function (e) {
