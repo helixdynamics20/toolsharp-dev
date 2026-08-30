@@ -75,11 +75,18 @@
       <h1>Small, sharp tools every developer reaches for.</h1>
       <p class="lede">Connection strings, cron expressions, JWTs, GUIDs, regex, appsettings.json — the stuff you look up
         every few months and never remember. No signup, no server round-trip, nothing leaves your browser.</p>
+      <div class="callout">
+        <strong>Built for the cases other tools give up on.</strong> Paste JSON copied out of Jira, Confluence, or Word
+        and most formatters just say <code>Unexpected token</code>, pointing at what looks like blank space. The
+        <a href="tools/json-formatter">JSON formatter</a> finds the 21 invisible Unicode characters responsible, shows
+        you exactly where they are, and tells you what it changed instead of silently rewriting your input —
+        <a href="guides/json-invisible-characters-explained">here's why that happens</a>.
+      </div>
     </section>
 
     <div class="search-container">
       <span class="search-prompt">[filter] &gt;</span>
-      <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off">
+      <input type="text" id="toolFilter" placeholder="type to filter tools and guides..." autocomplete="off">
     </div>
 
 <section id="tools" class="dir-listing">
@@ -237,11 +244,67 @@
       </div>
     </section>
 
-    <section id="guides" class="notes">
-      <h2>// guides</h2>
-      <div class="comment-line">
-        <span class="bar">│</span>
-        <p>Reference guides for the syntax you look up alongside these tools — <a href="guides/cron-expression-cheat-sheet">Cron Expression Cheat Sheet</a>, <a href="guides/what-is-a-jwt">What Is a JWT?</a>, <a href="guides/sql-server-connection-string-examples">SQL Server Connection String Examples</a>, <a href="guides/regex-cheat-sheet">Regex Cheat Sheet</a>, <a href="guides/hashing-algorithms-explained">Hashing Algorithms Explained</a>, <a href="guides/uuid-guid-versions-explained">UUID/GUID Versions Explained</a>, and <a href="guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a>. <a href="guides">See all guides →</a></p>
+    <section id="guides" class="dir-listing">
+      <div class="dir-row-head">
+        <div>path</div>
+        <div>description</div>
+        <div>status</div>
+      </div>
+
+      <div class="dir-category" id="cat-guides">guides/ <a class="cat-link" href="guides">index →</a></div>
+
+      <div class="dir-row" data-row-href="guides/json-invisible-characters-explained">
+        <a class="path-link" href="guides/json-invisible-characters-explained">/json-invisible-characters-explained</a>
+        <div class="desc">Why JSON copied from Jira, Confluence, or Word fails to parse at what looks like blank space — the 21 invisible Unicode characters responsible and how to actually find one</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/json-unexpected-token-explained">
+        <a class="path-link" href="guides/json-unexpected-token-explained">/json-unexpected-token-explained</a>
+        <div class="desc">What JSON.parse's position number actually counts, why it usually points past your real mistake rather than at it, and how to convert it to a line and column yourself</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/cron-expression-cheat-sheet">
+        <a class="path-link" href="guides/cron-expression-cheat-sheet">/cron-expression-cheat-sheet</a>
+        <div class="desc">Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, and the mistakes that break schedules silently</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/what-is-a-jwt">
+        <a class="path-link" href="guides/what-is-a-jwt">/what-is-a-jwt</a>
+        <div class="desc">What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why it can't be revoked before it expires</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/sql-server-connection-string-examples">
+        <a class="path-link" href="guides/sql-server-connection-string-examples">/sql-server-connection-string-examples</a>
+        <div class="desc">SQL auth, Windows auth, Azure AD, pooling, MARS, Connect vs Command timeout, and where the connection string lives in appsettings.json vs environment variables</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/regex-cheat-sheet">
+        <a class="path-link" href="guides/regex-cheat-sheet">/regex-cheat-sheet</a>
+        <div class="desc">Anchors, character classes, greedy vs lazy, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/hashing-algorithms-explained">
+        <a class="path-link" href="guides/hashing-algorithms-explained">/hashing-algorithms-explained</a>
+        <div class="desc">Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id do differently, current OWASP-recommended parameters, salting, HMAC, and the collision attacks that broke MD5 and SHA-1</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/uuid-guid-versions-explained">
+        <a class="path-link" href="guides/uuid-guid-versions-explained">/uuid-guid-versions-explained</a>
+        <div class="desc">What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database index performance problem, and the .NET byte-order quirk that breaks interop</div>
+        <div class="status">● ready</div>
+      </div>
+
+      <div class="dir-row" data-row-href="guides/unix-timestamp-epoch-explained">
+        <a class="path-link" href="guides/unix-timestamp-epoch-explained">/unix-timestamp-epoch-explained</a>
+        <div class="desc">Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, leap seconds, and a cross-language cheat sheet for getting "now" as epoch</div>
+        <div class="status">● ready</div>
       </div>
     </section>
 

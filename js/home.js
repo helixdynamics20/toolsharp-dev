@@ -47,6 +47,14 @@ function filterTools() {
     }
     cat.style.display = anyVisible ? '' : 'none';
   });
+
+  // Hide a whole listing when nothing in it matched, so its column header
+  // isn't left floating above an empty section.
+  document.querySelectorAll('.dir-listing').forEach(listing => {
+    const anyVisible = Array.from(listing.querySelectorAll('.dir-row'))
+      .some(row => row.style.display !== 'none');
+    listing.style.display = anyVisible ? '' : 'none';
+  });
 }
 
 document.getElementById('toolFilter').addEventListener('input', filterTools);

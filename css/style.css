@@ -211,6 +211,12 @@ body.dark-theme .dir-category { background: #0f0d1a; }
 #cat-hashes::before   { color: var(--red); }
 #cat-dev      { border-left-color: var(--violet-dark); }
 #cat-dev::before      { color: var(--violet-dark); }
+#cat-guides   { border-left-color: var(--violet); }
+#cat-guides::before   { color: var(--violet); }
+/* trailing link in a category bar (e.g. "index ->"), pushed to the far right
+   so it reads as a separate action rather than part of the category name */
+.dir-category .cat-link { margin-left: auto; color: var(--violet-dark); }
+body.dark-theme .dir-category .cat-link { color: var(--violet); }
 .dir-row:hover { background: var(--violet-wash); }
 .dir-row a.path-link {
   font-family: var(--mono);
