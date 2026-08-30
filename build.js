@@ -54,7 +54,8 @@ const staticFiles = [
   'sitemap.xml',
   'google461995a17a0d27be.html',
   'LICENSE',
-  'manifest.json'
+  'manifest.json',
+  'ads.txt'
 ];
 
 staticFiles.forEach(file => {
