@@ -16,7 +16,7 @@
   --violet-wash: #EAE5FB;
   --amber: #D9822B;
   --amber-wash: #FBEBD6;
-  --green: #2F9E68;
+  --green: #186B40; /* ~5.8:1 vs --bg -- was #2F9E68 (~3.0:1, fails WCAG AA for the small status/footer text it's used on) */
   --green-wash: #E1F3EA;
   --red: #C4433A;
   --red-wash: #FBE7E5;
@@ -536,6 +536,10 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
 }
 .notes h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
 .notes p { color: var(--ink-soft); max-width: 68ch; overflow-wrap: break-word; }
+.notes p a, .notes ul a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .notes .comment-line {
   display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start;
 }
@@ -594,7 +598,11 @@ footer {
   color: var(--ink-faint);
 }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-footer a { color: var(--ink-faint); }
+footer a {
+  color: var(--ink-faint);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 footer a:hover { color: var(--violet); }
 footer .wrap span:last-child { color: var(--green); }
 
