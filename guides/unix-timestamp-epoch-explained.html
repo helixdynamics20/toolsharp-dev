@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet — ToolSharp.dev</title>
-<meta name="description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<title>Unix Timestamp &amp; Epoch Time Explained — Seconds vs Milliseconds, UTC, and 2038 — ToolSharp.dev</title>
+<meta name="description" content="What a Unix timestamp is, how to tell seconds from milliseconds by digit count, why epoch time is always UTC, what the year 2038 problem is, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
 <link rel="canonical" href="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -13,15 +13,15 @@
 
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
-<meta property="og:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
-<meta property="og:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<meta property="og:title" content="Unix Timestamp &amp; Epoch Time Explained — Seconds vs Milliseconds, UTC, and 2038">
+<meta property="og:description" content="What a Unix timestamp is, how to tell seconds from milliseconds by digit count, why epoch time is always UTC, what the year 2038 problem is, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
 <meta property="og:image" content="https://toolsharp.dev/assets/og/guide-unix-timestamp-epoch-explained.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/guides/unix-timestamp-epoch-explained">
-<meta name="twitter:title" content="Unix Timestamp &amp; Epoch Time Explained — DST, Leap Seconds &amp; Cross-Language Cheat Sheet">
-<meta name="twitter:description" content="Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
+<meta name="twitter:title" content="Unix Timestamp &amp; Epoch Time Explained — Seconds vs Milliseconds, UTC, and 2038">
+<meta name="twitter:description" content="What a Unix timestamp is, how to tell seconds from milliseconds by digit count, why epoch time is always UTC, what the year 2038 problem is, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-unix-timestamp-epoch-explained.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +30,11 @@
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
+<script src="../js/epoch-clock.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TechArticle","headline":"Unix Timestamp & Epoch Time Explained — DST, Leap Seconds & Cross-Language Cheat Sheet","url":"https://toolsharp.dev/guides/unix-timestamp-epoch-explained","description":"Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, how leap seconds are quietly ignored by design, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Unix Timestamp & Epoch Time Explained — Seconds vs Milliseconds, UTC, and 2038","url":"https://toolsharp.dev/guides/unix-timestamp-epoch-explained","description":"What a Unix timestamp is, how to tell seconds from milliseconds by digit count, why epoch time is always UTC, what the year 2038 problem is, and how to get 'now' as epoch in JS, .NET, Python, PostgreSQL, and MySQL.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"unix-timestamp-epoch-explained"}]}
@@ -54,13 +55,76 @@
 
   <div class="tool-header">
     <h1>Unix Timestamp &amp; Epoch Time Explained</h1>
-    <p class="sub">Every Unix timestamp is UTC, always — that's not a convention, it's the entire reason the format is useful. Here's why storing local "wall-clock" time instead causes bugs that only appear twice a year, what leap seconds do to the count, and how to get "now" as epoch across five languages.</p>
+    <p class="sub">A Unix timestamp is just a count of seconds since 1970-01-01 00:00:00 UTC — no date, no timezone, no formatting. This covers what that number actually is, how to tell seconds from milliseconds at a glance, why "UTC by definition" is the entire point, what breaks in 2038, and how to get "now" as epoch across five languages.</p>
     <div class="badges">
       <span class="badge">reference guide</span>
       <span class="badge">UTC</span>
       <span class="badge">cross-language</span>
     </div>
   </div>
+
+  <section class="notes">
+    <h2>// what a Unix timestamp actually is</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A Unix timestamp is a single number: the count of seconds elapsed since <strong>1970-01-01 00:00:00 UTC</strong>. That instant is "the epoch," and it is the only thing the number is measured against — there is no date, no timezone, and no formatting stored anywhere in the value. <code>0</code> is the epoch itself. <code>1000000000</code> is 2001-09-09. Ten-digit values like <code>1788108484</code> are the present day. The same number means the same instant on every machine on Earth, which is the entire reason the format exists.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 480 120" role="img" aria-label="A number line from 0 to 2,147,483,647. Zero is 1970-01-01, the epoch. One billion is 2001-09-09. Today sits about five sixths of the way along. The line ends at 2,147,483,647, which is 2038-01-19, the largest value a signed 32-bit integer can hold.">
+        <line x1="40" y1="60" x2="400" y2="60" stroke="var(--ink-soft)" stroke-width="1.5"/>
+        <line x1="40" y1="54" x2="40" y2="66" stroke="var(--ink-soft)" stroke-width="1.5"/>
+        <line x1="208" y1="54" x2="208" y2="66" stroke="var(--ink-soft)" stroke-width="1.5"/>
+        <line x1="400" y1="54" x2="400" y2="66" stroke="var(--red)" stroke-width="1.5"/>
+        <text x="40" y="44" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">0</text>
+        <text x="208" y="44" font-family="var(--mono)" font-size="10" fill="var(--ink)" text-anchor="middle">1,000,000,000</text>
+        <text x="400" y="44" font-family="var(--mono)" font-size="10" fill="var(--red)" text-anchor="middle">2,147,483,647</text>
+        <text x="40" y="80" font-family="var(--sans)" font-size="9.5" fill="var(--ink-soft)" text-anchor="middle">1970-01-01</text>
+        <text x="208" y="80" font-family="var(--sans)" font-size="9.5" fill="var(--ink-soft)" text-anchor="middle">2001-09-09</text>
+        <text x="400" y="80" font-family="var(--sans)" font-size="9.5" fill="var(--red)" text-anchor="middle">2038-01-19</text>
+        <text x="40" y="93" font-family="var(--sans)" font-size="9.5" font-weight="600" fill="var(--violet-dark)" text-anchor="middle">the epoch</text>
+        <text x="400" y="93" font-family="var(--sans)" font-size="9.5" font-weight="600" fill="var(--red)" text-anchor="middle">32-bit limit</text>
+        <circle cx="340" cy="60" r="4" fill="var(--green)"/>
+        <line x1="340" y1="64" x2="340" y2="100" stroke="var(--green)" stroke-width="1.2"/>
+        <text x="340" y="112" font-family="var(--sans)" font-size="10" font-weight="600" fill="var(--green)" text-anchor="middle">today</text>
+      </svg>
+      <figcaption>The tick positions are to scale: today genuinely sits about five sixths of the way from the epoch to the point where a signed 32-bit timestamp runs out.</figcaption>
+    </figure>
+
+    <div class="config-block">
+      <div class="tab">right now, live</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">seconds</span><span class="v" id="epochNowS">enable JavaScript to see this tick</span></div>
+        <div class="result-item"><span class="k">milliseconds</span><span class="v" id="epochNowMs">—</span></div>
+        <div class="result-item"><span class="k">as UTC</span><span class="v" id="epochNowUtc">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// seconds or milliseconds? count the digits</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Unix time is defined in seconds, but a great deal of software — JavaScript most prominently — hands you milliseconds instead. Since a millisecond value is the second value multiplied by 1000, it simply carries <strong>three more digits</strong>, and that is the fastest reliable way to tell them apart at a glance.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 460 120" role="img" aria-label="The same instant shown twice: a ten-digit value is seconds, and a thirteen-digit value is milliseconds. The milliseconds value is the seconds value with three extra digits on the end.">
+        <text x="20" y="30" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)">seconds</text>
+        <text x="100" y="30" font-family="var(--mono)" font-size="15" fill="var(--ink)">1788108484</text>
+        <text x="250" y="30" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)">10 digits</text>
+        <text x="20" y="70" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)">milliseconds</text>
+        <text x="100" y="70" font-family="var(--mono)" font-size="15" fill="var(--ink)">1788108484<tspan fill="var(--violet-dark)" font-weight="700">385</tspan></text>
+        <text x="250" y="70" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)">13 digits</text>
+        <line x1="190" y1="78" x2="190" y2="88" stroke="var(--violet-dark)" stroke-width="1.2"/>
+        <line x1="217" y1="78" x2="217" y2="88" stroke="var(--violet-dark)" stroke-width="1.2"/>
+        <line x1="190" y1="88" x2="217" y2="88" stroke="var(--violet-dark)" stroke-width="1.2"/>
+        <text x="203" y="104" font-family="var(--sans)" font-size="10" fill="var(--violet-dark)" text-anchor="middle">the extra ×1000</text>
+      </svg>
+      <figcaption>Both values name the identical moment. Ten digits is seconds, thirteen is milliseconds — a rule that holds for every timestamp between 2001 and 2286.</figcaption>
+    </figure>
+
+    <h2>// what happens when the unit is wrong</h2>
+    <ul>
+      <li><strong>Seconds read as milliseconds</strong> — the value is treated as 1000× smaller than intended, so it lands in <strong>January 1970</strong>, a few days after the epoch. This is the classic "why is every date showing 1970" bug.</li>
+      <li><strong>Milliseconds read as seconds</strong> — the value is treated as 1000× larger, throwing the date <strong>tens of thousands of years into the future</strong>. Some systems reject it outright; others cheerfully display an absurd year.</li>
+    </ul>
+    <div class="callout warn">Neither mistake throws an error at the boundary where it happens — both produce a perfectly valid number that is simply wrong, and the damage usually surfaces much later in a report or a UI. Check the unit at every boundary a timestamp crosses, not just once at the source.</div>
+  </section>
 
   <section class="notes">
     <h2>// why "UTC by definition" is the whole point</h2>
@@ -114,13 +178,19 @@
         <div class="result-item"><span class="k">Linux shell</span><span class="v"><code>date +%s</code> — seconds</span></div>
       </div>
     </div>
-    <div class="callout warn">Three of these return seconds and one (JavaScript) returns milliseconds by default — mixing a JS-generated timestamp with a backend expecting seconds is the single most common cause of a "date 47 years in the past" or "date in the year 56,000" bug. Always check the unit at each boundary a timestamp crosses, not just once.</div>
+    <div class="callout warn">JavaScript is the outlier here: it is the only one on this list that returns milliseconds by default, while Python, PostgreSQL, MySQL, and the shell all return seconds (.NET lets you ask for either explicitly). Handing a JavaScript timestamp to a backend that expects seconds is the single most common source of the unit bug described above.</div>
   </section>
 
   <section class="notes">
     <h2>// leap seconds: ignored by design, not by accident</h2>
     <div class="comment-line"><span class="bar">│</span><p>Real UTC occasionally inserts a leap second to stay aligned with Earth's slightly irregular rotation. POSIX time explicitly does not count them — the standard defines every day as exactly 86,400 seconds, full stop. When a leap second is inserted in reality, Unix time either repeats a second or is adjusted by the OS ("smeared" across the surrounding hours) depending on the system — either way, the raw count quietly diverges from true elapsed seconds by design, not by bug. As of 2025, 27 leap seconds have accumulated since 1972; international standards bodies (BIPM) have agreed to stop inserting new ones by 2035, with a final vote expected in 2026, which will freeze this drift rather than reverse it.</p></div>
     <div class="callout">In practice this almost never matters for application code — it's a fact worth knowing exists, not something to write handling logic for. It explains why "elapsed real-world seconds" and "difference between two Unix timestamps" aren't perfectly identical concepts at the margins, which occasionally matters for scientific/astronomical timing systems but essentially never for web applications.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// the year 2038 problem</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A signed 32-bit integer tops out at <code>2147483647</code>, which as a Unix timestamp is <strong>2038-01-19 03:14:07 UTC</strong>. One second later the value overflows, and on a system that still stores time that way it wraps to a large negative number — <strong>1901-12-13</strong>. That is the same class of bug as Y2K, with the same fix: use a wider type.</p></div>
+    <div class="callout ok">Modern platforms have largely dealt with this. 64-bit builds of Linux, current .NET (<code>DateTimeOffset</code>), Java, Python, and JavaScript all use 64-bit or floating-point representations that push the limit far past any practical horizon. The remaining exposure is in specific places: 32-bit embedded systems, older C code using a 32-bit <code>time_t</code>, and database columns explicitly typed as a 4-byte integer — MySQL's <code>TIMESTAMP</code> column type being the one most likely to appear in an ordinary web stack.</div>
   </section>
 
   <section class="notes">
