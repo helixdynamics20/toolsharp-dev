@@ -62,9 +62,6 @@
     <div class="body">
       <form id="contactForm">
         <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
-        <input type="hidden" name="access_key" value="__WEB3FORMS_ACCESS_KEY__">
-        <input type="hidden" name="subject" id="contactSubject" value="ToolSharp.dev contact form">
-        <input type="hidden" name="from_name" value="ToolSharp.dev contact form">
 
         <div class="field">
           <label for="contactName"><span class="key">Name</span> <span style="font-weight:400;">(optional)</span></label>
@@ -103,7 +100,7 @@
 
   <section class="notes">
     <h2>// where this goes</h2>
-    <div class="comment-line"><span class="bar">│</span><p>This form submits directly to <a href="https://web3forms.com" target="_blank" rel="noopener">Web3Forms</a>, a third-party form-relay service, which forwards it to an inbox actually read by a real person. It's the one page on this site that sends something to a server on submit — every tool remains entirely browser-side, as described in the <a href="/privacy-policy">privacy policy</a>.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>This form posts to a small serverless function on this site, which relays it via <a href="https://resend.com" target="_blank" rel="noopener">Resend</a> to an inbox actually read by a real person. It's the one page on this site that sends something to a server on submit — every tool remains entirely browser-side, as described in the <a href="/privacy-policy">privacy policy</a>.</p></div>
   </section>
 </main>
 

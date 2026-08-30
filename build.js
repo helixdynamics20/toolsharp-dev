@@ -25,14 +25,6 @@ function versionAssetUrls(html) {
   });
 }
 
-// Substitutes __VAR_NAME__ placeholders in HTML with the matching Vercel
-// environment variable at build time, so secrets/keys never get committed
-// to the repo -- only ever live in Vercel's dashboard and the built output.
-// Left as an empty string in local builds where the env var isn't set.
-function injectBuildSecrets(html) {
-  return html.replace(/__([A-Z0-9_]+)__/g, (match, name) => process.env[name] || '');
-}
-
 // Clean and create dist directory
 if (fs.existsSync(distDir)) {
   fs.rmSync(distDir, { recursive: true, force: true });
@@ -147,7 +139,7 @@ async function processHtml() {
   const rootFiles = fs.readdirSync(srcDir).filter(f => f.endsWith('.html') && f !== 'google461995a17a0d27be.html');
   for (const file of rootFiles) {
     const srcPath = path.join(srcDir, file);
-    const input = injectBuildSecrets(versionAssetUrls(fs.readFileSync(srcPath, 'utf8')));
+    const input = versionAssetUrls(fs.readFileSync(srcPath, 'utf8'));
     try {
       const output = await minifyHtml(input, htmlMinifyOptions);
       fs.writeFileSync(path.join(distDir, file), output);
