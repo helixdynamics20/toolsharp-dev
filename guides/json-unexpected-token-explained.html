@@ -71,16 +71,28 @@
     <h2>// the exact wording depends on your JS engine, and it's less consistent than you'd expect</h2>
     <p>These are real, verified outputs from V8 (the engine behind Chrome, Node.js, and Edge) — not paraphrased:</p>
     <div class="config-block">
-      <div class="tab">JSON.parse('{"a": 1 "b": 2}') — missing comma</div>
-      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Expected ',' or '}' after property value in JSON at position 8 (line 1 column 9)</pre></div>
+      <div class="tab">missing comma</div>
+      <div class="body">
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('{"a": 1 "b": 2}')</pre>
+        <div class="throws-label">throws</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Expected ',' or '}' after property value in JSON at position 8 (line 1 column 9)</pre>
+      </div>
     </div>
     <div class="config-block" style="margin-top:12px;">
-      <div class="tab">JSON.parse('') — empty input</div>
-      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Unexpected end of JSON input</pre></div>
+      <div class="tab">empty input</div>
+      <div class="body">
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('')</pre>
+        <div class="throws-label">throws</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Unexpected end of JSON input</pre>
+      </div>
     </div>
     <div class="config-block" style="margin-top:12px;">
-      <div class="tab">JSON.parse('{"a":}') — missing value</div>
-      <div class="body"><pre style="margin:0;white-space:pre-wrap;">Unexpected token '}', "{"a":}" is not valid JSON</pre></div>
+      <div class="tab">missing value</div>
+      <div class="body">
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('{"a":}')</pre>
+        <div class="throws-label">throws</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Unexpected token '}', "{"a":}" is not valid JSON</pre>
+      </div>
     </div>
     <div class="callout warn">Notice the third example has <strong>no position at all</strong>. Modern V8 has gotten specific enough to include a line and column directly for some errors (first example) — a genuine improvement over the older, more generic <code>Unexpected token o in JSON at position 5</code> phrasing that's still what most people picture, and what other engines and older runtimes still produce. Don't assume there's always a number to chase down; sometimes the message is the only information you get.</div>
   </section>
