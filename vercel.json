@@ -33,7 +33,8 @@
     { "source": "/tools/:slug", "destination": "/tools/:slug.html" },
     { "source": "/guides/:slug", "destination": "/guides/:slug.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/contact", "destination": "/contact.html" }
   ],
   "redirects": [
     { "source": "/index.html", "destination": "/", "permanent": true },
@@ -41,6 +42,7 @@
     { "source": "/tools/:slug.html", "destination": "/tools/:slug", "permanent": true },
     { "source": "/guides/:slug.html", "destination": "/guides/:slug", "permanent": true },
     { "source": "/privacy-policy.html", "destination": "/privacy-policy", "permanent": true },
-    { "source": "/terms.html", "destination": "/terms", "permanent": true }
+    { "source": "/terms.html", "destination": "/terms", "permanent": true },
+    { "source": "/contact.html", "destination": "/contact", "permanent": true }
   ]
 }

@@ -317,6 +317,7 @@ body.dark-theme .config-block .tab {
 }
 .field label .key { color: var(--violet-dark); }
 .field input[type="text"],
+.field input[type="email"],
 .field input[type="password"],
 .field input[type="number"],
 .field select,
@@ -572,6 +573,7 @@ body.dark-theme {
 }
 
 body.dark-theme input[type="text"],
+body.dark-theme input[type="email"],
 body.dark-theme input[type="password"],
 body.dark-theme input[type="number"],
 body.dark-theme select,
