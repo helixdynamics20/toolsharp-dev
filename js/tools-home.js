@@ -10,7 +10,7 @@ window.addEventListener('DOMContentLoaded', function () {
   var matched = recentFiles.map(function (file) {
     return allRows.filter(function (row) {
       var link = row.querySelector('.path-link');
-      return link && link.getAttribute('href') === 'tools/' + file;
+      return link && link.getAttribute('href') === '/tools/' + file;
     })[0];
   }).filter(Boolean);
   if (!matched.length) return;

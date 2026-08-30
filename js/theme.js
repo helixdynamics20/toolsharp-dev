@@ -334,6 +334,12 @@
     var dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'nav-category-dropdowns';
 
+    var toolsLink = document.createElement('a');
+    toolsLink.className = 'nav-dropdown-trigger';
+    toolsLink.href = pathPrefix + 'tools';
+    toolsLink.textContent = 'tools/';
+    dropdownContainer.appendChild(toolsLink);
+
     var guidesLink = document.createElement('a');
     guidesLink.className = 'nav-dropdown-trigger';
     guidesLink.href = pathPrefix + 'guides';
@@ -407,6 +413,12 @@
 
     var mobileMenu = document.createElement('div');
     mobileMenu.className = 'mobile-menu';
+
+    var mobileToolsLink = document.createElement('a');
+    mobileToolsLink.className = 'mobile-menu-link';
+    mobileToolsLink.href = pathPrefix + 'tools';
+    mobileToolsLink.textContent = 'tools/';
+    mobileMenu.appendChild(mobileToolsLink);
 
     var mobileGuidesLink = document.createElement('a');
     mobileGuidesLink.className = 'mobile-menu-link';

@@ -118,15 +118,18 @@ code, kbd, .mono { font-family: var(--mono); }
 .hero {
   padding: 56px 0 28px;
 }
-.hero .prompt-line {
+/* Terminal-style section prompt. Used in the hero and, on the home page, to
+   introduce each section as if it were a command being run. */
+.prompt-line {
   font-family: var(--mono);
   font-size: 14px;
   color: var(--ink-faint);
   margin-bottom: 14px;
 }
-.hero .prompt-line .caret {
+.prompt-line .caret {
   color: var(--violet);
 }
+.home-section { margin: 44px 0; }
 .hero h1 {
   font-family: var(--mono);
   font-size: 34px;
@@ -311,6 +314,7 @@ body.dark-theme .config-block .tab {
   letter-spacing: .04em; color: var(--ink-faint); margin: 12px 0 6px;
 }
 .throws-msg { border-left: 3px solid var(--red); padding-left: 12px; color: var(--ink); }
+.fixed-msg { border-left: 3px solid var(--green); padding-left: 12px; color: var(--ink); }
 
 .field { margin-bottom: 16px; }
 .field:last-child { margin-bottom: 0; }
