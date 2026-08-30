@@ -267,7 +267,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -290,14 +290,14 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
   <div class="diff-toolbar">
     <span class="toolbar-label">View</span>
     <div class="view-toggle">
-      <button id="btnSplit" class="active" aria-pressed="true" onclick="setView('split')">Split</button>
-      <button id="btnUnified" aria-pressed="false" onclick="setView('unified')">Unified</button>
+      <button id="btnSplit" class="active" aria-pressed="true">Split</button>
+      <button id="btnUnified" aria-pressed="false">Unified</button>
     </div>
     <div class="sep"></div>
     <span class="toolbar-label">Precision</span>
     <div class="precision-toggle">
-      <button id="btnWord" class="active" aria-pressed="true" onclick="setPrecision('word')">Word</button>
-      <button id="btnChar" aria-pressed="false" onclick="setPrecision('char')">Char</button>
+      <button id="btnWord" class="active" aria-pressed="true">Word</button>
+      <button id="btnChar" aria-pressed="false">Char</button>
     </div>
     <div class="sep"></div>
     <label><input type="checkbox" id="chkHideUnchanged"> Hide unchanged lines</label>
@@ -318,7 +318,7 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
       <textarea id="diffOriginal" class="diff-textarea" placeholder="Paste the original version here…" spellcheck="false"></textarea>
     </div>
     <div class="diff-swap-wrap">
-      <button type="button" class="diff-swap-btn" onclick="swapDiffSides()" title="Swap original and changed" aria-label="Swap original and changed">⇄</button>
+      <button type="button" id="btnDiffSwap" class="diff-swap-btn" title="Swap original and changed" aria-label="Swap original and changed">⇄</button>
     </div>
     <div class="diff-input-pane">
       <div class="diff-input-header">
@@ -333,9 +333,9 @@ body.dark-theme mark.tok-add    { background: #1a4a30; color: #a8e6c4; }
   </div>
 
   <div class="diff-actions">
-    <button class="btn" onclick="runDiff()">Compare</button>
-    <button class="btn secondary" onclick="tryExample()">Try example</button>
-    <button class="btn secondary" onclick="clearDiff()">Clear</button>
+    <button id="btnDiffCompare" class="btn">Compare</button>
+    <button id="btnDiffExample" class="btn secondary">Try example</button>
+    <button id="btnDiffClear" class="btn secondary">Clear</button>
   </div>
 
   <div id="diffResult"></div>

@@ -97,3 +97,10 @@ window.addEventListener('load', function() {
   updateLiveClock();
   setInterval(updateLiveClock, 1000);
 });
+
+document.getElementById('epochInput').addEventListener('input', convertEpoch);
+document.getElementById('datetimePicker').addEventListener('input', convertDateToEpoch);
+document.getElementById('btnEpochFromClockSec').addEventListener('click', function () { setEpochFromClock('sec'); });
+document.getElementById('btnEpochFromClockMs').addEventListener('click', function () { setEpochFromClock('ms'); });
+document.getElementById('btnEpochNow').addEventListener('click', setEpochNow);
+document.getElementById('btnPickerNow').addEventListener('click', setPickerToNow);

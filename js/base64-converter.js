@@ -124,3 +124,8 @@ window.addEventListener('load', function() {
     }
   });
 });
+
+document.getElementById('btnB64Encode').addEventListener('click', encodeB64);
+document.getElementById('btnB64Decode').addEventListener('click', decodeB64);
+document.getElementById('btnB64Clear').addEventListener('click', clearB64);
+document.getElementById('fileInput').addEventListener('change', function () { handleFileSelect(this); });

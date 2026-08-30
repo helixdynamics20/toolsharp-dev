@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const esbuild = require('esbuild');
 const CleanCSS = require('clean-css');
 const { minify: minifyHtml } = require('html-minifier-terser');
 const { minify: minifyJs } = require('terser');
@@ -181,11 +181,22 @@ async function processHtml() {
 }
 
 async function main() {
-  // Bundle analytics module with esbuild
+  // Bundle analytics module with esbuild -- using the JS API directly
+  // (not execSync + npx) so the process.env.NODE_ENV define below is
+  // passed as a real value, not shell-quoted text. A shelled-out
+  // --define:process.env.NODE_ENV="production" is exactly how this bundle
+  // previously ended up permanently stuck loading the external debug
+  // script (va.vercel-scripts.com) in every environment, prod included:
+  // cmd.exe on Windows silently stripped the quotes, leaving `production`
+  // as a bare (broken) identifier instead of the string "production".
   console.log('Bundling analytics module...');
   try {
-    execSync('npx esbuild js/analytics.js --bundle --format=esm --outfile=js/analytics.bundle.js', {
-      stdio: 'inherit'
+    esbuild.buildSync({
+      entryPoints: ['js/analytics.js'],
+      bundle: true,
+      format: 'esm',
+      define: { 'process.env.NODE_ENV': '"production"' },
+      outfile: 'js/analytics.bundle.js',
     });
     console.log('Analytics module bundled successfully');
   } catch (err) {
@@ -203,7 +214,7 @@ async function main() {
   for (const { entry, out } of vendorBundles) {
     console.log(`Bundling ${entry}...`);
     try {
-      execSync(`npx esbuild ${entry} --bundle --format=esm --outfile=${out}`, { stdio: 'inherit' });
+      esbuild.buildSync({ entryPoints: [entry], bundle: true, format: 'esm', outfile: out });
     } catch (err) {
       console.error(`Error bundling ${entry}:`, err);
       process.exit(1);

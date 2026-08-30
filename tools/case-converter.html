@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -67,11 +67,11 @@
       <div class="tab">input.txt</div>
       <div class="body">
         <div class="field">
-          <textarea id="caseInput" rows="4" placeholder="getHTTPResponseCode, my-component-name, USER_ID..." oninput="convertCase()"></textarea>
+          <textarea id="caseInput" rows="4" placeholder="getHTTPResponseCode, my-component-name, USER_ID..."></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn secondary" onclick="tryCaseExample()">Try example</button>
-          <button class="btn secondary" onclick="clearCaseInput()">Clear</button>
+          <button id="btnCaseExample" class="btn secondary">Try example</button>
+          <button id="btnCaseClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -83,55 +83,55 @@
           <label>camelCase</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="camelOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
-            <button class="btn" onclick="copyElementValue('camelOutput', this)">Copy</button>
+            <button class="btn" data-copy="camelOutput">Copy</button>
           </div>
 
           <label>PascalCase</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="pascalOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
-            <button class="btn" onclick="copyElementValue('pascalOutput', this)">Copy</button>
+            <button class="btn" data-copy="pascalOutput">Copy</button>
           </div>
 
           <label>snake_case</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="snakeOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyElementValue('snakeOutput', this)">Copy</button>
+            <button class="btn" data-copy="snakeOutput">Copy</button>
           </div>
 
           <label>kebab-case</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="kebabOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyElementValue('kebabOutput', this)">Copy</button>
+            <button class="btn" data-copy="kebabOutput">Copy</button>
           </div>
 
           <label>CONSTANT_CASE</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="constantOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyElementValue('constantOutput', this)">Copy</button>
+            <button class="btn" data-copy="constantOutput">Copy</button>
           </div>
 
           <label>dot.case</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="dotOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyElementValue('dotOutput', this)">Copy</button>
+            <button class="btn" data-copy="dotOutput">Copy</button>
           </div>
 
           <label>Title Case</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="titleOutput" readonly style="font-family: var(--mono); font-size: 13px;">
-            <button class="btn" onclick="copyElementValue('titleOutput', this)">Copy</button>
+            <button class="btn" data-copy="titleOutput">Copy</button>
           </div>
 
           <label>Sentence case</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sentenceOutput" readonly style="font-family: var(--mono); font-size: 13px;">
-            <button class="btn" onclick="copyElementValue('sentenceOutput', this)">Copy</button>
+            <button class="btn" data-copy="sentenceOutput">Copy</button>
           </div>
 
           <label>lower case</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="lowerOutput" readonly style="font-family: var(--mono); font-size: 13px;">
-            <button class="btn" onclick="copyElementValue('lowerOutput', this)">Copy</button>
+            <button class="btn" data-copy="lowerOutput">Copy</button>
           </div>
         </div>
       </div>

@@ -211,7 +211,7 @@ function validateAppsettings() {
 
     let errorMsg = `Invalid JSON: ${escapeHtml(e.message)}${locInfo}`;
     if (canRepair) {
-      errorMsg += ` <span class="repair-link" onclick="applyAppsettingsRepair()">Auto-fix it</span>`;
+      errorMsg += ` <span class="repair-link">Auto-fix it</span>`;
     }
 
     resultDiv.innerHTML = `
@@ -275,7 +275,7 @@ function validateAppsettings() {
       </div>
     </div>
     <div class="config-block" style="margin-top:16px;">
-      <div class="tab">formatted <button class="copy-btn" onclick="copyElementValue('asFormatted', this)">copy</button></div>
+      <div class="tab">formatted <button class="copy-btn" data-copy="asFormatted">copy</button></div>
       <div class="output-block"><pre id="asFormatted">${highlightJsonText(formatted)}</pre></div>
     </div>
   `;
@@ -325,3 +325,14 @@ function highlightJsonText(jsonString) {
 
 persistFormState('appsettings-validator', ['asStrict']);
 
+
+document.getElementById('asInput').addEventListener('input', scheduleValidateAppsettings);
+document.getElementById('asStrict').addEventListener('change', validateAppsettings);
+document.getElementById('btnAsValidate').addEventListener('click', validateAppsettings);
+document.getElementById('btnAsAutoFix').addEventListener('click', autoFixAppsettings);
+document.getElementById('btnAsExample').addEventListener('click', tryAppsettingsExample);
+document.getElementById('btnAsClear').addEventListener('click', clearAppsettingsInput);
+
+document.addEventListener('click', function (e) {
+  if (e.target.closest('.repair-link')) applyAppsettingsRepair();
+});

@@ -47,7 +47,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a>
     </nav>
   </div>
 </header>
@@ -72,8 +72,8 @@
         <textarea id="autoLoadedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn" onclick="copyElementValue('autoLoadedOutput', this)">Copy Text</button>
-        <button class="btn secondary" onclick="dismissAutoLoaded()">Create New Share</button>
+        <button class="btn" data-copy="autoLoadedOutput">Copy Text</button>
+        <button id="btnDismissAutoLoaded" class="btn secondary">Create New Share</button>
       </div>
     </div>
   </div>
@@ -87,9 +87,9 @@
           <textarea id="plainInput" rows="12" placeholder="Paste or type text here to generate sharing codes..."></textarea>
         </div>
         <div class="btn-row" style="margin-bottom: 16px;">
-          <button id="btnGenerate" class="btn" onclick="generateShare()">Generate Share</button>
-          <button class="btn secondary" onclick="tryShareExample()">Try example</button>
-          <button class="btn secondary" onclick="clearPlainInput()">Clear</button>
+          <button id="btnGenerate" class="btn">Generate Share</button>
+          <button id="btnShareExample" class="btn secondary">Try example</button>
+          <button id="btnPlainClear" class="btn secondary">Clear</button>
         </div>
 
         <div id="outputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
@@ -97,21 +97,21 @@
             <label for="shareCode"><span class="key">6-Digit Dictation Code</span></label>
             <div style="display: flex; gap: 8px; align-items: center;">
               <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
-              <button class="btn secondary" onclick="copyElementValue('shareCode', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" data-copy="shareCode" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 12px;">
             <label for="shareLink"><span class="key">Quick Share Link</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="shareLink" readonly style="flex: 1;">
-              <button class="btn secondary" onclick="copyElementValue('shareLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" data-copy="shareLink" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
           <div class="field" style="margin-bottom: 0;">
             <label for="offlineLink"><span class="key">Offline Fallback Link (No database)</span></label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="offlineLink" readonly style="flex: 1; font-size: 11px;">
-              <button class="btn secondary" onclick="copyElementValue('offlineLink', this)" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
+              <button class="btn secondary" data-copy="offlineLink" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
         </div>
@@ -126,8 +126,8 @@
           <input type="text" id="retrieveInput" placeholder="Enter 6-digit code (e.g. 192 841) or share link here..." style="font-size: 15px;">
         </div>
         <div class="btn-row" style="margin-bottom: 16px;">
-          <button id="btnRetrieve" class="btn" onclick="retrieveShare()">Retrieve Text</button>
-          <button class="btn secondary" onclick="clearRetrieveInput()">Clear</button>
+          <button id="btnRetrieve" class="btn">Retrieve Text</button>
+          <button id="btnRetrieveClear" class="btn secondary">Clear</button>
         </div>
 
         <div id="retrieveOutputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
@@ -136,7 +136,7 @@
             <textarea id="retrievedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
           </div>
           <div class="btn-row">
-            <button class="btn secondary" onclick="copyElementValue('retrievedOutput', this)">Copy Output</button>
+            <button class="btn secondary" data-copy="retrievedOutput">Copy Output</button>
           </div>
         </div>
       </div>

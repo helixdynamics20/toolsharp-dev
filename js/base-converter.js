@@ -134,3 +134,10 @@ function clearBaseInput() {
 }
 
 persistFormState('base-converter', ['baseBin', 'baseOct', 'baseDec', 'baseHex']);
+
+document.querySelectorAll('input[name="inputBase"]').forEach(function (el) {
+  el.addEventListener('change', convertBase);
+});
+document.getElementById('baseInput').addEventListener('input', convertBase);
+document.getElementById('btnBaseExample').addEventListener('click', tryBaseExample);
+document.getElementById('btnBaseClear').addEventListener('click', clearBaseInput);

@@ -60,7 +60,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -83,11 +83,11 @@
       <div class="tab">input.md</div>
       <div class="body md-preview-wrap">
         <div class="field">
-          <textarea id="mdInput" placeholder="# Heading&#10;&#10;Type or paste **Markdown** here..." oninput="scheduleRenderMarkdown()"></textarea>
+          <textarea id="mdInput" placeholder="# Heading&#10;&#10;Type or paste **Markdown** here..."></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn secondary" onclick="tryMarkdownExample()">Try example</button>
-          <button class="btn secondary" onclick="clearMarkdownInput()">Clear</button>
+          <button id="btnMdExample" class="btn secondary">Try example</button>
+          <button id="btnMdClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@
           <iframe id="mdPreviewFrame" sandbox="allow-same-origin" title="Markdown preview"></iframe>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="copyRenderedHtml(this)">Copy rendered HTML</button>
+          <button id="btnMdCopyHtml" class="btn">Copy rendered HTML</button>
         </div>
       </div>
     </div>

@@ -346,3 +346,14 @@ window.addEventListener('load', function() {
   runRegex();
   updateCodeGen();
 });
+
+document.getElementById('rxPattern').addEventListener('input', runRegex);
+document.getElementById('rxIgnoreCase').addEventListener('change', runRegex);
+document.getElementById('rxMultiline').addEventListener('change', runRegex);
+document.getElementById('rxSingleline').addEventListener('change', runRegex);
+document.getElementById('rxGlobal').addEventListener('change', runRegex);
+document.getElementById('rxTestString').addEventListener('input', runRegex);
+document.getElementById('btnRegexExample').addEventListener('click', tryRegexExample);
+document.getElementById('btnRegexClear').addEventListener('click', clearRegexInputs);
+document.getElementById('btnRegexTabCs').addEventListener('click', function () { showTab('cs'); });
+document.getElementById('btnRegexTabJs').addEventListener('click', function () { showTab('js'); });

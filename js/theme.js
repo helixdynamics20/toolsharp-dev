@@ -31,6 +31,16 @@
     try { localStorage.setItem(STORAGE_KEY, String(isDark)); } catch (e) {}
   };
 
+  (function () {
+    var toggle = document.getElementById('darkModeToggle');
+    if (toggle) {
+      toggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.toggleDarkMode();
+      });
+    }
+  })();
+
   window.flashCopied = function (btn) {
     if (!btn) return;
     var orig = btn.textContent;

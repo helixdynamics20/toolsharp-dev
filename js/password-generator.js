@@ -163,7 +163,7 @@ function showPasswords(pws) {
       const idx = String(i + 1).padStart(2, '0');
       return `<div class="pw-list-row"><span class="pw-list-idx">${idx}</span>` +
         `<span class="pw-list-val">${escHtml(pw)}</span>` +
-        `<button class="pw-list-copy" onclick="copySingle(this, ${i})">copy</button></div>`;
+        `<button class="pw-list-copy" data-pw-idx="${i}">copy</button></div>`;
     }).join('');
   } else {
     listEl.style.display = 'none';
@@ -250,4 +250,23 @@ document.addEventListener('DOMContentLoaded', () => {
   syncSlider();
   syncWordCount();
   onModeChange();
+
+  document.getElementById('modePassword').addEventListener('change', onModeChange);
+  document.getElementById('modePassphrase').addEventListener('change', onModeChange);
+  document.getElementById('pwLength').addEventListener('input', () => { syncSlider(); generate(); });
+  ['chkUpper', 'chkLower', 'chkDigits', 'chkSymbols', 'chkNoAmbig'].forEach((id) => {
+    document.getElementById(id).addEventListener('change', generate);
+  });
+  document.getElementById('excludeChars').addEventListener('input', generate);
+  document.getElementById('wordCount').addEventListener('input', () => { syncWordCount(); generate(); });
+  document.getElementById('wordSep').addEventListener('change', generate);
+  document.getElementById('chkCapWords').addEventListener('change', generate);
+  document.getElementById('bulkCount').addEventListener('change', generate);
+  document.getElementById('btnPwCopy').addEventListener('click', function () { copyPasswords(this); });
+  document.getElementById('btnPwRegenerate').addEventListener('click', generate);
+  document.getElementById('btnPwDownload').addEventListener('click', downloadPasswords);
+  document.getElementById('pwList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pw-idx]');
+    if (btn) copySingle(btn, Number(btn.dataset.pwIdx));
+  });
 });

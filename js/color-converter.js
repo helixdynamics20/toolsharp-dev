@@ -344,3 +344,14 @@ function clearContrast() {
   document.getElementById('bgInput').value = '';
   updateContrast();
 }
+
+document.getElementById('colorInput').addEventListener('input', convertColor);
+document.getElementById('colorPicker').addEventListener('input', colorPickerChanged);
+document.getElementById('btnColorExample').addEventListener('click', tryColorExample);
+document.getElementById('btnColorClear').addEventListener('click', clearColorInput);
+document.getElementById('fgInput').addEventListener('input', updateContrast);
+document.getElementById('fgPicker').addEventListener('input', fgPickerChanged);
+document.getElementById('bgInput').addEventListener('input', updateContrast);
+document.getElementById('bgPicker').addEventListener('input', bgPickerChanged);
+document.getElementById('btnContrastExample').addEventListener('click', tryContrastExample);
+document.getElementById('btnContrastClear').addEventListener('click', clearContrast);

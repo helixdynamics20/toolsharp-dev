@@ -216,8 +216,8 @@ function renderSplit(rows, hideUnchanged) {
     if (blockStarts.has(idx)) {
       const b = blockStarts.get(idx);
       chunks.push({ type: 'row', html: `<div class="diff-block-bar" data-block-start="${b.start}">
-        <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
-        <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
+        <button class="diff-block-btn left" data-merge-block-start="${b.start}" data-merge-block-count="${b.count}" data-merge-side="left">← Use left for this block</button>
+        <button class="diff-block-btn right" data-merge-block-start="${b.start}" data-merge-block-count="${b.count}" data-merge-side="right">Use right for this block →</button>
       </div>` });
     }
 
@@ -288,7 +288,7 @@ function renderSplit(rows, hideUnchanged) {
   const html = chunks.map(c => {
     if (c.type === 'row') return c.html;
     const n = c.count || 1;
-    return `<div class="diff-hidden-lines" tabindex="0" role="button" onclick="expandSection(this, ${c.idx}, ${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();expandSection(this, ${c.idx}, ${n})}" data-idx="${c.idx}" data-count="${n}">… ${n} unchanged line${n === 1 ? '' : 's'} — click to expand</div>`;
+    return `<div class="diff-hidden-lines" tabindex="0" role="button" data-idx="${c.idx}" data-count="${n}">… ${n} unchanged line${n === 1 ? '' : 's'} — click to expand</div>`;
   }).join('');
 
   return `<div class="diff-split-body">${html || '<div style="padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);">No changes — the texts are identical.</div>'}</div>`;
@@ -326,15 +326,15 @@ function renderUnified(rows, hideUnchanged) {
       continue;
     }
     if (hiddenCount > 0) {
-      lines.push(`<div class="diff-hidden-lines" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
+      lines.push(`<div class="diff-hidden-lines" tabindex="0" role="button" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
       hiddenCount = 0;
     }
 
     if (blockStarts.has(idx)) {
       const b = blockStarts.get(idx);
       lines.push(`<div class="diff-block-bar" data-block-start="${b.start}">
-        <button class="diff-block-btn left" onclick="pickMergeBlock(${b.start}, ${b.count}, 'left')">← Use left for this block</button>
-        <button class="diff-block-btn right" onclick="pickMergeBlock(${b.start}, ${b.count}, 'right')">Use right for this block →</button>
+        <button class="diff-block-btn left" data-merge-block-start="${b.start}" data-merge-block-count="${b.count}" data-merge-side="left">← Use left for this block</button>
+        <button class="diff-block-btn right" data-merge-block-start="${b.start}" data-merge-block-count="${b.count}" data-merge-side="right">Use right for this block →</button>
       </div>`);
     }
 
@@ -375,7 +375,7 @@ function renderUnified(rows, hideUnchanged) {
       rightNo++;
     }
   }
-  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines" tabindex="0" role="button" onclick="expandSection(this, ${hiddenStart}, ${hiddenCount})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();expandSection(this, ${hiddenStart}, ${hiddenCount})}" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
+  if (hiddenCount > 0) lines.push(`<div class="diff-hidden-lines" tabindex="0" role="button" data-idx="${hiddenStart}" data-count="${hiddenCount}">… ${hiddenCount} unchanged line${hiddenCount === 1 ? '' : 's'} — click to expand</div>`);
 
   return `<div class="diff-split-body">${lines.join('') || '<div style="padding:16px;font-family:var(--mono);font-size:13px;color:var(--ink-faint);">No changes — the texts are identical.</div>'}</div>`;
 }
@@ -466,13 +466,13 @@ function renderDiffUI() {
         <span class="dot"></span>
         <strong>${removalsCount}</strong> removal${removalsCount === 1 ? '' : 's'}
         <span class="linecount">&nbsp;·&nbsp;${currentALen} line${currentALen === 1 ? '' : 's'}</span>
-        <button class="copy-btn" onclick="copyElementValue('diffOriginal', this)">copy</button>
+        <button class="copy-btn" data-copy="diffOriginal">copy</button>
       </div>
       <div class="diff-summary-side additions">
         <span class="dot"></span>
         <strong>${additionsCount}</strong> addition${additionsCount === 1 ? '' : 's'}
         <span class="linecount">&nbsp;·&nbsp;${currentBLen} line${currentBLen === 1 ? '' : 's'}</span>
-        <button class="copy-btn" onclick="copyMergedResult(this)" title="Copies the right side as currently resolved">copy result</button>
+        <button class="copy-btn" data-copy-merged title="Copies the right side as currently resolved">copy result</button>
       </div>
     </div>`;
 
@@ -638,12 +638,41 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-// A pickable diff cell/row is a <div onclick>, which a mouse can activate
-// but a keyboard can't -- tabindex+role make it a stop in the tab order,
-// and the keydown handler makes Enter/Space act like a click.
+// A pickable diff cell/row is a plain element (not a real <button>), which
+// a mouse can activate via the delegated click listener below but a
+// keyboard can't by default -- tabindex+role make it a stop in the tab
+// order, and the delegated keydown listener makes Enter/Space act like a
+// click. data-merge-idx/-side carry what onclick="pickMergeSide(...)" used
+// to bake into the attribute string, since a strict script-src CSP treats
+// inline event-handler attributes as inline script.
 function pickAttrs(idx, side, label, pressed) {
-  return ` tabindex="0" role="button" aria-pressed="${pressed}" aria-label="${label}" onclick="pickMergeSide(${idx}, '${side}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pickMergeSide(${idx}, '${side}')}"`;
+  return ` tabindex="0" role="button" aria-pressed="${pressed}" aria-label="${label}" data-merge-idx="${idx}" data-merge-side="${side}"`;
 }
+
+// Delegated so one listener covers every merge-pick cell and block button
+// across every re-render, since renderDiffUI() rebuilds this markup from
+// scratch each time (a per-element addEventListener would need re-wiring
+// after every render; delegation on document doesn't).
+document.addEventListener('click', (e) => {
+  const cell = e.target.closest('[data-merge-idx]');
+  if (cell) { pickMergeSide(Number(cell.dataset.mergeIdx), cell.dataset.mergeSide); return; }
+  const blockBtn = e.target.closest('[data-merge-block-start]');
+  if (blockBtn) {
+    pickMergeBlock(Number(blockBtn.dataset.mergeBlockStart), Number(blockBtn.dataset.mergeBlockCount), blockBtn.dataset.mergeSide);
+    return;
+  }
+  const copyMergedBtn = e.target.closest('[data-copy-merged]');
+  if (copyMergedBtn) { copyMergedResult(copyMergedBtn); return; }
+  const hidden = e.target.closest('.diff-hidden-lines');
+  if (hidden) { expandSection(hidden, Number(hidden.dataset.idx), Number(hidden.dataset.count)); }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const cell = e.target.closest('[data-merge-idx]');
+  if (cell) { e.preventDefault(); pickMergeSide(Number(cell.dataset.mergeIdx), cell.dataset.mergeSide); return; }
+  const hidden = e.target.closest('.diff-hidden-lines');
+  if (hidden) { e.preventDefault(); expandSection(hidden, Number(hidden.dataset.idx), Number(hidden.dataset.count)); }
+});
 
 /* ── init ── */
 
@@ -670,4 +699,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('fileLeft').addEventListener('change', e => loadFile(e.target, 'diffOriginal'));
   document.getElementById('fileRight').addEventListener('change', e => loadFile(e.target, 'diffChanged'));
+
+  document.getElementById('btnSplit').addEventListener('click', () => setView('split'));
+  document.getElementById('btnUnified').addEventListener('click', () => setView('unified'));
+  document.getElementById('btnWord').addEventListener('click', () => setPrecision('word'));
+  document.getElementById('btnChar').addEventListener('click', () => setPrecision('char'));
+  document.getElementById('btnDiffSwap').addEventListener('click', swapDiffSides);
+  document.getElementById('btnDiffCompare').addEventListener('click', runDiff);
+  document.getElementById('btnDiffExample').addEventListener('click', tryExample);
+  document.getElementById('btnDiffClear').addEventListener('click', clearDiff);
 });

@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -67,11 +67,11 @@
       <div class="tab">token.jwt</div>
       <div class="body">
         <div class="field">
-          <textarea id="jwtInput" rows="5" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" oninput="decodeJwt()"></textarea>
+          <textarea id="jwtInput" rows="5" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn secondary" onclick="tryJwtExample()">Try example</button>
-          <button class="btn secondary" onclick="clearJwtInput()">Clear</button>
+          <button id="btnJwtExample" class="btn secondary">Try example</button>
+          <button id="btnJwtClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -80,7 +80,7 @@
       <div class="body">
         <div class="field">
           <label for="jwtAlgSelect"><span class="key">Algorithm</span></label>
-          <select id="jwtAlgSelect" onchange="onAlgChange(); decodeJwt();">
+          <select id="jwtAlgSelect">
             <option value="HS256">HS256 — HMAC-SHA256 (shared secret)</option>
             <option value="RS256">RS256 — RSA-SHA256 (public key)</option>
             <option value="ES256">ES256 — ECDSA-SHA256 P-256 (public key)</option>
@@ -88,11 +88,11 @@
         </div>
         <div class="field" id="jwtSecretRow">
           <label for="jwtSecret"><span class="key">Secret (HS256)</span></label>
-          <input type="text" id="jwtSecret" placeholder="Paste shared secret…" oninput="decodeJwt()">
+          <input type="text" id="jwtSecret" placeholder="Paste shared secret…">
         </div>
         <div class="field" id="jwtPemRow" style="display:none;">
           <label for="jwtPem"><span class="key">Public Key (PEM)</span></label>
-          <textarea id="jwtPem" rows="5" placeholder="-----BEGIN PUBLIC KEY-----&#10;…&#10;-----END PUBLIC KEY-----" oninput="decodeJwt()" spellcheck="false" style="font-family:var(--mono);font-size:12px;"></textarea>
+          <textarea id="jwtPem" rows="5" placeholder="-----BEGIN PUBLIC KEY-----&#10;…&#10;-----END PUBLIC KEY-----" spellcheck="false" style="font-family:var(--mono);font-size:12px;"></textarea>
         </div>
         <div id="verifyResult" class="callout" style="margin-top:12px;display:none;"></div>
       </div>

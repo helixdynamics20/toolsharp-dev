@@ -157,7 +157,7 @@ function buildUrl() {
   document.getElementById('buildResult').innerHTML = `
     <div class="config-block">
       <div class="tab">generated URL
-        <button class="copy-btn" onclick="copyElementValue('builtUrl', this)">copy</button>
+        <button class="copy-btn" data-copy="builtUrl">copy</button>
       </div>
       <div class="output-block">
         <pre id="builtUrl" style="white-space:pre-wrap;word-break:break-all;">${escHtml(final)}</pre>
@@ -172,9 +172,15 @@ function addParamRow() {
   row.innerHTML = `
     <input type="text" class="param-key" placeholder="key">
     <input type="text" class="param-val" placeholder="value (plain — will be encoded)">
-    <button class="remove-param-btn" onclick="this.parentElement.remove()">×</button>`;
+    <button class="remove-param-btn">×</button>`;
   container.appendChild(row);
 }
+
+// Delegated so it also covers rows added after this listener is attached.
+document.getElementById('paramRows').addEventListener('click', function (e) {
+  const btn = e.target.closest('.remove-param-btn');
+  if (btn) btn.parentElement.remove();
+});
 
 /* ── auto detect & schedule ── */
 
@@ -197,3 +203,11 @@ function escHtml(str) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('urlInput').addEventListener('input', scheduleAuto);
 });
+
+document.getElementById('btnUrlEncode').addEventListener('click', encodeUrl);
+document.getElementById('btnUrlDecode').addEventListener('click', decodeUrl);
+document.getElementById('btnUrlSwap').addEventListener('click', swapInputOutput);
+document.getElementById('btnUrlExample').addEventListener('click', tryUrlExample);
+document.getElementById('btnUrlClear').addEventListener('click', clearAll);
+document.getElementById('btnUrlAddParam').addEventListener('click', addParamRow);
+document.getElementById('btnUrlBuild').addEventListener('click', buildUrl);

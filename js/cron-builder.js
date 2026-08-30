@@ -267,3 +267,9 @@ function formatRun(d) {
   return `${days[d.getDay()]} ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+
+document.getElementById('cronFlavor').addEventListener('change', buildCron);
+document.getElementById('cronFreq').addEventListener('change', onFreqChange);
+document.getElementById('btnCronGenerate').addEventListener('click', buildCron);
+document.getElementById('btnCronExplain').addEventListener('click', explainPasted);
+document.getElementById('btnCronExample').addEventListener('click', tryCronExample);

@@ -127,3 +127,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('qrScaleVal').textContent = document.getElementById('qrScale').value;
   generateQr();
 });
+
+document.getElementById('qrInput').addEventListener('input', generateQr);
+document.getElementById('qrLevel').addEventListener('change', generateQr);
+document.getElementById('qrScale').addEventListener('input', function () {
+  document.getElementById('qrScaleVal').textContent = this.value;
+  generateQr();
+});
+document.getElementById('qrDark').addEventListener('input', generateQr);
+document.getElementById('qrLight').addEventListener('input', generateQr);
+document.getElementById('btnQrExample').addEventListener('click', tryQrExample);
+document.getElementById('btnQrClear').addEventListener('click', clearQrInput);
+document.getElementById('btnQrDownloadPng').addEventListener('click', downloadPng);
+document.getElementById('btnQrDownloadSvg').addEventListener('click', downloadSvg);
+document.getElementById('btnQrCopyImage').addEventListener('click', function () { copyQrImage(this); });

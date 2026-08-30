@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -69,7 +69,7 @@
         <div class="field">
           <div id="dropZone" style="border: 2px dashed var(--rule); border-radius: 4px; padding: 20px; text-align: center; margin-bottom: 12px; cursor: pointer; font-size: 13.5px; color: var(--ink-soft); transition: border-color 0.2s;">
             Drag & Drop a file here to convert to Base64, or click to upload.
-            <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(this)">
+            <input type="file" id="fileInput" style="display:none;">
           </div>
           <textarea id="b64Input" rows="7" placeholder="Type or paste text to encode, or a Base64 string to decode..."></textarea>
         </div>
@@ -78,9 +78,9 @@
           <label for="b64UrlSafe">URL-safe (use - and _ instead of + and /, no padding)</label>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="encodeB64()">Encode →</button>
-          <button class="btn secondary" onclick="decodeB64()">Decode →</button>
-          <button class="btn secondary" onclick="clearB64()">Clear</button>
+          <button id="btnB64Encode" class="btn">Encode →</button>
+          <button id="btnB64Decode" class="btn secondary">Decode →</button>
+          <button id="btnB64Clear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -88,7 +88,7 @@
     <div class="config-block">
       <div class="tab">
         output
-        <button class="copy-btn" onclick="copyElementValue('b64Output', this)">copy</button>
+        <button class="copy-btn" data-copy="b64Output">copy</button>
       </div>
       <div class="output-block"><pre id="b64Output" class="empty">Result appears here.</pre></div>
       <div id="b64Meta" style="padding: 0 20px 16px;"></div>

@@ -69,7 +69,7 @@ function renderGuid(raw) {
       </div>
       <div class="body" style="padding-top:0;">
         <div class="btn-row">
-          ${rows.map((r,i) => `<button class="btn secondary" onclick="copyElementValue('guidRow${i}', this)">copy ${r.k.trim().split(' ')[0]}</button>`).join('')}
+          ${rows.map((r,i) => `<button class="btn secondary" data-copy="guidRow${i}">copy ${r.k.trim().split(' ')[0]}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -83,3 +83,7 @@ function escapeHtml(str) {
 }
 
 generateGuid();
+
+document.getElementById('guidInput').addEventListener('input', onGuidInput);
+document.getElementById('btnGuidGenerate').addEventListener('click', generateGuid);
+document.getElementById('btnGuidBulkGenerate').addEventListener('click', generateBulkGuids);

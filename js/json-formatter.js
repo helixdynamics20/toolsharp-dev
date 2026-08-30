@@ -118,9 +118,9 @@ function renderResult(checks, formatted, parsed) {
     <div class="config-block" style="margin-top:16px;">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
-        ${hasTree ? `<span class="json-view-tabs"><button id="jsonTabText" class="json-tab-btn active" onclick="showJsonViewTab('text')">text</button><button id="jsonTabTree" class="json-tab-btn" onclick="showJsonViewTab('tree')">tree</button></span>` : ''}
-        <button class="copy-btn" onclick="downloadElementValue('jsonOutputPre', 'formatted.json')">download</button>
-        <button class="copy-btn" onclick="copyElementValue('jsonOutputPre', this)">copy</button>
+        ${hasTree ? `<span class="json-view-tabs"><button id="jsonTabText" class="json-tab-btn active" data-json-view="text">text</button><button id="jsonTabTree" class="json-tab-btn" data-json-view="tree">tree</button></span>` : ''}
+        <button class="copy-btn" data-download="jsonOutputPre" data-filename="formatted.json">download</button>
+        <button class="copy-btn" data-copy="jsonOutputPre">copy</button>
       </div>
       <div class="output-block">
         <div id="jsonTextView"><pre id="jsonOutputPre">${hasTree ? highlightJsonText(formatted) : escapeHtml(formatted)}</pre></div>
@@ -529,7 +529,7 @@ function onJsonInput() {
   if (result.error) {
     let msg = result.error;
     if (result.canRepair) {
-      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+      msg += ` <span class="repair-link">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
   } else if (wasPaste) {
@@ -548,7 +548,7 @@ function formatJson() {
   if (result.error) {
     let msg = result.error;
     if (result.canRepair) {
-      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+      msg += ` <span class="repair-link">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
     return;
@@ -569,7 +569,7 @@ function minifyJson() {
   if (result.error) {
     let msg = result.error;
     if (result.canRepair) {
-      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+      msg += ` <span class="repair-link">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
     return;
@@ -585,7 +585,7 @@ function convertToYaml() {
   if (result.error) {
     let msg = result.error;
     if (result.canRepair) {
-      msg += ` <span class="repair-link" onclick="applyJsonRepair()">Auto-fix it</span>`;
+      msg += ` <span class="repair-link">Auto-fix it</span>`;
     }
     renderResult([{type: 'error', msg: msg}]);
     return;
@@ -699,4 +699,19 @@ window.addEventListener('DOMContentLoaded', () => {
     // a truncated snapshot, flashing a false "invalid JSON" error).
     inputEl.addEventListener('paste', () => { _pendingPasteFormat = true; });
   }
+});
+
+document.getElementById('jsonInput').addEventListener('input', scheduleJsonInput);
+document.getElementById('jsonStrict').addEventListener('change', onJsonInput);
+document.getElementById('btnJsonFormat').addEventListener('click', formatJson);
+document.getElementById('btnJsonMinify').addEventListener('click', minifyJson);
+document.getElementById('btnJsonToYaml').addEventListener('click', convertToYaml);
+document.getElementById('btnJsonAutoFix').addEventListener('click', autoFixJson);
+document.getElementById('btnJsonExample').addEventListener('click', tryJsonExample);
+document.getElementById('btnJsonClear').addEventListener('click', clearJsonInput);
+
+document.addEventListener('click', function (e) {
+  if (e.target.closest('.repair-link')) { applyJsonRepair(); return; }
+  const tabBtn = e.target.closest('[data-json-view]');
+  if (tabBtn) showJsonViewTab(tabBtn.getAttribute('data-json-view'));
 });

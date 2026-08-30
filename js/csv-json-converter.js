@@ -353,3 +353,19 @@ persistFormState('csv-json-converter', ['csvDelimiter', 'jsonToCsvDelimiter']);
 
 // ── copy ──
 
+
+document.getElementById('csvInput').addEventListener('input', scheduleConvertCsvToJson);
+document.getElementById('csvDelimiter').addEventListener('change', convertCsvToJson);
+document.getElementById('btnCsvConvert').addEventListener('click', convertCsvToJson);
+document.getElementById('btnCsvExample').addEventListener('click', tryCsvExample);
+document.getElementById('btnCsvLoadFile').addEventListener('click', function () { document.getElementById('csvFileInput').click(); });
+document.getElementById('btnCsvClear').addEventListener('click', clearCsvInput);
+document.getElementById('csvFileInput').addEventListener('change', function () { loadCsvFile(this); });
+
+document.getElementById('jsonToCsvInput').addEventListener('input', scheduleConvertJsonToCsv);
+document.getElementById('jsonToCsvDelimiter').addEventListener('change', convertJsonToCsv);
+document.getElementById('btnJsonToCsvConvert').addEventListener('click', convertJsonToCsv);
+document.getElementById('btnJsonToCsvExample').addEventListener('click', tryJsonExample);
+document.getElementById('btnJsonLoadFile').addEventListener('click', function () { document.getElementById('jsonFileInput').click(); });
+document.getElementById('btnJsonToCsvClear').addEventListener('click', clearJsonInput);
+document.getElementById('jsonFileInput').addEventListener('change', function () { loadJsonFile(this); });

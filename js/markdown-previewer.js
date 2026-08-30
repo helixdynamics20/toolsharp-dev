@@ -145,3 +145,8 @@ function copyRenderedHtml(btn) {
 }
 
 document.addEventListener('DOMContentLoaded', renderMarkdown);
+
+document.getElementById('mdInput').addEventListener('input', scheduleRenderMarkdown);
+document.getElementById('btnMdExample').addEventListener('click', tryMarkdownExample);
+document.getElementById('btnMdClear').addEventListener('click', clearMarkdownInput);
+document.getElementById('btnMdCopyHtml').addEventListener('click', function () { copyRenderedHtml(this); });

@@ -53,7 +53,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a>
     </nav>
   </div>
 </header>
@@ -76,7 +76,7 @@
       <div class="tab">input.json</div>
       <div class="body">
         <div class="field">
-          <textarea id="jsonInput" rows="16" placeholder='{&#10;  "name": "example",&#10;  "values": [1, 2, 3],&#10;  "nested": { "active": true }&#10;}' oninput="scheduleJsonInput()"></textarea>
+          <textarea id="jsonInput" rows="16" placeholder='{&#10;  "name": "example",&#10;  "values": [1, 2, 3],&#10;  "nested": { "active": true }&#10;}'></textarea>
         </div>
         <div class="field">
           <label for="jsonIndent"><span class="key">Indent</span></label>
@@ -88,17 +88,17 @@
         </div>
         <div class="field" style="margin-bottom: 0;">
           <div class="check-row">
-            <input type="checkbox" id="jsonStrict" checked onchange="onJsonInput()">
+            <input type="checkbox" id="jsonStrict" checked>
             <label for="jsonStrict">Strict validation (warn on duplicate keys)</label>
           </div>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="formatJson()">Format</button>
-          <button class="btn secondary" onclick="minifyJson()">Minify</button>
-          <button class="btn secondary" onclick="convertToYaml()">Convert to YAML</button>
-          <button class="btn secondary" onclick="autoFixJson()">Auto-fix</button>
-          <button class="btn secondary" onclick="tryJsonExample()">Try example</button>
-          <button class="btn secondary" onclick="clearJsonInput()">Clear</button>
+          <button id="btnJsonFormat" class="btn">Format</button>
+          <button id="btnJsonMinify" class="btn secondary">Minify</button>
+          <button id="btnJsonToYaml" class="btn secondary">Convert to YAML</button>
+          <button id="btnJsonAutoFix" class="btn secondary">Auto-fix</button>
+          <button id="btnJsonExample" class="btn secondary">Try example</button>
+          <button id="btnJsonClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>

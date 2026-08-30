@@ -430,3 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
   persistFormState('sql-formatter', ['chkCapitalize', 'indentSize', 'commaStyle', 'chkAuto']);
   document.getElementById('sqlInput').addEventListener('input', scheduleAuto);
 });
+
+document.getElementById('btnSqlFormat').addEventListener('click', runFormat);
+document.getElementById('btnSqlMinify').addEventListener('click', runMinify);
+document.getElementById('btnSqlExample').addEventListener('click', tryExample);
+document.getElementById('btnSqlClear').addEventListener('click', clearAll);
