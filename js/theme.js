@@ -105,6 +105,23 @@
     { name: 'QR Code Generator', path: '/tools/qr-code-generator' }
   ];
 
+  var guidesList = [
+    { name: 'JSON Is Invalid But Looks Correct', path: '/guides/json-invisible-characters-explained' },
+    { name: 'Unexpected Token in JSON at Position N', path: '/guides/json-unexpected-token-explained' },
+    { name: 'Cron Expression Cheat Sheet', path: '/guides/cron-expression-cheat-sheet' },
+    { name: 'What Is a JWT?', path: '/guides/what-is-a-jwt' },
+    { name: 'SQL Server Connection String Examples', path: '/guides/sql-server-connection-string-examples' },
+    { name: 'Regex Cheat Sheet', path: '/guides/regex-cheat-sheet' },
+    { name: 'Hashing Algorithms Explained', path: '/guides/hashing-algorithms-explained' },
+    { name: 'UUID / GUID Versions Explained', path: '/guides/uuid-guid-versions-explained' },
+    { name: 'Unix Timestamp & Epoch Time Explained', path: '/guides/unix-timestamp-epoch-explained' }
+  ];
+
+  // Exposed so other scripts (the home page terminal) can reuse this index
+  // instead of keeping their own copy of it.
+  window.TOOLSHARP_TOOLS = toolsList;
+  window.TOOLSHARP_GUIDES = guidesList;
+
   var paletteActive = false;
   var paletteIndex = 0;
   var filteredTools = [];

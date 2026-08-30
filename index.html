@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js" defer></script>
   <script src="js/utils.js" defer></script>
+  <script src="js/terminal.js" defer></script>
   <script src="js/speed-insights.js" defer></script>
   <script type="module" src="/js/analytics.bundle.js"></script>
   <script type="application/ld+json">
@@ -80,16 +81,19 @@
     <section class="home-section">
       <div class="prompt-line"><span class="caret">&gt;</span> cat featured.md</div>
       <div class="config-block">
-        <div class="tab">json-formatter — the one that catches what the others miss</div>
+        <div class="tab">json-formatter — the invisible characters a whitespace cleanup misses</div>
         <div class="body">
           <p style="margin-top:0;">Copy JSON out of Jira, Confluence, or Word and it quietly picks up characters you
-            cannot see. Most formatters stop at the parse error and point at what looks like empty space:</p>
-          <div class="throws-label">the input — one character here is not a space</div>
-          <pre class="parse-call" style="margin:0;white-space:pre-wrap;">{ "user": "Jane",&#160;"role": "admin" }</pre>
-          <div class="throws-label">most formatters</div>
-          <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Expected double-quoted property name in JSON at position 17 (line 1 column 18)</pre>
-          <div class="throws-label">this one</div>
-          <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">Normalized 1 invisible space (U+00A0) at line 1, col 18</pre>
+            cannot see. Plenty of formatters strip a stray non-breaking space for you — but a zero-width space is not
+            whitespace at all, so a whitespace cleanup walks straight past it:</p>
+          <div class="throws-label">the input — there is a hidden character after the comma</div>
+          <pre class="parse-call" style="margin:0;white-space:pre-wrap;">{ "user": "Jane", &#8203;"role": "admin" }</pre>
+          <div class="throws-label">what JSON.parse says</div>
+          <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Expected double-quoted property name in JSON at position 18 (line 1 column 19)</pre>
+          <div class="throws-label">what this one says</div>
+          <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">Removed 1 zero-width character (U+200B) at line 1, col 19</pre>
+          <p style="margin-bottom:0;">Twenty-one of these get handled, and only outside string literals — so a
+            non-breaking space that is genuinely part of your data is left exactly as you wrote it.</p>
           <div class="btn-row">
             <a class="btn" href="/tools/json-formatter">Open json-formatter</a>
             <a class="btn secondary" href="/guides/json-invisible-characters-explained">Why this happens →</a>
@@ -113,6 +117,18 @@
             fields, JWT internals, and JSON failure modes you would otherwise re-derive every few months</div>
           <div class="status">9 items</div>
         </div>
+      </div>
+    </section>
+
+    <section class="home-section" id="terminal">
+      <div class="prompt-line term-hint">or drive it from here — type <code>help</code> and press Enter</div>
+      <div class="term">
+        <div id="termOutput" class="term-output" role="log" aria-live="polite" aria-label="Terminal output"></div>
+        <form id="termForm" class="term-input-line" autocomplete="off">
+          <span class="caret" aria-hidden="true">&gt;</span>
+          <input id="termInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+            spellcheck="false" aria-label="Type a command such as help, ls, or open json-formatter, then press Enter">
+        </form>
       </div>
     </section>
 

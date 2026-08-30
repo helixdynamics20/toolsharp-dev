@@ -130,6 +130,54 @@ code, kbd, .mono { font-family: var(--mono); }
   color: var(--violet);
 }
 .home-section { margin: 44px 0; }
+
+/* ---------------- Home page interactive prompt ---------------- */
+/* Additive only: every destination it can reach is also a plain link
+   elsewhere on the page, so this is a shortcut, never the only route. */
+.term {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  cursor: text;
+}
+.term-output { max-height: 260px; overflow-y: auto; }
+.term-output:not(:empty) { margin-bottom: 10px; }
+.term-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 0 4px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.term-line.cmd { color: var(--ink); }
+.term-line.err { color: var(--red); }
+.term-line a { color: var(--violet-dark); }
+body.dark-theme .term-line a { color: var(--violet); }
+
+.term-input-line { display: flex; align-items: center; gap: 8px; }
+.term-input-line .caret { color: var(--violet); flex-shrink: 0; }
+/* Specificity has to clear `body.dark-theme input[type="text"]`, which would
+   otherwise paint a panel background and border inside the terminal. */
+.term .term-input-line input[type="text"],
+body.dark-theme .term .term-input-line input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 2px 0;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.term-hint code {
+  background: var(--violet-wash);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
 .hero h1 {
   font-family: var(--mono);
   font-size: 34px;
