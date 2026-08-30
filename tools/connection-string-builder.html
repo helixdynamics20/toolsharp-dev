@@ -52,7 +52,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -124,9 +124,9 @@
           </div>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="buildConnectionString()">Build string</button>
-          <button class="btn secondary" onclick="tryCsExample()">Try example</button>
-          <button class="btn secondary" onclick="clearCsForm()">Clear</button>
+          <button id="btnCsBuild" class="btn">Build string</button>
+          <button id="btnCsExample" class="btn secondary">Try example</button>
+          <button id="btnCsClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -135,7 +135,7 @@
       <div class="config-block">
         <div class="tab">
           output — generated connection string
-          <button class="copy-btn" onclick="copyElementValue('csOutput', this)">copy</button>
+          <button class="copy-btn" data-copy="csOutput">copy</button>
         </div>
         <div class="output-block"><pre id="csOutput" class="empty">Fill in the fields on the left, then click "Build string".</pre></div>
       </div>
@@ -148,7 +148,7 @@
             <textarea id="csParseInput" rows="3" placeholder="Server=tcp:myserver.database.windows.net,1433;Database=mydb;User ID=app;Password=***;Encrypt=True;"></textarea>
           </div>
           <div class="btn-row">
-            <button class="btn secondary" onclick="parseConnectionString()">Parse into fields</button>
+            <button id="btnCsParse" class="btn secondary">Parse into fields</button>
           </div>
         </div>
       </div>

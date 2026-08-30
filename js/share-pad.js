@@ -299,3 +299,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 });
+
+document.getElementById('btnDismissAutoLoaded').addEventListener('click', dismissAutoLoaded);
+document.getElementById('btnGenerate').addEventListener('click', generateShare);
+document.getElementById('btnShareExample').addEventListener('click', tryShareExample);
+document.getElementById('btnPlainClear').addEventListener('click', clearPlainInput);
+document.getElementById('btnRetrieve').addEventListener('click', retrieveShare);
+document.getElementById('btnRetrieveClear').addEventListener('click', clearRetrieveInput);

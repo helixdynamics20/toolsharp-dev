@@ -166,3 +166,8 @@ function highlightConnString(str) {
   }).join('<span class="cs-sep">;</span>') + '<span class="cs-sep">;</span>';
 }
 
+
+document.getElementById('btnCsBuild').addEventListener('click', buildConnectionString);
+document.getElementById('btnCsExample').addEventListener('click', tryCsExample);
+document.getElementById('btnCsClear').addEventListener('click', clearCsForm);
+document.getElementById('btnCsParse').addEventListener('click', parseConnectionString);

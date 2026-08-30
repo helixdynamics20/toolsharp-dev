@@ -54,7 +54,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -98,10 +98,10 @@
           <textarea id="sqlInput" rows="18" placeholder="Paste your SQL here…" spellcheck="false"></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="runFormat()">Format</button>
-          <button class="btn secondary" onclick="runMinify()">Minify</button>
-          <button class="btn secondary" onclick="tryExample()">Try example</button>
-          <button class="btn secondary" onclick="clearAll()">Clear</button>
+          <button id="btnSqlFormat" class="btn">Format</button>
+          <button id="btnSqlMinify" class="btn secondary">Minify</button>
+          <button id="btnSqlExample" class="btn secondary">Try example</button>
+          <button id="btnSqlClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -109,8 +109,8 @@
     <div class="config-block">
       <div class="tab">output.sql
         <span class="sql-line-count" id="sqlLineCount"></span>
-        <button class="copy-btn" onclick="downloadElementValue('sqlOutput', 'formatted.sql')">download</button>
-        <button class="copy-btn" onclick="copyElementValue('sqlOutput', this)">copy</button>
+        <button class="copy-btn" data-download="sqlOutput" data-filename="formatted.sql">download</button>
+        <button class="copy-btn" data-copy="sqlOutput">copy</button>
       </div>
       <div class="body">
         <div class="field">

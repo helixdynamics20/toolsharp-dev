@@ -271,8 +271,8 @@ function renderXmlResult(checks, outputText) {
     <div class="config-block" style="margin-top:16px;">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output</span>
-        <button class="copy-btn" onclick="downloadElementValue('xmlOutputPre', 'formatted.xml')">download</button>
-        <button class="copy-btn" onclick="copyElementValue('xmlOutputPre', this)">copy</button>
+        <button class="copy-btn" data-download="xmlOutputPre" data-filename="formatted.xml">download</button>
+        <button class="copy-btn" data-copy="xmlOutputPre">copy</button>
       </div>
       <div class="output-block">
         <pre id="xmlOutputPre">${highlightXmlText(escapeHtml(outputText))}</pre>
@@ -381,3 +381,9 @@ window.addEventListener('DOMContentLoaded', () => {
     inputEl.addEventListener('paste', () => { _pendingXmlPasteFormat = true; });
   }
 });
+
+document.getElementById('xmlInput').addEventListener('input', onXmlInput);
+document.getElementById('btnXmlFormat').addEventListener('click', formatXml);
+document.getElementById('btnXmlMinify').addEventListener('click', minifyXml);
+document.getElementById('btnXmlExample').addEventListener('click', tryXmlExample);
+document.getElementById('btnXmlClear').addEventListener('click', clearXmlInput);

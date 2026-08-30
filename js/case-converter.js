@@ -55,3 +55,7 @@ function tryCaseExample() {
   document.getElementById('caseInput').value = 'getHTTPResponseCode';
   convertCase();
 }
+
+document.getElementById('caseInput').addEventListener('input', convertCase);
+document.getElementById('btnCaseExample').addEventListener('click', tryCaseExample);
+document.getElementById('btnCaseClear').addEventListener('click', clearCaseInput);

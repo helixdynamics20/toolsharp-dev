@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -68,16 +68,16 @@
       <div class="tab">input.txt</div>
       <div class="body">
         <div class="field">
-          <textarea id="hashInput" rows="8" placeholder="Type or paste text to hash..." oninput="scheduleGenerateHashes()"></textarea>
+          <textarea id="hashInput" rows="8" placeholder="Type or paste text to hash..."></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn secondary" onclick="document.getElementById('hashFileInput').click()">Hash a file instead…</button>
-          <button class="btn secondary" id="hashFileClear" onclick="clearHashFile()" style="display:none;">Clear file</button>
-          <input type="file" id="hashFileInput" style="display:none;" onchange="loadHashFile(this)">
+          <button class="btn secondary" id="btnHashFilePick">Hash a file instead…</button>
+          <button class="btn secondary" id="hashFileClear" style="display:none;">Clear file</button>
+          <input type="file" id="hashFileInput" style="display:none;">
         </div>
         <div class="field" style="margin-top:14px;margin-bottom:0;">
           <label for="hashHmacKey"><span class="key">HMAC key</span> (optional)</label>
-          <input type="text" id="hashHmacKey" placeholder="Leave blank for a plain hash" oninput="scheduleGenerateHashes()">
+          <input type="text" id="hashHmacKey" placeholder="Leave blank for a plain hash">
           <p class="hint">When set, all four outputs become a keyed HMAC of the input using that key, instead of a plain hash.</p>
         </div>
       </div>
@@ -90,25 +90,25 @@
           <label for="sha256Output">SHA-256 <span class="status-pill s-ok" style="font-size:10.5px;padding:1px 7px;">recommended</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha256Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyElementValue('sha256Output', this)">Copy</button>
+            <button class="btn" data-copy="sha256Output">Copy</button>
           </div>
 
           <label for="sha512Output">SHA-512 <span class="status-pill s-good" style="font-size:10.5px;padding:1px 7px;">strongest</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha512Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyElementValue('sha512Output', this)">Copy</button>
+            <button class="btn" data-copy="sha512Output">Copy</button>
           </div>
 
           <label for="sha1Output">SHA-1 <span class="status-pill s-warn" style="font-size:10.5px;padding:1px 7px;">deprecated</span></label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="sha1Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyElementValue('sha1Output', this)">Copy</button>
+            <button class="btn" data-copy="sha1Output">Copy</button>
           </div>
 
           <label for="md5Output">MD5 <span class="status-pill s-danger" style="font-size:10.5px;padding:1px 7px;">broken</span></label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="md5Output" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
-            <button class="btn" onclick="copyElementValue('md5Output', this)">Copy</button>
+            <button class="btn" data-copy="md5Output">Copy</button>
           </div>
         </div>
       </div>

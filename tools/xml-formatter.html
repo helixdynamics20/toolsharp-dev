@@ -47,7 +47,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a>
     </nav>
   </div>
 </header>
@@ -70,7 +70,7 @@
       <div class="tab">input.xml</div>
       <div class="body">
         <div class="field">
-          <textarea id="xmlInput" rows="16" placeholder="&lt;configuration&gt;&#10;  &lt;appSettings&gt;&#10;    &lt;add key=&quot;Environment&quot; value=&quot;Production&quot; /&gt;&#10;  &lt;/appSettings&gt;&#10;&lt;/configuration&gt;" oninput="onXmlInput()"></textarea>
+          <textarea id="xmlInput" rows="16" placeholder="&lt;configuration&gt;&#10;  &lt;appSettings&gt;&#10;    &lt;add key=&quot;Environment&quot; value=&quot;Production&quot; /&gt;&#10;  &lt;/appSettings&gt;&#10;&lt;/configuration&gt;"></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label for="xmlIndent"><span class="key">Indent</span></label>
@@ -81,10 +81,10 @@
           </select>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="formatXml()">Format</button>
-          <button class="btn secondary" onclick="minifyXml()">Minify</button>
-          <button class="btn secondary" onclick="tryXmlExample()">Try example</button>
-          <button class="btn secondary" onclick="clearXmlInput()">Clear</button>
+          <button id="btnXmlFormat" class="btn">Format</button>
+          <button id="btnXmlMinify" class="btn secondary">Minify</button>
+          <button id="btnXmlExample" class="btn secondary">Try example</button>
+          <button id="btnXmlClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>

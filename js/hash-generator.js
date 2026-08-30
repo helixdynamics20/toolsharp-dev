@@ -220,3 +220,9 @@ function clearHashFile() {
   generateHashes();
 }
 
+
+document.getElementById('hashInput').addEventListener('input', scheduleGenerateHashes);
+document.getElementById('hashHmacKey').addEventListener('input', scheduleGenerateHashes);
+document.getElementById('btnHashFilePick').addEventListener('click', function () { document.getElementById('hashFileInput').click(); });
+document.getElementById('hashFileClear').addEventListener('click', clearHashFile);
+document.getElementById('hashFileInput').addEventListener('change', function () { loadHashFile(this); });

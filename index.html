@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js" defer></script>
   <script src="js/utils.js" defer></script>
+  <script src="js/home.js" defer></script>
   <script src="js/speed-insights.js" defer></script>
   <script type="module" src="/js/analytics.bundle.js"></script>
   <script type="application/ld+json">
@@ -63,7 +64,7 @@
       <nav class="nav-links">
         <a href="#tools">tools/</a>
         <a href="#about">about</a>
-        <a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a>
+        <a href="#" id="darkModeToggle"></a>
       </nav>
     </div>
   </header>
@@ -78,7 +79,7 @@
 
     <div class="search-container">
       <span class="search-prompt">[filter] &gt;</span>
-      <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off" oninput="filterTools()">
+      <input type="text" id="toolFilter" placeholder="type to filter tools..." autocomplete="off">
     </div>
 
 <section id="tools" class="dir-listing">
@@ -91,19 +92,19 @@
       <!-- json/ -->
       <div class="dir-category" id="cat-json">json/</div>
 
-      <div class="dir-row" onclick="location.href='tools/json-formatter'">
+      <div class="dir-row" data-row-href="tools/json-formatter">
         <a class="path-link" href="tools/json-formatter">/json-formatter</a>
         <div class="desc">Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/appsettings-validator'">
+      <div class="dir-row" data-row-href="tools/appsettings-validator">
         <a class="path-link" href="tools/appsettings-validator">/appsettings-validator</a>
         <div class="desc">Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/csv-json-converter'">
+      <div class="dir-row" data-row-href="tools/csv-json-converter">
         <a class="path-link" href="tools/csv-json-converter">/csv-json-converter</a>
         <div class="desc">Convert CSV to JSON or JSON to CSV — proper quoted-field parsing handles embedded commas, quotes, and newlines; comma, semicolon, or tab delimiters</div>
         <div class="status">● ready</div>
@@ -112,25 +113,25 @@
       <!-- encoding/ -->
       <div class="dir-category" id="cat-encoding">encoding/</div>
 
-      <div class="dir-row" onclick="location.href='tools/base64-converter'">
+      <div class="dir-row" data-row-href="tools/base64-converter">
         <a class="path-link" href="tools/base64-converter">/base64-converter</a>
         <div class="desc">Encode text or files to Base64 (standard or URL-safe) and decode it back — handles UTF-8 correctly, supports drag-and-drop file input</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/url-encoder'">
+      <div class="dir-row" data-row-href="tools/url-encoder">
         <a class="path-link" href="tools/url-encoder">/url-encoder</a>
         <div class="desc">Encode or decode URL / query string values, parse a full URL into its components (protocol, host, path, params, fragment), or build a URL from parts</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/color-converter'">
+      <div class="dir-row" data-row-href="tools/color-converter">
         <a class="path-link" href="tools/color-converter">/color-converter</a>
         <div class="desc">Convert between HEX, RGB, and HSL — auto-detects the format you paste in — plus a WCAG 2.1 contrast ratio checker with AA/AAA pass-fail badges</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/qr-code-generator'">
+      <div class="dir-row" data-row-href="tools/qr-code-generator">
         <a class="path-link" href="tools/qr-code-generator">/qr-code-generator</a>
         <div class="desc">Generate a QR code from any text or URL — choose error correction level, size, and colors, then download as PNG or SVG</div>
         <div class="status">● ready</div>
@@ -139,31 +140,31 @@
       <!-- text/ -->
       <div class="dir-category" id="cat-text">text/</div>
 
-      <div class="dir-row" onclick="location.href='tools/diff-checker'">
+      <div class="dir-row" data-row-href="tools/diff-checker">
         <a class="path-link" href="tools/diff-checker">/diff-checker</a>
         <div class="desc">Compare two texts side-by-side or in unified view with word or character precision — auto-compares as you type, supports file upload, hide unchanged lines</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/sql-formatter'">
+      <div class="dir-row" data-row-href="tools/sql-formatter">
         <a class="path-link" href="tools/sql-formatter">/sql-formatter</a>
         <div class="desc">Format and indent messy SQL queries or minify them for logging — supports T-SQL, PostgreSQL, MySQL; handles JOINs, subqueries, CTEs, and compound keywords</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/case-converter'">
+      <div class="dir-row" data-row-href="tools/case-converter">
         <a class="path-link" href="tools/case-converter">/case-converter</a>
         <div class="desc">Convert identifiers between camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, dot.case, and more — all nine formats at once, input format detected automatically</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/xml-formatter'">
+      <div class="dir-row" data-row-href="tools/xml-formatter">
         <a class="path-link" href="tools/xml-formatter">/xml-formatter</a>
         <div class="desc">Format, validate, or minify XML — errors show the exact line and column; handles nested elements, attributes, comments, and CDATA correctly</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/markdown-previewer'">
+      <div class="dir-row" data-row-href="tools/markdown-previewer">
         <a class="path-link" href="tools/markdown-previewer">/markdown-previewer</a>
         <div class="desc">Live preview for Markdown — headings, lists, links, code blocks, tables, and blockquotes rendered as you type in a sandboxed preview pane</div>
         <div class="status">● ready</div>
@@ -172,7 +173,7 @@
       <!-- hashes/ -->
       <div class="dir-category" id="cat-hashes">hashes/</div>
 
-      <div class="dir-row" onclick="location.href='tools/hash-generator'">
+      <div class="dir-row" data-row-href="tools/hash-generator">
         <a class="path-link" href="tools/hash-generator">/hash-generator</a>
         <div class="desc">Compute MD5, SHA-1, SHA-256, and SHA-512 hashes from any text — runs locally via the Web Crypto API, nothing is sent to any server</div>
         <div class="status">● ready</div>
@@ -181,55 +182,55 @@
       <!-- dev-helpers/ -->
       <div class="dir-category" id="cat-dev">dev-helpers/</div>
 
-      <div class="dir-row" onclick="location.href='tools/connection-string-builder'">
+      <div class="dir-row" data-row-href="tools/connection-string-builder">
         <a class="path-link" href="tools/connection-string-builder">/connection-string-builder</a>
         <div class="desc">Build or parse SQL Server connection strings — SQL auth, Windows auth, Azure AD, Encrypt and TrustServerCertificate flags, with runtime warnings for common mistakes</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/cron-builder'">
+      <div class="dir-row" data-row-href="tools/cron-builder">
         <a class="path-link" href="tools/cron-builder">/cron-builder</a>
         <div class="desc">Build and explain cron expressions for Hangfire (5-field) and Quartz.NET (6-field with seconds) — paste an expression to get a plain-English explanation</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/jwt-decoder'">
+      <div class="dir-row" data-row-href="tools/jwt-decoder">
         <a class="path-link" href="tools/jwt-decoder">/jwt-decoder</a>
         <div class="desc">Decode a JWT's header and payload, inspect all claims, check exp/nbf against the current time, and verify HS256 / RS256 / ES256 signatures in-browser</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/epoch-converter'">
+      <div class="dir-row" data-row-href="tools/epoch-converter">
         <a class="path-link" href="tools/epoch-converter">/epoch-converter</a>
         <div class="desc">Convert Unix timestamps (seconds or milliseconds) to ISO 8601, UTC, and local time — live ticking clock, auto-detects seconds vs milliseconds</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/guid-formatter'">
+      <div class="dir-row" data-row-href="tools/guid-formatter">
         <a class="path-link" href="tools/guid-formatter">/guid-formatter</a>
         <div class="desc">Generate a random GUID or reformat a pasted one across all five .NET Guid.ToString() formats — D, N, B, P, and the X hex-constructor form</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/base-converter'">
+      <div class="dir-row" data-row-href="tools/base-converter">
         <a class="path-link" href="tools/base-converter">/base-converter</a>
         <div class="desc">Convert a number between binary, octal, decimal, and hexadecimal at once — full 64-bit range via BigInt, no precision loss on large values</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/regex-tester'">
+      <div class="dir-row" data-row-href="tools/regex-tester">
         <a class="path-link" href="tools/regex-tester">/regex-tester</a>
         <div class="desc">Test a regex with live match and capture-group highlighting — pattern explanation panel, options mapped to .NET RegexOptions, C#/JS code generator</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/password-generator'">
+      <div class="dir-row" data-row-href="tools/password-generator">
         <a class="path-link" href="tools/password-generator">/password-generator</a>
         <div class="desc">Generate cryptographically secure passwords or passphrases — configure length, character sets, exclude ambiguous chars, see entropy in bits, bulk generate up to 50 at once</div>
         <div class="status">● ready</div>
       </div>
 
-      <div class="dir-row" onclick="location.href='tools/share-pad'">
+      <div class="dir-row" data-row-href="tools/share-pad">
         <a class="path-link" href="tools/share-pad">/share-pad</a>
         <div class="desc">Share text snippets via a short 6-digit code (stored temporarily server-side) or an offline URL-hash link where the full content is compressed into the URL itself</div>
         <div class="status">● ready</div>
@@ -261,59 +262,6 @@
       <span>no cookies, no tracking, no signup</span>
     </div>
   </footer>
-
-  <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      if (typeof getRecentToolFiles !== 'function') return;
-      var recentFiles = getRecentToolFiles();
-      if (!recentFiles.length) return;
-
-      var listing = document.getElementById('tools');
-      var head = listing.querySelector('.dir-row-head');
-      var allRows = Array.prototype.slice.call(listing.querySelectorAll('.dir-row'));
-
-      var matched = recentFiles.map(function (file) {
-        return allRows.filter(function (row) {
-          var link = row.querySelector('.path-link');
-          return link && link.getAttribute('href') === 'tools/' + file;
-        })[0];
-      }).filter(Boolean);
-      if (!matched.length) return;
-
-      var cat = document.createElement('div');
-      cat.className = 'dir-category';
-      cat.id = 'cat-recent';
-      cat.textContent = 'recent/';
-
-      var insertionPoint = cat;
-      head.parentNode.insertBefore(cat, head.nextSibling);
-      matched.forEach(function (row) {
-        var clone = row.cloneNode(true);
-        insertionPoint.parentNode.insertBefore(clone, insertionPoint.nextSibling);
-        insertionPoint = clone;
-      });
-    });
-
-    function filterTools() {
-      const q = document.getElementById('toolFilter').value.toLowerCase();
-      const rows = document.querySelectorAll('.dir-listing .dir-row');
-      rows.forEach(row => {
-        const path = row.querySelector('.path-link').textContent.toLowerCase();
-        const desc = row.querySelector('.desc').textContent.toLowerCase();
-        row.style.display = (!q || path.includes(q) || desc.includes(q)) ? 'grid' : 'none';
-      });
-      // Hide category headers with no visible tools under them
-      document.querySelectorAll('.dir-category').forEach(cat => {
-        let sib = cat.nextElementSibling;
-        let anyVisible = false;
-        while (sib && !sib.classList.contains('dir-category')) {
-          if (sib.style.display !== 'none') anyVisible = true;
-          sib = sib.nextElementSibling;
-        }
-        cat.style.display = anyVisible ? '' : 'none';
-      });
-    }
-  </script>
 </body>
 
 </html>

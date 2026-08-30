@@ -58,7 +58,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -81,20 +81,20 @@
         <div class="body">
           <div class="field">
             <label for="rxPattern"><span class="key">Pattern</span></label>
-            <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$" oninput="runRegex()">
+            <input type="text" id="rxPattern" placeholder="e.g. ^[A-Z]{3}-\d{4}$">
           </div>
-          <div class="check-row"><input type="checkbox" id="rxIgnoreCase" onchange="runRegex()"><label for="rxIgnoreCase">IgnoreCase</label></div>
-          <div class="check-row"><input type="checkbox" id="rxMultiline" onchange="runRegex()"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
-          <div class="check-row"><input type="checkbox" id="rxSingleline" onchange="runRegex()"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
-          <div class="check-row"><input type="checkbox" id="rxGlobal" checked onchange="runRegex()"><label for="rxGlobal">Find all matches (not just the first)</label></div>
+          <div class="check-row"><input type="checkbox" id="rxIgnoreCase"><label for="rxIgnoreCase">IgnoreCase</label></div>
+          <div class="check-row"><input type="checkbox" id="rxMultiline"><label for="rxMultiline">Multiline (^ and $ match line boundaries)</label></div>
+          <div class="check-row"><input type="checkbox" id="rxSingleline"><label for="rxSingleline">Singleline (. matches newline too)</label></div>
+          <div class="check-row"><input type="checkbox" id="rxGlobal" checked><label for="rxGlobal">Find all matches (not just the first)</label></div>
           <div id="rxExplain"></div>
           <div class="field" style="margin-top:14px;">
             <label for="rxTestString"><span class="key">Test string</span></label>
-            <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern." oninput="runRegex()"></textarea>
+            <textarea id="rxTestString" rows="6" placeholder="Paste sample text here to test against your pattern."></textarea>
           </div>
           <div class="btn-row">
-            <button class="btn secondary" onclick="tryRegexExample()">Try example</button>
-            <button class="btn secondary" onclick="clearRegexInputs()">Clear</button>
+            <button id="btnRegexExample" class="btn secondary">Try example</button>
+            <button id="btnRegexClear" class="btn secondary">Clear</button>
           </div>
         </div>
       </div>
@@ -103,9 +103,9 @@
         <div class="tab">code generator</div>
         <div class="body" style="padding:16px;">
           <div style="display:flex; gap: 10px; margin-bottom: 12px; align-items: center;">
-            <button class="btn btn-sm" onclick="showTab('cs')">C# (.NET)</button>
-            <button class="btn btn-sm" onclick="showTab('js')">JavaScript</button>
-            <button class="copy-btn" onclick="copyElementValue('codeGen', this)">copy</button>
+            <button id="btnRegexTabCs" class="btn btn-sm">C# (.NET)</button>
+            <button id="btnRegexTabJs" class="btn btn-sm">JavaScript</button>
+            <button class="copy-btn" data-copy="codeGen">copy</button>
           </div>
           <pre id="codeGen" style="background:#151126; padding: 12px; border-radius: 4px; color:#a9b2c3; font-size:12.5px; overflow-x:auto; margin:0;"></pre>
         </div>

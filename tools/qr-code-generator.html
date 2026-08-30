@@ -54,7 +54,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -76,12 +76,12 @@
       <div class="tab">input.txt</div>
       <div class="body">
         <div class="field">
-          <textarea id="qrInput" rows="4" placeholder="https://example.com or any text..." oninput="generateQr()"></textarea>
+          <textarea id="qrInput" rows="4" placeholder="https://example.com or any text..."></textarea>
         </div>
 
         <div class="field">
           <label for="qrLevel"><span class="key">Error correction</span></label>
-          <select id="qrLevel" onchange="generateQr()">
+          <select id="qrLevel">
             <option value="L">L — recovers ~7% (smallest code)</option>
             <option value="M" selected>M — recovers ~15% (default)</option>
             <option value="Q">Q — recovers ~25%</option>
@@ -92,7 +92,7 @@
         <div class="field">
           <label for="qrScale"><span class="key">Size</span></label>
           <div class="slider-row" style="display:flex;align-items:center;gap:10px;">
-            <input type="range" id="qrScale" min="3" max="14" value="6" oninput="document.getElementById('qrScaleVal').textContent=this.value; generateQr()" style="flex:1;">
+            <input type="range" id="qrScale" min="3" max="14" value="6" style="flex:1;">
             <span id="qrScaleVal" class="mono" style="font-family:var(--mono);font-weight:600;color:var(--violet-dark);min-width:24px;">6</span>
           </div>
           <p class="hint">Pixels per module (the code's individual black/white squares) — higher means a larger, crisper image. Turn this up before printing or scaling the code up significantly.</p>
@@ -101,17 +101,17 @@
         <div class="field" style="margin-bottom:0;">
           <label for="qrDark"><span class="key">Colors</span></label>
           <div class="qr-color-row">
-            <input type="color" id="qrDark" value="#000000" oninput="generateQr()">
+            <input type="color" id="qrDark" value="#000000">
             <label for="qrDark">foreground</label>
-            <input type="color" id="qrLight" value="#ffffff" oninput="generateQr()">
+            <input type="color" id="qrLight" value="#ffffff">
             <label for="qrLight">background</label>
           </div>
           <p class="hint">Most scanners need strong contrast to read reliably — keep foreground and background far apart in brightness. Plain black on white is the safest choice.</p>
         </div>
 
         <div class="btn-row">
-          <button class="btn secondary" onclick="tryQrExample()">Try example</button>
-          <button class="btn secondary" onclick="clearQrInput()">Clear</button>
+          <button id="btnQrExample" class="btn secondary">Try example</button>
+          <button id="btnQrClear" class="btn secondary">Clear</button>
         </div>
       </div>
     </div>
@@ -125,9 +125,9 @@
         </div>
         <div id="qrError" class="callout error" style="display:none;"></div>
         <div class="btn-row" id="qrActions" style="display:none;">
-          <button class="btn" onclick="downloadPng()">⭳ Download PNG</button>
-          <button class="btn secondary" onclick="downloadSvg()">⭳ Download SVG</button>
-          <button class="btn secondary" onclick="copyQrImage(this)">Copy image</button>
+          <button id="btnQrDownloadPng" class="btn">⭳ Download PNG</button>
+          <button id="btnQrDownloadSvg" class="btn secondary">⭳ Download SVG</button>
+          <button id="btnQrCopyImage" class="btn secondary">Copy image</button>
         </div>
       </div>
     </div>

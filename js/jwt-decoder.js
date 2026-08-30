@@ -85,11 +85,11 @@ async function decodeJwt() {
   resultDiv.innerHTML = `
     <div class="tool-grid" style="margin-top:20px;">
       <div class="config-block">
-        <div class="tab">header <button class="copy-btn" onclick="copyElementValue('jwtHeaderOut', this)">copy</button></div>
+        <div class="tab">header <button class="copy-btn" data-copy="jwtHeaderOut">copy</button></div>
         <div class="output-block"><pre id="jwtHeaderOut">${highlightJsonText(JSON.stringify(header, null, 2))}</pre></div>
       </div>
       <div class="config-block">
-        <div class="tab">payload <button class="copy-btn" onclick="copyElementValue('jwtPayloadOut', this)">copy</button></div>
+        <div class="tab">payload <button class="copy-btn" data-copy="jwtPayloadOut">copy</button></div>
         <div class="output-block"><pre id="jwtPayloadOut">${highlightJsonText(JSON.stringify(payload, null, 2))}</pre></div>
       </div>
     </div>
@@ -230,3 +230,10 @@ function highlightJsonText(jsonString) {
   });
 }
 
+
+document.getElementById('jwtInput').addEventListener('input', decodeJwt);
+document.getElementById('btnJwtExample').addEventListener('click', tryJwtExample);
+document.getElementById('btnJwtClear').addEventListener('click', clearJwtInput);
+document.getElementById('jwtAlgSelect').addEventListener('change', function () { onAlgChange(); decodeJwt(); });
+document.getElementById('jwtSecret').addEventListener('input', decodeJwt);
+document.getElementById('jwtPem').addEventListener('input', decodeJwt);

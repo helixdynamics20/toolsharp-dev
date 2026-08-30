@@ -59,7 +59,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -83,22 +83,22 @@
       <div class="tab">input.csv</div>
       <div class="body">
         <div class="field">
-          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago' oninput="scheduleConvertCsvToJson()"></textarea>
+          <textarea id="csvInput" rows="9" placeholder='name,age,city&#10;Alice,30,"New York, NY"&#10;Bob,25,Chicago'></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label for="csvDelimiter"><span class="key">Delimiter</span></label>
-          <select id="csvDelimiter" onchange="convertCsvToJson()">
+          <select id="csvDelimiter">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
             <option value="tab">Tab (TSV)</option>
           </select>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="convertCsvToJson()">Convert to JSON</button>
-          <button class="btn secondary" onclick="tryCsvExample()">Try example</button>
-          <button class="btn secondary" onclick="document.getElementById('csvFileInput').click()">Load file…</button>
-          <button class="btn secondary" onclick="clearCsvInput()">Clear</button>
-          <input type="file" id="csvFileInput" accept=".csv,.tsv,text/csv,text/tab-separated-values,text/plain" style="display:none;" onchange="loadCsvFile(this)">
+          <button id="btnCsvConvert" class="btn">Convert to JSON</button>
+          <button id="btnCsvExample" class="btn secondary">Try example</button>
+          <button id="btnCsvLoadFile" class="btn secondary">Load file…</button>
+          <button id="btnCsvClear" class="btn secondary">Clear</button>
+          <input type="file" id="csvFileInput" accept=".csv,.tsv,text/csv,text/tab-separated-values,text/plain" style="display:none;">
         </div>
       </div>
     </div>
@@ -106,8 +106,8 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.json</span>
-        <button class="copy-btn" onclick="downloadElementValue('csvJsonOutput', 'converted.json')">download</button>
-        <button class="copy-btn" onclick="copyElementValue('csvJsonOutput', this)">copy</button>
+        <button class="copy-btn" data-download="csvJsonOutput" data-filename="converted.json">download</button>
+        <button class="copy-btn" data-copy="csvJsonOutput">copy</button>
       </div>
       <div id="csvJsonMsg" style="padding: 0 16px;"></div>
       <div class="output-block"><pre id="csvJsonOutput" class="empty">Result appears here.</pre></div>
@@ -121,22 +121,22 @@
       <div class="tab">input.json</div>
       <div class="body">
         <div class="field">
-          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]' oninput="scheduleConvertJsonToCsv()"></textarea>
+          <textarea id="jsonToCsvInput" rows="9" placeholder='[&#10;  { "name": "Alice", "age": 30, "city": "New York, NY" },&#10;  { "name": "Bob", "age": 25 }&#10;]'></textarea>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label for="jsonToCsvDelimiter"><span class="key">Delimiter</span></label>
-          <select id="jsonToCsvDelimiter" onchange="convertJsonToCsv()">
+          <select id="jsonToCsvDelimiter">
             <option value=",">Comma (,)</option>
             <option value=";">Semicolon (;)</option>
             <option value="tab">Tab (TSV)</option>
           </select>
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="convertJsonToCsv()">Convert to CSV</button>
-          <button class="btn secondary" onclick="tryJsonExample()">Try example</button>
-          <button class="btn secondary" onclick="document.getElementById('jsonFileInput').click()">Load file…</button>
-          <button class="btn secondary" onclick="clearJsonInput()">Clear</button>
-          <input type="file" id="jsonFileInput" accept=".json,application/json,text/plain" style="display:none;" onchange="loadJsonFile(this)">
+          <button id="btnJsonToCsvConvert" class="btn">Convert to CSV</button>
+          <button id="btnJsonToCsvExample" class="btn secondary">Try example</button>
+          <button id="btnJsonLoadFile" class="btn secondary">Load file…</button>
+          <button id="btnJsonToCsvClear" class="btn secondary">Clear</button>
+          <input type="file" id="jsonFileInput" accept=".json,application/json,text/plain" style="display:none;">
         </div>
       </div>
     </div>
@@ -144,8 +144,8 @@
     <div class="config-block">
       <div class="tab" style="display:flex;align-items:center;gap:6px;">
         <span style="flex:1;">output.csv</span>
-        <button class="copy-btn" onclick="downloadElementValue('jsonToCsvOutput', 'converted.csv')">download</button>
-        <button class="copy-btn" onclick="copyElementValue('jsonToCsvOutput', this)">copy</button>
+        <button class="copy-btn" data-download="jsonToCsvOutput" data-filename="converted.csv">download</button>
+        <button class="copy-btn" data-copy="jsonToCsvOutput">copy</button>
       </div>
       <div id="jsonToCsvMsg" style="padding: 0 16px;"></div>
       <div class="output-block"><pre id="jsonToCsvOutput" class="empty">Result appears here.</pre></div>

@@ -1,6 +1,21 @@
 // Shared across every tool page (loaded like theme.js) -- the one place
 // clipboard-copy logic lives, instead of each tool reimplementing it.
 
+// Delegated so a single listener (loaded once, here) covers every
+// data-copy/data-download button on every tool page, instead of each
+// button needing its own onclick attribute (which a strict script-src
+// CSP can't allow -- inline handlers count as inline script).
+document.addEventListener('click', function (e) {
+  var copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) { copyElementValue(copyBtn.getAttribute('data-copy'), copyBtn); return; }
+  var dlBtn = e.target.closest('[data-download]');
+  if (dlBtn) { downloadElementValue(dlBtn.getAttribute('data-download'), dlBtn.getAttribute('data-filename')); return; }
+  // Homepage/guides-index "click anywhere in the row" rows -- skip when the
+  // click already landed on the row's own link, which navigates on its own.
+  var row = e.target.closest('[data-row-href]');
+  if (row && !e.target.closest('a')) { window.location.href = row.getAttribute('data-row-href'); }
+});
+
 function copyToClipboard(text, btn) {
   if (!text) return;
   navigator.clipboard.writeText(text).then(function () {

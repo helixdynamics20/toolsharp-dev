@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -69,22 +69,22 @@
         <div class="field">
           <label for="baseBin"><span class="key">Input base</span></label>
           <div class="mode-toggle">
-            <input type="radio" name="inputBase" id="baseBin" value="2" onchange="convertBase()">
+            <input type="radio" name="inputBase" id="baseBin" value="2">
             <label for="baseBin">Binary</label>
-            <input type="radio" name="inputBase" id="baseOct" value="8" onchange="convertBase()">
+            <input type="radio" name="inputBase" id="baseOct" value="8">
             <label for="baseOct">Octal</label>
-            <input type="radio" name="inputBase" id="baseDec" value="10" checked onchange="convertBase()">
+            <input type="radio" name="inputBase" id="baseDec" value="10" checked>
             <label for="baseDec">Decimal</label>
-            <input type="radio" name="inputBase" id="baseHex" value="16" onchange="convertBase()">
+            <input type="radio" name="inputBase" id="baseHex" value="16">
             <label for="baseHex">Hexadecimal</label>
           </div>
         </div>
         <div class="field">
-          <input type="text" id="baseInput" aria-label="Number to convert" placeholder="e.g. 3735928559, DEADBEEF, 0b1010, 0o17..." spellcheck="false" autocomplete="off" oninput="convertBase()" style="font-family: var(--mono);">
+          <input type="text" id="baseInput" aria-label="Number to convert" placeholder="e.g. 3735928559, DEADBEEF, 0b1010, 0o17..." spellcheck="false" autocomplete="off" style="font-family: var(--mono);">
         </div>
         <div class="btn-row">
-          <button class="btn secondary" onclick="tryBaseExample()">Try example</button>
-          <button class="btn secondary" onclick="clearBaseInput()">Clear</button>
+          <button id="btnBaseExample" class="btn secondary">Try example</button>
+          <button id="btnBaseClear" class="btn secondary">Clear</button>
         </div>
         <div id="baseError" class="callout error" style="display:none; margin-top:12px;"></div>
       </div>
@@ -97,25 +97,25 @@
           <label for="binOutput">Binary</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="binOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
-            <button class="btn" onclick="copyElementValue('binOutput', this)">Copy</button>
+            <button class="btn" data-copy="binOutput">Copy</button>
           </div>
 
           <label for="octOutput">Octal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="octOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
-            <button class="btn" onclick="copyElementValue('octOutput', this)">Copy</button>
+            <button class="btn" data-copy="octOutput">Copy</button>
           </div>
 
           <label for="decOutput">Decimal</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="decOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
-            <button class="btn" onclick="copyElementValue('decOutput', this)">Copy</button>
+            <button class="btn" data-copy="decOutput">Copy</button>
           </div>
 
           <label for="hexOutput">Hexadecimal</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--red);">
-            <button class="btn" onclick="copyElementValue('hexOutput', this)">Copy</button>
+            <button class="btn" data-copy="hexOutput">Copy</button>
           </div>
         </div>
       </div>

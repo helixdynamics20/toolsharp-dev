@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
+<script src="../js/guides-home.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -45,7 +46,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -59,7 +60,7 @@
 
   <div class="search-container">
     <span class="search-prompt">[filter] &gt;</span>
-    <input type="text" id="guideFilter" placeholder="type to filter guides..." autocomplete="off" oninput="filterGuides()">
+    <input type="text" id="guideFilter" placeholder="type to filter guides..." autocomplete="off">
   </div>
 
   <section class="dir-listing">
@@ -69,43 +70,43 @@
       <div>status</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/cron-expression-cheat-sheet'">
+    <div class="dir-row" data-row-href="/guides/cron-expression-cheat-sheet">
       <a class="path-link" href="/guides/cron-expression-cheat-sheet">/cron-expression-cheat-sheet</a>
       <div class="desc">Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, and the mistakes that break schedules silently</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/what-is-a-jwt'">
+    <div class="dir-row" data-row-href="/guides/what-is-a-jwt">
       <a class="path-link" href="/guides/what-is-a-jwt">/what-is-a-jwt</a>
       <div class="desc">What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why it can't be revoked before it expires</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/sql-server-connection-string-examples'">
+    <div class="dir-row" data-row-href="/guides/sql-server-connection-string-examples">
       <a class="path-link" href="/guides/sql-server-connection-string-examples">/sql-server-connection-string-examples</a>
       <div class="desc">SQL auth, Windows auth, Azure AD, pooling, MARS, Connect vs Command timeout, and where the connection string lives in appsettings.json vs environment variables</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/regex-cheat-sheet'">
+    <div class="dir-row" data-row-href="/guides/regex-cheat-sheet">
       <a class="path-link" href="/guides/regex-cheat-sheet">/regex-cheat-sheet</a>
       <div class="desc">Anchors, character classes, greedy vs lazy, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/hashing-algorithms-explained'">
+    <div class="dir-row" data-row-href="/guides/hashing-algorithms-explained">
       <a class="path-link" href="/guides/hashing-algorithms-explained">/hashing-algorithms-explained</a>
       <div class="desc">Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id do differently, current OWASP-recommended parameters, salting, HMAC, and the collision attacks that broke MD5 and SHA-1</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/uuid-guid-versions-explained'">
+    <div class="dir-row" data-row-href="/guides/uuid-guid-versions-explained">
       <a class="path-link" href="/guides/uuid-guid-versions-explained">/uuid-guid-versions-explained</a>
       <div class="desc">What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database index performance problem, and the .NET byte-order quirk that breaks interop</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" onclick="location.href='/guides/unix-timestamp-epoch-explained'">
+    <div class="dir-row" data-row-href="/guides/unix-timestamp-epoch-explained">
       <a class="path-link" href="/guides/unix-timestamp-epoch-explained">/unix-timestamp-epoch-explained</a>
       <div class="desc">Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, leap seconds, and a cross-language cheat sheet for getting "now" as epoch</div>
       <div class="status">● ready</div>
@@ -120,15 +121,5 @@
   </div>
 </footer>
 
-<script>
-  function filterGuides() {
-    const q = document.getElementById('guideFilter').value.toLowerCase();
-    document.querySelectorAll('.dir-listing .dir-row').forEach(row => {
-      const path = row.querySelector('.path-link').textContent.toLowerCase();
-      const desc = row.querySelector('.desc').textContent.toLowerCase();
-      row.style.display = (!q || path.includes(q) || desc.includes(q)) ? 'grid' : 'none';
-    });
-  }
-</script>
 </body>
 </html>

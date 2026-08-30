@@ -45,7 +45,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle" onclick="event.preventDefault(); toggleDarkMode()"></a></nav>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
   </div>
 </header>
 
@@ -67,10 +67,10 @@
       <div class="body">
         <div class="field">
           <label for="guidInput"><span class="key">GUID</span> (any format — leave blank to generate one)</label>
-          <input type="text" id="guidInput" placeholder="e.g. 3f2504e0-4f89-11d3-9a0c-0305e82c3301" oninput="onGuidInput()">
+          <input type="text" id="guidInput" placeholder="e.g. 3f2504e0-4f89-11d3-9a0c-0305e82c3301">
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="generateGuid()">Generate new GUID</button>
+          <button id="btnGuidGenerate" class="btn">Generate new GUID</button>
         </div>
       </div>
     </div>
@@ -87,8 +87,8 @@
           <input type="number" id="guidBulkCount" min="1" max="100" value="10">
         </div>
         <div class="btn-row">
-          <button class="btn" onclick="generateBulkGuids()">Generate</button>
-          <button class="btn secondary" onclick="copyElementValue('guidBulkOutput', this)">Copy all</button>
+          <button id="btnGuidBulkGenerate" class="btn">Generate</button>
+          <button class="btn secondary" data-copy="guidBulkOutput">Copy all</button>
         </div>
         <textarea id="guidBulkOutput" rows="8" readonly style="margin-top:14px; font-family: var(--mono);" placeholder="Generated GUIDs will appear here, one per line."></textarea>
       </div>
