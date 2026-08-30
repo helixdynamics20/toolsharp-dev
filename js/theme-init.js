@@ -1,0 +1,1 @@
+if((function(){try{var v=localStorage.getItem('toolsharp-dark-theme');if(v!==null)return v==='true';}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;})())document.body.classList.add('dark-theme');
