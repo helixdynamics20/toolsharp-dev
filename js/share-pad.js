@@ -202,8 +202,9 @@ async function generateShare() {
     }
     
     // Format code as "123 456" for clean dictation
-    const formattedCode = code.substring(0, 3) + ' ' + code.substring(3);
-    document.getElementById('shareCode').value = formattedCode;
+    document.getElementById('shareCodeA').textContent = code.substring(0, 3);
+    document.getElementById('shareCodeB').textContent = code.substring(3);
+    document.getElementById('shareCode').dataset.copyValue = code;
     document.getElementById('shareLink').value = origin + '#code=' + code;
     document.getElementById('outputBlock').style.display = 'block';
     clearError();

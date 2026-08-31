@@ -28,7 +28,12 @@ function copyToClipboard(text, btn) {
 function copyElementValue(id, btn) {
   var el = document.getElementById(id);
   if (!el) return;
-  var text = 'value' in el ? el.value : el.textContent;
+  // data-copy-value wins when present -- for an element built from nested
+  // children (share-pad's grouped-digit display, for one), .textContent
+  // picks up the source markup's own whitespace/indentation between them,
+  // not just the digits.
+  var text = el.dataset.copyValue !== undefined ? el.dataset.copyValue
+    : ('value' in el ? el.value : el.textContent);
   if (!text) return;
   if (typeof el.select === 'function') el.select();
   copyToClipboard(text, btn);
