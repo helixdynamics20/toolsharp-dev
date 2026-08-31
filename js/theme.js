@@ -363,16 +363,26 @@
     dropdownContainer.className = 'nav-category-dropdowns';
 
     var toolsLink = document.createElement('a');
-    toolsLink.className = 'nav-dropdown-trigger';
+    toolsLink.className = 'nav-dropdown-trigger nav-primary-link';
     toolsLink.href = pathPrefix + 'tools';
     toolsLink.textContent = 'tools/';
     dropdownContainer.appendChild(toolsLink);
 
     var guidesLink = document.createElement('a');
-    guidesLink.className = 'nav-dropdown-trigger';
+    guidesLink.className = 'nav-dropdown-trigger nav-primary-link';
     guidesLink.href = pathPrefix + 'guides';
     guidesLink.textContent = 'guides/';
     dropdownContainer.appendChild(guidesLink);
+
+    // Separates the two real destination pages (tools/, guides/) from the
+    // category dropdowns after it, which are quick-jump shortcuts into
+    // tools/ rather than pages of their own -- without this they read as
+    // five more items of the same kind as "tools/", making it look
+    // redundant next to them.
+    var navDivider = document.createElement('span');
+    navDivider.className = 'nav-divider';
+    navDivider.setAttribute('aria-hidden', 'true');
+    dropdownContainer.appendChild(navDivider);
 
     categories.forEach(function(cat) {
       var dropdown = document.createElement('div');

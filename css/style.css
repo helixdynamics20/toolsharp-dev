@@ -826,6 +826,19 @@ body.dark-theme .nav-dropdown-trigger:hover, body.dark-theme .nav-dropdown.activ
   background: rgba(108, 76, 224, 0.2);
   color: #fff;
 }
+/* tools/ and guides/ are real pages; the category triggers after them are
+   quick-jump shortcuts into tools/, not pages of their own -- weight and
+   the divider keep the two from reading as one flat list of siblings. */
+.nav-primary-link {
+  font-weight: 600;
+  color: var(--ink);
+}
+.nav-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--rule-strong);
+  margin: 0 4px;
+}
 .nav-dropdown-menu {
   position: absolute;
   top: 100%;
