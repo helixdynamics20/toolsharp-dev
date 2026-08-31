@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>The URL Fragment (#...) That Never Reaches Your Server — ToolSharp.dev</title>
+<meta name="description" content="Everything after # in a URL never appears in the HTTP request — verified with a real network capture. Why this exists, what OAuth and client-side routers use it for, and where the guarantee actually ends.">
+<link rel="canonical" href="https://toolsharp.dev/guides/url-hash-fragment-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/url-hash-fragment-explained">
+<meta property="og:title" content="The URL Fragment (#...) That Never Reaches Your Server">
+<meta property="og:description" content="Everything after # in a URL never appears in the HTTP request — verified with a real network capture. Why this exists, what OAuth and client-side routers use it for, and where the guarantee actually ends.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/url-hash-fragment-explained">
+<meta name="twitter:title" content="The URL Fragment (#...) That Never Reaches Your Server">
+<meta name="twitter:description" content="Everything after # in a URL never appears in the HTTP request — verified with a real network capture. Why this exists, what OAuth and client-side routers use it for, and where the guarantee actually ends.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"The URL Fragment (#...) That Never Reaches Your Server","url":"https://toolsharp.dev/guides/url-hash-fragment-explained","description":"Everything after # in a URL is never sent in the HTTP request — why this exists, what OAuth and client-side routers use it for, and the real limits of the guarantee.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"url-hash-fragment-explained"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">url-hash-fragment-explained</span></div>
+
+  <div class="tool-header">
+    <h1>The URL Fragment (#...) That Never Reaches Your Server</h1>
+    <p class="sub">Everything after the <code>#</code> in a URL is called the fragment, and browsers never include it in the HTTP request — not in the request line, not in any header. It's not a privacy feature that was deliberately bolted on; it's a 30-year-old consequence of what a fragment was originally for, that OAuth, client-side routers, and this site's own share-pad now lean on deliberately.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">URLs</span>
+      <span class="badge">browser behavior</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// the anatomy of a URL</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A URL has a part the server receives and a part it doesn't. Everything up to and including the query string goes out over the network in the request line. The fragment — everything from the <code>#</code> onward — is stripped off by the browser before the request is even built. The server hosting the page has no way to see it, because it was never sent.</p></div>
+
+    <figure class="guide-figure">
+      <svg viewBox="0 0 460 150" role="img" aria-label="A URL split into parts. The scheme, host, path, and query string are sent to the server in the HTTP request. The fragment, everything after the hash symbol, is stripped off by the browser and never sent.">
+        <text x="10" y="28" font-family="var(--mono)" font-size="13" fill="var(--ink)">https://toolsharp.dev/tools/share-pad<tspan fill="var(--red)" font-weight="700">#data=xyz</tspan></text>
+
+        <line x1="10" y1="42" x2="286" y2="42" stroke="var(--green)" stroke-width="2"/>
+        <line x1="292" y1="42" x2="330" y2="42" stroke="var(--red)" stroke-width="2"/>
+
+        <rect x="10" y="58" width="276" height="34" rx="4" fill="var(--green-wash)" stroke="var(--green)"/>
+        <text x="148" y="79" font-family="var(--sans)" font-size="11" font-weight="600" fill="#206B47" text-anchor="middle">sent to the server</text>
+
+        <rect x="292" y="58" width="158" height="34" rx="4" fill="var(--red-wash)" stroke="var(--red)"/>
+        <text x="371" y="79" font-family="var(--sans)" font-size="11" font-weight="600" fill="var(--red)" text-anchor="middle">never sent — browser only</text>
+
+        <line x1="148" y1="92" x2="148" y2="108" stroke="var(--green)" stroke-width="1.3"/>
+        <text x="148" y="122" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)" text-anchor="middle">appears in server access logs</text>
+
+        <line x1="371" y1="92" x2="371" y2="108" stroke="var(--red)" stroke-width="1.3"/>
+        <text x="371" y="122" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)" text-anchor="middle">exists only in window.location</text>
+
+        <line x1="10" y1="140" x2="450" y2="140" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3,3"/>
+      </svg>
+      <figcaption>Scheme, host, path, and query string are the part of a URL the server ever sees. The fragment is a purely client-side concept — the browser removes it before the request is constructed.</figcaption>
+    </figure>
+  </section>
+
+  <section class="notes">
+    <h2>// verified with a real capture, not just the spec</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This is easy to confirm yourself: open any page with something in the hash, open your browser's devtools Network tab, and reload. You will not find the fragment in the request URL of the page load itself, nor in any request the page makes afterward — because the browser never had it to send. Loading <code>https://toolsharp.dev/tools/share-pad#data=SECRET_VALUE</code> with a network log attached shows exactly this: the page-load request goes out as <code>GET /tools/share-pad</code>, with no trace of <code>SECRET_VALUE</code> anywhere in the 14 requests that page makes — while <code>window.location.hash</code> still reports the full value back to any script running on the page. Nothing was hidden from JavaScript; it was hidden from the network.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// why this exists</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The fragment predates any privacy use case entirely. In the original HTTP/URL design, a fragment like <code>#introduction</code> identifies a location <em>within</em> a resource the browser has already retrieved — the classic "jump to this heading on the page" anchor link. Since it only makes sense once the full page is already loaded, it was never part of what gets sent to ask for that page in the first place. That's a structural fact from how the URL specification separates "identify a resource" from "identify a piece of that resource" — not a feature anyone added on purpose for privacy. Developers noticed the side effect and started building on it deliberately.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// what actually relies on this today</h2>
+    <ul>
+      <li><strong>OAuth 2.0 implicit flow</strong> — returns the access token appended to the redirect URL's fragment specifically so it never lands in the redirect target's server logs. (Implicit flow is now discouraged in favor of Authorization Code + PKCE, for other reasons — token lifetime and same-page script exposure — but the redirect step still works this way because of exactly this behavior.)</li>
+      <li><strong>Client-side routers</strong> — older single-page apps (early Angular, hash-mode React Router) used <code>#/users/42</code>-style routes precisely because changing the fragment doesn't trigger a full page reload or a new server request — the app's own JavaScript reads the change and re-renders.</li>
+      <li><strong>This site's share-pad</strong> — the offline-link mode compresses your text directly into the fragment. The <a href="../tools/share-pad">tool page</a> can decompress and display it purely from <code>window.location.hash</code> — the text was never sent to ToolSharp's server, or anywhere else, to produce that link.</li>
+    </ul>
+  </section>
+
+  <section class="notes">
+    <h2>// where the guarantee ends</h2>
+    <div class="comment-line"><span class="bar">│</span><p>"Never sent to the server" is a specific, narrow guarantee — not a general statement that the data is secret. It's worth being precise about what it does and doesn't cover:</p></div>
+    <ul>
+      <li><strong>Any JavaScript on the page can read it.</strong> <code>window.location.hash</code> is a normal DOM property — the page's own script, any third-party script it loads (ads, analytics, a chat widget), and any browser extension with page access can all read it freely. The guarantee is about the network, not about code running in the browser.</li>
+      <li><strong>It still leaves outbound in one place: your own history.</strong> Your browser stores the full URL, fragment included, in local history — and if browser sync is turned on, that history (fragment included) can sync to your browser vendor's account.</li>
+      <li><strong>The <code>Referer</code> header is fragment-free too — which helps.</strong> If a page with a sensitive fragment contains a link to somewhere else, the outbound <code>Referer</code> header sent to that destination is defined to exclude the fragment. That's one fewer leak path, not an exception to watch for.</li>
+      <li><strong>Copying the link still copies the data.</strong> If you paste the full URL into a chat, an email, or a bug report, the fragment goes with it as plain text. The guarantee is "your server's access logs won't have it" — not "this data can't end up anywhere."</li>
+    </ul>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Generate an offline share link with <a href="../tools/share-pad">share-pad</a>, open your browser's devtools, and watch the Network tab as the link loads: the text you shared never appears in a single request. That's this exact mechanism, not a special case built just for that tool.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
