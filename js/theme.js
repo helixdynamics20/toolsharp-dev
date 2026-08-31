@@ -114,7 +114,11 @@
     { name: 'Regex Cheat Sheet', path: '/guides/regex-cheat-sheet' },
     { name: 'Hashing Algorithms Explained', path: '/guides/hashing-algorithms-explained' },
     { name: 'UUID / GUID Versions Explained', path: '/guides/uuid-guid-versions-explained' },
-    { name: 'Unix Timestamp & Epoch Time Explained', path: '/guides/unix-timestamp-epoch-explained' }
+    { name: 'Unix Timestamp & Epoch Time Explained', path: '/guides/unix-timestamp-epoch-explained' },
+    { name: 'Hangfire Cron Job Running on the Wrong Day', path: '/guides/hangfire-cron-wrong-day-explained' },
+    { name: '"Keyword Not Supported" and Certificate Trust Errors', path: '/guides/sql-server-keyword-not-supported-encrypt' },
+    { name: 'appsettings.json Secrets Committed to Git', path: '/guides/appsettings-secrets-in-git' },
+    { name: 'Quartz.NET "?" vs "*"', path: '/guides/quartz-net-question-mark-explained' }
   ];
 
   // Exposed so other scripts (the home page terminal) can reuse this index
@@ -147,7 +151,7 @@
     palette.className = 'cmd-palette';
     palette.setAttribute('role', 'dialog');
     palette.setAttribute('aria-modal', 'true');
-    palette.setAttribute('aria-label', 'Search tools');
+    palette.setAttribute('aria-label', 'Search tools and guides');
 
     var searchContainer = document.createElement('div');
     searchContainer.className = 'cmd-palette-search';
@@ -158,7 +162,7 @@
 
     var input = document.createElement('input');
     input.type = 'text';
-    input.placeholder = 'Search tools... (Esc to close)';
+    input.placeholder = 'Search tools and guides... (Esc to close)';
     input.className = 'cmd-palette-input';
     input.autocomplete = 'off';
     input.setAttribute('role', 'combobox');
@@ -222,24 +226,36 @@
   }
 
   function renderList(query) {
-    filteredTools = toolsList.filter(function(t) {
-      return t.name.toLowerCase().includes(query.toLowerCase());
+    var q = query.toLowerCase();
+    var allEntries = toolsList.map(function(t) {
+      return { name: t.name, path: t.path, kind: 'tool' };
+    }).concat(guidesList.map(function(g) {
+      return { name: g.name, path: g.path, kind: 'guide' };
+    }));
+    filteredTools = allEntries.filter(function(t) {
+      return t.name.toLowerCase().indexOf(q) !== -1;
     });
     paletteIndex = 0;
-    
+
     var list = document.querySelector('.cmd-palette-list');
     if (!list) return;
     list.innerHTML = '';
 
-    filteredTools.forEach(function(tool, i) {
+    filteredTools.forEach(function(entry, i) {
       var item = document.createElement('div');
       item.className = 'cmd-palette-item' + (i === 0 ? ' active' : '');
       item.id = 'cmd-item-' + i;
       item.setAttribute('role', 'option');
       item.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-      item.innerHTML = '<span>' + tool.name + '</span><span class="shortcut">jump to</span>';
+      var nameEl = document.createElement('span');
+      nameEl.textContent = entry.name;
+      var kindEl = document.createElement('span');
+      kindEl.className = 'shortcut';
+      kindEl.textContent = entry.kind;
+      item.appendChild(nameEl);
+      item.appendChild(kindEl);
       item.addEventListener('click', function() {
-        navigateToEntry(tool);
+        navigateToEntry(entry);
       });
       list.appendChild(item);
     });

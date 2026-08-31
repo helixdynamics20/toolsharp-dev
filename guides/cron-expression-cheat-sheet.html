@@ -122,7 +122,7 @@
         <div class="result-item"><span class="k"><code>,</code></span><span class="v">a list — <code>MON,WED,FRI</code></span></div>
         <div class="result-item"><span class="k"><code>-</code></span><span class="v">a range — <code>9-17</code> means 9 through 17</span></div>
         <div class="result-item"><span class="k"><code>/</code></span><span class="v">a step — <code>*/15</code> means every 15 units, starting at 0</span></div>
-        <div class="result-item"><span class="k"><code>?</code></span><span class="v">"no specific value" — Quartz.NET only, used on whichever of day-of-month/day-of-week you're not constraining</span></div>
+        <div class="result-item"><span class="k"><code>?</code></span><span class="v">"no specific value" — Quartz.NET only, used on whichever of day-of-month/day-of-week you're not constraining (<a href="../guides/quartz-net-question-mark-explained">exactly one of the two must be <code>?</code></a> — leaving both as <code>*</code> is a parse error, not a wildcard)</span></div>
         <div class="result-item"><span class="k"><code>L</code></span><span class="v">"last" — Quartz.NET only; last day of the month, or last given weekday</span></div>
         <div class="result-item"><span class="k"><code>#</code></span><span class="v">"nth weekday of the month" — Quartz.NET only; <code>6#3</code> = third Friday</span></div>
       </div>
@@ -164,7 +164,7 @@
   <section class="notes">
     <h2>// mistakes that pass validation but run wrong</h2>
     <div class="callout error" style="margin-bottom:14px;">Setting both day-of-month and day-of-week to specific values doesn't mean "AND" — in standard cron it means "OR" (either condition triggers it), which almost never matches what you intended. If you want a specific weekday, leave day-of-month as <code>*</code>.</div>
-    <div class="callout warn" style="margin-bottom:14px;">Day-of-week numbering differs by dialect: standard cron is 0–6 with <strong>0 = Sunday</strong>. Quartz.NET is 1–7 with <strong>1 = Sunday</strong>. The same digit means a different day depending which dialect you're reading — always check which one you're in before trusting a number.</div>
+    <div class="callout warn" style="margin-bottom:14px;">Day-of-week numbering differs by dialect: standard cron is 0–6 with <strong>0 = Sunday</strong>. Quartz.NET is 1–7 with <strong>1 = Sunday</strong>. The same digit means a different day depending which dialect you're reading — always check which one you're in before trusting a number. Hangfire's own Cronos engine adds a third wrinkle (0 <em>and</em> 7 both mean Sunday) — the <a href="../guides/hangfire-cron-wrong-day-explained">full breakdown</a> covers how a job ends up running on the wrong day despite the expression validating fine.</div>
     <div class="callout warn" style="margin-bottom:14px;">Cron expressions run in whatever timezone the scheduler process is configured for — not necessarily UTC, and not necessarily the server's local time if the app sets one explicitly. A schedule that looks right can drift by hours after a timezone or daylight-saving change if this isn't pinned down.</div>
     <div class="callout warn">A step value like <code>*/5</code> always starts counting from the field's zero point, not from "5 units from now." <code>*/5</code> on minutes fires at :00, :05, :10 — never at :02, :07, :12, no matter what minute you deployed at.</div>
   </section>

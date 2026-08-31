@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>"Keyword Not Supported" and Certificate Trust Errors in SQL Server Connection Strings — ToolSharp.dev</title>
+<meta name="description" content="Why a SQL Server connection string that worked for years suddenly throws 'Keyword not supported' or 'certificate chain was issued by an authority that is not trusted' — both trace back to the same library change.">
+<link rel="canonical" href="https://toolsharp.dev/guides/sql-server-keyword-not-supported-encrypt">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/sql-server-keyword-not-supported-encrypt">
+<meta property="og:title" content="&quot;Keyword Not Supported&quot; and Certificate Trust Errors in SQL Server Connection Strings">
+<meta property="og:description" content="Why a SQL Server connection string that worked for years suddenly throws 'Keyword not supported' or 'certificate chain was issued by an authority that is not trusted' — both trace back to the same library change.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/sql-server-keyword-not-supported-encrypt">
+<meta name="twitter:title" content="&quot;Keyword Not Supported&quot; and Certificate Trust Errors in SQL Server Connection Strings">
+<meta name="twitter:description" content="Why a SQL Server connection string that worked for years suddenly throws 'Keyword not supported' or 'certificate chain was issued by an authority that is not trusted' — both trace back to the same library change.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"\"Keyword Not Supported\" and Certificate Trust Errors in SQL Server Connection Strings","url":"https://toolsharp.dev/guides/sql-server-keyword-not-supported-encrypt","description":"Why SQL Server connection strings throw 'Keyword not supported' or a certificate trust error, and how both trace back to the Microsoft.Data.SqlClient encryption default change.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"sql-server-keyword-not-supported-encrypt"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">sql-server-keyword-not-supported-encrypt</span></div>
+
+  <div class="tool-header">
+    <h1>"Keyword Not Supported" and Certificate Trust Errors</h1>
+    <p class="sub">Two different exceptions, thrown at two different points in the connection process, that both start showing up around the same time in a codebase: a "Keyword not supported" <code>ArgumentException</code> before a connection is even attempted, and "The certificate chain was issued by an authority that is not trusted" once one is. Both trace back to the same cause.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">Microsoft.Data.SqlClient</span>
+      <span class="badge">SQL Server</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// "keyword not supported" — a library mismatch, not a typo</h2>
+    <div class="comment-line"><span class="bar">│</span><p><code>System.Data.SqlClient</code> (the old, in-box provider) and <code>Microsoft.Data.SqlClient</code> (the actively developed successor) don't recognize the same connection-string keywords. A handful of newer keywords — <code>TrustServerCertificate</code>, <code>Column Encryption Setting</code>, <code>Attestation Protocol</code>, <code>Enclave Attestation Url</code> among them — exist in <code>Microsoft.Data.SqlClient</code> but throw <code>Keyword not supported: '…'</code> if that exact same connection string reaches a <code>System.Data.SqlClient.SqlConnection</code> instead. This happens more often than it sounds: a connection string built with one provider's <code>SqlConnectionStringBuilder</code> and handed to code still referencing the other, a partially completed migration between the two packages, or a copy-pasted connection string from a newer tutorial landing in an older project.</p></div>
+
+    <div class="callout warn">The fix isn't to remove the keyword — it's to check which package the exception actually came from. <code>Microsoft.Data.SqlClient</code> has been the Microsoft-recommended provider since <code>System.Data.SqlClient</code> was put into maintenance-only mode; if a project still references the old package anywhere, that's almost always the real fix, not stripping keywords out of the connection string.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// the certificate error — a default that changed under you</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Starting with <strong>Microsoft.Data.SqlClient 4.0</strong>, the <code>Encrypt</code> setting defaults to <strong>true (mandatory)</strong> — earlier versions, and the old <code>System.Data.SqlClient</code>, defaulted it to <code>false</code>. A connection string with no <code>Encrypt</code> keyword at all behaved identically for years, then started failing the moment a NuGet update pulled in 4.0 or later, because encryption is now attempted by default and the client validates the server's certificate as part of that.</p></div>
+
+    <div class="callout error">Most SQL Server instances outside of Azure use a self-signed certificate, which fails validation by design — that's what "the certificate chain was issued by an authority that is not trusted" means. It isn't a sign anything is actually broken on the server; it's the new default doing exactly what it's supposed to do against a certificate nothing has told the client to trust.</div>
+
+    <div class="config-block">
+      <div class="tab">the three real options, in order of preference</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Install a real, CA-trusted certificate on the SQL Server instance</span><span class="v">The only option that gets you encryption <em>and</em> certificate validation, as intended. Azure SQL Database already has one — this only applies to self-hosted SQL Server.</span></div>
+        <div class="result-item"><span class="k"><code>Encrypt=True;TrustServerCertificate=True</code></span><span class="v">Keeps the connection encrypted, skips validating who signed the certificate. Reasonable for internal networks and local dev where you control both ends.</span></div>
+        <div class="result-item"><span class="k"><code>Encrypt=False</code></span><span class="v">Turns encryption off entirely, reverting to the old default. Fine for a local database on localhost; avoid it for anything crossing a real network.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// build it correctly the first time</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The <a href="../tools/connection-string-builder">Connection String Builder</a> sets <code>Encrypt</code> and <code>TrustServerCertificate</code> explicitly and flags the combinations that commonly cause exactly these two errors, so the string it produces doesn't depend on whichever default happens to ship in whatever package version gets restored next.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

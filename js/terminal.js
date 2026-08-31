@@ -3,14 +3,22 @@
 // nav, so nothing here is required to navigate the site (and crawlers, screen
 // readers, and no-JS visitors lose nothing by ignoring it).
 (function () {
+  var tools = window.TOOLSHARP_TOOLS || [];
+  var guides = window.TOOLSHARP_GUIDES || [];
+
+  // Keeps the home page's "N items" counts honest without hand-editing them
+  // every time a tool or guide is added -- same data source the terminal
+  // below and the command palette (theme.js) already use.
+  var toolsCountEl = document.getElementById('toolsCount');
+  if (toolsCountEl) toolsCountEl.textContent = tools.length + ' items';
+  var guidesCountEl = document.getElementById('guidesCount');
+  if (guidesCountEl) guidesCountEl.textContent = guides.length + ' items';
+
   var form = document.getElementById('termForm');
   if (!form) return;
 
   var input = document.getElementById('termInput');
   var out = document.getElementById('termOutput');
-
-  var tools = window.TOOLSHARP_TOOLS || [];
-  var guides = window.TOOLSHARP_GUIDES || [];
 
   var history = [];
   var historyIndex = -1;
