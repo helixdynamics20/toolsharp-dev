@@ -1,7 +1,19 @@
 // Secure serverless database proxy endpoint
 const API_URL = '../api/share';
 
+// Chrome/Edge 80+, Firefox 113+, Safari 16.4+ -- anything reasonably current.
+// The real gap is devices stuck on an OS that can no longer update (older
+// iPhones capped below iOS 16.4). Checked once so both compress and
+// decompress fail with a message that names the actual cause, instead of a
+// generic "Failed to decompress shared link" that reads like a bad link.
+function assertCompressionSupported() {
+  if (typeof CompressionStream === 'undefined' || typeof DecompressionStream === 'undefined') {
+    throw new Error("Your browser doesn't support a feature this needs (Compression Streams API) — try a recent version of Chrome, Firefox, Safari, or Edge.");
+  }
+}
+
 async function compressText(text) {
+  assertCompressionSupported();
   const blob = new Blob([text], { type: 'text/plain' });
   const compressionStream = blob.stream().pipeThrough(new CompressionStream('gzip'));
   const response = new Response(compressionStream);
@@ -18,6 +30,7 @@ async function compressText(text) {
 }
 
 async function decompressText(code) {
+  assertCompressionSupported();
   let base64 = code.replace(/-/g, '+').replace(/_/g, '/');
   while (base64.length % 4) {
     base64 += '=';
@@ -128,16 +141,40 @@ async function decryptPayload(encryptedBase64, password) {
 async function generateShare() {
   const val = document.getElementById('plainInput').value;
   if (!val.trim()) return;
-  
+
+  // Checked before either output is attempted: both the offline link and
+  // the code path depend on this (the code path also builds an offline
+  // link alongside the code), so if it's missing, neither works -- unlike
+  // the catch block below, which is specifically about the network/API
+  // request failing while compression itself succeeded.
+  try {
+    assertCompressionSupported();
+  } catch (e) {
+    showError(e.message);
+    return;
+  }
+
   const btn = document.getElementById('btnGenerate');
   btn.disabled = true;
   btn.textContent = 'Generating...';
-  
+
   try {
     // 1. Generate offline compressed link
     const offlineHash = await compressText(val);
     const origin = window.location.origin + window.location.pathname;
-    document.getElementById('offlineLink').value = origin + '#data=' + offlineHash;
+    const offlineLinkValue = origin + '#data=' + offlineHash;
+    document.getElementById('offlineLink').value = offlineLinkValue;
+
+    // Compression ratio depends entirely on how repetitive the text is, so
+    // this is measured on the real result rather than guessed from input
+    // length -- a short but low-redundancy paste can still end up long.
+    const hintEl = document.getElementById('offlineLinkHint');
+    if (offlineLinkValue.length > 500) {
+      hintEl.textContent = `This came out long (${offlineLinkValue.length} characters) because the text didn't compress well — the 6-digit code above is shorter and easier to share.`;
+      hintEl.style.display = 'block';
+    } else {
+      hintEl.style.display = 'none';
+    }
     
     // 2. Generate sharing credentials
     let code = generateCode();
@@ -267,7 +304,12 @@ function dismissAutoLoaded() {
   window.location.hash = '';
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+// Handles both a real page load with the hash already present (the normal
+// case for a shared link opened fresh) and a hash that changes on a tab
+// that's already sitting open -- e.g. someone edits the address bar rather
+// than opening a new tab. A hash-only change is a same-document navigation
+// with no reload, so DOMContentLoaded alone would silently miss it.
+async function handleShareHash() {
   const hash = window.location.hash;
   if (hash.startsWith('#code=')) {
     try {
@@ -275,7 +317,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const cleaned = codeWithKey.replace(/[\s-]/g, '');
       const code = cleaned.substring(0, 6);
       const pass = code;
-      
+
       const response = await fetch(`${API_URL}?code=${code}`);
       const resData = await safeJson(response);
       if (response.ok && resData && resData.result) {
@@ -295,10 +337,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('autoLoadedOutput').value = decoded;
       document.getElementById('autoLoadedPanel').style.display = 'block';
     } catch (e) {
-      showError('Failed to decompress shared link.');
+      showError(e.message || 'Failed to decompress shared link.');
     }
   }
-});
+}
+
+window.addEventListener('DOMContentLoaded', handleShareHash);
+window.addEventListener('hashchange', handleShareHash);
 
 document.getElementById('btnDismissAutoLoaded').addEventListener('click', dismissAutoLoaded);
 document.getElementById('btnGenerate').addEventListener('click', generateShare);
