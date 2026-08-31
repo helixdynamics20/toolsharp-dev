@@ -204,8 +204,11 @@ function describeFields(f) {
   const minDesc = f.min === '*' ? 'every minute' : f.min.startsWith('*/') ? `every ${escapeHtml(f.min.slice(2))} minutes` : `at minute ${escapeHtml(f.min)}`;
   const hourDesc = f.hour === '*' ? 'around the clock' : `at hour ${escapeHtml(f.hour)}`;
   const domDesc = (f.dom === '*' || f.dom === '?') ? '' : `, day ${escapeHtml(f.dom)} of the month`;
-  const monthDesc = f.month === '*' ? '' : `, in month ${escapeHtml(f.month)}`;
-  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `, on day-of-week ${escapeHtml(f.dow)}`;
+  // Named via describeFieldValue (the same lookup the table rows below use)
+  // rather than echoing the raw field -- "on day-of-week 1" isn't plain
+  // English, and the table right underneath already says "Mon" for it.
+  const monthDesc = f.month === '*' ? '' : `, ${escapeHtml(describeFieldValue('month', f.month))}`;
+  const dowDesc = (f.dow === '*' || f.dow === '?') ? '' : `, ${escapeHtml(describeFieldValue('day-of-week', f.dow, f.hasSeconds))}`;
   const summary = `Runs ${minDesc}, ${hourDesc}${domDesc}${monthDesc}${dowDesc}.`;
 
   const tableRows = rows.map(r =>
