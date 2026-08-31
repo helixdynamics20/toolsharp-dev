@@ -122,6 +122,15 @@
   window.TOOLSHARP_TOOLS = toolsList;
   window.TOOLSHARP_GUIDES = guidesList;
 
+  // Every entry's path is already root-absolute ('/tools/json-formatter'), so it
+  // can be assigned as-is from any page. A previous version tried to "adjust"
+  // it relative to the current URL and stripped the leading slash, which made
+  // the browser resolve it against the current directory -- selecting a tool
+  // from any /guides/* page landed on /guides/tools/<slug> and 404'd.
+  function navigateToEntry(entry) {
+    if (entry && entry.path) window.location.href = entry.path;
+  }
+
   var paletteActive = false;
   var paletteIndex = 0;
   var filteredTools = [];
@@ -204,15 +213,7 @@
       } else if (e.key === 'Enter') {
         e.preventDefault();
         if (filteredTools[paletteIndex]) {
-          // Adjust path relative to current URL
-          var currentPath = window.location.pathname;
-          var targetPath = filteredTools[paletteIndex].path;
-          if (currentPath.includes('/tools/')) {
-            targetPath = '..' + targetPath;
-          } else {
-            targetPath = targetPath.startsWith('/') ? targetPath.substring(1) : targetPath;
-          }
-          window.location.href = targetPath;
+          navigateToEntry(filteredTools[paletteIndex]);
         }
       }
     });
@@ -238,14 +239,7 @@
       item.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
       item.innerHTML = '<span>' + tool.name + '</span><span class="shortcut">jump to</span>';
       item.addEventListener('click', function() {
-        var currentPath = window.location.pathname;
-        var targetPath = tool.path;
-        if (currentPath.includes('/tools/')) {
-          targetPath = '..' + targetPath;
-        } else {
-          targetPath = targetPath.startsWith('/') ? targetPath.substring(1) : targetPath;
-        }
-        window.location.href = targetPath;
+        navigateToEntry(tool);
       });
       list.appendChild(item);
     });
