@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
-<title>SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev</title>
+<title>Share Text Online — Temporary Link or 6-Digit Code — ToolSharp.dev</title>
 <meta name="description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
 <link rel="canonical" href="https://toolsharp.dev/tools/share-pad">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -15,7 +15,7 @@
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toolsharp.dev/tools/share-pad">
-<meta property="og:title" content="SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev">
+<meta property="og:title" content="Share Text Online — Temporary Link or 6-Digit Code — ToolSharp.dev">
 <meta property="og:description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
 <meta property="og:image" content="https://toolsharp.dev/assets/og/share-pad.png">
 <meta property="og:site_name" content="ToolSharp.dev">
@@ -23,7 +23,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/tools/share-pad">
-<meta name="twitter:title" content="SharePad: Serverless Client-Side Text Sharing — ToolSharp.dev">
+<meta name="twitter:title" content="Share Text Online — Temporary Link or 6-Digit Code — ToolSharp.dev">
 <meta name="twitter:description" content="Share text or configuration snippets securely. Generates easy-to-dictate 6-digit codes or serverless compressed hashes for private client-side sharing.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/share-pad.png">
 
@@ -36,7 +36,7 @@
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"SharePad: Serverless Text Sharing","url":"https://toolsharp.dev/tools/share-pad","description":"Share text or configuration snippets securely with 6-digit codes or serverless compressed URL hashes. Entirely client-side.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Share Text Online — Temporary Link or 6-Digit Code","url":"https://toolsharp.dev/tools/share-pad","description":"Share text or configuration snippets securely with 6-digit codes or serverless compressed URL hashes. Entirely client-side.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"tools","item":"https://toolsharp.dev/tools"},{"@type":"ListItem","position":3,"name":"share-pad"}]}
@@ -149,12 +149,13 @@
   <section class="notes">
     <h2>// sharing options explained</h2>
     <ul>
-      <li><strong>6-Digit Code</strong> — A short code like <code>482 195</code> that's easy to read out, type, or paste. When you generate a share, the text is compressed and stored server-side in a temporary key-value store — the code is just a retrieval key. Codes are short-lived and expire automatically. This mode requires a network round-trip to retrieve.</li>
+      <li><strong>6-Digit Code</strong> — A short code like <code>482 195</code> that's easy to read out, type, or paste. Before anything is sent anywhere, your text is encrypted in your browser (AES-256-GCM, key derived from the code itself via PBKDF2) — the server only ever stores ciphertext, never your plaintext. The code doubles as the decryption key, so it works standalone: read it out over a call, or send it any way you like. Retrieval needs a network round-trip, and a code keeps working for 30 days (it isn't consumed after one read).</li>
+      <li><strong>Quick Share Link</strong> — The same 6-digit code embedded in a link (<code>#code=482195</code>), so opening it decrypts and shows the text automatically with nothing to type. It's the code above, just easier to click. The code lives after the <code>#</code>, which browsers never send to a server — see <a href="../guides/url-hash-fragment-explained">why the hash fragment is never transmitted</a>.</li>
       <li><strong>Offline Fallback Link</strong> — The entire text is compressed (GZIP) and encoded directly into the URL hash fragment. Nothing is sent to any server — the URL itself contains all the data. The recipient's browser decompresses it locally when they open the link. The trade-off: the URL can get very long for large inputs, which some messaging apps may truncate or reject.</li>
     </ul>
 
     <h2>// privacy considerations</h2>
-    <div class="comment-line"><span class="bar">│</span><p>The 6-digit code path temporarily stores your text on a server. Do not share anything sensitive — passwords, production secrets, private keys, or personal data — via the code path. For sensitive content, use the offline fallback link: the data never leaves your browser and the recipient's browser, and the server never sees it. If you share a URL with sensitive data in the hash and that URL gets logged (by a proxy, a chat client, or a browser extension), the data is exposed regardless of the hash-fragment design. Treat the offline link as convenient, not cryptographically secure.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>The 6-digit code path encrypts before storing, but don't mistake that for a guarantee: the code is both the lookup key and the decryption key, so anyone with direct read access to the underlying data store — not network access, direct access — could decrypt an entry using its own key. That's a meaningfully different (and much smaller) threat than "stored as plaintext," but it's not the same as end-to-end encryption between two people who never trust a third party. Don't share passwords, production secrets, private keys, or personal data through it. For anything sensitive, use the offline fallback link instead — the data never leaves your browser and the recipient's, and the server never sees it at all. That said, if the link itself gets logged somewhere (a proxy, a chat client, a browser extension with page access), the data in the hash is exposed regardless of how it got there — treat the offline link as convenient, not as end-to-end secure messaging.</p></div>
   </section>
 </main>
 
