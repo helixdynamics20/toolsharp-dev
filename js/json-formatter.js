@@ -638,6 +638,17 @@ function scheduleJsonInput() {
   _jsonInputTimer = setTimeout(onJsonInput, 200);
 }
 
+// An explicit action (Format/Minify/YAML/Auto-fix) supersedes any validation
+// still queued from typing. Without this, clicking within the 200ms debounce
+// window renders the result and then has it overwritten a moment later when
+// onJsonInput() fires -- the output vanishes and only "Valid JSON." remains.
+function supersedesPendingInput(fn) {
+  return function () {
+    clearTimeout(_jsonInputTimer);
+    return fn.apply(this, arguments);
+  };
+}
+
 function onJsonInput() {
   if (document.getElementById('jsonShowInvisibles').checked) renderInvisibleView();
   const text = document.getElementById('jsonInput').value;
@@ -871,10 +882,10 @@ window.addEventListener('DOMContentLoaded', () => {
 document.getElementById('jsonInput').addEventListener('input', scheduleJsonInput);
 document.getElementById('jsonStrict').addEventListener('change', onJsonInput);
 document.getElementById('jsonShowInvisibles').addEventListener('change', toggleInvisibleView);
-document.getElementById('btnJsonFormat').addEventListener('click', formatJson);
-document.getElementById('btnJsonMinify').addEventListener('click', minifyJson);
-document.getElementById('btnJsonToYaml').addEventListener('click', convertToYaml);
-document.getElementById('btnJsonAutoFix').addEventListener('click', autoFixJson);
+document.getElementById('btnJsonFormat').addEventListener('click', supersedesPendingInput(formatJson));
+document.getElementById('btnJsonMinify').addEventListener('click', supersedesPendingInput(minifyJson));
+document.getElementById('btnJsonToYaml').addEventListener('click', supersedesPendingInput(convertToYaml));
+document.getElementById('btnJsonAutoFix').addEventListener('click', supersedesPendingInput(autoFixJson));
 document.getElementById('btnJsonExample').addEventListener('click', tryJsonExample);
 document.getElementById('btnJsonBrokenExample').addEventListener('click', tryJsonBrokenExample);
 document.getElementById('btnJsonClear').addEventListener('click', clearJsonInput);

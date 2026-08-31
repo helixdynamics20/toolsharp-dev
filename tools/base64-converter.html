@@ -70,9 +70,9 @@
         <div class="field">
           <div id="dropZone" style="border: 2px dashed var(--rule); border-radius: 4px; padding: 20px; text-align: center; margin-bottom: 12px; cursor: pointer; font-size: 13.5px; color: var(--ink-soft); transition: border-color 0.2s;">
             Drag & Drop a file here to convert to Base64, or click to upload.
-            <input type="file" id="fileInput" style="display:none;">
+            <input type="file" id="fileInput" aria-label="Choose a file to encode" style="display:none;">
           </div>
-          <textarea id="b64Input" rows="7" placeholder="Type or paste text to encode, or a Base64 string to decode..."></textarea>
+          <textarea id="b64Input" aria-label="Text or Base64 to convert" rows="7" placeholder="Type or paste text to encode, or a Base64 string to decode..."></textarea>
         </div>
         <div class="check-row">
           <input type="checkbox" id="b64UrlSafe">

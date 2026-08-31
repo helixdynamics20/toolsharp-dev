@@ -133,8 +133,8 @@ body.dark-theme .color-swatch {
         <div class="field">
           <label>Color <span class="key">(any format)</span></label>
           <div class="color-input-row">
-            <input type="text" id="colorInput" placeholder="#6c4ce0, rgb(108, 76, 224), hsl(253, 70%, 59%), rebeccapurple...">
-            <input type="color" id="colorPicker" value="#6c4ce0">
+            <input type="text" id="colorInput" aria-label="Colour value (hex, RGB, or HSL)" placeholder="#6c4ce0, rgb(108, 76, 224), hsl(253, 70%, 59%), rebeccapurple...">
+            <input type="color" id="colorPicker" aria-label="Pick a colour" value="#6c4ce0">
           </div>
         </div>
         <div id="colorError" class="callout error" style="display:none;"></div>
@@ -152,19 +152,19 @@ body.dark-theme .color-swatch {
         <div class="field">
           <label>HEX</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="hexOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
+            <input type="text" id="hexOutput" aria-label="HEX result" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--violet);">
             <button class="btn" data-copy="hexOutput">Copy</button>
           </div>
 
           <label>RGB</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="rgbOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
+            <input type="text" id="rgbOutput" aria-label="RGB result" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--green);">
             <button class="btn" data-copy="rgbOutput">Copy</button>
           </div>
 
           <label>HSL</label>
           <div style="display:flex; gap: 8px;">
-            <input type="text" id="hslOutput" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
+            <input type="text" id="hslOutput" aria-label="HSL result" readonly style="font-family: var(--mono); font-size: 13px; border-left: 3px solid var(--amber);">
             <button class="btn" data-copy="hslOutput">Copy</button>
           </div>
         </div>
@@ -182,15 +182,15 @@ body.dark-theme .color-swatch {
           <div class="field">
             <label>Foreground (text) color</label>
             <div class="color-input-row">
-              <input type="text" id="fgInput" placeholder="#111111">
-              <input type="color" id="fgPicker" value="#111111">
+              <input type="text" id="fgInput" aria-label="Foreground colour" placeholder="#111111">
+              <input type="color" id="fgPicker" aria-label="Pick foreground colour" value="#111111">
             </div>
           </div>
           <div class="field">
             <label>Background color</label>
             <div class="color-input-row">
-              <input type="text" id="bgInput" placeholder="#ffffff">
-              <input type="color" id="bgPicker" value="#ffffff">
+              <input type="text" id="bgInput" aria-label="Background colour" placeholder="#ffffff">
+              <input type="color" id="bgPicker" aria-label="Pick background colour" value="#ffffff">
             </div>
           </div>
         </div>

@@ -108,7 +108,7 @@
           </div>
         </div>
         <div class="field">
-          <textarea id="urlInput" rows="6" placeholder="Paste text to encode, or an encoded string to decode…" spellcheck="false"></textarea>
+          <textarea id="urlInput" aria-label="URL or text to encode" rows="6" placeholder="Paste text to encode, or an encoded string to decode…" spellcheck="false"></textarea>
         </div>
         <div class="btn-row">
           <button id="btnUrlEncode" class="btn">Encode →</button>
@@ -127,7 +127,7 @@
       </div>
       <div class="body">
         <div class="field">
-          <textarea id="urlOutput" rows="6" readonly spellcheck="false" style="background:var(--bg);"></textarea>
+          <textarea id="urlOutput" aria-label="Result" rows="6" readonly spellcheck="false" style="background:var(--bg);"></textarea>
         </div>
         <div id="urlError" class="url-error"></div>
       </div>

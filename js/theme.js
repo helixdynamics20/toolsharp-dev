@@ -126,6 +126,15 @@
   window.TOOLSHARP_TOOLS = toolsList;
   window.TOOLSHARP_GUIDES = guidesList;
 
+  // Every entry's path is already root-absolute ('/tools/json-formatter'), so it
+  // can be assigned as-is from any page. A previous version tried to "adjust"
+  // it relative to the current URL and stripped the leading slash, which made
+  // the browser resolve it against the current directory -- selecting a tool
+  // from any /guides/* page landed on /guides/tools/<slug> and 404'd.
+  function navigateToEntry(entry) {
+    if (entry && entry.path) window.location.href = entry.path;
+  }
+
   var paletteActive = false;
   var paletteIndex = 0;
   var filteredTools = [];
@@ -208,10 +217,7 @@
       } else if (e.key === 'Enter') {
         e.preventDefault();
         if (filteredTools[paletteIndex]) {
-          // Every entry's path is already site-root-relative (starts with
-          // '/'), so it resolves correctly regardless of which page the
-          // palette was opened from -- no per-page adjustment needed.
-          window.location.href = filteredTools[paletteIndex].path;
+          navigateToEntry(filteredTools[paletteIndex]);
         }
       }
     });
@@ -249,9 +255,7 @@
       item.appendChild(nameEl);
       item.appendChild(kindEl);
       item.addEventListener('click', function() {
-        // entry.path is already site-root-relative -- see the Enter-key
-        // handler above for why no per-page adjustment is needed here.
-        window.location.href = entry.path;
+        navigateToEntry(entry);
       });
       list.appendChild(item);
     });
