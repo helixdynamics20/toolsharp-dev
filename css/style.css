@@ -390,6 +390,12 @@ body.dark-theme .config-block .tab {
   border-radius: var(--radius);
 }
 .field textarea { resize: vertical; min-height: 90px; }
+/* A readonly display, not an <input> -- share-pad's dictation code splits
+   into two grouped spans with their own gap, since letter-spacing on a
+   plain input value inflates the literal space in the middle of "625 031"
+   into a visibly bigger gap than between any other pair of digits. */
+.share-code-display { background: #fff; }
+body.dark-theme .share-code-display { background: #18142a; border-color: var(--rule-strong); }
 .field input:focus, .field select:focus, .field textarea:focus {
   border-color: var(--violet);
 }

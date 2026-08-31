@@ -95,9 +95,12 @@
 
         <div id="outputBlock" style="display: none; border-top: 1px dashed var(--rule); padding-top: 16px;">
           <div class="field" style="margin-bottom: 12px;">
-            <label for="shareCode"><span class="key">6-Digit Dictation Code</span></label>
+            <label><span class="key">6-Digit Dictation Code</span></label>
             <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="text" id="shareCode" readonly style="flex: 1; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; color: var(--violet);">
+              <div id="shareCode" class="share-code-display" role="textbox" aria-readonly="true" aria-label="Generated 6-digit dictation code" style="flex: 1; display: flex; justify-content: center; gap: 14px; font-size: 18px; font-weight: bold; color: var(--violet); border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: 9px 11px;">
+                <span id="shareCodeA" style="letter-spacing: 2px;"></span>
+                <span id="shareCodeB" style="letter-spacing: 2px;"></span>
+              </div>
               <button class="btn secondary" data-copy="shareCode" style="flex-shrink: 0; padding: 6px 12px;">Copy</button>
             </div>
           </div>
