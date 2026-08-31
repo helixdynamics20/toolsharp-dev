@@ -78,12 +78,12 @@
     <label><input type="checkbox" id="chkCapitalize" checked> Capitalize keywords</label>
     <div class="opt-group">
       <span>Indent</span>
-      <input type="number" id="indentSize" value="2" min="1" max="8">
+      <input type="number" id="indentSize" aria-label="Indent size" value="2" min="1" max="8">
       <span>spaces</span>
     </div>
     <div class="opt-group">
       <span>Comma</span>
-      <select id="commaStyle">
+      <select id="commaStyle" aria-label="Comma style">
         <option value="end">end of line</option>
         <option value="leading">leading</option>
       </select>
@@ -96,7 +96,7 @@
       <div class="tab">input.sql</div>
       <div class="body">
         <div class="field">
-          <textarea id="sqlInput" rows="18" placeholder="Paste your SQL here…" spellcheck="false"></textarea>
+          <textarea id="sqlInput" aria-label="SQL input" rows="18" placeholder="Paste your SQL here…" spellcheck="false"></textarea>
         </div>
         <div class="btn-row">
           <button id="btnSqlFormat" class="btn">Format</button>
@@ -115,7 +115,7 @@
       </div>
       <div class="body">
         <div class="field">
-          <textarea id="sqlOutput" rows="18" readonly spellcheck="false" style="background:var(--bg);"></textarea>
+          <textarea id="sqlOutput" aria-label="Formatted SQL result" rows="18" readonly spellcheck="false" style="background:var(--bg);"></textarea>
         </div>
       </div>
     </div>

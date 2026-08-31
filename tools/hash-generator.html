@@ -69,12 +69,12 @@
       <div class="tab">input.txt</div>
       <div class="body">
         <div class="field">
-          <textarea id="hashInput" rows="8" placeholder="Type or paste text to hash..."></textarea>
+          <textarea id="hashInput" aria-label="Text to hash" rows="8" placeholder="Type or paste text to hash..."></textarea>
         </div>
         <div class="btn-row">
           <button class="btn secondary" id="btnHashFilePick">Hash a file instead…</button>
           <button class="btn secondary" id="hashFileClear" style="display:none;">Clear file</button>
-          <input type="file" id="hashFileInput" style="display:none;">
+          <input type="file" id="hashFileInput" aria-label="Choose a file to hash" style="display:none;">
         </div>
         <div class="field" style="margin-top:14px;margin-bottom:0;">
           <label for="hashHmacKey"><span class="key">HMAC key</span> (optional)</label>

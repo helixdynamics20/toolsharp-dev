@@ -70,7 +70,7 @@
     <div class="tab" style="background: var(--green-wash); color: var(--green); border-bottom-color: var(--green);">retrieved_share</div>
     <div class="body" style="padding: 20px;">
       <div class="field" style="margin-bottom: 12px;">
-        <textarea id="autoLoadedOutput" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
+        <textarea id="autoLoadedOutput" aria-label="Shared text" rows="10" readonly style="background: var(--bg); border-color: var(--rule-strong);"></textarea>
       </div>
       <div class="btn-row">
         <button class="btn" data-copy="autoLoadedOutput">Copy Text</button>
@@ -85,7 +85,7 @@
       <div class="tab">create_share</div>
       <div class="body">
         <div class="field" style="margin-bottom: 12px;">
-          <textarea id="plainInput" rows="12" placeholder="Paste or type text here to generate sharing codes..."></textarea>
+          <textarea id="plainInput" aria-label="Text to share" rows="12" placeholder="Paste or type text here to generate sharing codes..."></textarea>
         </div>
         <div class="btn-row" style="margin-bottom: 16px;">
           <button id="btnGenerate" class="btn">Generate Share</button>
@@ -124,7 +124,7 @@
       <div class="tab">retrieve_share</div>
       <div class="body">
         <div class="field" style="margin-bottom: 12px;">
-          <input type="text" id="retrieveInput" placeholder="Enter 6-digit code (e.g. 192 841) or share link here..." style="font-size: 15px;">
+          <input type="text" id="retrieveInput" aria-label="Six-digit code to retrieve" placeholder="Enter 6-digit code (e.g. 192 841) or share link here..." style="font-size: 15px;">
         </div>
         <div class="btn-row" style="margin-bottom: 16px;">
           <button id="btnRetrieve" class="btn">Retrieve Text</button>

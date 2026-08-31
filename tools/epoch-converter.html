@@ -107,7 +107,7 @@
       <div class="body">
         <div class="field">
           <label>Unix Timestamp</label>
-          <input type="text" id="epochInput" placeholder="e.g. 1713876000 or 1713876000000">
+          <input type="text" id="epochInput" aria-label="Unix timestamp" placeholder="e.g. 1713876000 or 1713876000000">
           <div style="margin-top: 8px; font-size: 13px;">
             <button class="btn btn-sm" id="btnEpochNow">Set to Current Time</button>
           </div>
@@ -116,19 +116,19 @@
         <div class="field" style="margin-top: 20px;">
           <label>ISO 8601</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="isoOutput" readonly>
+            <input type="text" id="isoOutput" aria-label="ISO 8601 result" readonly>
             <button class="btn" data-copy="isoOutput">Copy</button>
           </div>
 
           <label>Result UTC Time</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="utcOutput" readonly>
+            <input type="text" id="utcOutput" aria-label="UTC result" readonly>
             <button class="btn" data-copy="utcOutput">Copy</button>
           </div>
 
           <label>Result Local Time</label>
           <div style="display:flex; gap: 8px;">
-            <input type="text" id="localOutput" readonly>
+            <input type="text" id="localOutput" aria-label="Local time result" readonly>
             <button class="btn" data-copy="localOutput">Copy</button>
           </div>
         </div>
@@ -141,19 +141,19 @@
         <div class="field">
           <label>Date &amp; Time (Local)</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="datetime-local" id="datetimePicker" style="width: 100%;">
+            <input type="datetime-local" id="datetimePicker" aria-label="Pick a date and time" style="width: 100%;">
             <button class="btn btn-sm" id="btnPickerNow">Now</button>
           </div>
 
           <label>Epoch in Seconds</label>
           <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="epochSecOutput" readonly>
+            <input type="text" id="epochSecOutput" aria-label="Epoch seconds result" readonly>
             <button class="btn" data-copy="epochSecOutput">Copy</button>
           </div>
 
           <label>Epoch in Milliseconds</label>
           <div style="display:flex; gap: 8px;">
-            <input type="text" id="epochMsOutput" readonly>
+            <input type="text" id="epochMsOutput" aria-label="Epoch milliseconds result" readonly>
             <button class="btn" data-copy="epochMsOutput">Copy</button>
           </div>
         </div>
