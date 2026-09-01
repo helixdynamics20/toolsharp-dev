@@ -76,7 +76,24 @@
       </div>
     </div>
 
-    <div class="callout ok">The reliable fix: read the response as text first, check it's non-empty, and only parse if there's actually something there. <code>const text = await response.text(); if (!text) { /* handle no-body case */ } else { JSON.parse(text); }</code> — this also means you get the raw text to log when something does go wrong, instead of losing it the moment a failed <code>.json()</code> call throws.</div>
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">const res = await fetch("/api/widgets/42", { method: "DELETE" });
+const data = await res.json();  // res.json() calls JSON.parse() internally</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">SyntaxError: Unexpected end of JSON input</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">A successful DELETE conventionally returns 204 No Content -- no body at all. res.json() still tries to parse the (empty) body, which is the same as calling JSON.parse("").</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">const res = await fetch("/api/widgets/42", { method: "DELETE" });
+const text = await res.text();          // read as text first, never throws
+const data = text ? JSON.parse(text) : null;  // only parse if something's actually there</pre>
+      </div>
+    </div>
+
+    <div class="callout ok">The general pattern for any <code>fetch()</code> call, not just <code>DELETE</code>: read the body as text once, check it's non-empty, <em>then</em> parse. This also means you keep the raw text to log when something does go wrong, instead of losing it the moment a failed <code>.json()</code> call throws.</div>
   </section>
 
   <section class="notes">

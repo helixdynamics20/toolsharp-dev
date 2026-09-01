@@ -67,6 +67,24 @@
     <div class="comment-line"><span class="bar">│</span><p>The single most common trigger: whatever produced the JSON also printed something else first — a progress spinner, a warning line, a login banner from a CLI tool — and it all lands in the same string before reaching <code>ConvertFrom-Json</code>. The cmdlet sees that leading text, not the JSON that follows, and reports it as the invalid primitive. This shows up constantly piping output from CLI tools (Azure CLI, various REST wrappers) that mix status text with their JSON output on the same stream.</p></div>
 
     <div class="callout warn">If the "invalid primitive" text in the error message is something that isn't part of your actual data at all — a word, a partial sentence, a progress indicator — this is almost certainly what happened. Isolate just the JSON before parsing it, or add whatever flag the source CLI has for JSON-only output (often <code>--output json</code> or similar).</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">$result = some-cli-tool get-config
+$config = $result | ConvertFrom-Json</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">ConvertFrom-Json : Invalid JSON primitive: Loading.</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">some-cli-tool printed "Loading..." to the same output stream before its real JSON. $result is now the string "Loading...\n{ ... }" -- ConvertFrom-Json chokes on "Loading" before it ever reaches the { that starts the real JSON.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">$result = some-cli-tool get-config --output json   # ask for JSON-only output if the CLI supports it
+# or, isolate the JSON manually if it doesn't:
+$json = ($result -split "`n" | Where-Object { $_ -match '^\s*[\{\[]' }) -join "`n"
+$config = $json | ConvertFrom-Json</pre>
+      </div>
+    </div>
   </section>
 
   <section class="notes">
@@ -82,6 +100,19 @@
     </div>
 
     <div class="callout ok">If the exact same JSON string works in one PowerShell session but not another, checking <code>$PSVersionTable.PSVersion</code> in both is worth doing before anything else — it's frequently the actual explanation, not a subtle bug in the data.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">check which one you're actually running</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px;">PS&gt; $PSVersionTable.PSVersion
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+5      1      19041  5486        &lt;-- Windows PowerShell 5.1: JavaScriptSerializer, stricter
+# vs.
+7      4      6                  &lt;-- PowerShell 7+: Newtonsoft Json.NET, more lenient</pre>
+      </div>
+    </div>
   </section>
 
   <section class="notes">

@@ -78,6 +78,36 @@
     </div>
 
     <div class="callout warn">The fix is never "clean up the JSON" for this specific error — there's no JSON to clean up yet. Print or log the raw response/string <em>before</em> the <code>json.loads()</code> call and look at what's actually there; the fix is almost always upstream of the parse call, not in it.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the most common version of this, end to end</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">data = json.loads(open("config.json"))</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">open("config.json") returns a file object, not a string. json.loads() tries to parse that object's repr -- something like &lt;_io.TextIOWrapper name='config.json' ...&gt; -- as JSON, and fails at the first character.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">with open("config.json") as f:
+    data = json.load(f)  # load(), not loads() -- takes the file object directly</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// guarding a real HTTP call against this</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For the API-response version of this bug, check before parsing rather than catching the exception after the fact — it's the difference between knowing exactly what came back and just knowing something went wrong:</p></div>
+    <div class="config-block">
+      <div class="tab">requests.py</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;">resp = requests.get(url)
+resp.raise_for_status()          # turn 4xx/5xx into an exception here, not a confusing parse error later
+if not resp.text.strip():
+    raise ValueError(f"{url} returned an empty body")
+data = resp.json()               # or: json.loads(resp.text)</pre>
+      </div>
+    </div>
   </section>
 
   <section class="notes">
