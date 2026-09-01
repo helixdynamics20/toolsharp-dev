@@ -22,6 +22,5 @@ dist/
 Thumbs.db
 
 # Internal notes not meant for the repo (competitive analysis, monetization
-# targets, launch drafts) -- keep local regardless of repo visibility.
-TRAFFIC-STRATEGY.md
+# targets, launch drafts, execution status) -- keep local regardless of repo visibility.
 PLAN.md

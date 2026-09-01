@@ -53,6 +53,7 @@ const staticFiles = [
   'robots.txt',
   'sitemap.xml',
   'google461995a17a0d27be.html',
+  'BingSiteAuth.xml',
   'LICENSE',
   'manifest.json',
   'ads.txt'
