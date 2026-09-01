@@ -108,6 +108,9 @@
   var guidesList = [
     { name: 'JSON Is Invalid But Looks Correct', path: '/guides/json-invisible-characters-explained' },
     { name: 'Unexpected Token in JSON at Position N', path: '/guides/json-unexpected-token-explained' },
+    { name: 'Python "JSONDecodeError: Expecting value"', path: '/guides/python-json-decode-error-explained' },
+    { name: '"Unexpected End of JSON Input"', path: '/guides/unexpected-end-of-json-input-explained' },
+    { name: 'PowerShell "ConvertFrom-Json: Invalid JSON primitive"', path: '/guides/powershell-convertfrom-json-invalid-primitive' },
     { name: 'Cron Expression Cheat Sheet', path: '/guides/cron-expression-cheat-sheet' },
     { name: 'What Is a JWT?', path: '/guides/what-is-a-jwt' },
     { name: 'SQL Server Connection String Examples', path: '/guides/sql-server-connection-string-examples' },

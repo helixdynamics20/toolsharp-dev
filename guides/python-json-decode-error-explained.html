@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>Python "JSONDecodeError: Expecting value" — What It Actually Means — ToolSharp.dev</title>
+<meta name="description" content="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) almost always means you're not parsing JSON at all -- an empty response, an HTML error page, or a file path passed where a file object belongs.">
+<link rel="canonical" href="https://toolsharp.dev/guides/python-json-decode-error-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/python-json-decode-error-explained">
+<meta property="og:title" content="Python &quot;JSONDecodeError: Expecting value&quot; — What It Actually Means">
+<meta property="og:description" content="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) almost always means you're not parsing JSON at all -- an empty response, an HTML error page, or a file path passed where a file object belongs.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/python-json-decode-error-explained">
+<meta name="twitter:title" content="Python &quot;JSONDecodeError: Expecting value&quot; — What It Actually Means">
+<meta name="twitter:description" content="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) almost always means you're not parsing JSON at all -- an empty response, an HTML error page, or a file path passed where a file object belongs.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Python \"JSONDecodeError: Expecting value\" — What It Actually Means","url":"https://toolsharp.dev/guides/python-json-decode-error-explained","description":"Why json.decoder.JSONDecodeError: Expecting value almost always means the input isn't JSON at all, not that it's malformed JSON.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"python-json-decode-error-explained"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">python-json-decode-error-explained</span></div>
+
+  <div class="tool-header">
+    <h1>Python "JSONDecodeError: Expecting value"</h1>
+    <p class="sub"><code>json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code> is one of the most common tracebacks in Python, and one of the most misread — it looks like a JSON syntax problem, but "line 1 column 1 (char 0)" is telling you the parser failed on the very first character. That's a much narrower, more specific class of bug than a malformed document.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">Python</span>
+      <span class="badge">json module</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// what "char 0" actually tells you</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A real JSON syntax error — a missing comma, an unquoted key — points somewhere <em>inside</em> the document, at whatever token the parser choked on. <strong>Char 0</strong> means the parser found nothing to even start on. In practice that means one of these, roughly in order of how often each actually shows up:</p></div>
+
+    <div class="config-block">
+      <div class="tab">the four real causes</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Empty input</span><span class="v">an empty string reached <code>json.loads()</code> — an API returned nothing, a file was blank, a variable was never populated</span></div>
+        <div class="result-item"><span class="k">A non-JSON HTTP response</span><span class="v">the request actually succeeded, but the server returned a <code>401</code>/<code>404</code>/<code>500</code> page, or a login redirect — the body is HTML, not JSON, and it starts with <code>&lt;</code> or plain text, not <code>{</code> or <code>[</code></span></div>
+        <div class="result-item"><span class="k">A <code>204 No Content</code> response</span><span class="v">the request succeeded and there's deliberately no body at all — calling <code>response.json()</code> on it is calling <code>json.loads('')</code></span></div>
+        <div class="result-item"><span class="k">A file path passed to <code>json.loads()</code></span><span class="v"><code>json.loads()</code> parses a JSON <em>string</em>; <code>json.load()</code> parses an open file <em>object</em>. Passing a path string to <code>loads()</code> tries to parse the path itself as JSON, which is never valid JSON and always fails at char 0</span></div>
+      </div>
+    </div>
+
+    <div class="callout warn">The fix is never "clean up the JSON" for this specific error — there's no JSON to clean up yet. Print or log the raw response/string <em>before</em> the <code>json.loads()</code> call and look at what's actually there; the fix is almost always upstream of the parse call, not in it.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the most common version of this, end to end</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">data = json.loads(open("config.json"))</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">open("config.json") returns a file object, not a string. json.loads() tries to parse that object's repr -- something like &lt;_io.TextIOWrapper name='config.json' ...&gt; -- as JSON, and fails at the first character.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">with open("config.json") as f:
+    data = json.load(f)  # load(), not loads() -- takes the file object directly</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// guarding a real HTTP call against this</h2>
+    <div class="comment-line"><span class="bar">│</span><p>For the API-response version of this bug, check before parsing rather than catching the exception after the fact — it's the difference between knowing exactly what came back and just knowing something went wrong:</p></div>
+    <div class="config-block">
+      <div class="tab">requests.py</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;">resp = requests.get(url)
+resp.raise_for_status()          # turn 4xx/5xx into an exception here, not a confusing parse error later
+if not resp.text.strip():
+    raise ValueError(f"{url} returned an empty body")
+data = resp.json()               # or: json.loads(resp.text)</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// when it's a real position, not char 0</h2>
+    <div class="comment-line"><span class="bar">│</span><p>If the line/column/char numbers point somewhere other than the very start, you do have actual JSON that's genuinely malformed partway through — a trailing comma, an unterminated string, a stray invisible character copied in from somewhere else. That's a different, narrower problem than this guide covers, and the <a href="../tools/json-formatter">JSON Formatter</a> will point at the exact spot and auto-fix what it can.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

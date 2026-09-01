@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>"Unexpected End of JSON Input" — What It Actually Means — ToolSharp.dev</title>
+<meta name="description" content="SyntaxError: Unexpected end of JSON input means JSON.parse() received an empty string, not malformed JSON. Almost always a fetch() response body that was empty, not-yet-arrived, or never JSON to begin with.">
+<link rel="canonical" href="https://toolsharp.dev/guides/unexpected-end-of-json-input-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/unexpected-end-of-json-input-explained">
+<meta property="og:title" content="&quot;Unexpected End of JSON Input&quot; — What It Actually Means">
+<meta property="og:description" content="SyntaxError: Unexpected end of JSON input means JSON.parse() received an empty string, not malformed JSON. Almost always a fetch() response body that was empty, not-yet-arrived, or never JSON to begin with.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/unexpected-end-of-json-input-explained">
+<meta name="twitter:title" content="&quot;Unexpected End of JSON Input&quot; — What It Actually Means">
+<meta name="twitter:description" content="SyntaxError: Unexpected end of JSON input means JSON.parse() received an empty string, not malformed JSON. Almost always a fetch() response body that was empty, not-yet-arrived, or never JSON to begin with.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"\"Unexpected End of JSON Input\" — What It Actually Means","url":"https://toolsharp.dev/guides/unexpected-end-of-json-input-explained","description":"Why SyntaxError: Unexpected end of JSON input means JSON.parse() got an empty string, and the fetch()-specific scenarios that cause it.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"unexpected-end-of-json-input-explained"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">unexpected-end-of-json-input-explained</span></div>
+
+  <div class="tool-header">
+    <h1>"Unexpected End of JSON Input"</h1>
+    <p class="sub">This is not the same bug as <a href="../guides/json-unexpected-token-explained">"Unexpected token in JSON"</a>. That one means the parser found something it didn't expect partway through a document. This one means it ran out of document before finding anything at all — <code>JSON.parse('')</code> and <code>JSON.parse('{"a":')</code> both throw exactly this, for the same underlying reason: there's less input than a complete JSON value requires.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">JavaScript</span>
+      <span class="badge">fetch API</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// where this actually comes from in practice</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Almost nobody hits this by calling <code>JSON.parse()</code> directly on an empty string on purpose — it shows up through <code>fetch()</code>, where <code>response.json()</code> calls <code>JSON.parse()</code> internally on whatever the body turned out to be.</p></div>
+
+    <div class="config-block">
+      <div class="tab">the three scenarios that actually produce this</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>204 No Content</code></span><span class="v">the request succeeded and deliberately has no body — common on <code>DELETE</code> endpoints and some <code>PUT</code>/<code>POST</code> responses. Calling <code>.json()</code> on it parses an empty string</span></div>
+        <div class="result-item"><span class="k">A network failure mid-response</span><span class="v">the connection dropped before the body finished arriving — the parser has a legitimate JSON prefix and then nothing, which is exactly "ran out of input"</span></div>
+        <div class="result-item"><span class="k">An endpoint that just doesn't return a body on error</span><span class="v">a <code>500</code> or timeout where the server sends headers but no content — different from a server sending an HTML error page, which instead throws <em>"Unexpected token &lt;"</em>, not this</span></div>
+      </div>
+    </div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">const res = await fetch("/api/widgets/42", { method: "DELETE" });
+const data = await res.json();  // res.json() calls JSON.parse() internally</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">SyntaxError: Unexpected end of JSON input</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">A successful DELETE conventionally returns 204 No Content -- no body at all. res.json() still tries to parse the (empty) body, which is the same as calling JSON.parse("").</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">const res = await fetch("/api/widgets/42", { method: "DELETE" });
+const text = await res.text();          // read as text first, never throws
+const data = text ? JSON.parse(text) : null;  // only parse if something's actually there</pre>
+      </div>
+    </div>
+
+    <div class="callout ok">The general pattern for any <code>fetch()</code> call, not just <code>DELETE</code>: read the body as text once, check it's non-empty, <em>then</em> parse. This also means you keep the raw text to log when something does go wrong, instead of losing it the moment a failed <code>.json()</code> call throws.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Paste a response body into the <a href="../tools/json-formatter">JSON Formatter</a> to see exactly what's actually in it before deciding how to handle the empty/partial case.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

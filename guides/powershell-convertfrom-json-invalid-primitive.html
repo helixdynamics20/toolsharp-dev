@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>PowerShell "ConvertFrom-Json: Invalid JSON primitive" — Explained — ToolSharp.dev</title>
+<meta name="description" content="ConvertFrom-Json : Invalid JSON primitive often has nothing to do with your JSON -- it's frequently non-JSON text mixed into the pipeline, or a difference between Windows PowerShell 5.1's parser and PowerShell 7's.">
+<link rel="canonical" href="https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive">
+<meta property="og:title" content="PowerShell &quot;ConvertFrom-Json: Invalid JSON primitive&quot; — Explained">
+<meta property="og:description" content="ConvertFrom-Json : Invalid JSON primitive often has nothing to do with your JSON -- it's frequently non-JSON text mixed into the pipeline, or a difference between Windows PowerShell 5.1's parser and PowerShell 7's.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive">
+<meta name="twitter:title" content="PowerShell &quot;ConvertFrom-Json: Invalid JSON primitive&quot; — Explained">
+<meta name="twitter:description" content="ConvertFrom-Json : Invalid JSON primitive often has nothing to do with your JSON -- it's frequently non-JSON text mixed into the pipeline, or a difference between Windows PowerShell 5.1's parser and PowerShell 7's.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"PowerShell \"ConvertFrom-Json: Invalid JSON primitive\" — Explained","url":"https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive","description":"Why ConvertFrom-Json throws Invalid JSON primitive, including the Windows PowerShell 5.1 vs PowerShell 7 parser difference that changes which JSON is even accepted.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"powershell-convertfrom-json-invalid-primitive"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">powershell-convertfrom-json-invalid-primitive</span></div>
+
+  <div class="tool-header">
+    <h1>PowerShell "ConvertFrom-Json: Invalid JSON primitive"</h1>
+    <p class="sub"><code>ConvertFrom-Json : Invalid JSON primitive: &lt;something&gt;</code> reads like a JSON syntax error, and sometimes it is one — but just as often the JSON itself is fine and something else entirely is going on.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">PowerShell</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// cause 1 — non-JSON text mixed into the pipeline</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The single most common trigger: whatever produced the JSON also printed something else first — a progress spinner, a warning line, a login banner from a CLI tool — and it all lands in the same string before reaching <code>ConvertFrom-Json</code>. The cmdlet sees that leading text, not the JSON that follows, and reports it as the invalid primitive. This shows up constantly piping output from CLI tools (Azure CLI, various REST wrappers) that mix status text with their JSON output on the same stream.</p></div>
+
+    <div class="callout warn">If the "invalid primitive" text in the error message is something that isn't part of your actual data at all — a word, a partial sentence, a progress indicator — this is almost certainly what happened. Isolate just the JSON before parsing it, or add whatever flag the source CLI has for JSON-only output (often <code>--output json</code> or similar).</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">$result = some-cli-tool get-config
+$config = $result | ConvertFrom-Json</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">ConvertFrom-Json : Invalid JSON primitive: Loading.</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">some-cli-tool printed "Loading..." to the same output stream before its real JSON. $result is now the string "Loading...\n{ ... }" -- ConvertFrom-Json chokes on "Loading" before it ever reaches the { that starts the real JSON.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">$result = some-cli-tool get-config --output json   # ask for JSON-only output if the CLI supports it
+# or, isolate the JSON manually if it doesn't:
+$json = ($result -split "`n" | Where-Object { $_ -match '^\s*[\{\[]' }) -join "`n"
+$config = $json | ConvertFrom-Json</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// cause 2 — genuinely different parsers depending on PowerShell version</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This isn't a minor detail — the two major PowerShell lines use entirely different JSON implementations, and they don't agree on what's valid:</p></div>
+
+    <div class="config-block">
+      <div class="tab">Windows PowerShell 5.1 vs. PowerShell 7+</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">Windows PowerShell 5.1</span><span class="v"><code>ConvertFrom-Json</code> is built on <code>JavaScriptSerializer</code> — stricter about some things. Historically rejects JSON containing comments outright, and this is the version that ships built into Windows, so it's the one most people hit without choosing to</span></div>
+        <div class="result-item"><span class="k">PowerShell 7+</span><span class="v"><code>ConvertFrom-Json</code> is built on Newtonsoft Json.NET — more lenient. Accepts comments in the JSON, and generally tolerates input that 5.1 would reject outright</span></div>
+      </div>
+    </div>
+
+    <div class="callout ok">If the exact same JSON string works in one PowerShell session but not another, checking <code>$PSVersionTable.PSVersion</code> in both is worth doing before anything else — it's frequently the actual explanation, not a subtle bug in the data.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">check which one you're actually running</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px;">PS&gt; $PSVersionTable.PSVersion
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+5      1      19041  5486        &lt;-- Windows PowerShell 5.1: JavaScriptSerializer, stricter
+# vs.
+7      4      6                  &lt;-- PowerShell 7+: Newtonsoft Json.NET, more lenient</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Paste the raw string being handed to <code>ConvertFrom-Json</code> into the <a href="../tools/json-formatter">JSON Formatter</a> — if it's genuinely malformed JSON rather than non-JSON text mixed in, this will point at the exact spot and can usually auto-fix it.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
