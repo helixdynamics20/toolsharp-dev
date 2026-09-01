@@ -42,4 +42,7 @@
   <url><loc>https://toolsharp.dev/guides/appsettings-secrets-in-git</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/quartz-net-question-mark-explained</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/url-hash-fragment-explained</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/python-json-decode-error-explained</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/unexpected-end-of-json-input-explained</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
