@@ -32,6 +32,7 @@
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/epoch-clock.js" defer></script>
+<script src="../js/epoch-sql-widget.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
 <script type="module" src="../js/analytics.bundle.js"></script>
 <script type="application/ld+json">
@@ -176,10 +177,61 @@
         <div class="result-item"><span class="k">Python</span><span class="v"><code>time.time()</code> — float seconds, sub-second precision included</span></div>
         <div class="result-item"><span class="k">PostgreSQL</span><span class="v"><code>EXTRACT(EPOCH FROM NOW())</code> — seconds, with a fractional part</span></div>
         <div class="result-item"><span class="k">MySQL</span><span class="v"><code>UNIX_TIMESTAMP()</code> — seconds</span></div>
+        <div class="result-item"><span class="k">SQL Server</span><span class="v"><code>DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())</code> — no built-in function, see below</span></div>
         <div class="result-item"><span class="k">Linux shell</span><span class="v"><code>date +%s</code> — seconds</span></div>
       </div>
     </div>
     <div class="callout warn">JavaScript is the outlier here: it is the only one on this list that returns milliseconds by default, while Python, PostgreSQL, MySQL, and the shell all return seconds (.NET lets you ask for either explicitly). Handing a JavaScript timestamp to a backend that expects seconds is the single most common source of the unit bug described above.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// SQL Server: DATETIME2 to epoch and back</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Unlike MySQL's <code>UNIX_TIMESTAMP()</code>/<code>FROM_UNIXTIME()</code>, T-SQL has no built-in epoch functions at all — the standard pattern is <code>DATEDIFF</code> and <code>DATEADD</code> measured against the epoch literal directly, and it has a sharp edge at millisecond precision that's easy to hit without knowing it's there.</p></div>
+
+    <div class="config-block">
+      <div class="tab">the conversions</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">DATETIME2 → epoch (seconds)</span><span class="v"><code>DATEDIFF(SECOND, '1970-01-01', @MyDate)</code></span></div>
+        <div class="result-item"><span class="k">DATETIME2 → epoch (milliseconds)</span><span class="v"><code>DATEDIFF_BIG(MILLISECOND, '1970-01-01', @MyDate)</code> — not <code>DATEDIFF</code>, see below</span></div>
+        <div class="result-item"><span class="k">epoch (seconds) → DATETIME2</span><span class="v"><code>DATEADD(SECOND, @UnixSeconds, '1970-01-01')</code></span></div>
+      </div>
+    </div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the overflow that catches almost everyone once</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;">SELECT DATEDIFF(MILLISECOND, '1970-01-01', GETUTCDATE());</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">Msg 535, Level 16, State 0
+The datediff function resulted in an overflow. The number of dateparts separating two date/time instances is too large.</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">DATEDIFF returns a plain 32-bit int. At millisecond precision that overflows once the two dates are more than 24 days, 20 hours, 31 minutes, 23.647 seconds apart -- and any date compared against 1970 is over 50 years away, so this fails every time, not just on old data.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">SELECT DATEDIFF_BIG(MILLISECOND, '1970-01-01', GETUTCDATE());
+-- DATEDIFF_BIG (SQL Server 2016+) returns bigint instead of int -- same syntax, no overflow</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">The other easy mistake: <code>'1970-01-01'</code> as a literal is an unspecified/naive datetime, not explicitly UTC. Compare it against <code>GETUTCDATE()</code>, not <code>GETDATE()</code> — using local time here silently shifts every result by your server's UTC offset, which is exactly the "UTC by definition" point from the top of this guide, just showing up inside a query instead of an API response.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">try it with a real value, not an abstract one</div>
+      <div class="body">
+        <div class="field">
+          <label>Date &amp; Time (UTC)</label>
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <input type="datetime-local" id="sqlEpochPicker" aria-label="Pick a UTC date and time" step="1" style="width: 100%;">
+            <button class="btn btn-sm" id="sqlEpochNowBtn">Now</button>
+          </div>
+        </div>
+        <div class="result-list">
+          <div class="result-item"><span class="k"><code>DATEDIFF_BIG(MILLISECOND, ...)</code></span><span class="v" id="sqlEpochBigMs">enable JavaScript to compute this live</span></div>
+          <div class="result-item"><span class="k">plain <code>DATEDIFF(MILLISECOND, ...)</code> here</span><span class="v" id="sqlEpochOverflow">—</span></div>
+          <div class="result-item"><span class="k"><code>DATEADD(SECOND, ...)</code> round-trip</span><span class="v" id="sqlEpochRoundtrip">—</span></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="notes">

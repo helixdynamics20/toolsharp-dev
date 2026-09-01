@@ -158,7 +158,7 @@
 
   <section class="notes">
     <h2>// try it yourself</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Build a connection string for any of these auth methods, or paste an existing one to see it broken into fields (with the password masked), using the <a href="../tools/connection-string-builder">Connection String Builder</a> — it also flags the Azure SQL/Encrypt mismatch above automatically.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Build a connection string for any of these auth methods, or paste an existing one to see it broken into fields (with the password masked), using the <a href="../tools/connection-string-builder">Connection String Builder</a> — it also flags the Azure SQL/Encrypt mismatch above automatically. If a column in the same database stores Unix timestamps rather than <code>DATETIME2</code>, <a href="../guides/unix-timestamp-epoch-explained">converting between the two in T-SQL</a> has its own overflow gotcha worth knowing before it bites in production.</p></div>
   </section>
 </main>
 
