@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"json-unexpected-token-explained"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"position N\" mean in a JSON parse error?","acceptedAnswer":{"@type":"Answer","text":"It's a plain character count from the start of the string, starting at index 0 — every character counts once, including spaces, tabs, and newlines. It is not a line number and doesn't reset at the start of each line, so for multi-line JSON it tells you almost nothing without converting it yourself."}},{"@type":"Question","name":"Why does the error position point past my actual mistake?","acceptedAnswer":{"@type":"Answer","text":"The parser can only report a problem once it reads far enough to find a token that doesn't fit. For {\"a\": 1 \"b\": 2}, the missing comma belongs at position 7, but the error reports position 8, the opening quote of \"b\", because that's where the parser first finds something it can't make sense of."}},{"@type":"Question","name":"How do I convert a JSON.parse error position to a line and column?","acceptedAnswer":{"@type":"Answer","text":"Slice the string up to the reported position, count the newlines in that slice for the line number, and the column is the distance from the last newline to the end of the slice."}},{"@type":"Question","name":"Why is there no position number in some JSON.parse errors?","acceptedAnswer":{"@type":"Answer","text":"It depends on your JS engine and the specific error. Modern V8 includes a line and column directly for some errors, but plenty of messages carry no position at all."}},{"@type":"Question","name":"What usually causes \"Unexpected token\" in JSON?","acceptedAnswer":{"@type":"Answer","text":"The most common causes: a missing comma, a trailing comma, an unquoted or single-quoted key, a // or /* */ comment (not valid JSON despite being legal in JS), or an invisible character that looks like nothing's there because visually there isn't."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -137,6 +140,30 @@
         <div class="result-item"><span class="k">An invisible character</span><span class="v">looks like nothing's there at that position because, visually, there isn't — see <a href="json-invisible-characters-explained">JSON Is Invalid But Looks Correct</a></span></div>
       </div>
     </div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What does "position N" mean in a JSON parse error?</summary>
+      <p>It's a plain character count from the start of the string, starting at index 0 — every character counts once, including spaces, tabs, and newlines. It is not a line number and doesn't reset at the start of each line, so for multi-line JSON it tells you almost nothing without converting it yourself.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does the error position point past my actual mistake?</summary>
+      <p>The parser can only report a problem once it reads far enough to find a token that doesn't fit — it can't flag anything at the exact spot a comma is missing, because nothing is technically wrong there yet. For <code>{"a": 1 "b": 2}</code>, the missing comma belongs at position 7, but the error reports position 8, the opening quote of <code>"b"</code>, because that's where the parser first finds something it can't make sense of.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I convert a JSON.parse error position to a line and column?</summary>
+      <p>Slice the string up to the reported position, count the newlines in that slice for the line number, and the column is the distance from the last newline to the end of the slice: <code>function findLineCol(text, index) { const lines = text.slice(0, index).split('\n'); return { line: lines.length, col: lines[lines.length - 1].length + 1 }; }</code></p>
+    </details>
+    <details class="faq-item">
+      <summary>Why is there no position number in some JSON.parse errors?</summary>
+      <p>It depends on your JS engine and the specific error. Modern V8 includes a line and column directly for some errors, but plenty of messages — like <code>"{"a":}" is not valid JSON</code> — carry no position at all. Don't assume there's always a number to chase down.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What usually causes "Unexpected token" in JSON?</summary>
+      <p>The most common causes: a missing comma (error lands one token past the real fix), a trailing comma (error lands at the closing brace/bracket right after it), an unquoted or single-quoted key (JSON requires double quotes, no exceptions), a <code>//</code> or <code>/* */</code> comment (not valid JSON despite being legal in JS), or an invisible character that looks like nothing's there because visually there isn't.</p>
+    </details>
   </section>
 
   <section class="notes">

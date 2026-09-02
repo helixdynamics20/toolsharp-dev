@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"json-invisible-characters-explained"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my JSON fail to parse when it looks completely correct?","acceptedAnswer":{"@type":"Answer","text":"Something invisible is sitting exactly where the parser chokes. JSON's grammar only permits four characters as whitespace (plain space, tab, carriage return, line feed), but word processors, browsers, and chat clients routinely insert other space-like or zero-width characters that render identically to a normal space, or don't render at all, and are byte-for-byte a completely different character."}},{"@type":"Question","name":"What is the most common invisible character that breaks JSON?","acceptedAnswer":{"@type":"Answer","text":"U+00A0, the non-breaking space (NBSP). Every space typed in Word, or on most web pages after a manual line-layout tweak, becomes this character — and it renders identically to a normal space while being completely invalid outside a quoted string in JSON."}},{"@type":"Question","name":"Why does JSON copied from Jira or Confluence fail to parse?","acceptedAnswer":{"@type":"Answer","text":"Rich-text-to-plain-text copy from Confluence and Jira frequently carries over NBSP from the page's own layout spacing, plus zero-width characters left behind by the rich-text editor's internal formatting. None of this is visible in a normal editor, but a strict JSON parser rejects it immediately."}},{"@type":"Question","name":"What is a BOM and why does it break JSON files?","acceptedAnswer":{"@type":"Answer","text":"U+FEFF at the very start of a file is a byte-order mark — a leftover UTF-8/UTF-16 auto-detection marker written automatically by Windows Notepad, older Excel CSV UTF-8 exports, and some .NET file-writing code paths. A JSON parser expects the very first character to be { or [, so a silent BOM in front of it is one of the most common works-everywhere-except-CI bugs."}},{"@type":"Question","name":"How do I find an invisible character in JSON?","acceptedAnswer":{"@type":"Answer","text":"Paste it into a tool that flags them explicitly. A normal editor renders these characters as blank space or nothing at all and gives no visual indication anything is wrong, so you need a tool that marks each offending character with its exact code point."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -129,6 +132,30 @@
         <div class="result-item"><span class="k">Windows tools writing files</span><span class="v">Notepad and some .NET encoding defaults prepend a BOM; harmless for most text viewers, fatal for a strict JSON parser</span></div>
       </div>
     </div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does my JSON fail to parse when it looks completely correct?</summary>
+      <p>Something invisible is sitting exactly where the parser chokes. "Blank space" isn't one character — JSON's grammar only permits four as whitespace (plain space, tab, carriage return, line feed), but word processors, browsers, and chat clients routinely insert other space-like or zero-width characters that render identically to a normal space, or don't render at all, and are byte-for-byte a completely different character.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is the most common invisible character that breaks JSON?</summary>
+      <p><code>U+00A0</code>, the non-breaking space (NBSP). Every space typed in Word, or on most web pages after a manual line-layout tweak, becomes this character — and it renders identically to a normal space while being completely invalid outside a quoted string in JSON.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does JSON copied from Jira or Confluence fail to parse?</summary>
+      <p>Rich-text-to-plain-text copy from Confluence and Jira frequently carries over NBSP from the page's own layout spacing, plus zero-width characters left behind by the rich-text editor's internal formatting. None of this is visible in a normal editor, but a strict JSON parser rejects it immediately.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is a BOM and why does it break JSON files?</summary>
+      <p><code>U+FEFF</code> at the very start of a file is a byte-order mark — a leftover UTF-8/UTF-16 auto-detection marker written automatically by Windows Notepad, older Excel "CSV UTF-8" exports, and some .NET file-writing code paths. A JSON parser expects the very first character to be <code>{</code> or <code>[</code>, so a silent BOM in front of it is one of the most common "works everywhere except this one CI pipeline" bugs.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I find an invisible character in JSON?</summary>
+      <p>Paste it into a tool that flags them explicitly — <a href="../tools/json-formatter">ToolSharp's JSON Formatter</a>'s "Show invisible characters" option marks every offending character as a red badge with its exact code point, since a normal editor renders these characters as blank space or nothing at all and gives no visual indication anything is wrong.</p>
+    </details>
   </section>
 
   <section class="notes">

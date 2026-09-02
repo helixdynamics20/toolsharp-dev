@@ -546,6 +546,27 @@ body.dark-theme .share-code-display { background: #18142a; border-color: var(--r
 .callout.ok { border-color: var(--green); background: var(--green-wash); color: #206B47; }
 body.dark-theme .callout.ok { color: #6DD9A0; }
 
+.faq-item {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-top: 8px;
+  background: var(--bg-raised);
+}
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::before { content: '▸'; color: var(--violet); font-size: 11px; flex-shrink: 0; }
+.faq-item[open] summary::before { content: '▾'; }
+.faq-item p { margin: 8px 0 2px; color: var(--ink-soft); font-size: 13.5px; }
+
 /* status pill -- a small colored severity/quality badge, reused for
    password entropy, hash algorithm safety, and similar strength readouts */
 .status-pill { display: inline-block; font-weight: 600; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-family: var(--mono); }
