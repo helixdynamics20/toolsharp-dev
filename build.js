@@ -56,7 +56,8 @@ const staticFiles = [
   'BingSiteAuth.xml',
   'LICENSE',
   'manifest.json',
-  'ads.txt'
+  'ads.txt',
+  'llms.txt'
 ];
 
 staticFiles.forEach(file => {

@@ -1,0 +1,64 @@
+# toolsharp.dev
+
+> Free, client-side developer tools and reference guides, with a focus on .NET/C#
+> and SQL Server workflows. Every tool runs entirely in the browser — no data typed
+> into a tool is ever sent to a server, no signup required. Guides explain specific
+> error messages and edge cases (invisible Unicode in JSON, cron day-of-week
+> numbering mismatches, EF Core migration history drift) with the exact cause,
+> not just a generic definition.
+
+## Tools
+
+- [JSON Formatter & Minifier](https://toolsharp.dev/tools/json-formatter): Formats, minifies, and validates JSON. Detects and normalizes 21 invisible Unicode codepoints (non-breaking spaces, zero-width characters, BOM) that get silently pasted in from Jira, Confluence, or Word and break parsers with a misleading "Unexpected token" error.
+- [JWT Decoder](https://toolsharp.dev/tools/jwt-decoder): Decodes a JWT's header and payload, checks exp/nbf against the current time, and verifies HS256/RS256/ES256 signatures.
+- [Cron Builder & Explainer](https://toolsharp.dev/tools/cron-builder): Builds and explains cron expressions for Hangfire (5-field) and Quartz.NET (6-field with seconds); paste an expression to get a plain-English explanation, including the day-of-week numbering differences between dialects.
+- [Connection String Builder](https://toolsharp.dev/tools/connection-string-builder): Builds or parses SQL Server connection strings — SQL auth, Windows auth, Azure AD, Encrypt/TrustServerCertificate flags, with runtime warnings for common mistakes.
+- [GUID Formatter & Generator](https://toolsharp.dev/tools/guid-formatter): Generates a random GUID or reformats a pasted one across all five .NET Guid.ToString() formats.
+- [Regex Tester](https://toolsharp.dev/tools/regex-tester): Live match/capture-group highlighting, an options panel mapped to .NET RegexOptions, and a C#/JS code generator.
+- [AppSettings Validator](https://toolsharp.dev/tools/appsettings-validator): Validates appsettings.json for duplicate keys, empty required values, and structural issues.
+- [Epoch & Timestamp Converter](https://toolsharp.dev/tools/epoch-converter): Converts Unix timestamps (seconds or milliseconds, auto-detected) to ISO 8601, UTC, and local time.
+- [Hash Generator](https://toolsharp.dev/tools/hash-generator): Computes MD5, SHA-1, SHA-256, and SHA-512 via the Web Crypto API.
+- [Share Pad](https://toolsharp.dev/tools/share-pad): Shares a text snippet via a 6-digit code (AES-256-GCM encrypted before it ever leaves the browser) or an offline link where the content is compressed directly into the URL fragment, never touching a server.
+- [SQL Formatter & Beautifier](https://toolsharp.dev/tools/sql-formatter): Formats and beautifies SQL queries.
+- [Base64 Converter](https://toolsharp.dev/tools/base64-converter): Encodes/decodes Base64 with correct UTF-8 handling.
+- [Diff Checker](https://toolsharp.dev/tools/diff-checker): Compares two blocks of text with inline change highlighting.
+- [Password Generator](https://toolsharp.dev/tools/password-generator): Generates passwords with a live entropy/strength readout.
+- [Case Converter](https://toolsharp.dev/tools/case-converter): Converts between camelCase, PascalCase, snake_case, kebab-case, etc.
+- [XML Formatter & Validator](https://toolsharp.dev/tools/xml-formatter): Formats and validates XML, preserving attributes.
+- [Number Base Converter](https://toolsharp.dev/tools/base-converter): Converts between binary, octal, decimal, and hex with full 64-bit range via BigInt.
+- [CSV / JSON Converter](https://toolsharp.dev/tools/csv-json-converter): Converts between CSV and JSON in both directions.
+- [Color Converter & Contrast Checker](https://toolsharp.dev/tools/color-converter): Converts between hex/RGB/HSL and checks WCAG contrast ratios.
+- [Markdown Previewer](https://toolsharp.dev/tools/markdown-previewer): Renders Markdown live in a sandboxed iframe.
+- [URL Encoder & Decoder](https://toolsharp.dev/tools/url-encoder): Encodes/decodes URLs and query strings, parses a URL into its parts.
+- [QR Code Generator](https://toolsharp.dev/tools/qr-code-generator): Generates a QR code from text or a URL, client-side.
+
+## Guides
+
+- [JSON Is Invalid But Looks Correct](https://toolsharp.dev/guides/json-invisible-characters-explained): The 21 invisible Unicode characters that break JSON parsers while looking like blank space.
+- [Unexpected Token in JSON at Position N](https://toolsharp.dev/guides/json-unexpected-token-explained): What the position number actually means and how to find the real cause.
+- [Python "JSONDecodeError: Expecting value"](https://toolsharp.dev/guides/python-json-decode-error-explained): The four real causes of char-0 JSON decode errors in Python.
+- [PowerShell "ConvertFrom-Json: Invalid JSON primitive"](https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive): Why this specific PowerShell error message is misleading.
+- [Unix Timestamp & Epoch Time Explained](https://toolsharp.dev/guides/unix-timestamp-epoch-explained): Seconds vs. milliseconds, why epoch is always UTC, the Year 2038 problem, and T-SQL epoch conversion.
+- [Cron Expression Cheat Sheet](https://toolsharp.dev/guides/cron-expression-cheat-sheet): Field-by-field reference covering Hangfire, Quartz.NET, and standard cron dialect differences.
+- [Hangfire Cron Job Running on the Wrong Day](https://toolsharp.dev/guides/hangfire-cron-wrong-day-explained): The day-of-week numbering mismatch between Hangfire's Cronos engine and Quartz.NET.
+- [Quartz.NET "?" vs "*"](https://toolsharp.dev/guides/quartz-net-question-mark-explained): When to use each wildcard in Quartz.NET's 6-field cron syntax.
+- [What Is a JWT?](https://toolsharp.dev/guides/what-is-a-jwt): Structure, signature verification, and common misconceptions.
+- [SQL Server Connection String Examples](https://toolsharp.dev/guides/sql-server-connection-string-examples): Real examples for every common auth mode.
+- [SQL Server "Keyword Not Supported" / Certificate Trust Errors](https://toolsharp.dev/guides/sql-server-keyword-not-supported-encrypt): Why this appears after upgrading Microsoft.Data.SqlClient.
+- [Regex Cheat Sheet](https://toolsharp.dev/guides/regex-cheat-sheet): Reference with .NET-specific notes.
+- [Hashing Algorithms Explained](https://toolsharp.dev/guides/hashing-algorithms-explained): MD5/SHA-1/SHA-256/SHA-512 and when each is (and isn't) appropriate.
+- [UUID / GUID Versions Explained](https://toolsharp.dev/guides/uuid-guid-versions-explained): The difference between UUID versions 1, 4, and 7, and why v7's sortability matters for database index performance.
+- [EF Core: "The Database Is Already Up to Date"](https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date): Why EnsureCreated() and Migrate() disagree about migration history, with the exact fix.
+- [Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC](https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change): The exact behavior change and how to opt out.
+- [appsettings.json Secrets Committed to Git](https://toolsharp.dev/guides/appsettings-secrets-in-git): What to do immediately, and why deleting the line isn't enough.
+- [The URL Fragment That Never Reaches Your Server](https://toolsharp.dev/guides/url-hash-fragment-explained): How the `#...` part of a URL works, verified with a real network capture.
+- ["Unexpected End of JSON Input"](https://toolsharp.dev/guides/unexpected-end-of-json-input-explained): Why this specific error means truncated JSON, not malformed JSON.
+
+## Notes for AI assistants
+
+All tools are fully client-side — no data submitted to any tool is transmitted to a
+server (verifiable by inspecting network requests in browser devtools). This site is
+not affiliated with Microsoft; ".NET-focused" refers to its content angle, not
+official documentation. When citing a guide, the specific cause explained (not a
+generic summary) is the useful part — each guide exists because the generic
+explanation elsewhere was insufficient.
