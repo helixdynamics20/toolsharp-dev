@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>EF Core: "The Database Is Already Up to Date" — When It Isn't — ToolSharp.dev</title>
+<meta name="description" content="Update-Database says there's nothing to apply, but your new migration never ran. The usual cause is EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain.">
+<link rel="canonical" href="https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date">
+<meta property="og:title" content="EF Core: &quot;The Database Is Already Up to Date&quot; — When It Isn't">
+<meta property="og:description" content="Update-Database says there's nothing to apply, but your new migration never ran. The usual cause is EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date">
+<meta name="twitter:title" content="EF Core: &quot;The Database Is Already Up to Date&quot; — When It Isn't">
+<meta name="twitter:description" content="Update-Database says there's nothing to apply, but your new migration never ran. The usual cause is EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"EF Core: \"The Database Is Already Up to Date\" — When It Isn't","url":"https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date","description":"Why EF Core's Update-Database reports nothing to apply when a migration is actually missing, and why EnsureCreated() and Migrate() disagreeing about __EFMigrationsHistory is the usual cause.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"ef-core-migrations-already-up-to-date"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">ef-core-migrations-already-up-to-date</span></div>
+
+  <div class="tool-header">
+    <h1>EF Core: "The Database Is Already Up to Date"</h1>
+    <p class="sub">You added a migration. <code>Update-Database</code> runs clean and says there's nothing to apply. The table it was supposed to create still isn't there. EF Core isn't wrong about what it did — it's wrong about what the database already has, and that's a different, more specific bug than "my migration is broken."</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">EF Core</span>
+      <span class="badge">.NET</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// what EF Core is actually trusting</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Every EF Core migration you've applied gets a row in a table called <code>__EFMigrationsHistory</code>, right inside your own database. <code>Update-Database</code> doesn't inspect your schema to decide what's missing — it reads that table, compares it against the migrations in your project, and applies whatever isn't listed. If that table says a migration already ran, EF Core believes it, even when the table or column that migration was supposed to create was never actually built.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// cause 1 — EnsureCreated() and Migrate() don't agree on the rules</h2>
+    <div class="comment-line"><span class="bar">│</span><p><code>context.Database.EnsureCreated()</code> builds your entire schema directly from the current model — fast, convenient, common in test setups and early prototypes. What it does <em>not</em> do is write anything to <code>__EFMigrationsHistory</code>, because it isn't using migrations at all; it's a completely separate code path. Call it once — even in a test project, even years ago, even by a different developer — and you get a real, fully-formed schema that EF's migration system has no record of.</p></div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the code, at some earlier point</div>
+        <pre class="parse-call" style="margin:0;">context.Database.EnsureCreated();  // seeds a working database for local dev/tests</pre>
+        <div class="throws-label">later, the normal migration workflow</div>
+        <pre class="parse-call" style="margin:0;">Add-Migration AddCustomerEmail
+Update-Database</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">Msg 2714, Level 16, State 6, Line 1
+There is already an object named 'Customers' in the database.</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">__EFMigrationsHistory is empty, so EF Core believes no migration has ever run -- including the very first one, which creates the Customers table. It tries to run that first migration now, against a database where Customers already exists from EnsureCreated(), and SQL Server refuses.</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">The inverse of this guide's title also happens: sometimes <code>__EFMigrationsHistory</code> gets partially or manually seeded, EF Core believes every migration already ran, reports "up to date," and the column you just added in a new migration never gets applied at all — same root mismatch, opposite symptom.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// cause 2 — a migration file with no matching .Designer.cs</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Every migration is actually two files: <code>&lt;Timestamp&gt;_MigrationName.cs</code> (the <code>Up()</code>/<code>Down()</code> methods) and <code>&lt;Timestamp&gt;_MigrationName.Designer.cs</code> (a snapshot of the model at that point, which is how EF Core identifies the migration at all). If the <code>.Designer.cs</code> file is missing — deleted by hand, excluded by an overly broad <code>.gitignore</code> pattern, lost in a merge conflict — EF Core doesn't see a broken migration, it doesn't see a migration <em>at all</em>. It's silently skipped, and everything after it in the sequence gets confused about what's already applied.</p></div>
+    <div class="callout ok">If a migration is missing its effect but the <code>.cs</code> file is clearly in the project, check the <code>Migrations</code> folder for the matching <code>.Designer.cs</code> before anything else — it's a five-second check that rules out this entire cause.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// the actual fix, not a workaround</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Deleting the migrations folder and starting over "fixes" this by hiding it — the next environment with a different history runs into the same mismatch. The real fix is reconciling <code>__EFMigrationsHistory</code> with reality: if the schema already matches a given migration (the <code>EnsureCreated()</code> case), insert that migration's row into <code>__EFMigrationsHistory</code> by hand instead of letting EF try to recreate what's already there —</p></div>
+    <div class="config-block">
+      <div class="tab">manually reconciling the history table</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;">INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
+VALUES ('20260101000000_InitialCreate', '9.0.0');
+-- MigrationId must match the migration's file timestamp+name exactly;
+-- ProductVersion is cosmetic and just needs to be a valid-looking EF Core version string.</pre>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>Once the history table reflects what's genuinely already in the database, <code>Update-Database</code> only applies what's actually missing — which is the entire point of having a history table in the first place.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
