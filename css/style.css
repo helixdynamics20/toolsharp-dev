@@ -349,6 +349,7 @@ body.dark-theme .dir-category .cat-link { color: var(--violet); }
   font-family: var(--mono);
   font-size: 28px;
   margin: 6px 0 8px;
+  overflow-wrap: break-word;
 }
 .tool-header p.sub {
   color: var(--ink-soft);
@@ -570,8 +571,8 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   font-size: 13px;
 }
 .result-item:last-child { border-bottom: none; }
-.result-item .k { color: var(--violet-dark); font-weight: 500; flex-shrink: 0; }
-.result-item .v { color: var(--ink); word-break: break-all; text-align: right; }
+.result-item .k { color: var(--violet-dark); font-weight: 500; overflow-wrap: anywhere; }
+.result-item .v { color: var(--ink); word-break: break-all; overflow-wrap: anywhere; text-align: right; min-width: 0; }
 .result-item .v.secret { color: var(--red); font-style: italic; }
 
 /* ---------------- Notes / explanation section ---------------- */
