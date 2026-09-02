@@ -119,6 +119,7 @@
     { name: 'UUID / GUID Versions Explained', path: '/guides/uuid-guid-versions-explained' },
     { name: 'Unix Timestamp & Epoch Time Explained', path: '/guides/unix-timestamp-epoch-explained' },
     { name: 'Hangfire Cron Job Running on the Wrong Day', path: '/guides/hangfire-cron-wrong-day-explained' },
+    { name: 'Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC', path: '/guides/sqlite-net10-datetimeoffset-utc-breaking-change' },
     { name: '"Keyword Not Supported" and Certificate Trust Errors', path: '/guides/sql-server-keyword-not-supported-encrypt' },
     { name: 'appsettings.json Secrets Committed to Git', path: '/guides/appsettings-secrets-in-git' },
     { name: 'Quartz.NET "?" vs "*"', path: '/guides/quartz-net-question-mark-explained' },
