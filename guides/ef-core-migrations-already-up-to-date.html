@@ -85,6 +85,11 @@ Update-Database</pre>
 There is already an object named 'Customers' in the database.</pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">__EFMigrationsHistory is empty, so EF Core believes no migration has ever run -- including the very first one, which creates the Customers table. It tries to run that first migration now, against a database where Customers already exists from EnsureCreated(), and SQL Server refuses.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
+VALUES ('20260101000000_InitialCreate', '9.0.0');
+-- tells EF Core that migration already ran, so it stops trying to recreate Customers
+-- and moves straight to applying AddCustomerEmail, the one that's actually missing</pre>
       </div>
     </div>
 
@@ -94,21 +99,32 @@ There is already an object named 'Customers' in the database.</pre>
   <section class="notes">
     <h2>// cause 2 — a migration file with no matching .Designer.cs</h2>
     <div class="comment-line"><span class="bar">│</span><p>Every migration is actually two files: <code>&lt;Timestamp&gt;_MigrationName.cs</code> (the <code>Up()</code>/<code>Down()</code> methods) and <code>&lt;Timestamp&gt;_MigrationName.Designer.cs</code> (a snapshot of the model at that point, which is how EF Core identifies the migration at all). If the <code>.Designer.cs</code> file is missing — deleted by hand, excluded by an overly broad <code>.gitignore</code> pattern, lost in a merge conflict — EF Core doesn't see a broken migration, it doesn't see a migration <em>at all</em>. It's silently skipped, and everything after it in the sequence gets confused about what's already applied.</p></div>
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what this actually looks like in the Migrations folder</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap;">Migrations/
+├── 20260101000000_InitialCreate.cs
+├── 20260101000000_InitialCreate.Designer.cs
+├── 20260201000000_AddCustomerEmail.cs
+└── (20260201000000_AddCustomerEmail.Designer.cs is missing)  ← this migration gets silently skipped</pre>
+      </div>
+    </div>
+
     <div class="callout ok">If a migration is missing its effect but the <code>.cs</code> file is clearly in the project, check the <code>Migrations</code> folder for the matching <code>.Designer.cs</code> before anything else — it's a five-second check that rules out this entire cause.</div>
   </section>
 
   <section class="notes">
     <h2>// the actual fix, not a workaround</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Deleting the migrations folder and starting over "fixes" this by hiding it — the next environment with a different history runs into the same mismatch. The real fix is reconciling <code>__EFMigrationsHistory</code> with reality: if the schema already matches a given migration (the <code>EnsureCreated()</code> case), insert that migration's row into <code>__EFMigrationsHistory</code> by hand instead of letting EF try to recreate what's already there —</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Deleting the migrations folder and starting over "fixes" this by hiding it — the next environment with a different history runs into the same mismatch. The real fix is reconciling <code>__EFMigrationsHistory</code> with reality, and the first step is finding out exactly where the two disagree rather than guessing:</p></div>
     <div class="config-block">
-      <div class="tab">manually reconciling the history table</div>
+      <div class="tab">see what EF Core thinks is applied vs. pending</div>
       <div class="body">
-        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;">INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
-VALUES ('20260101000000_InitialCreate', '9.0.0');
--- MigrationId must match the migration's file timestamp+name exactly;
--- ProductVersion is cosmetic and just needs to be a valid-looking EF Core version string.</pre>
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap;">dotnet ef migrations list
+-- marks each migration [applied] or [pending] based on __EFMigrationsHistory alone --
+-- compare that against which tables/columns actually exist to find the exact mismatch</pre>
       </div>
     </div>
+    <div class="comment-line"><span class="bar">│</span><p>For every migration the list shows as <code>[pending]</code> whose effect is already in the database (the <code>EnsureCreated()</code> case above), insert its row by hand instead of letting EF try to recreate what's already there — using the same pattern shown earlier, with that migration's own ID and a current EF Core version string in place of <code>'20260101000000_InitialCreate'</code> and <code>'9.0.0'</code>.</p></div>
     <div class="comment-line"><span class="bar">│</span><p>Once the history table reflects what's genuinely already in the database, <code>Update-Database</code> only applies what's actually missing — which is the entire point of having a history table in the first place.</p></div>
   </section>
 </main>
