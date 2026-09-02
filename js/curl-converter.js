@@ -469,11 +469,62 @@ const GENERATORS = [
   { id: 'java', label: 'Java', fn: generateJava },
 ];
 
+// ------------------------------------------------------- syntax highlight ----
+// One shared tokenizer (comment / string / keyword / PowerShell $variable),
+// same single-pass-alternation technique json-formatter.js uses for JSON --
+// whichever alternative matches consumes that whole token, so text inside an
+// already-matched string can never get separately re-scanned as a keyword.
+
+const LANG_KEYWORDS = {
+  csharp: ['using', 'var', 'new', 'await', 'class', 'public', 'private', 'static', 'void', 'string', 'null', 'true', 'false', 'return'],
+  java: ['import', 'class', 'public', 'private', 'static', 'void', 'new', 'null', 'true', 'false', 'return', 'throws'],
+  python: ['import', 'def', 'return', 'True', 'False', 'None', 'await', 'if', 'else'],
+  go: ['package', 'import', 'func', 'var', 'return', 'if', 'nil', 'true', 'false', 'defer', 'panic'],
+  fetch: ['const', 'let', 'var', 'async', 'await', 'new'],
+  axios: ['const', 'let', 'var', 'async', 'await', 'new', 'require'],
+};
+
+function escapeHtmlForDisplay(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlightCode(code, langId) {
+  const escaped = escapeHtmlForDisplay(code);
+  const isHashComment = langId === 'python' || langId === 'powershell';
+  const commentPattern = isHashComment ? '#[^\\n]*' : '\\/\\/[^\\n]*';
+
+  let stringPattern;
+  if (langId === 'go') {
+    // Go raw strings (backtick-delimited, no escapes) alongside interpreted ones.
+    stringPattern = '`[^`]*`|"(?:\\\\.|[^"\\\\])*"';
+  } else if (langId === 'powershell') {
+    // PowerShell escapes with a backtick, not a backslash -- `" doesn't end the string.
+    stringPattern = '"(?:`.|[^"`])*"|\'(?:\'\'|[^\'])*\'';
+  } else if (langId === 'python') {
+    stringPattern = '"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'';
+  } else {
+    stringPattern = '"(?:\\\\.|[^"\\\\])*"';
+  }
+
+  const kwList = LANG_KEYWORDS[langId] || [];
+  const kwPattern = kwList.length ? '\\b(?:' + kwList.join('|') + ')\\b' : '(?!)';
+  const psVarPattern = langId === 'powershell' ? '\\$[A-Za-z_][A-Za-z0-9_]*' : '(?!)';
+
+  const tokenRe = new RegExp(`(${commentPattern})|(${stringPattern})|(${kwPattern})|(${psVarPattern})`, 'g');
+
+  return escaped.replace(tokenRe, (match, com, str, kw, psvar) => {
+    if (com !== undefined) return `<span class="code-com">${match}</span>`;
+    if (str !== undefined) return `<span class="code-str">${match}</span>`;
+    if (kw !== undefined) return `<span class="code-kw">${match}</span>`;
+    if (psvar !== undefined) return `<span class="code-var">${match}</span>`;
+    return match;
+  });
+}
+
 let lastReq = null;
 
 function convert() {
   const input = document.getElementById('curlInput').value;
-  const out = document.getElementById('codeOutput');
   const errEl = document.getElementById('curlError');
   try {
     lastReq = parseCurl(input);
@@ -481,18 +532,25 @@ function convert() {
     errEl.style.display = 'none';
   } catch (e) {
     lastReq = null;
-    out.value = '';
+    resetOutput();
     errEl.textContent = e.message;
     errEl.style.display = 'block';
   }
 }
 
+function resetOutput() {
+  const out = document.getElementById('codeOutput');
+  out.textContent = 'Paste a curl command on the left and click Convert.';
+  out.classList.add('output-empty');
+}
+
 function render() {
   const out = document.getElementById('codeOutput');
-  if (!lastReq) { out.value = ''; return; }
+  if (!lastReq) { resetOutput(); return; }
   const langId = document.getElementById('langSelect').value;
   const gen = GENERATORS.find(g => g.id === langId) || GENERATORS[0];
-  out.value = gen.fn(lastReq);
+  out.classList.remove('output-empty');
+  out.innerHTML = highlightCode(gen.fn(lastReq), gen.id);
 }
 
 function tryExample() {
@@ -506,7 +564,7 @@ function tryExample() {
 
 function clearAll() {
   document.getElementById('curlInput').value = '';
-  document.getElementById('codeOutput').value = '';
+  resetOutput();
   document.getElementById('curlError').style.display = 'none';
   lastReq = null;
 }

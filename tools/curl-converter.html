@@ -67,7 +67,7 @@
       <div class="tab">curl command</div>
       <div class="body">
         <div class="field">
-          <textarea id="curlInput" aria-label="curl command" rows="14" placeholder="curl 'https://api.example.com/v1/users' \
+          <textarea id="curlInput" aria-label="curl command" rows="16" placeholder="curl 'https://api.example.com/v1/users' \
   -H 'Authorization: Bearer …' \
   -H 'Content-Type: application/json' \
   --data-raw '{&quot;name&quot;:&quot;Ada&quot;}'" spellcheck="false"></textarea>
@@ -85,7 +85,7 @@
       <div class="tab" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
         <label for="langSelect" style="display: flex; align-items: center; gap: 6px;">
           output:
-          <select id="langSelect" aria-label="Output language" style="font-family: var(--mono); font-size: 12px; padding: 3px 6px;">
+          <select id="langSelect" class="lang-select" aria-label="Output language">
             <option value="csharp">C#</option>
             <option value="python">Python</option>
             <option value="fetch">JavaScript (fetch)</option>
@@ -98,8 +98,8 @@
         <button class="copy-btn" data-copy="codeOutput" style="margin-left: auto;">copy</button>
       </div>
       <div class="body">
-        <div class="field">
-          <textarea id="codeOutput" aria-label="Generated code" rows="14" readonly spellcheck="false" style="background:var(--bg); font-size: 12.5px;"></textarea>
+        <div class="output-block" style="min-height: 342px;">
+          <pre id="codeOutput" class="output-empty">Paste a curl command on the left and click Convert.</pre>
         </div>
       </div>
     </div>
