@@ -31,6 +31,7 @@
 - [Markdown Previewer](https://toolsharp.dev/tools/markdown-previewer): Renders Markdown live in a sandboxed iframe.
 - [URL Encoder & Decoder](https://toolsharp.dev/tools/url-encoder): Encodes/decodes URLs and query strings, parses a URL into its parts.
 - [QR Code Generator](https://toolsharp.dev/tools/qr-code-generator): Generates a QR code from text or a URL, client-side.
+- [cURL Converter](https://toolsharp.dev/tools/curl-converter): Converts a curl command (including multi-line commands copied from browser DevTools) into working request code in C#, Python, JavaScript (fetch), Node.js (axios), PowerShell, Go, or Java.
 
 ## Guides
 

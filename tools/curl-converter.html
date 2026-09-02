@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev</title>
+<meta name="description" content="Paste a curl command (e.g. copied from Chrome DevTools) and get working code in C#, Python, JavaScript, Node.js, PowerShell, Go, or Java -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<link rel="canonical" href="https://toolsharp.dev/tools/curl-converter">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolsharp.dev/tools/curl-converter">
+<meta property="og:title" content="cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev">
+<meta property="og:description" content="Paste a curl command and get working code in 7 languages -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/curl-converter.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/tools/curl-converter">
+<meta name="twitter:title" content="cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev">
+<meta name="twitter:description" content="Paste a curl command and get working code in 7 languages -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/curl-converter.png">
+
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"cURL Converter","url":"https://toolsharp.dev/tools/curl-converter","description":"Converts a curl command into working code in C#, Python, JavaScript, Node.js, PowerShell, Go, or Java -- headers, request body, basic auth, and TLS flags all translated.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"tools","item":"https://toolsharp.dev/tools"},{"@type":"ListItem","position":3,"name":"curl-converter"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../tools">tools</a><span class="sep">/</span><span class="current">curl-converter</span></div>
+
+  <div class="tool-header">
+    <h1>curl-converter</h1>
+    <p class="sub">Paste a curl command — including the multi-line kind Chrome/Firefox DevTools' "Copy as cURL" produces — and get working request code in the language of your choice: method, headers, body, basic auth, and the <code>-k</code>/insecure flag all translated.</p>
+    <div class="badges">
+      <span class="badge">client-side only</span>
+      <span class="badge">7 languages</span>
+      <span class="badge">multi-line aware</span>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="config-block">
+      <div class="tab">curl command</div>
+      <div class="body">
+        <div class="field">
+          <textarea id="curlInput" aria-label="curl command" rows="14" placeholder="curl 'https://api.example.com/v1/users' \
+  -H 'Authorization: Bearer …' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{&quot;name&quot;:&quot;Ada&quot;}'" spellcheck="false"></textarea>
+        </div>
+        <div class="btn-row">
+          <button id="btnCurlConvert" class="btn">Convert →</button>
+          <button id="btnCurlExample" class="btn secondary">Try example</button>
+          <button id="btnCurlClear" class="btn secondary">Clear</button>
+        </div>
+        <div id="curlError" class="url-error" style="display:none; background: var(--red-wash); color: var(--red); border-radius: var(--radius); padding: 8px 12px; font-family: var(--mono); font-size: 12.5px; margin-top: 10px;"></div>
+      </div>
+    </div>
+
+    <div class="config-block">
+      <div class="tab" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label for="langSelect" style="display: flex; align-items: center; gap: 6px;">
+          output:
+          <select id="langSelect" aria-label="Output language" style="font-family: var(--mono); font-size: 12px; padding: 3px 6px;">
+            <option value="csharp">C#</option>
+            <option value="python">Python</option>
+            <option value="fetch">JavaScript (fetch)</option>
+            <option value="axios">Node.js (axios)</option>
+            <option value="powershell">PowerShell</option>
+            <option value="go">Go</option>
+            <option value="java">Java</option>
+          </select>
+        </label>
+        <button class="copy-btn" data-copy="codeOutput" style="margin-left: auto;">copy</button>
+      </div>
+      <div class="body">
+        <div class="field">
+          <textarea id="codeOutput" aria-label="Generated code" rows="14" readonly spellcheck="false" style="background:var(--bg); font-size: 12.5px;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// what gets translated, in every language</h2>
+    <ul>
+      <li><strong>Method</strong> — explicit <code>-X</code>/<code>--request</code>, or inferred: <code>POST</code> if a body is present, otherwise <code>GET</code>.</li>
+      <li><strong>Headers</strong> (<code>-H</code>, repeatable).</li>
+      <li><strong>Body</strong> (<code>-d</code> / <code>--data-raw</code> / <code>--data-binary</code>, repeatable, joined with <code>&amp;</code>) — its content type comes from an explicit <code>Content-Type</code> header if you passed one; otherwise it defaults to <code>application/x-www-form-urlencoded</code>, matching curl's own default for <code>-d</code>.</li>
+      <li><strong>Basic auth</strong> (<code>-u user:pass</code>) — base64-encoded exactly like curl does it, using each language's native basic-auth mechanism where one exists (Python's <code>auth=</code>, axios's <code>auth:</code>, Go's <code>SetBasicAuth</code>) and a manually-built header where it doesn't (fetch, Java, PowerShell's <code>Invoke-RestMethod</code>).</li>
+      <li><strong><code>-k</code> / <code>--insecure</code></strong> — translated faithfully to each language's TLS-bypass mechanism, always with a warning comment. It's exactly as dangerous in the generated code as it is on the command line — <a href="#fetch-note">fetch is the one exception</a>, see below.</li>
+      <li><strong><code>-G</code> / <code>--get</code></strong> — data gets appended to the URL as a query string instead of a body, method forced to <code>GET</code>, matching curl's behavior.</li>
+    </ul>
+
+    <h2>// what doesn't</h2>
+    <p>Multipart form data (<code>-F</code>/<code>--form</code>) isn't auto-converted in any language — building a multipart body correctly means constructing a real <code>MultipartFormDataContent</code>/<code>FormData</code>/equivalent by hand, so the tool lists the original <code>-F</code> arguments as a comment instead of guessing. Flags that don't affect the request itself (<code>-v</code>, <code>-s</code>, <code>-L</code>, <code>--compressed</code>, output/timeout/proxy options) are silently ignored, since most HTTP clients either have no equivalent or handle the underlying behavior differently by default.</p>
+
+    <h2 id="fetch-note">// the fetch exception</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Every other language gets a faithful <code>-k</code>/<code>--insecure</code> translation because each has a per-request or per-client way to disable TLS verification. Browser <code>fetch</code> has no such option at all — TLS trust is the browser's job, not the page's — and Node's <code>fetch</code> only offers a process-wide environment variable (<code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>), not a per-request flag. The generated code notes this rather than pretending an equivalent exists.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+<script src="../js/curl-converter.js" defer></script>
+</body>
+</html>

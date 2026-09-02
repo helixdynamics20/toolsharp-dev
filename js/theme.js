@@ -103,7 +103,7 @@
     { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter' },
     { name: 'Markdown Previewer', path: '/tools/markdown-previewer' },
     { name: 'QR Code Generator', path: '/tools/qr-code-generator' },
-    { name: 'cURL to C# Converter', path: '/tools/curl-to-csharp' }
+    { name: 'cURL Converter', path: '/tools/curl-converter' }
   ];
 
   var guidesList = [
@@ -361,7 +361,7 @@
           { name: 'Regex Tester', path: 'tools/regex-tester' },
           { name: 'Password Generator', path: 'tools/password-generator' },
           { name: 'Base Converter', path: 'tools/base-converter' },
-          { name: 'cURL to C# Converter', path: 'tools/curl-to-csharp' }
+          { name: 'cURL Converter', path: 'tools/curl-converter' }
         ]
       }
     ];
