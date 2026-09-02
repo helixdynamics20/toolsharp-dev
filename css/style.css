@@ -3,6 +3,55 @@
    Terminal / config-file inspired identity for .NET dev tools
    =========================================================== */
 
+/* Self-hosted (was Google Fonts CDN -- moving these local removes the
+   extra DNS/connection hop and render-blocking CSS request that chain
+   added; latin-subset only, since site content is English-only). IBM
+   Plex Sans serves the same physical file for all three weights here --
+   that's Google's own CSS for this family, mirrored as-is rather than
+   "fixed", so rendering stays identical to what was already live. */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-mono-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-mono-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-sans.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-sans.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/fonts/ibm-plex-sans.woff2') format('woff2');
+}
+
 :root {
   --bg: #F1F0F7;
   --bg-raised: #FBFAFE;
