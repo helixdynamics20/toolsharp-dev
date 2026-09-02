@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"cron-expression-cheat-sheet"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the difference between Hangfire and Quartz.NET cron syntax?","acceptedAnswer":{"@type":"Answer","text":"Hangfire and standard cron use 5 fields: minute, hour, day-of-month, month, day-of-week. Quartz.NET adds a leading seconds field and uses ? instead of * in whichever of day-of-month/day-of-week isn't in use — 6 fields total. Quartz.NET's six fields are Hangfire's five shifted one position right by the prepended seconds field, so dropping a 5-field string into a 6-field scheduler (or vice versa) reads every field after the shift as the wrong one."}},{"@type":"Question","name":"What does the ? character mean in a cron expression?","acceptedAnswer":{"@type":"Answer","text":"\"No specific value\" — Quartz.NET only. It's used on whichever of day-of-month/day-of-week you're not constraining. Exactly one of the two must be ?; leaving both as * is a parse error, not a wildcard."}},{"@type":"Question","name":"Why doesn't setting both day-of-month and day-of-week work as AND?","acceptedAnswer":{"@type":"Answer","text":"In standard cron, specific values in both fields mean OR — either condition triggers the job — which almost never matches what you intended. If you want a specific weekday, leave day-of-month as *."}},{"@type":"Question","name":"What timezone do cron expressions run in?","acceptedAnswer":{"@type":"Answer","text":"Whatever timezone the scheduler process is configured for — not necessarily UTC, and not necessarily the server's local time. Hangfire falls back to UTC if you don't set one explicitly; Quartz.NET falls back to TimeZoneInfo.Local, the host machine's timezone. That default mismatch is a common source of jobs running hours off after moving between a developer's machine, a container, and a cloud region."}},{"@type":"Question","name":"Does 1 mean Monday or Sunday in a cron day-of-week field?","acceptedAnswer":{"@type":"Answer","text":"It depends on the dialect. Standard cron is 0–6 with 0 = Sunday. Quartz.NET is 1–7 with 1 = Sunday. Hangfire's Cronos engine accepts 0–7 where both 0 and 7 mean Sunday. The same digit can mean a different day depending which one you're reading — see the full breakdown of how this causes a job to silently run on the wrong day."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -195,6 +198,30 @@
       </div>
     </div>
     <p style="margin-top:14px;">The helpers exist because a call like <code>Cron.Daily(2, 30)</code> is self-documenting at the call site in a way <code>"30 2 * * *"</code> never is, and it can't be typo'd into a subtly different valid expression. Reach for a raw string only once a schedule needs something the helpers don't cover — a step value, a multi-day list, or anything Quartz-specific like <code>L</code>/<code>W</code>/<code>#</code> — and paste it into the <a href="../tools/cron-builder">Cron Builder</a> first to confirm it means what you think before it ships.</p>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What's the difference between Hangfire and Quartz.NET cron syntax?</summary>
+      <p>Hangfire and standard cron use 5 fields: minute, hour, day-of-month, month, day-of-week. Quartz.NET adds a leading seconds field and uses <code>?</code> instead of <code>*</code> in whichever of day-of-month/day-of-week isn't in use — 6 fields total. Quartz.NET's six fields are Hangfire's five shifted one position right by the prepended seconds field, so dropping a 5-field string into a 6-field scheduler (or vice versa) reads every field after the shift as the wrong one.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does the ? character mean in a cron expression?</summary>
+      <p>"No specific value" — Quartz.NET only. It's used on whichever of day-of-month/day-of-week you're not constraining. Exactly one of the two must be <code>?</code>; leaving both as <code>*</code> is a parse error, not a wildcard.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why doesn't setting both day-of-month and day-of-week work as AND?</summary>
+      <p>In standard cron, specific values in both fields mean OR — either condition triggers the job — which almost never matches what you intended. If you want a specific weekday, leave day-of-month as <code>*</code>.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What timezone do cron expressions run in?</summary>
+      <p>Whatever timezone the scheduler process is configured for — not necessarily UTC, and not necessarily the server's local time. Hangfire falls back to UTC if you don't set one explicitly; Quartz.NET falls back to <code>TimeZoneInfo.Local</code>, the host machine's timezone. That default mismatch is a common source of jobs running hours off after moving between a developer's machine, a container, and a cloud region.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does 1 mean Monday or Sunday in a cron day-of-week field?</summary>
+      <p>It depends on the dialect. Standard cron is 0–6 with 0 = Sunday. Quartz.NET is 1–7 with 1 = Sunday. Hangfire's Cronos engine accepts 0–7 where both 0 and 7 mean Sunday. The same digit can mean a different day depending which one you're reading — see the <a href="../guides/hangfire-cron-wrong-day-explained">full breakdown</a> of how this causes a job to silently run on the wrong day.</p>
+    </details>
   </section>
 
   <section class="notes">

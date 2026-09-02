@@ -25,9 +25,8 @@
 <meta name="twitter:description" content="ConvertFrom-Json : Invalid JSON primitive often has nothing to do with your JSON -- it's frequently non-JSON text mixed into the pipeline, or a difference between Windows PowerShell 5.1's parser and PowerShell 7's.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
@@ -38,6 +37,9 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"powershell-convertfrom-json-invalid-primitive"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"Invalid JSON primitive\" actually mean in PowerShell?","acceptedAnswer":{"@type":"Answer","text":"It often has nothing to do with your JSON being malformed. The single most common cause is non-JSON text mixed into the pipeline — a progress spinner, a warning line, a login banner — landing in the same string before the real JSON. ConvertFrom-Json chokes on that leading text and reports it as the invalid primitive."}},{"@type":"Question","name":"Why does the same JSON work in one PowerShell session but not another?","acceptedAnswer":{"@type":"Answer","text":"Windows PowerShell 5.1 and PowerShell 7+ use entirely different JSON implementations. 5.1's ConvertFrom-Json is built on JavaScriptSerializer and historically rejects JSON containing comments outright. PowerShell 7+ is built on Newtonsoft Json.NET and is more lenient. Check $PSVersionTable.PSVersion in both sessions before assuming it's a data problem."}},{"@type":"Question","name":"How do I fix a CLI tool mixing status text with its JSON output?","acceptedAnswer":{"@type":"Answer","text":"Ask for JSON-only output if the CLI supports it (often a --output json flag). If it doesn't, isolate the JSON line manually before parsing, e.g. filtering the output to only lines starting with { or [ before piping to ConvertFrom-Json."}}]}
 </script>
 </head>
 <body>
@@ -113,6 +115,22 @@ Major  Minor  Build  Revision
 7      4      6                  &lt;-- PowerShell 7+: Newtonsoft Json.NET, more lenient</pre>
       </div>
     </div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What does "Invalid JSON primitive" actually mean in PowerShell?</summary>
+      <p>It often has nothing to do with your JSON being malformed. The single most common cause is non-JSON text mixed into the pipeline — a progress spinner, a warning line, a login banner — landing in the same string before the real JSON. <code>ConvertFrom-Json</code> chokes on that leading text and reports it as the invalid primitive.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does the same JSON work in one PowerShell session but not another?</summary>
+      <p>Windows PowerShell 5.1 and PowerShell 7+ use entirely different JSON implementations. 5.1's <code>ConvertFrom-Json</code> is built on <code>JavaScriptSerializer</code> and historically rejects JSON containing comments outright. PowerShell 7+ is built on Newtonsoft Json.NET and is more lenient. Check <code>$PSVersionTable.PSVersion</code> in both sessions before assuming it's a data problem.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I fix a CLI tool mixing status text with its JSON output?</summary>
+      <p>Ask for JSON-only output if the CLI supports it (often a <code>--output json</code> flag). If it doesn't, isolate the JSON line manually before parsing, e.g. filtering the output to only lines starting with <code>{</code> or <code>[</code> before piping to <code>ConvertFrom-Json</code>.</p>
+    </details>
   </section>
 
   <section class="notes">

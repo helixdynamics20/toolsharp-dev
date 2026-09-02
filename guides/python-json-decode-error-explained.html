@@ -25,9 +25,8 @@
 <meta name="twitter:description" content="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) almost always means you're not parsing JSON at all -- an empty response, an HTML error page, or a file path passed where a file object belongs.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
@@ -38,6 +37,9 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"python-json-decode-error-explained"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"Expecting value: line 1 column 1 (char 0)\" actually mean?","acceptedAnswer":{"@type":"Answer","text":"The parser found nothing to even start on — this is different from a real syntax error, which points somewhere inside the document at whatever token it choked on. Char 0 means whatever reached json.loads() wasn't JSON at all, not that it was malformed JSON."}},{"@type":"Question","name":"What usually causes JSONDecodeError at char 0?","acceptedAnswer":{"@type":"Answer","text":"Four common causes, roughly in order of frequency: empty input reaching json.loads(); a non-JSON HTTP response (a 401/404/500 error page or login redirect, which is HTML not JSON); a 204 No Content response with deliberately no body; or a file path string passed to json.loads() instead of a file object to json.load()."}},{"@type":"Question","name":"Why does json.loads(open(\"file.json\")) fail with this error?","acceptedAnswer":{"@type":"Answer","text":"open() returns a file object, not a string. json.loads() tries to parse that object's repr — something like <_io.TextIOWrapper name='file.json' ...> — as JSON and fails at the first character. Use json.load(f) (no \"s\") with an open file object instead."}},{"@type":"Question","name":"How do I guard an API call against this error?","acceptedAnswer":{"@type":"Answer","text":"Check before parsing rather than catching the exception after: call resp.raise_for_status() to turn 4xx/5xx into an exception immediately, and check resp.text.strip() isn't empty before calling resp.json() — this tells you exactly what came back instead of just that something went wrong."}}]}
 </script>
 </head>
 <body>
@@ -113,6 +115,26 @@ data = resp.json()               # or: json.loads(resp.text)</pre>
   <section class="notes">
     <h2>// when it's a real position, not char 0</h2>
     <div class="comment-line"><span class="bar">│</span><p>If the line/column/char numbers point somewhere other than the very start, you do have actual JSON that's genuinely malformed partway through — a trailing comma, an unterminated string, a stray invisible character copied in from somewhere else. That's a different, narrower problem than this guide covers, and the <a href="../tools/json-formatter">JSON Formatter</a> will point at the exact spot and auto-fix what it can.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What does "Expecting value: line 1 column 1 (char 0)" actually mean?</summary>
+      <p>The parser found nothing to even start on — this is different from a real syntax error, which points somewhere inside the document at whatever token it choked on. Char 0 means whatever reached <code>json.loads()</code> wasn't JSON at all, not that it was malformed JSON.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What usually causes JSONDecodeError at char 0?</summary>
+      <p>Four common causes, roughly in order of frequency: empty input reaching <code>json.loads()</code>; a non-JSON HTTP response (a 401/404/500 error page or login redirect, which is HTML not JSON); a 204 No Content response with deliberately no body; or a file path string passed to <code>json.loads()</code> instead of a file object to <code>json.load()</code>.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does json.loads(open("file.json")) fail with this error?</summary>
+      <p><code>open()</code> returns a file object, not a string. <code>json.loads()</code> tries to parse that object's repr — something like <code>&lt;_io.TextIOWrapper name='file.json' ...&gt;</code> — as JSON and fails at the first character. Use <code>json.load(f)</code> (no "s") with an open file object instead.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I guard an API call against this error?</summary>
+      <p>Check before parsing rather than catching the exception after: call <code>resp.raise_for_status()</code> to turn 4xx/5xx into an exception immediately, and check <code>resp.text.strip()</code> isn't empty before calling <code>resp.json()</code> — this tells you exactly what came back instead of just that something went wrong.</p>
+    </details>
   </section>
 </main>
 

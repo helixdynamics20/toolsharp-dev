@@ -25,9 +25,8 @@
 <meta name="twitter:description" content="Quartz.NET throws 'Support for specifying both a day-of-week AND a day-of-month parameter is not implemented' for expressions that look completely reasonable. Here's the exact rule, and why the ? character exists at all.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
@@ -38,6 +37,9 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"quartz-net-question-mark-explained"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does Quartz.NET say day-of-week and day-of-month can't both be set?","acceptedAnswer":{"@type":"Answer","text":"Because exactly one of the two fields must be ?. It doesn't matter what the other field contains — *, a specific value, a list, a range — as long as one is ?, the expression is valid. The error only fires when neither field is ?, even if both are just wildcards."}},{"@type":"Question","name":"Why does 0 0 12 * * * fail in Quartz.NET when it looks like a valid schedule?","acceptedAnswer":{"@type":"Answer","text":"Neither the day-of-month nor day-of-week field is ? — both are *, which Quartz.NET still rejects. Standard cron and Hangfire allow this, but Quartz.NET requires you to explicitly mark one of the two fields as unconstrained with ? rather than leaving both as wildcards."}},{"@type":"Question","name":"Why does the ? character exist in Quartz.NET at all?","acceptedAnswer":{"@type":"Answer","text":"Standard cron resolves day-of-month and day-of-week with OR logic when both are constrained to specific values — \"the 15th, OR any Friday\" — which is rarely what anyone actually wants. Quartz.NET sidesteps the ambiguity by making it a parse error instead of a silent surprise, forcing you to say explicitly which field you're not using."}},{"@type":"Question","name":"Why does translating a Hangfire cron expression to Quartz.NET break it?","acceptedAnswer":{"@type":"Answer","text":"The most common trigger for this error isn't a deliberate attempt to combine both fields — it's adding a leading seconds field to a 5-field Hangfire/Unix expression and leaving both day fields as *, the way they were in the original. That translation is invalid in Quartz.NET; one of the two has to become ?."}}]}
 </script>
 </head>
 <body>
@@ -87,6 +89,26 @@
   <section class="notes">
     <h2>// build it without guessing</h2>
     <div class="comment-line"><span class="bar">│</span><p>The <a href="../tools/cron-builder">Cron Builder &amp; Explainer</a> generates valid Quartz.NET expressions field-by-field, so the <code>?</code> placement is handled automatically instead of being something to remember while translating between dialects.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does Quartz.NET say day-of-week and day-of-month can't both be set?</summary>
+      <p>Because exactly one of the two fields must be <code>?</code>. It doesn't matter what the other field contains — <code>*</code>, a specific value, a list, a range — as long as one is <code>?</code>, the expression is valid. The error only fires when neither field is <code>?</code>, even if both are just wildcards.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does 0 0 12 * * * fail in Quartz.NET when it looks like a valid schedule?</summary>
+      <p>Neither the day-of-month nor day-of-week field is <code>?</code> — both are <code>*</code>, which Quartz.NET still rejects. Standard cron and Hangfire allow this, but Quartz.NET requires you to explicitly mark one of the two fields as unconstrained with <code>?</code> rather than leaving both as wildcards.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does the ? character exist in Quartz.NET at all?</summary>
+      <p>Standard cron resolves day-of-month and day-of-week with OR logic when both are constrained to specific values — "the 15th, OR any Friday" — which is rarely what anyone actually wants. Quartz.NET sidesteps the ambiguity by making it a parse error instead of a silent surprise, forcing you to say explicitly which field you're not using.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does translating a Hangfire cron expression to Quartz.NET break it?</summary>
+      <p>The most common trigger for this error isn't a deliberate attempt to combine both fields — it's adding a leading seconds field to a 5-field Hangfire/Unix expression and leaving both day fields as <code>*</code>, the way they were in the original. That translation is invalid in Quartz.NET; one of the two has to become <code>?</code>.</p>
+    </details>
   </section>
 </main>
 

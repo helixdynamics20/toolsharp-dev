@@ -40,6 +40,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"unix-timestamp-epoch-explained"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a Unix timestamp in seconds or milliseconds?","acceptedAnswer":{"@type":"Answer","text":"Count the digits. Ten digits (like 1788108484) is seconds; thirteen digits is milliseconds — the millisecond value is just the second value with three more digits on the end. This holds for every timestamp between 2001 and 2286. JavaScript's Date.now() is the one common source that returns milliseconds by default; Python, PostgreSQL, MySQL, and the shell all return seconds."}},{"@type":"Question","name":"Why is a Unix timestamp always UTC?","acceptedAnswer":{"@type":"Answer","text":"Because it's a count of seconds from one fixed instant, not wall-clock time — 1735689600 means the exact same moment everywhere on Earth. A timezone only enters the picture when that number gets converted to a human-readable string for display. Storing local time instead is ambiguous twice a year around DST transitions; epoch/UTC never has that problem."}},{"@type":"Question","name":"What is the Year 2038 problem?","acceptedAnswer":{"@type":"Answer","text":"A signed 32-bit integer maxes out at 2147483647, which as a Unix timestamp is 2038-01-19 03:14:07 UTC. One second later it overflows and wraps to a large negative number — 1901-12-13 — on any system still storing time that way. 64-bit platforms and current .NET, Java, Python, and JavaScript are unaffected; the remaining exposure is 32-bit embedded systems and database columns explicitly typed as a 4-byte integer."}},{"@type":"Question","name":"How do I get the current Unix timestamp in SQL Server?","acceptedAnswer":{"@type":"Answer","text":"T-SQL has no built-in epoch function, unlike MySQL's UNIX_TIMESTAMP(). Use DATEDIFF(SECOND, '1970-01-01', GETUTCDATE()) for seconds. For milliseconds, use DATEDIFF_BIG, not DATEDIFF — the plain version returns a 32-bit int that overflows for any date compared against 1970. Compare against GETUTCDATE(), not GETDATE(), or the result silently shifts by your server's local UTC offset."}},{"@type":"Question","name":"Do leap seconds affect Unix time?","acceptedAnswer":{"@type":"Answer","text":"No — POSIX time explicitly ignores them, defining every day as exactly 86,400 seconds. When a real leap second is inserted, Unix time either repeats a second or gets \"smeared\" by the OS, depending on the system, but this is by design, not a bug, and it essentially never matters for ordinary application code."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -255,6 +258,30 @@ The datediff function resulted in an overflow. The number of dateparts separatin
       </div>
     </div>
     <div class="comment-line"><span class="bar">│</span><p>ISO 8601's field order (year → month → day → hour...) means lexicographic string sorting matches chronological order — a rare and genuinely useful property, which is why log files and filenames often use it. Epoch numbers sort correctly too, but only when compared as actual numbers; naively comparing them as zero-padded strings of different lengths breaks the same way any numeric string comparison does. Pick epoch for compact storage and arithmetic (durations, comparisons), ISO 8601 for anything a human will read directly — logs, API responses meant for debugging, config files. This same sortability is why UUIDv7 embeds an epoch millisecond timestamp directly in the identifier — see <a href="uuid-guid-versions-explained">UUID/GUID Versions Explained</a> for why that matters for database index performance.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Is a Unix timestamp in seconds or milliseconds?</summary>
+      <p>Count the digits. Ten digits (like <code>1788108484</code>) is seconds; thirteen digits is milliseconds — the millisecond value is just the second value with three more digits on the end. This holds for every timestamp between 2001 and 2286. JavaScript's <code>Date.now()</code> is the one common source that returns milliseconds by default; Python, PostgreSQL, MySQL, and the shell all return seconds.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why is a Unix timestamp always UTC?</summary>
+      <p>Because it's a count of seconds from one fixed instant, not wall-clock time — <code>1735689600</code> means the exact same moment everywhere on Earth. A timezone only enters the picture when that number gets converted to a human-readable string for display. Storing local time instead is ambiguous twice a year around DST transitions; epoch/UTC never has that problem.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is the Year 2038 problem?</summary>
+      <p>A signed 32-bit integer maxes out at <code>2147483647</code>, which as a Unix timestamp is 2038-01-19 03:14:07 UTC. One second later it overflows and wraps to a large negative number — 1901-12-13 — on any system still storing time that way. 64-bit platforms and current .NET, Java, Python, and JavaScript are unaffected; the remaining exposure is 32-bit embedded systems and database columns explicitly typed as a 4-byte integer.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I get the current Unix timestamp in SQL Server?</summary>
+      <p>T-SQL has no built-in epoch function, unlike MySQL's <code>UNIX_TIMESTAMP()</code>. Use <code>DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())</code> for seconds. For milliseconds, use <code>DATEDIFF_BIG</code>, not <code>DATEDIFF</code> — the plain version returns a 32-bit int that overflows for any date compared against 1970. Compare against <code>GETUTCDATE()</code>, not <code>GETDATE()</code>, or the result silently shifts by your server's local UTC offset.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Do leap seconds affect Unix time?</summary>
+      <p>No — POSIX time explicitly ignores them, defining every day as exactly 86,400 seconds. When a real leap second is inserted, Unix time either repeats a second or gets "smeared" by the OS, depending on the system, but this is by design, not a bug, and it essentially never matters for ordinary application code.</p>
+    </details>
   </section>
 
   <section class="notes">

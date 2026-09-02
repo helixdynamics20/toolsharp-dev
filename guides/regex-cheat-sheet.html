@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"regex-cheat-sheet"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the difference between greedy and lazy quantifiers?","acceptedAnswer":{"@type":"Answer","text":"Greedy (*, +, ?, {n,m}) grabs as much as possible, backtracking only if forced to. Lazy (add a ? after any of those) matches as few repetitions as possible. Against <b>bold</b>, the greedy pattern <.*> matches the entire string from the first < to the very last >; the lazy <.*?> stops at the first > it finds."}},{"@type":"Question","name":"Why does my named group pattern fail when I move it between languages?","acceptedAnswer":{"@type":"Answer","text":"The syntax genuinely differs by engine. .NET and JavaScript (ES2018+) both use (?<name>...). Python requires (?P<name>...) — the P is required. PCRE accepts either form. A pattern with (?P<...>) copied into .NET or JavaScript will fail because of that leftover P."}},{"@type":"Question","name":"What is catastrophic backtracking (ReDoS)?","acceptedAnswer":{"@type":"Answer","text":"Certain patterns — nested or overlapping quantifiers like (a+)+ or (a|a)* — create ambiguous ways to split the same input, and the number of ways to backtrack grows exponentially with input length. A 40-character string of the wrong shape can take longer than the universe has left to run. It's a real, named vulnerability class (ReDoS) that caused a 34-minute Stack Overflow outage in 2016 and a 27-minute Cloudflare outage in 2019."}},{"@type":"Question","name":"Is there a correct regex for validating an email address?","acceptedAnswer":{"@type":"Answer","text":"No. The actual email spec (RFC 5322) is absurd — quoted local parts, comments, IP-literal domains — and patterns copy-pasted from Stack Overflow either reject valid addresses or accept garbage. If you need to know an email is real, send a verification email; use a simple regex only as a cheap first-pass sanity check, never as the source of truth."}},{"@type":"Question","name":"Why does my JavaScript regex skip matches on repeated calls?","acceptedAnswer":{"@type":"Answer","text":"The g flag makes a JavaScript RegExp object stateful. With g set, calling .test() or .exec() repeatedly on the same compiled regex object advances its internal lastIndex each time, so reusing one global-flagged regex across multiple independent checks silently skips matches after the first call. Create a fresh regex, or reset lastIndex = 0, per independent check."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -253,6 +256,30 @@
     <h2>// two more that only bite in production</h2>
     <div class="callout warn" style="margin-bottom:14px;"><strong>The <code>g</code> flag makes a JavaScript RegExp object stateful.</strong> With <code>g</code> set, calling <code>.test()</code> or <code>.exec()</code> repeatedly on the <em>same</em> compiled regex object advances its internal <code>lastIndex</code> each time — reusing one global-flagged regex across multiple independent checks silently skips matches after the first call. Create a fresh regex (or reset <code>lastIndex = 0</code>) per independent check.</div>
     <div class="callout warn">Forgetting to escape a literal special character — a period in a version number, a <code>+</code> in an email's local part, a <code>$</code> in a price — makes the pattern match more than intended rather than throwing an error, since almost every metacharacter is also valid-looking as "any character" or "one or more." A dot meant to match a literal <code>.</code> will happily match <em>any</em> character instead, and the bug only surfaces on input that exploits the difference.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What's the difference between greedy and lazy quantifiers?</summary>
+      <p>Greedy (<code>*</code>, <code>+</code>, <code>?</code>, <code>{n,m}</code>) grabs as much as possible, backtracking only if forced to. Lazy (add a <code>?</code> after any of those) matches as few repetitions as possible. Against <code>&lt;b&gt;bold&lt;/b&gt;</code>, the greedy pattern <code>&lt;.*&gt;</code> matches the entire string from the first <code>&lt;</code> to the very last <code>&gt;</code>; the lazy <code>&lt;.*?&gt;</code> stops at the first <code>&gt;</code> it finds.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does my named group pattern fail when I move it between languages?</summary>
+      <p>The syntax genuinely differs by engine. .NET and JavaScript (ES2018+) both use <code>(?&lt;name&gt;...)</code>. Python requires <code>(?P&lt;name&gt;...)</code> — the <code>P</code> is required. PCRE accepts either form. A pattern with <code>(?P&lt;...&gt;)</code> copied into .NET or JavaScript will fail because of that leftover <code>P</code>.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is catastrophic backtracking (ReDoS)?</summary>
+      <p>Certain patterns — nested or overlapping quantifiers like <code>(a+)+</code> or <code>(a|a)*</code> — create ambiguous ways to split the same input, and the number of ways to backtrack grows exponentially with input length. A 40-character string of the wrong shape can take longer than the universe has left to run. It's a real, named vulnerability class (ReDoS) that caused a 34-minute Stack Overflow outage in 2016 and a 27-minute Cloudflare outage in 2019.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is there a correct regex for validating an email address?</summary>
+      <p>No. The actual email spec (RFC 5322) is absurd — quoted local parts, comments, IP-literal domains — and patterns copy-pasted from Stack Overflow either reject valid addresses or accept garbage. If you need to know an email is real, send a verification email; use a simple regex only as a cheap first-pass sanity check, never as the source of truth.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does my JavaScript regex skip matches on repeated calls?</summary>
+      <p>The <code>g</code> flag makes a JavaScript RegExp object stateful. With <code>g</code> set, calling <code>.test()</code> or <code>.exec()</code> repeatedly on the same compiled regex object advances its internal <code>lastIndex</code> each time, so reusing one global-flagged regex across multiple independent checks silently skips matches after the first call. Create a fresh regex, or reset <code>lastIndex = 0</code>, per independent check.</p>
+    </details>
   </section>
 
   <section class="notes">

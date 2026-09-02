@@ -546,6 +546,56 @@ body.dark-theme .share-code-display { background: #18142a; border-color: var(--r
 .callout.ok { border-color: var(--green); background: var(--green-wash); color: #206B47; }
 body.dark-theme .callout.ok { color: #6DD9A0; }
 
+.faq-item {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-top: 12px;
+  background: var(--bg-raised);
+  transition: border-left-color 0.15s ease;
+}
+.faq-item:hover { border-left-color: var(--violet-dark); }
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::before {
+  content: 'Q';
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--violet-dark);
+  flex-shrink: 0;
+}
+.faq-item summary::after {
+  content: '+';
+  margin-left: auto;
+  padding-left: 10px;
+  color: var(--violet);
+  font-size: 15px;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+.faq-item[open] summary::after { content: '−'; }
+.notes .faq-item p {
+  max-width: none;
+  margin: 10px 0 2px;
+  margin-left: 21px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
 /* status pill -- a small colored severity/quality badge, reused for
    password entropy, hash algorithm safety, and similar strength readouts */
 .status-pill { display: inline-block; font-weight: 600; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-family: var(--mono); }

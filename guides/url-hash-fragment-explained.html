@@ -25,9 +25,8 @@
 <meta name="twitter:description" content="Everything after # in a URL never appears in the HTTP request — verified with a real network capture. Why this exists, what OAuth and client-side routers use it for, and where the guarantee actually ends.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
@@ -38,6 +37,9 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"url-hash-fragment-explained"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the URL fragment (after #) ever get sent to the server?","acceptedAnswer":{"@type":"Answer","text":"No. Everything up to and including the query string goes out in the HTTP request line. The fragment — everything from the # onward — is stripped off by the browser before the request is even built. The server has no way to see it, because it was never sent, verifiable with a real network capture in devtools."}},{"@type":"Question","name":"Why does the URL fragment exist if it's never sent to the server?","acceptedAnswer":{"@type":"Answer","text":"It predates any privacy use case. In the original URL design, a fragment like #introduction identifies a location within a resource the browser has already retrieved — the classic \"jump to this heading\" anchor. Since it only makes sense once the page is already loaded, it was never part of what gets sent to request that page. Developers later noticed this side effect and started building on it deliberately."}},{"@type":"Question","name":"What actually relies on the URL fragment never being sent?","acceptedAnswer":{"@type":"Answer","text":"OAuth 2.0 implicit flow returns the access token in the redirect URL's fragment specifically so it never lands in server logs. Older single-page app routers (hash-mode) used fragment-based routes because changing the fragment doesn't trigger a page reload. This site's share-pad offline-link mode compresses text directly into the fragment so it's never sent anywhere."}},{"@type":"Question","name":"Is data in a URL fragment actually private?","acceptedAnswer":{"@type":"Answer","text":"Not in general — \"never sent to the server\" is a narrow guarantee, not a statement that the data is secret. Any JavaScript on the page (including third-party scripts and extensions) can read it via window.location.hash. It's stored in your browser history, and copying the full URL into a chat or email copies the fragment as plain text too."}}]}
 </script>
 </head>
 <body>
@@ -120,6 +122,26 @@
       <li><strong>The <code>Referer</code> header is fragment-free too — which helps.</strong> If a page with a sensitive fragment contains a link to somewhere else, the outbound <code>Referer</code> header sent to that destination is defined to exclude the fragment. That's one fewer leak path, not an exception to watch for.</li>
       <li><strong>Copying the link still copies the data.</strong> If you paste the full URL into a chat, an email, or a bug report, the fragment goes with it as plain text. The guarantee is "your server's access logs won't have it" — not "this data can't end up anywhere."</li>
     </ul>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Does the URL fragment (after #) ever get sent to the server?</summary>
+      <p>No. Everything up to and including the query string goes out in the HTTP request line. The fragment — everything from the <code>#</code> onward — is stripped off by the browser before the request is even built. The server has no way to see it, because it was never sent, verifiable with a real network capture in devtools.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does the URL fragment exist if it's never sent to the server?</summary>
+      <p>It predates any privacy use case. In the original URL design, a fragment like <code>#introduction</code> identifies a location within a resource the browser has already retrieved — the classic "jump to this heading" anchor. Since it only makes sense once the page is already loaded, it was never part of what gets sent to request that page. Developers later noticed this side effect and started building on it deliberately.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What actually relies on the URL fragment never being sent?</summary>
+      <p>OAuth 2.0 implicit flow returns the access token in the redirect URL's fragment specifically so it never lands in server logs. Older single-page app routers (hash-mode) used fragment-based routes because changing the fragment doesn't trigger a page reload. This site's share-pad offline-link mode compresses text directly into the fragment so it's never sent anywhere.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is data in a URL fragment actually private?</summary>
+      <p>Not in general — "never sent to the server" is a narrow guarantee, not a statement that the data is secret. Any JavaScript on the page (including third-party scripts and extensions) can read it via <code>window.location.hash</code>. It's stored in your browser history, and copying the full URL into a chat or email copies the fragment as plain text too.</p>
+    </details>
   </section>
 
   <section class="notes">

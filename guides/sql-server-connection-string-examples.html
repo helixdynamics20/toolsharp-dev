@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"sql-server-connection-string-examples"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does Azure SQL reject my connection string that works fine locally?","acceptedAnswer":{"@type":"Answer","text":"Azure SQL rejects connections without Encrypt=True — it's not optional the way it is for an on-prem server. A connection string that works fine against a local SQL Express instance will fail outright against *.database.windows.net until that key is set."}},{"@type":"Question","name":"What's the difference between Connect Timeout and Command Timeout?","acceptedAnswer":{"@type":"Answer","text":"Connect Timeout is a connection-string key (default 15s) — how long to wait establishing the TCP connection and logging in. Command Timeout isn't a connection-string key at all; it's SqlCommand.CommandTimeout set in code (default 30s), how long to wait for one query to finish. Putting Command Timeout=60 in a connection string does nothing — it's silently ignored."}},{"@type":"Question","name":"Why am I getting \"Timeout expired waiting for a connection from the pool\"?","acceptedAnswer":{"@type":"Answer","text":"Almost never because the pool is too small — it's usually connections not being disposed (a missing using block around a SqlConnection), so the pool fills up with connections the app thinks it already returned. Raising Max Pool Size masks the symptom rather than fixing the leak."}},{"@type":"Question","name":"Where should a SQL Server connection string be stored?","acceptedAnswer":{"@type":"Answer","text":"Convention puts it under a ConnectionStrings section in appsettings.json. For local dev, use dotnet user-secrets to keep it out of the repo. In CI/containers, an environment variable named ConnectionStrings__Default (the double underscore maps to the :-delimited key). In production, Azure Key Vault or a secrets manager — never a real password in appsettings.json."}},{"@type":"Question","name":"What does MultipleActiveResultSets (MARS) actually do?","acceptedAnswer":{"@type":"Answer","text":"MultipleActiveResultSets=True lets more than one pending batch or open DataReader share a single physical connection at once. Without it, opening a second command while a reader from the first is still open throws InvalidOperationException. It has a real server-side cost, so it's worth enabling only when the access pattern actually needs it."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -153,6 +156,30 @@
     <div class="callout warn" style="margin-bottom:14px;"><strong><code>TrustServerCertificate=True</code> skips certificate validation entirely</strong> — it's a workaround for a self-signed cert on a local dev instance, not something that belongs in a connection string pointed at a real Azure SQL server. Its presence there is usually a leftover from copy-pasting a local dev string.</div>
     <div class="callout warn"><strong>Integrated Security and a User Id/Password in the same string don't combine</strong> — one wins silently depending on the driver, and it's easy to leave stale credentials in a string after switching an app to Windows auth without noticing they're now ignored.</div>
     <div class="callout warn" style="margin-top:14px;"><strong>Microsoft.Data.SqlClient 4.0 flipped the client-side default of <code>Encrypt</code> from <code>false</code> to <code>true</code>.</strong> A connection string that worked fine for years against an on-prem server with no valid cert can start failing after nothing more than a NuGet package upgrade — the fix is either a proper certificate or an explicit <code>Encrypt=False</code>/<code>TrustServerCertificate=True</code> for that environment, not a downgrade. The <a href="../guides/sql-server-keyword-not-supported-encrypt">full breakdown</a> covers this alongside the related "keyword not supported" error that shows up from mixing <code>System.Data.SqlClient</code> and <code>Microsoft.Data.SqlClient</code>.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does Azure SQL reject my connection string that works fine locally?</summary>
+      <p>Azure SQL rejects connections without <code>Encrypt=True</code> — it's not optional the way it is for an on-prem server. A connection string that works fine against a local SQL Express instance will fail outright against <code>*.database.windows.net</code> until that key is set.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What's the difference between Connect Timeout and Command Timeout?</summary>
+      <p>Connect Timeout is a connection-string key (default 15s) — how long to wait establishing the TCP connection and logging in. Command Timeout isn't a connection-string key at all; it's <code>SqlCommand.CommandTimeout</code> set in code (default 30s), how long to wait for one query to finish. Putting <code>Command Timeout=60</code> in a connection string does nothing — it's silently ignored.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why am I getting "Timeout expired waiting for a connection from the pool"?</summary>
+      <p>Almost never because the pool is too small — it's usually connections not being disposed (a missing <code>using</code> block around a <code>SqlConnection</code>), so the pool fills up with connections the app thinks it already returned. Raising <code>Max Pool Size</code> masks the symptom rather than fixing the leak.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Where should a SQL Server connection string be stored?</summary>
+      <p>Convention puts it under a <code>ConnectionStrings</code> section in <code>appsettings.json</code>. For local dev, use <code>dotnet user-secrets</code> to keep it out of the repo. In CI/containers, an environment variable named <code>ConnectionStrings__Default</code> (the double underscore maps to the <code>:</code>-delimited key). In production, Azure Key Vault or a secrets manager — never a real password in <code>appsettings.json</code>.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does MultipleActiveResultSets (MARS) actually do?</summary>
+      <p><code>MultipleActiveResultSets=True</code> lets more than one pending batch or open <code>DataReader</code> share a single physical connection at once. Without it, opening a second command while a reader from the first is still open throws <code>InvalidOperationException</code>. It has a real server-side cost, so it's worth enabling only when the access pattern actually needs it.</p>
+    </details>
   </section>
 
   <section class="notes">

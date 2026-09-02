@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"what-is-a-jwt"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a JWT encrypted?","acceptedAnswer":{"@type":"Answer","text":"No — it's encoded, not encrypted. Base64URL is trivially reversible by anyone; no key is required to read a JWT's header or payload, only to verify its signature. Never put a password, secret, or anything sensitive directly in the payload; assume every claim is public the moment the token exists."}},{"@type":"Question","name":"How is a JWT's signature actually computed?","acceptedAnswer":{"@type":"Answer","text":"Over the two encoded segments exactly as they appear, joined by a dot: base64url(header) + \".\" + base64url(payload). That string is fed into the algorithm named in the header along with a shared secret (HS256) or private key (RS256/ES256), and the result is base64url-encoded as the third segment. Verification recomputes this and compares byte-for-byte."}},{"@type":"Question","name":"What is the JWT algorithm-confusion attack?","acceptedAnswer":{"@type":"Answer","text":"A verifier that blindly trusts the token's own alg header can be tricked: if a service issues RS256 tokens and publishes its RSA public key, an attacker can craft a token with \"alg\":\"HS256\" signed using that public key as an HMAC secret. A verifier that obeys the header runs HMAC-SHA256 with the same public key, gets a match, and accepts a forged token. The fix is to pin the expected algorithm in the verification call itself, never let the header choose it."}},{"@type":"Question","name":"Can a JWT be revoked before it expires?","acceptedAnswer":{"@type":"Answer","text":"Not natively — statelessness is the whole point of a JWT, and also its biggest operational drawback. A stolen token stays valid until exp regardless of what the issuer does, unless something is added on top: short expiry with revocable refresh tokens, a denylist of revoked token IDs, or a version claim that invalidates every token issued before a bump."}},{"@type":"Question","name":"Should a JWT be stored in localStorage or a cookie?","acceptedAnswer":{"@type":"Answer","text":"Neither is simply \"safe.\" localStorage is readable by any JS on the page, so a single XSS bug can exfiltrate every stored token. An httpOnly cookie is invisible to JS but sent automatically by the browser, reopening CSRF risk unless paired with SameSite and a CSRF token. Whichever is chosen, keep the token's lifetime short."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -174,6 +177,30 @@
     <h2>// the two mistakes that matter</h2>
     <div class="callout error" style="margin-bottom:14px;"><strong>A JWT is encoded, not encrypted.</strong> Base64URL is trivially reversible by anyone — there is no key required to read a JWT's header or payload, only to verify its signature. Never put a password, secret, or anything sensitive directly in the payload; assume every claim is public the moment the token exists.</div>
     <div class="callout error"><strong>Always verify the signature server-side before trusting any claim.</strong> A client can send back any JWT-shaped string it wants, including one with <code>exp</code> pushed into the future or <code>role: admin</code> added by hand. The signature is the only thing that proves the payload wasn't altered after the real issuer signed it — reading claims without verifying first means trusting user input.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Is a JWT encrypted?</summary>
+      <p>No — it's encoded, not encrypted. Base64URL is trivially reversible by anyone; no key is required to read a JWT's header or payload, only to verify its signature. Never put a password, secret, or anything sensitive directly in the payload; assume every claim is public the moment the token exists.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How is a JWT's signature actually computed?</summary>
+      <p>Over the two encoded segments exactly as they appear, joined by a dot: <code>base64url(header) + "." + base64url(payload)</code>. That string is fed into the algorithm named in the header along with a shared secret (HS256) or private key (RS256/ES256), and the result is base64url-encoded as the third segment. Verification recomputes this and compares byte-for-byte.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is the JWT algorithm-confusion attack?</summary>
+      <p>A verifier that blindly trusts the token's own <code>alg</code> header can be tricked: if a service issues RS256 tokens and publishes its RSA public key, an attacker can craft a token with <code>"alg":"HS256"</code> signed using that public key as an HMAC secret. A verifier that obeys the header runs HMAC-SHA256 with the same public key, gets a match, and accepts a forged token. The fix is to pin the expected algorithm in the verification call itself, never let the header choose it.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Can a JWT be revoked before it expires?</summary>
+      <p>Not natively — statelessness is the whole point of a JWT, and also its biggest operational drawback. A stolen token stays valid until <code>exp</code> regardless of what the issuer does, unless something is added on top: short expiry with revocable refresh tokens, a denylist of revoked token IDs, or a version claim that invalidates every token issued before a bump.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Should a JWT be stored in localStorage or a cookie?</summary>
+      <p>Neither is simply "safe." localStorage is readable by any JS on the page, so a single XSS bug can exfiltrate every stored token. An httpOnly cookie is invisible to JS but sent automatically by the browser, reopening CSRF risk unless paired with SameSite and a CSRF token. Whichever is chosen, keep the token's lifetime short.</p>
+    </details>
   </section>
 
   <section class="notes">
