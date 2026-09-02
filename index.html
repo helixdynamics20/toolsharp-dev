@@ -79,6 +79,18 @@
         browser.</p>
     </section>
 
+    <section class="home-section" id="terminal">
+      <div class="prompt-line term-hint">drive the site from here — type <code>help</code> and press Enter</div>
+      <div class="term">
+        <div id="termOutput" class="term-output" role="log" aria-live="polite" aria-label="Terminal output"></div>
+        <form id="termForm" class="term-input-line" autocomplete="off">
+          <span class="caret" aria-hidden="true">&gt;</span>
+          <input id="termInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+            spellcheck="false" aria-label="Type a command such as help, ls, or open json-formatter, then press Enter">
+        </form>
+      </div>
+    </section>
+
     <section class="home-section">
       <div class="prompt-line"><span class="caret">&gt;</span> cat featured.md</div>
       <div class="config-block">
@@ -118,18 +130,6 @@
             fields, JWT internals, and JSON failure modes you would otherwise re-derive every few months</div>
           <div class="status" id="guidesCount">9 items</div>
         </div>
-      </div>
-    </section>
-
-    <section class="home-section" id="terminal">
-      <div class="prompt-line term-hint">or drive it from here — type <code>help</code> and press Enter</div>
-      <div class="term">
-        <div id="termOutput" class="term-output" role="log" aria-live="polite" aria-label="Terminal output"></div>
-        <form id="termForm" class="term-input-line" autocomplete="off">
-          <span class="caret" aria-hidden="true">&gt;</span>
-          <input id="termInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
-            spellcheck="false" aria-label="Type a command such as help, ls, or open json-formatter, then press Enter">
-        </form>
       </div>
     </section>
 

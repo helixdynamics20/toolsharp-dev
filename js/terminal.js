@@ -114,8 +114,8 @@
     },
 
     whoami: function () {
-      line('toolsharp.dev — small, sharp tools every developer reaches for.');
-      line('Everything runs in your browser. Nothing you type is ever sent anywhere.');
+      line('Built by a backend engineer tired of losing five minutes to connection string syntax and cron field order.');
+      line('Type "ls" or "help" to look around.');
     },
 
     clear: function () {
