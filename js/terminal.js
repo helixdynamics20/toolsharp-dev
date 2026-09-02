@@ -115,7 +115,7 @@
 
     whoami: function () {
       line('Built by a backend engineer tired of losing five minutes to connection string syntax and cron field order.');
-      line(tools.length + ' tools, ' + guides.length + ' guides, all client-side. Type "ls" or "help" to look around.');
+      line('Type "ls" or "help" to look around.');
     },
 
     clear: function () {
