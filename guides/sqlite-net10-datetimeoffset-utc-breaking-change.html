@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC — ToolSharp.dev</title>
+<meta name="description" content="Upgrading to .NET 10 silently changes what GetDateTimeOffset() and GetDateTime() return from SQLite — same code, same data, different timestamp. No error, no warning.">
+<link rel="canonical" href="https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
+<meta property="og:title" content="Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC">
+<meta property="og:description" content="Upgrading to .NET 10 silently changes what GetDateTimeOffset() and GetDateTime() return from SQLite — same code, same data, different timestamp. No error, no warning.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
+<meta name="twitter:title" content="Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC">
+<meta name="twitter:description" content="Upgrading to .NET 10 silently changes what GetDateTimeOffset() and GetDateTime() return from SQLite — same code, same data, different timestamp. No error, no warning.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC","url":"https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change","description":"The exact before/after behavior of Microsoft.Data.Sqlite's .NET 10 timezone handling change, why it happens, and the official AppContext switch to temporarily revert it.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"sqlite-net10-datetimeoffset-utc-breaking-change"}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">sqlite-net10-datetimeoffset-utc-breaking-change</span></div>
+
+  <div class="tool-header">
+    <h1>Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC</h1>
+    <p class="sub">You upgrade to .NET 10 — required before .NET 8 and 9 both hit end of support on November 10, 2026 — change no application code, and timestamps read back from SQLite are suddenly off by your server's UTC offset. No exception, no warning, no compiler error. The value is just different now.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">.NET 10</span>
+      <span class="badge">SQLite</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// the exact behavior change, before and after</h2>
+    <div class="comment-line"><span class="bar">│</span><p>SQLite itself doesn't enforce timezone semantics — it stores timestamps as plain text or numbers and leaves interpretation to the client. <code>Microsoft.Data.Sqlite</code> makes an assumption when a stored value carries no explicit offset, and that assumption changed in .NET 10:</p></div>
+
+    <div class="config-block">
+      <div class="tab">three separate changes, same release</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k"><code>GetDateTimeOffset()</code>, no offset in the data</span><span class="v">was assumed local timezone → now assumed <strong>UTC</strong></span></div>
+        <div class="result-item"><span class="k">writing a <code>DateTimeOffset</code> to a <code>REAL</code> column</span><span class="v">was written as-is → now <strong>converted to UTC first</strong></span></div>
+        <div class="result-item"><span class="k"><code>GetDateTime()</code>, offset present in the data</span><span class="v">returned <code>DateTimeKind.Local</code> → now returns <strong>DateTimeKind.Utc</strong></span></div>
+      </div>
+    </div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what this actually looks like</div>
+      <div class="body">
+        <div class="throws-label">the code — unchanged across both versions</div>
+        <pre class="parse-call" style="margin:0;">var offset = reader.GetDateTimeOffset(0);  // column stores "2026-01-15 10:30:00", no offset</pre>
+        <div class="throws-label">on .NET 9, server in UTC+2</div>
+        <pre class="parse-call" style="margin:0;">2026-01-15T10:30:00+02:00   // assumed the server's local timezone</pre>
+        <div class="throws-label">on .NET 10, same code, same data, same server</div>
+        <pre class="throws-msg" style="margin:0;">2026-01-15T10:30:00+00:00   // now assumed UTC -- a genuinely different instant in time</pre>
+        <div class="throws-label">why</div>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">.NET 10 changed the assumption to align with SQLite's own convention: a timestamp with no offset is treated as UTC. It's arguably the more correct default -- SQLite itself has never assumed local time -- but "more correct" and "silent" is exactly what makes this dangerous for existing data written under the old assumption.</pre>
+        <div class="throws-label">the fix, if you need the old behavior while you migrate</div>
+        <pre class="fixed-msg" style="margin:0;">AppContext.SetSwitch("Microsoft.Data.Sqlite.Pre10TimeZoneHandling", true);
+// set this once at startup, before any SQLite connection is opened</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">This switch is documented as a temporary compatibility path, not a permanent fix. Every day it stays on, new data keeps being written under the old (arguably wrong) local-time assumption — decide deliberately whether to migrate existing stored values to the new UTC convention, rather than leaving the switch flipped indefinitely.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// why this is easy to miss</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Nothing here throws. Tests that don't assert on the exact offset or <code>DateTimeKind</code> pass unchanged. The bug surfaces downstream — a scheduled report running at the wrong hour, an audit log timestamp that's off by a few hours, a comparison against <code>DateTimeOffset.UtcNow</code> that's now subtly wrong in the other direction than before. If timestamps out of SQLite look "shifted" by a consistent amount right after a .NET 10 upgrade, that consistent amount is very likely your server's UTC offset — and this is why.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// this lands in the same migration wave as the EF Core work</h2>
+    <div class="comment-line"><span class="bar">│</span><p>If you're moving to .NET 10 because of the November 2026 end-of-support deadline and also run EF Core migrations against the same database, <a href="../guides/ef-core-migrations-already-up-to-date">the migrations-history mismatch covered here</a> is worth checking in the same pass — both are the kind of change that doesn't show up until something's already been running in production for a while. For the general rules around UTC and epoch time this bug intersects with, see the <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time guide</a>.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// try it yourself</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Convert between epoch, UTC, and local time directly with the <a href="../tools/epoch-converter">Unix Timestamp / Epoch Converter</a> to confirm exactly what offset a given stored value should resolve to before and after this change.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>

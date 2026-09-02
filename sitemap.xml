@@ -46,4 +46,5 @@
   <url><loc>https://toolsharp.dev/guides/unexpected-end-of-json-input-explained</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/powershell-convertfrom-json-invalid-primitive</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

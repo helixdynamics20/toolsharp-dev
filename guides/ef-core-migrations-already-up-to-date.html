@@ -127,6 +127,11 @@ VALUES ('20260101000000_InitialCreate', '9.0.0');
     <div class="comment-line"><span class="bar">│</span><p>For every migration the list shows as <code>[pending]</code> whose effect is already in the database (the <code>EnsureCreated()</code> case above), insert its row by hand instead of letting EF try to recreate what's already there — using the same pattern shown earlier, with that migration's own ID and a current EF Core version string in place of <code>'20260101000000_InitialCreate'</code> and <code>'9.0.0'</code>.</p></div>
     <div class="comment-line"><span class="bar">│</span><p>Once the history table reflects what's genuinely already in the database, <code>Update-Database</code> only applies what's actually missing — which is the entire point of having a history table in the first place.</p></div>
   </section>
+
+  <section class="notes">
+    <h2>// if this is part of a .NET 10 migration</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now.</p></div>
+  </section>
 </main>
 
 <footer>

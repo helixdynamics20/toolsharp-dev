@@ -261,6 +261,7 @@ The datediff function resulted in an overflow. The number of dateparts separatin
   <section class="notes">
     <h2>// try it yourself</h2>
     <div class="comment-line"><span class="bar">│</span><p>Convert a Unix timestamp (seconds or milliseconds, auto-detected) to a readable date in both UTC and your local timezone, or go the other way, with the <a href="../tools/epoch-converter">Unix Timestamp / Epoch Converter</a> — including a live clock showing the current epoch value as it ticks.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Migrating to .NET 10? <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">Microsoft.Data.Sqlite silently changed its UTC-vs-local assumption</a> in that release — same code, different timestamp, no error.</p></div>
   </section>
 </main>
 
