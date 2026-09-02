@@ -122,7 +122,8 @@
     { name: '"Keyword Not Supported" and Certificate Trust Errors', path: '/guides/sql-server-keyword-not-supported-encrypt' },
     { name: 'appsettings.json Secrets Committed to Git', path: '/guides/appsettings-secrets-in-git' },
     { name: 'Quartz.NET "?" vs "*"', path: '/guides/quartz-net-question-mark-explained' },
-    { name: 'The URL Fragment That Never Reaches Your Server', path: '/guides/url-hash-fragment-explained' }
+    { name: 'The URL Fragment That Never Reaches Your Server', path: '/guides/url-hash-fragment-explained' },
+    { name: 'EF Core: "The Database Is Already Up to Date"', path: '/guides/ef-core-migrations-already-up-to-date' }
   ];
 
   // Exposed so other scripts (the home page terminal) can reuse this index

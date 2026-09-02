@@ -145,7 +145,7 @@
         <div class="result-item"><span class="k">production</span><span class="v">Azure Key Vault or a secrets manager, wired in as an additional configuration provider — never a real password in <code>appsettings.json</code></span></div>
       </div>
     </div>
-    <p style="margin-top:14px;">Whichever source it comes from, the same validation applies before it reaches your app — check it with the <a href="../tools/appsettings-validator">appsettings.json Validator</a>, which flags a plaintext connection-string password sitting in the file alongside the usual JSON syntax and duplicate-key checks.</p>
+    <p style="margin-top:14px;">Whichever source it comes from, the same validation applies before it reaches your app — check it with the <a href="../tools/appsettings-validator">appsettings.json Validator</a>, which flags a plaintext connection-string password sitting in the file alongside the usual JSON syntax and duplicate-key checks. If the database this connects to is managed with EF Core migrations, <a href="../guides/ef-core-migrations-already-up-to-date">a mismatched connection string is one more way <code>Update-Database</code> ends up confused about what's actually there</a>.</p>
   </section>
 
   <section class="notes">
