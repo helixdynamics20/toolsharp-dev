@@ -102,7 +102,8 @@
     { name: 'CSV / JSON Converter', path: '/tools/csv-json-converter' },
     { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter' },
     { name: 'Markdown Previewer', path: '/tools/markdown-previewer' },
-    { name: 'QR Code Generator', path: '/tools/qr-code-generator' }
+    { name: 'QR Code Generator', path: '/tools/qr-code-generator' },
+    { name: 'cURL Converter', path: '/tools/curl-converter' }
   ];
 
   var guidesList = [
@@ -359,7 +360,8 @@
           { name: 'GUID Formatter', path: 'tools/guid-formatter' },
           { name: 'Regex Tester', path: 'tools/regex-tester' },
           { name: 'Password Generator', path: 'tools/password-generator' },
-          { name: 'Base Converter', path: 'tools/base-converter' }
+          { name: 'Base Converter', path: 'tools/base-converter' },
+          { name: 'cURL Converter', path: 'tools/curl-converter' }
         ]
       }
     ];

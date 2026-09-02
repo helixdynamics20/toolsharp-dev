@@ -499,6 +499,15 @@ body.dark-theme .share-code-display { background: #18142a; border-color: var(--r
   font-size: 13px;
   text-align: center;
 }
+/* Same empty-state look as .empty above, but for a placeholder that lives
+   directly on the <pre> itself (curl-converter) rather than a sibling div,
+   since that pre is also the syntax-highlighted output once populated. */
+.output-block pre.output-empty {
+  padding: 30px 16px;
+  color: var(--ink-faint);
+  text-align: center;
+  white-space: normal;
+}
 
 /* JSON syntax highlighting -- shared across json-formatter, jwt-decoder,
    appsettings-validator, and any other tool that renders JSON output */
@@ -518,6 +527,27 @@ body.dark-theme .share-code-display { background: #18142a; border-color: var(--r
 .jt-bool { color: var(--violet); font-weight: 600; }
 .jt-null { color: var(--ink-faint); font-style: italic; }
 .jt-meta { color: var(--ink-soft); font-size: 12px; }
+
+/* Generic code syntax highlighting -- curl-converter's 7 output languages.
+   Same color vocabulary as the JSON tokens above (violet/green/amber/faint)
+   so "what a color means" stays consistent across every tool on the site. */
+.code-kw { color: var(--violet); font-weight: 600; }
+.code-str { color: var(--green); }
+.code-com { color: var(--ink-faint); font-style: italic; }
+.code-var { color: var(--amber); }
+
+/* Language select styled to match the site's own <select> elements
+   (color-converter, base-converter) instead of the bare browser default. */
+.lang-select {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 5px 8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: var(--ink);
+}
+.lang-select:hover { border-color: var(--violet); }
 
 .copy-btn {
   font-family: var(--mono);
