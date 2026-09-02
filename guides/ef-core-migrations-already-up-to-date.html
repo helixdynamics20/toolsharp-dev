@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"ef-core-migrations-already-up-to-date"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does EF Core say the database is already up to date when a migration didn't run?","acceptedAnswer":{"@type":"Answer","text":"Update-Database doesn't inspect your schema — it reads the __EFMigrationsHistory table and applies whatever migration isn't listed there. If that table says a migration already ran, EF Core believes it, even when the table or column it was supposed to create was never actually built."}},{"@type":"Question","name":"What causes EF Core migrations to get out of sync with the database?","acceptedAnswer":{"@type":"Answer","text":"The most common cause is context.Database.EnsureCreated() being called somewhere — it builds the schema directly from the model but never writes to __EFMigrationsHistory. The second cause is a migration missing its matching .Designer.cs file, which EF Core silently skips entirely."}},{"@type":"Question","name":"How do I check which EF Core migrations are actually applied?","acceptedAnswer":{"@type":"Answer","text":"dotnet ef migrations list marks each migration applied or pending based on __EFMigrationsHistory alone. Compare that against which tables/columns actually exist in the database to find the exact mismatch."}},{"@type":"Question","name":"How do I fix EF Core's migration history table manually?","acceptedAnswer":{"@type":"Answer","text":"Insert a row for the migration EF Core doesn't know ran, using that migration's own ID and a current EF Core version string. This tells EF Core the migration is already applied, so it moves on to whatever's genuinely missing instead of trying to recreate what already exists."}},{"@type":"Question","name":"Why does EnsureCreated() break Update-Database later?","acceptedAnswer":{"@type":"Answer","text":"EnsureCreated() builds a fully-formed schema without touching __EFMigrationsHistory. When migrations are introduced later, EF Core believes no migration has ever run and tries to recreate tables that already exist, which the database engine refuses."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -130,6 +133,30 @@ VALUES ('20260101000000_InitialCreate', '9.0.0');
   <section class="notes">
     <h2>// if this is part of a .NET 10 migration</h2>
     <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does EF Core say the database is already up to date when a migration didn't run?</summary>
+      <p><code>Update-Database</code> doesn't inspect your schema — it reads the <code>__EFMigrationsHistory</code> table and applies whatever migration isn't listed there. If that table says a migration already ran, EF Core believes it, even when the table or column it was supposed to create was never actually built.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What causes EF Core migrations to get out of sync with the database?</summary>
+      <p>The most common cause is <code>context.Database.EnsureCreated()</code> being called somewhere — it builds the schema directly from the model but never writes to <code>__EFMigrationsHistory</code>, since it's a separate code path from migrations entirely. The second cause is a migration missing its matching <code>.Designer.cs</code> file (deleted by hand, excluded by <code>.gitignore</code>, lost in a merge) — EF Core doesn't see a broken migration, it doesn't see one at all, and silently skips it.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I check which EF Core migrations are actually applied?</summary>
+      <p><code>dotnet ef migrations list</code> marks each migration [applied] or [pending] based on <code>__EFMigrationsHistory</code> alone. Compare that against which tables/columns actually exist in the database to find the exact mismatch.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I fix EF Core's migration history table manually?</summary>
+      <p>Insert a row for the migration EF Core doesn't know ran: <code>INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('&lt;migration id&gt;', '&lt;ef core version&gt;')</code>. This tells EF Core that migration is already applied, so it stops trying to recreate what already exists and moves on to whatever's genuinely missing.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does EnsureCreated() break Update-Database later?</summary>
+      <p><code>EnsureCreated()</code> builds a fully-formed schema without touching <code>__EFMigrationsHistory</code>. When migrations are introduced later, EF Core believes no migration has ever run — including the first one, which creates tables that already exist from <code>EnsureCreated()</code> — and the database engine refuses with an "already an object named X" error.</p>
+    </details>
   </section>
 </main>
 

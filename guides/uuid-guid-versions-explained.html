@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"uuid-guid-versions-explained"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the difference between UUID v4 and v7?","acceptedAnswer":{"@type":"Answer","text":"v4 is fully random. v7 puts a 48-bit Unix millisecond timestamp in the first 6 bytes, making values sortable by creation time. v7 is recommended for new systems because it fixes a real database index performance problem v4 causes."}},{"@type":"Question","name":"Why does using v4 UUIDs as a primary key hurt database performance?","acceptedAnswer":{"@type":"Answer","text":"A v4 UUID lands at a random position in a B-tree index on every insert, causing page splits and fragmentation at scale. Published benchmarks show v4 primary keys costing 30–50% more insert throughput than a sequential key, with roughly 25% larger index size."}},{"@type":"Question","name":"Are \"GUID\" and \"UUID\" the same thing?","acceptedAnswer":{"@type":"Answer","text":"In practice, yes — GUID is Microsoft's name for the same 128-bit format, and modern Guid.NewGuid() produces a standard RFC-compliant v4 UUID. Where they diverge is the raw bytes, not the string form."}},{"@type":"Question","name":"Why doesn't Guid.ToByteArray() match the RFC byte order?","acceptedAnswer":{"@type":"Answer","text":".NET stores a Guid's first three groups internally in little-endian order, while the RFC specifies big-endian. The mismatch appears when serializing to raw bytes and comparing against a non-.NET system. .NET 8 added ToByteArray(bigEndian: true) to produce RFC-correct bytes."}},{"@type":"Question","name":"When should I use a name-based UUID (v3/v5) instead of random?","acceptedAnswer":{"@type":"Answer","text":"When you need the same input to always produce the same UUID with no shared state or database lookup — v3 and v5 hash a namespace UUID plus a name string deterministically, useful for turning a known external key into a stable UUID-shaped identifier."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -145,6 +148,30 @@
     <h2>// "GUID" vs "UUID" — and the .NET byte-order trap</h2>
     <div class="comment-line"><span class="bar">│</span><p>GUID is Microsoft's name for the same 128-bit format — modern <code>Guid.NewGuid()</code> produces a standard RFC-compliant v4 UUID, so the terms are interchangeable in practice today. The <em>string</em> representation matches the RFC exactly. Where it diverges is the raw bytes.</p></div>
     <div class="callout error"><strong><code>Guid.ToByteArray()</code> does not return RFC byte order.</strong> .NET stores a Guid's first three groups (Data1, Data2, Data3) in little-endian order internally, while the RFC specifies big-endian (network byte order) throughout. The string form looks identical either way — the mismatch only appears once you serialize to raw bytes and compare against a non-.NET system (Java, Postgres's native <code>uuid</code> type, a byte-level API contract). .NET 8 added <code>ToByteArray(bigEndian: true)</code> specifically to produce RFC-correct bytes — worth using explicitly any time a GUID's byte representation crosses a system boundary, not just its string form.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>What's the difference between UUID v4 and v7?</summary>
+      <p>v4 is fully random — what <code>Guid.NewGuid()</code> and <code>crypto.randomUUID()</code> produce by default. v7 puts a 48-bit Unix millisecond timestamp in the first 6 bytes, making values sortable by creation time while keeping the rest random. v7 is recommended for new systems specifically because it fixes a real database index performance problem v4 causes.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does using v4 UUIDs as a primary key hurt database performance?</summary>
+      <p>A v4 UUID lands at a random position in a B-tree index on every insert. At millions of rows, every insert forces a random page read, pages fragment badly, and range scans degrade into random I/O. Published benchmarks show v4 primary keys costing 30–50% more insert throughput than a sequential key, with roughly 25% larger index size from the fragmentation.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Are "GUID" and "UUID" the same thing?</summary>
+      <p>In practice, yes — GUID is Microsoft's name for the same 128-bit format, and modern <code>Guid.NewGuid()</code> produces a standard RFC-compliant v4 UUID. The string representation matches the RFC exactly. Where they diverge is the raw bytes.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why doesn't Guid.ToByteArray() match the RFC byte order?</summary>
+      <p>.NET stores a Guid's first three groups internally in little-endian order, while the RFC specifies big-endian throughout. The string form looks identical either way, but the mismatch appears once you serialize to raw bytes and compare against a non-.NET system like Java or Postgres's native uuid type. .NET 8 added <code>ToByteArray(bigEndian: true)</code> specifically to produce RFC-correct bytes.</p>
+    </details>
+    <details class="faq-item">
+      <summary>When should I use a name-based UUID (v3/v5) instead of random?</summary>
+      <p>When you need the same input to always produce the same UUID, with no shared state or database lookup — v3 (MD5) and v5 (SHA-1) hash a namespace UUID plus a name string deterministically. Useful for turning a known external key, like an email or a legacy string ID, into a UUID-shaped identifier that's stable across services.</p>
+    </details>
   </section>
 
   <section class="notes">

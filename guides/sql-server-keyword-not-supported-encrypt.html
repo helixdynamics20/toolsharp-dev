@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"sql-server-keyword-not-supported-encrypt"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my connection string throw \"Keyword not supported\"?","acceptedAnswer":{"@type":"Answer","text":"A library mismatch, not a typo. System.Data.SqlClient and Microsoft.Data.SqlClient don't recognize the same keywords. Newer keywords like TrustServerCertificate exist in Microsoft.Data.SqlClient but throw this error if that same string reaches a System.Data.SqlClient connection instead."}},{"@type":"Question","name":"Why does my connection suddenly fail with a certificate trust error after a NuGet update?","acceptedAnswer":{"@type":"Answer","text":"Starting with Microsoft.Data.SqlClient 4.0, Encrypt defaults to true (mandatory) instead of false. A connection string with no Encrypt keyword behaved identically for years, then started failing once a NuGet update pulled in 4.0+."}},{"@type":"Question","name":"What does \"certificate chain was issued by an authority that is not trusted\" mean?","acceptedAnswer":{"@type":"Answer","text":"Most SQL Server instances outside of Azure use a self-signed certificate, which fails validation by design. It isn't a sign anything is broken on the server — it's the Encrypt=true default working as intended against an untrusted certificate."}},{"@type":"Question","name":"How do I fix a SQL Server certificate trust error?","acceptedAnswer":{"@type":"Answer","text":"Install a real, CA-trusted certificate on the server (best option); use Encrypt=True;TrustServerCertificate=True to stay encrypted while skipping validation, reasonable for internal networks; or set Encrypt=False to revert entirely, fine for localhost only."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -88,6 +91,26 @@
   <section class="notes">
     <h2>// build it correctly the first time</h2>
     <div class="comment-line"><span class="bar">│</span><p>The <a href="../tools/connection-string-builder">Connection String Builder</a> sets <code>Encrypt</code> and <code>TrustServerCertificate</code> explicitly and flags the combinations that commonly cause exactly these two errors, so the string it produces doesn't depend on whichever default happens to ship in whatever package version gets restored next.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does my connection string throw "Keyword not supported"?</summary>
+      <p>A library mismatch, not a typo. <code>System.Data.SqlClient</code> (the old provider) and <code>Microsoft.Data.SqlClient</code> (the actively developed successor) don't recognize the same keywords. Newer keywords like <code>TrustServerCertificate</code> exist in <code>Microsoft.Data.SqlClient</code> but throw this error if that same string reaches a <code>System.Data.SqlClient.SqlConnection</code> instead — check which package the exception actually came from rather than stripping the keyword out.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does my connection suddenly fail with a certificate trust error after a NuGet update?</summary>
+      <p>Starting with Microsoft.Data.SqlClient 4.0, <code>Encrypt</code> defaults to true (mandatory) — earlier versions defaulted it to false. A connection string with no <code>Encrypt</code> keyword behaved identically for years, then started failing once a NuGet update pulled in 4.0+, because encryption and certificate validation are now attempted by default.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does "certificate chain was issued by an authority that is not trusted" mean?</summary>
+      <p>Most SQL Server instances outside of Azure use a self-signed certificate, which fails validation by design. It isn't a sign anything is broken on the server — it's the Encrypt=true default doing exactly what it's supposed to do against a certificate nothing has told the client to trust.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I fix a SQL Server certificate trust error?</summary>
+      <p>Three options in order of preference: install a real, CA-trusted certificate on the SQL Server instance (the only option that gets you both encryption and validation); use <code>Encrypt=True;TrustServerCertificate=True</code> to stay encrypted while skipping certificate validation, reasonable for internal networks and local dev; or set <code>Encrypt=False</code> to revert to the old behavior entirely, fine for localhost only.</p>
+    </details>
   </section>
 </main>
 

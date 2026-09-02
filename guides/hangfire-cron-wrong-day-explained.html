@@ -38,6 +38,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"hangfire-cron-wrong-day-explained"}]}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a Hangfire cron job run on the wrong day even though it validates?","acceptedAnswer":{"@type":"Answer","text":"Almost always a day-of-week numbering mismatch, not a syntax error. Hangfire's Cronos engine accepts 0–7 where both 0 and 7 mean Sunday. Quartz.NET uses 1–7 where 1 means Sunday. Traditional Unix cron uses 0–6 where 0 means Sunday. Copying an example from the wrong dialect produces a valid expression that runs on a different day, with no error."}},{"@type":"Question","name":"What does 1 mean in Hangfire's day-of-week field?","acceptedAnswer":{"@type":"Answer","text":"Monday. Hangfire's Cronos engine treats 1 through 6 as Monday through Saturday, with 0 or 7 meaning Sunday — different from Quartz.NET, where 1 means Sunday."}},{"@type":"Question","name":"Does DayOfWeek.Monday in Cron.Weekly() use the same numbering as a raw cron string?","acceptedAnswer":{"@type":"Answer","text":"No conflict to worry about — using a helper like Cron.Weekly(DayOfWeek.Monday) uses .NET's own System.DayOfWeek enum, not a cron digit. This class of bug only exists for hand-written cron strings."}},{"@type":"Question","name":"How do I tell which cron dialect an expression uses?","acceptedAnswer":{"@type":"Answer","text":"Check whether the expression has a ? anywhere — only Quartz.NET uses it. No ? and it's a 5-field expression means standard cron, and for anything Hangfire runs, that's Cronos's 0–7 range."}}]}
+</script>
 </head>
 <body>
 <script src="../js/theme-init.js"></script>
@@ -101,6 +104,26 @@
       <li>No <code>?</code>, and it's a 5-field expression? It's standard cron — either Cronos's 0–7 or traditional 0–6, which only disagree on whether <code>7</code> is a second way to write Sunday or invalid. For anything Hangfire actually runs, that's Cronos.</li>
     </ol>
     <div class="comment-line"><span class="bar">│</span><p>When in doubt, don't count fields by hand — paste the expression into the <a href="../tools/cron-builder">Cron Builder &amp; Explainer</a> and it'll say which day it actually means, for both dialects, before anything gets deployed.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why does a Hangfire cron job run on the wrong day even though it validates?</summary>
+      <p>Almost always a day-of-week numbering mismatch, not a syntax error. Hangfire's Cronos engine accepts 0–7 where both 0 and 7 mean Sunday. Quartz.NET uses 1–7 where 1 means Sunday. Traditional Unix cron uses 0–6 where 0 means Sunday. Copying a "run every Monday" example from a Quartz.NET tutorial straight into a Hangfire expression makes the job run every Sunday instead, with no error, because the digit is valid in both systems — just a different day.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does 1 mean in Hangfire's day-of-week field?</summary>
+      <p>Monday. Hangfire's Cronos engine treats 1 through 6 as Monday through Saturday, with 0 or 7 meaning Sunday. This is different from Quartz.NET, where 1 means Sunday.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does DayOfWeek.Monday in Cron.Weekly() use the same numbering as a raw cron string?</summary>
+      <p>No conflict to worry about — using a helper like <code>Cron.Weekly(DayOfWeek.Monday)</code> uses .NET's own <code>System.DayOfWeek</code> enum, not a cron digit at all. <code>DayOfWeek.Sunday</code> is 0 and <code>DayOfWeek.Saturday</code> is 6, which happens to line up with Cronos's 0–6 range. This class of bug only exists for hand-written cron strings.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I tell which cron dialect an expression uses?</summary>
+      <p>Check whether the expression has a <code>?</code> anywhere — only Quartz.NET uses it, confirming the 1=Sunday convention applies. No <code>?</code> and it's a 5-field expression means standard cron, and for anything Hangfire actually runs, that's Cronos's 0–7 range. When in doubt, paste it into a tool that states the day explicitly rather than counting fields by hand.</p>
+    </details>
   </section>
 </main>
 
