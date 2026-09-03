@@ -37,6 +37,86 @@ fs.mkdirSync(path.join(distDir, 'guides'));
 fs.mkdirSync(path.join(distDir, 'assets'));
 fs.mkdirSync(path.join(distDir, 'api'));
 
+// Every tool/guide has to be registered in several hand-maintained places
+// (theme.js's command palette, theme.js's nav category dropdown, the
+// relevant index.html, sitemap.xml) with no single source of truth --
+// exactly the setup that already caused a real bug once (a new guide
+// missing from the palette). Rather than trust hand-editing to catch every
+// spot next time, this diffs each list against the actual .html files on
+// disk and fails the build the moment any one of them drifts, instead of
+// silently shipping a tool/guide that's reachable from some pages but not
+// others.
+function validateRegistration() {
+  const errors = [];
+
+  const toolFiles = fs.readdirSync(path.join(srcDir, 'tools'))
+    .filter(f => f.endsWith('.html') && f !== 'index.html')
+    .map(f => f.replace(/\.html$/, ''));
+  const guideFiles = fs.readdirSync(path.join(srcDir, 'guides'))
+    .filter(f => f.endsWith('.html') && f !== 'index.html')
+    .map(f => f.replace(/\.html$/, ''));
+
+  const themeJs = fs.readFileSync(path.join(srcDir, 'js/theme.js'), 'utf8');
+  const toolsIndexHtml = fs.readFileSync(path.join(srcDir, 'tools/index.html'), 'utf8');
+  const guidesIndexHtml = fs.readFileSync(path.join(srcDir, 'guides/index.html'), 'utf8');
+  const sitemap = fs.readFileSync(path.join(srcDir, 'sitemap.xml'), 'utf8');
+
+  const extractBetween = (text, startMarker, endMarker) => {
+    const start = text.indexOf(startMarker);
+    const end = text.indexOf(endMarker, start);
+    if (start === -1 || end === -1) return '';
+    return text.slice(start, end);
+  };
+
+  const toolsListBlock = extractBetween(themeJs, 'var toolsList = [', 'var guidesList = [');
+  const paletteTools = [...toolsListBlock.matchAll(/path:\s*'\/tools\/([^']+)'/g)].map(m => m[1]);
+
+  const guidesListBlock = extractBetween(themeJs, 'var guidesList = [', 'window.TOOLSHARP_TOOLS');
+  const paletteGuides = [...guidesListBlock.matchAll(/path:\s*'\/guides\/([^']+)'/g)].map(m => m[1]);
+
+  const categoriesBlock = extractBetween(themeJs, 'var categories = [', 'var dropdownContainer');
+  const navDropdownTools = [...categoriesBlock.matchAll(/path:\s*'tools\/([^']+)'/g)].map(m => m[1]);
+
+  const toolsIndexTools = [...toolsIndexHtml.matchAll(/data-row-href="\/tools\/([^"]+)"/g)].map(m => m[1]);
+  const guidesIndexGuides = [...guidesIndexHtml.matchAll(/data-row-href="\/guides\/([^"]+)"/g)].map(m => m[1]);
+
+  const sitemapTools = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/tools\/([^<]+)<\/loc>/g)].map(m => m[1]);
+  const sitemapGuides = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/guides\/([^<]+)<\/loc>/g)].map(m => m[1]);
+
+  function checkSet(kind, groundTruth, sets) {
+    for (const slug of groundTruth) {
+      for (const [name, list] of Object.entries(sets)) {
+        if (!list.includes(slug)) errors.push(`${kind} "${slug}" exists on disk but is missing from ${name}`);
+      }
+    }
+    for (const [name, list] of Object.entries(sets)) {
+      for (const slug of list) {
+        if (!groundTruth.includes(slug)) errors.push(`${kind} "${slug}" is referenced in ${name} but no such file exists in ${kind}s/`);
+      }
+    }
+  }
+
+  checkSet('tool', toolFiles, {
+    'theme.js command palette (toolsList)': paletteTools,
+    'theme.js nav dropdown (categories)': navDropdownTools,
+    'tools/index.html': toolsIndexTools,
+    'sitemap.xml': sitemapTools,
+  });
+  checkSet('guide', guideFiles, {
+    'theme.js command palette (guidesList)': paletteGuides,
+    'guides/index.html': guidesIndexGuides,
+    'sitemap.xml': sitemapGuides,
+  });
+
+  if (errors.length) {
+    console.error('\nRegistration consistency check failed -- build aborted:\n');
+    errors.forEach(e => console.error('  - ' + e));
+    console.error('\nEvery tool/guide must be registered in all of: theme.js (palette, and the nav dropdown for tools), the relevant index.html, and sitemap.xml.\n');
+    process.exit(1);
+  }
+  console.log(`Registration check passed: ${toolFiles.length} tools, ${guideFiles.length} guides, all in sync.`);
+}
+
 // Helper to ensure target directories exist
 function ensureDirectoryExistence(filePath) {
   const dirname = path.dirname(filePath);
@@ -184,6 +264,8 @@ async function processHtml() {
 }
 
 async function main() {
+  validateRegistration();
+
   // Bundle analytics module with esbuild -- using the JS API directly
   // (not execSync + npx) so the process.env.NODE_ENV define below is
   // passed as a real value, not shell-quoted text. A shelled-out

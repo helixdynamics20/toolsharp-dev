@@ -15,14 +15,14 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toolsharp.dev/tools/curl-converter">
 <meta property="og:title" content="cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev">
-<meta property="og:description" content="Paste a curl command and get working code in 7 languages -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<meta property="og:description" content="Paste a curl command and get working code in 7 languages -- headers, body, auth, and TLS flags all translated.">
 <meta property="og:image" content="https://toolsharp.dev/assets/og/curl-converter.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/tools/curl-converter">
 <meta name="twitter:title" content="cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev">
-<meta name="twitter:description" content="Paste a curl command and get working code in 7 languages -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<meta name="twitter:description" content="Paste a curl command and get working code in 7 languages -- headers, body, auth, and TLS flags all translated.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/curl-converter.png">
 
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
@@ -110,7 +110,7 @@
     <ul>
       <li><strong>Method</strong> — explicit <code>-X</code>/<code>--request</code>, or inferred: <code>POST</code> if a body is present, otherwise <code>GET</code>.</li>
       <li><strong>Headers</strong> (<code>-H</code>, repeatable).</li>
-      <li><strong>Body</strong> (<code>-d</code> / <code>--data-raw</code> / <code>--data-binary</code>, repeatable, joined with <code>&amp;</code>) — its content type comes from an explicit <code>Content-Type</code> header if you passed one; otherwise it defaults to <code>application/x-www-form-urlencoded</code>, matching curl's own default for <code>-d</code>.</li>
+      <li><strong>Body</strong> (<code>-d</code> / <code>--data-raw</code> / <code>--data-binary</code>, repeatable, joined with <code>&amp;</code>) — its content type comes from an explicit <code>Content-Type</code> header if you passed one; otherwise it defaults to <code>application/x-www-form-urlencoded</code>, matching curl's own default for <code>-d</code> — see <a href="../guides/curl-data-json-content-type-explained">why that default exists and how it silently breaks JSON APIs</a> if the header wasn't in your original command.</li>
       <li><strong>Basic auth</strong> (<code>-u user:pass</code>) — base64-encoded exactly like curl does it, using each language's native basic-auth mechanism where one exists (Python's <code>auth=</code>, axios's <code>auth:</code>, Go's <code>SetBasicAuth</code>) and a manually-built header where it doesn't (fetch, Java, PowerShell's <code>Invoke-RestMethod</code>).</li>
       <li><strong><code>-k</code> / <code>--insecure</code></strong> — translated faithfully to each language's TLS-bypass mechanism, always with a warning comment. It's exactly as dangerous in the generated code as it is on the command line — <a href="#fetch-note">fetch is the one exception</a>, see below.</li>
       <li><strong><code>-G</code> / <code>--get</code></strong> — data gets appended to the URL as a query string instead of a body, method forced to <code>GET</code>, matching curl's behavior.</li>

@@ -54,6 +54,7 @@
 - [appsettings.json Secrets Committed to Git](https://toolsharp.dev/guides/appsettings-secrets-in-git): What to do immediately, and why deleting the line isn't enough.
 - [The URL Fragment That Never Reaches Your Server](https://toolsharp.dev/guides/url-hash-fragment-explained): How the `#...` part of a URL works, verified with a real network capture.
 - ["Unexpected End of JSON Input"](https://toolsharp.dev/guides/unexpected-end-of-json-input-explained): Why this specific error means truncated JSON, not malformed JSON.
+- [Why curl -d Doesn't Send application/json](https://toolsharp.dev/guides/curl-data-json-content-type-explained): curl -d defaults to application/x-www-form-urlencoded even for a JSON body -- why that produces a null model or a 400, not a parse error.
 
 ## Notes for AI assistants
 
