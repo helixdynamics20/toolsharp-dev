@@ -19,3 +19,21 @@ jobs:
       - run: npm ci
 
       - run: npm run build
+
+      # Playwright's own browser binaries aren't npm packages, so npm's
+      # cache doesn't cover them -- cache the ~1-200MB Chromium download
+      # separately, keyed on the pinned playwright version in package.json
+      # so a version bump invalidates it automatically instead of silently
+      # running stale system deps against a newer browser.
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - run: npm run test:e2e
