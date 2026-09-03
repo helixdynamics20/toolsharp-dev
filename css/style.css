@@ -778,11 +778,19 @@ body.dark-theme input[type="text"],
 body.dark-theme input[type="email"],
 body.dark-theme input[type="password"],
 body.dark-theme input[type="number"],
+body.dark-theme input[type="datetime-local"],
 body.dark-theme select,
 body.dark-theme textarea {
   background: #18142a;
   color: var(--ink);
   border-color: var(--rule-strong);
+}
+/* Chromium/Firefox render the calendar/clock icon inside a
+   datetime-local input using the OS's own asset, which is dark-on-
+   transparent by default -- invisible against the dark background above
+   without this. */
+body.dark-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 body.dark-theme .diff-split-body {
