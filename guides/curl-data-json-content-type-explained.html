@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>Why curl -d Doesn't Send application/json — Even With a JSON Body — ToolSharp.dev</title>
+<meta name="description" content="curl -d sends Content-Type: application/x-www-form-urlencoded by default, even when the body you passed is JSON. Your API never sees application/json unless you set the header explicitly -- here's why that produces a null model or a 400, not a parse error.">
+<link rel="canonical" href="https://toolsharp.dev/guides/curl-data-json-content-type-explained">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/curl-data-json-content-type-explained">
+<meta property="og:title" content="Why curl -d Doesn't Send application/json — Even With a JSON Body">
+<meta property="og:description" content="curl -d sends Content-Type: application/x-www-form-urlencoded by default, even when the body you passed is JSON. Here's why that produces a null model or a 400, not a parse error.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/home.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/curl-data-json-content-type-explained">
+<meta name="twitter:title" content="Why curl -d Doesn't Send application/json — Even With a JSON Body">
+<meta name="twitter:description" content="curl -d sends Content-Type: application/x-www-form-urlencoded by default, even when the body you passed is JSON. Here's why that produces a null model or a 400, not a parse error.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/home.png">
+
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Why curl -d Doesn't Send application/json — Even With a JSON Body","url":"https://toolsharp.dev/guides/curl-data-json-content-type-explained","description":"curl -d sends Content-Type: application/x-www-form-urlencoded by default regardless of what the body actually contains -- why that silently breaks JSON APIs, and the one-line fix.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"curl-data-json-content-type-explained"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't curl -d send Content-Type: application/json automatically?","acceptedAnswer":{"@type":"Answer","text":"Because -d predates JSON as a web convention — it was built for HTML form submission, and curl still defaults its Content-Type to application/x-www-form-urlencoded regardless of what the body actually contains. curl never inspects the body to guess its format; it sends exactly the header you gave it, or that one default if you gave it none."}},{"@type":"Question","name":"What does my API actually receive when the Content-Type is wrong?","acceptedAnswer":{"@type":"Answer","text":"The real JSON text, byte for byte, labeled as a different format. Nothing about the body itself is corrupted — the server just never hands it to a JSON parser, because it trusts the Content-Type header to decide which parser to use, and that header says form data."}},{"@type":"Question","name":"Why does ASP.NET Core return 400 instead of a JSON parse error?","acceptedAnswer":{"@type":"Answer","text":"With [ApiController], a [FromBody] parameter that can't be bound is treated as a validation failure, not a parse failure — the framework never gets far enough to attempt parsing, so it returns its automatic 400 Bad Request / ProblemDetails response before your action method ever runs."}},{"@type":"Question","name":"Why did my Express req.body come back undefined instead of an error?","acceptedAnswer":{"@type":"Answer","text":"express.json() only parses the body when Content-Type matches application/json (or a type you explicitly configured it to accept). Any other Content-Type means the middleware skips the body entirely and leaves req.body undefined — silently, with no error — rather than rejecting the request."}},{"@type":"Question","name":"Does the cURL Converter fix this automatically?","acceptedAnswer":{"@type":"Answer","text":"No, and deliberately not — it translates your curl command faithfully, defaulting to application/x-www-form-urlencoded exactly when curl itself would, unless your command already includes an explicit Content-Type header. If the header's missing, the generated code reproduces the same bug rather than silently guessing what you meant."}}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">curl-data-json-content-type-explained</span></div>
+
+  <div class="tool-header">
+    <h1>Why curl -d Doesn't Send application/json</h1>
+    <p class="sub">You wrote <code>curl -d '{"name":"Ada"}' https://api.example.com/users</code>, the body is obviously JSON, and the API still rejects it. Nothing about the body is wrong — <code>-d</code> silently attaches <code>Content-Type: application/x-www-form-urlencoded</code> unless you tell it otherwise, and that header, not the body, is what your server actually trusts.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">curl</span>
+      <span class="badge">HTTP</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// what -d actually sends</h2>
+    <div class="comment-line"><span class="bar">│</span><p><code>-d</code>/<code>--data</code> is older than JSON being a common API format — it was built for submitting HTML forms, and curl has never changed its default to match how the flag gets used today. curl doesn't look at your body at all to decide the Content-Type; it just applies the same default every time you use <code>-d</code> without an explicit header.</p></div>
+
+    <div class="config-block">
+      <div class="tab">what you wrote vs. what actually goes over the wire</div>
+      <div class="body">
+        <div class="throws-label">the command</div>
+        <pre class="parse-call" style="margin:0;">curl -d '{"name":"Ada"}' https://api.example.com/users</pre>
+        <div class="throws-label">the request headers curl actually sends</div>
+        <pre class="throws-msg" style="margin:0;">POST /users HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 16
+
+{"name":"Ada"}</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">curl -H 'Content-Type: application/json' -d '{"name":"Ada"}' https://api.example.com/users</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">The body bytes are identical in both versions — real, valid JSON, byte for byte. Only the label changes. Your server picks which parser to run based on that label, not by inspecting the body, so a correct body with the wrong label gets handled as if it were the wrong body.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// what your API actually does with it</h2>
+    <div class="comment-line"><span class="bar">│</span><p>What happens next depends entirely on the framework, and it's rarely an error message that points anywhere near the real cause:</p></div>
+
+    <div class="config-block">
+      <div class="tab">framework-by-framework</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">ASP.NET Core, with <code>[ApiController]</code></span><span class="v">an unbindable <code>[FromBody]</code> parameter is treated as a validation failure — you get an automatic <code>400 Bad Request</code> / <code>ProblemDetails</code> response before your action method ever runs, with no mention of Content-Type anywhere in it</span></div>
+        <div class="result-item"><span class="k">ASP.NET Core, without <code>[ApiController]</code></span><span class="v">no automatic validation exists, so the parameter can bind to <code>null</code> silently — your method runs, and the first thing that touches the parameter throws a <code>NullReferenceException</code> that looks unrelated to the actual request</span></div>
+        <div class="result-item"><span class="k">Express + <code>express.json()</code></span><span class="v">the middleware only parses a body when Content-Type matches <code>application/json</code>; anything else leaves <code>req.body</code> <code>undefined</code>, with no error raised at all</span></div>
+      </div>
+    </div>
+
+    <div class="callout error">None of these produce a message that says "wrong Content-Type." A 400 with no obvious cause, or a null/undefined body that shouldn't be null, is the actual symptom — the header is the thing to check first, before assuming the body itself is malformed.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// why Postman and fetch don't have this problem</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Postman's body editor sets Content-Type for you based on which mode you picked (raw + JSON sets <code>application/json</code> automatically), and <code>fetch</code>/<code>axios</code> do the same when you pass an object instead of a raw string. If you tested an endpoint in Postman first and then hand-wrote the equivalent curl command, this is exactly the gap — Postman was quietly doing something curl never does on its own.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// the cURL Converter reproduces this faithfully, not silently</h2>
+    <div class="comment-line"><span class="bar">│</span><p>The <a href="../tools/curl-converter">cURL Converter</a> defaults generated request code to <code>application/x-www-form-urlencoded</code> under exactly the same condition curl does — no explicit <code>Content-Type</code> header in the command you pasted. It doesn't try to detect that your body "looks like JSON" and quietly fix it, because guessing wrong in the other direction (assuming JSON when a real form submission was intended) would be its own silent bug. If the generated code's Content-Type looks wrong, the fix is the same one-line addition to the original curl command: add <code>-H 'Content-Type: application/json'</code>, then reconvert.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why doesn't curl -d send Content-Type: application/json automatically?</summary>
+      <p>Because <code>-d</code> predates JSON as a web convention — it was built for HTML form submission, and curl still defaults its Content-Type to <code>application/x-www-form-urlencoded</code> regardless of what the body actually contains. curl never inspects the body to guess its format; it sends exactly the header you gave it, or that one default if you gave it none.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does my API actually receive when the Content-Type is wrong?</summary>
+      <p>The real JSON text, byte for byte, labeled as a different format. Nothing about the body itself is corrupted — the server just never hands it to a JSON parser, because it trusts the Content-Type header to decide which parser to use, and that header says form data.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why does ASP.NET Core return 400 instead of a JSON parse error?</summary>
+      <p>With <code>[ApiController]</code>, a <code>[FromBody]</code> parameter that can't be bound is treated as a validation failure, not a parse failure — the framework never gets far enough to attempt parsing, so it returns its automatic <code>400 Bad Request</code> / <code>ProblemDetails</code> response before your action method ever runs.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Why did my Express req.body come back undefined instead of an error?</summary>
+      <p><code>express.json()</code> only parses the body when Content-Type matches <code>application/json</code> (or a type you explicitly configured it to accept). Any other Content-Type means the middleware skips the body entirely and leaves <code>req.body</code> undefined — silently, with no error — rather than rejecting the request.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does the cURL Converter fix this automatically?</summary>
+      <p>No, and deliberately not — it translates your curl command faithfully, defaulting to <code>application/x-www-form-urlencoded</code> exactly when curl itself would, unless your command already includes an explicit Content-Type header. If the header's missing, the generated code reproduces the same bug rather than silently guessing what you meant.</p>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
