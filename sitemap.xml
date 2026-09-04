@@ -49,4 +49,5 @@
   <url><loc>https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/curl-data-json-content-type-explained</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

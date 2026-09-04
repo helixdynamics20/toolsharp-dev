@@ -105,7 +105,7 @@
 
   <section class="notes">
     <h2>// this lands in the same migration wave as the EF Core work</h2>
-    <div class="comment-line"><span class="bar">│</span><p>If you're moving to .NET 10 because of the November 2026 end-of-support deadline and also run EF Core migrations against the same database, <a href="../guides/ef-core-migrations-already-up-to-date">the migrations-history mismatch covered here</a> is worth checking in the same pass — both are the kind of change that doesn't show up until something's already been running in production for a while. For the general rules around UTC and epoch time this bug intersects with, see the <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time guide</a>.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>If you're moving to .NET 10 because of the November 2026 end-of-support deadline and also run EF Core migrations against the same database, <a href="../guides/ef-core-migrations-already-up-to-date">the migrations-history mismatch covered here</a> and <a href="../guides/ef-core-10-complex-type-column-renaming">EF Core 10's complex-type column renaming</a> are both worth checking in the same pass — all three are the kind of change that doesn't show up until something's already been running in production for a while. For the general rules around UTC and epoch time this bug intersects with, see the <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time guide</a>.</p></div>
   </section>
 
   <section class="notes">

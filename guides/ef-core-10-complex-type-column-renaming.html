@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-2086099472319988">
+<title>EF Core 10: Why Your Next Migration Renames Columns You Didn't Touch — ToolSharp.dev</title>
+<meta name="description" content="EF Core 10 changed how complex-type columns are named: collisions that used to silently share one column now get a numeric suffix, and nested types use the full property path.">
+<link rel="canonical" href="https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#6C4CE0">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming">
+<meta property="og:title" content="EF Core 10: Why Your Next Migration Renames Columns You Didn't Touch">
+<meta property="og:description" content="EF Core 10 changed how complex-type columns are named: collisions that used to silently share one column now get a numeric suffix, and nested types use the full property path.">
+<meta property="og:image" content="https://toolsharp.dev/assets/og/guide-ef-core-10-complex-type-column-renaming.png">
+<meta property="og:site_name" content="ToolSharp.dev">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming">
+<meta name="twitter:title" content="EF Core 10: Why Your Next Migration Renames Columns You Didn't Touch">
+<meta name="twitter:description" content="EF Core 10 changed how complex-type columns are named: collisions that used to silently share one column now get a numeric suffix, and nested types use the full property path.">
+<meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-ef-core-10-complex-type-column-renaming.png">
+
+<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/theme.js" defer></script>
+<script src="../js/utils.js" defer></script>
+<script src="../js/speed-insights.js" defer></script>
+<script type="module" src="../js/analytics.bundle.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"EF Core 10: Why Your Next Migration Renames Columns You Didn't Touch","url":"https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming","description":"Two related EF Core 10 breaking changes to complex-type column naming -- colliding names are now uniquified with a numeric suffix instead of silently sharing a column, and nested complex types use the full property path.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"toolsharp.dev","item":"https://toolsharp.dev/"},{"@type":"ListItem","position":2,"name":"guides","item":"https://toolsharp.dev/guides"},{"@type":"ListItem","position":3,"name":"ef-core-10-complex-type-column-renaming"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why did dotnet ef migrations add rename columns I never touched after upgrading to EF Core 10?","acceptedAnswer":{"@type":"Answer","text":"EF Core 10 changed how it names columns for complex types in two ways: it now appends a numeric suffix when two complex-type properties would otherwise map to the same column name, and nested complex types now use the full property path instead of just the nested type's name. Neither requires you to have changed your model -- the new migration is EF Core re-deriving names under the new rules."}},{"@type":"Question","name":"Is the EF Core 10 complex type column naming change fixing a real bug?","acceptedAnswer":{"@type":"Answer","text":"Yes for the collision case. Before EF Core 10, if two different complex-type properties resolved to the same column name, EF Core let them silently share one physical column -- writes to one property could overwrite the other. EF Core 10 detects the collision and appends a numeric suffix so each property gets its own column instead."}},{"@type":"Question","name":"How do I keep my existing EF Core column names after upgrading to EF Core 10?","acceptedAnswer":{"@type":"Answer","text":"Configure the column name explicitly with HasColumnName on each affected property inside ComplexProperty(). Explicit configuration always wins over the automatic naming rules, so this works whether the rename came from the uniquification suffix or the new nested full-path naming."}},{"@type":"Question","name":"What is a complex type in EF Core?","acceptedAnswer":{"@type":"Answer","text":"A complex type is a class mapped as part of its owning entity rather than as its own table -- its properties become columns on the entity's table, prefixed by the complex property's name by default (for example, an Address complex type on a ShippingAddress property produces ShippingAddress_Street). They were introduced as a first-class concept in EF Core 8."}}]}
+</script>
+</head>
+<body>
+<script src="../js/theme-init.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
+    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">ef-core-10-complex-type-column-renaming</span></div>
+
+  <div class="tool-header">
+    <h1>EF Core 10 Renamed Columns You Didn't Touch</h1>
+    <p class="sub">You upgrade to EF Core 10, run <code>dotnet ef migrations add</code> out of habit, and it generates a migration that renames columns on a model you didn't change at all. This isn't a bug in your project — it's two related breaking changes to how EF Core names <a href="https://learn.microsoft.com/en-us/ef/core/modeling/complex-types">complex type</a> columns, both aimed at closing the same class of silent bug.</p>
+    <div class="badges">
+      <span class="badge">reference guide</span>
+      <span class="badge">EF Core</span>
+      <span class="badge">.NET 10</span>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>// change 1 — colliding column names no longer silently share a column</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A complex type's properties become columns on the owning entity's table. If two different complex-type properties end up resolved to the <em>same</em> column name — commonly because both were given the same explicit <code>HasColumnName</code> — earlier EF Core versions let them share that one physical column without complaint. Writing to one property could silently overwrite what the other one had stored, because as far as the database was concerned, they were never two things.</p></div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">what actually happens, step by step</div>
+      <div class="body">
+        <div class="throws-label">the model</div>
+        <pre class="parse-call" style="margin:0;">public class Customer
+{
+    public int Id { get; set; }
+    public Address ShippingAddress { get; set; }
+    public Address BillingAddress { get; set; }
+}
+
+public class Address
+{
+    public string Street { get; set; }
+}
+
+modelBuilder.Entity&lt;Customer&gt;(b =&gt;
+{
+    b.ComplexProperty(c =&gt; c.ShippingAddress, p =&gt; p.Property(a =&gt; a.Street).HasColumnName("Street"));
+    b.ComplexProperty(c =&gt; c.BillingAddress,  p =&gt; p.Property(a =&gt; a.Street).HasColumnName("Street"));
+});</pre>
+        <div class="throws-label">on EF Core 9 and earlier</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Both ComplexProperty calls map to the same "Street" column. No error at migration time, no error at runtime -- customer.ShippingAddress.Street and customer.BillingAddress.Street silently read and write the exact same value.</pre>
+        <div class="throws-label">on EF Core 10, after upgrading</div>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">dotnet ef migrations add PostUpgradeCheck generates a migration renaming one of the columns --
+e.g. "Street" stays for ShippingAddress, BillingAddress's Street becomes "Street1" --
+so the two properties finally get separate storage instead of quietly sharing one.</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">This is the change worth reading the migration diff for, not just applying it: EF Core just told you two properties were colliding on one column. If that table already has rows, the newly-separated column starts out with whatever the shared column already held — check whether that's actually the right data for both properties before trusting it.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// change 2 — nested complex types now use the full property path</h2>
+    <div class="comment-line"><span class="bar">│</span><p>A complex type can itself contain another complex type. Before EF Core 10, a nested complex type's columns were named from the nested type alone, dropping the outer property entirely — so <code>Order.ShippingAddress.Coordinates.Lat</code> mapped to a column named just <code>Coordinates_Lat</code>, identical to whatever <code>Order.BillingAddress.Coordinates.Lat</code> would also produce. Same silent-collision risk as change 1, just one level deeper in the object graph.</p></div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the model that triggers it</div>
+      <div class="body">
+        <pre class="parse-call" style="margin:0;">public class Order
+{
+    public int Id { get; set; }
+    public Address ShippingAddress { get; set; }
+    public Address BillingAddress { get; set; }
+}
+
+public class Address
+{
+    public string Street { get; set; }
+    public GeoCoordinates Coordinates { get; set; }   // a complex type nested inside a complex type
+}
+
+public class GeoCoordinates
+{
+    public double Lat { get; set; }
+    public double Lng { get; set; }
+}</pre>
+      </div>
+    </div>
+
+    <div class="config-block">
+      <div class="tab">the column name itself, before vs. after</div>
+      <div class="result-list">
+        <div class="result-item"><span class="k">EF Core 9 and earlier</span><span class="v"><code>Coordinates_Lat</code> — just the nested type's name, so <code>ShippingAddress.Coordinates.Lat</code> and <code>BillingAddress.Coordinates.Lat</code> resolve to the identical column name</span></div>
+        <div class="result-item"><span class="k">EF Core 10</span><span class="v"><code>ShippingAddress_Coordinates_Lat</code> and <code>BillingAddress_Coordinates_Lat</code> — the full path from the entity down, so the two stay distinct on their own</span></div>
+      </div>
+    </div>
+
+    <div class="callout ok">If you never nest one complex type inside another, this specific change doesn't affect you — only change 1 (the uniquification suffix) can still apply to top-level complex properties.</div>
+  </section>
+
+  <section class="notes">
+    <h2>// keeping your existing column names</h2>
+    <div class="comment-line"><span class="bar">│</span><p>Both changes only kick in when EF Core is deriving a name on its own. Explicit configuration always wins, on any EF Core version — so if a rename would break existing views, reports, or raw SQL that reference the old column name, pin it down instead of letting the migration go through:</p></div>
+    <div class="config-block">
+      <div class="tab">pin the column name explicitly, at any nesting depth</div>
+      <div class="body">
+        <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap;">modelBuilder.Entity&lt;Order&gt;()
+    .ComplexProperty(e =&gt; e.ShippingAddress)
+    .ComplexProperty(o =&gt; o.Coordinates)
+    .Property(c =&gt; c.Lat)
+    .HasColumnName("Coordinates_Lat");   // keeps the pre-EF-Core-10 name on purpose</pre>
+      </div>
+    </div>
+    <div class="comment-line"><span class="bar">│</span><p>Either way, treat the migration EF Core generates right after the upgrade as a diagnostic, not a formality: it's pointing at every complex-type column name that changed, which is also exactly the set of names that were ambiguous before you upgraded.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// if this is part of a wider .NET 10 migration</h2>
+    <div class="comment-line"><span class="bar">│</span><p>This tends to surface in the same sitting as other EF Core migration cleanup — if <code>Update-Database</code> is also reporting <a href="../guides/ef-core-migrations-already-up-to-date">nothing to apply when it should be</a>, that's a separate, unrelated mismatch worth ruling out first. And if the database involved is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — the same class of bug as this one: code that still runs, just resolves differently now.</p></div>
+  </section>
+
+  <section class="notes">
+    <h2>// frequently asked questions</h2>
+    <details class="faq-item">
+      <summary>Why did dotnet ef migrations add rename columns I never touched after upgrading to EF Core 10?</summary>
+      <p>EF Core 10 changed how it names columns for complex types in two ways: it now appends a numeric suffix when two complex-type properties would otherwise map to the same column name, and nested complex types now use the full property path instead of just the nested type's name. Neither requires you to have changed your model — the new migration is EF Core re-deriving names under the new rules.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is the EF Core 10 complex type column naming change fixing a real bug?</summary>
+      <p>Yes for the collision case. Before EF Core 10, if two different complex-type properties resolved to the same column name, EF Core let them silently share one physical column — writes to one property could overwrite the other. EF Core 10 detects the collision and appends a numeric suffix so each property gets its own column instead.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I keep my existing EF Core column names after upgrading to EF Core 10?</summary>
+      <p>Configure the column name explicitly with <code>HasColumnName</code> on each affected property inside <code>ComplexProperty()</code>. Explicit configuration always wins over the automatic naming rules, so this works whether the rename came from the uniquification suffix or the new nested full-path naming.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What is a complex type in EF Core?</summary>
+      <p>A complex type is a class mapped as part of its owning entity rather than as its own table — its properties become columns on the entity's table, prefixed by the complex property's name by default (for example, an <code>Address</code> complex type on a <code>ShippingAddress</code> property produces <code>ShippingAddress_Street</code>). They were introduced as a first-class concept in EF Core 8.</p>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><a href="../">← toolsharp.dev</a></span>
+    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
+    <span>runs entirely in your browser</span>
+  </div>
+</footer>
+
+</body>
+</html>
