@@ -37,3 +37,9 @@ jobs:
         run: npx playwright install-deps chromium
 
       - run: npm run test:e2e
+
+      # Only on an actual push to main -- a PR build isn't live yet, so
+      # pinging IndexNow from one would tell Bing about URLs that may not
+      # even be reachable (a branch that never merges, or hasn't deployed).
+      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: npm run indexnow

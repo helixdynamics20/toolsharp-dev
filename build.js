@@ -137,7 +137,8 @@ const staticFiles = [
   'LICENSE',
   'manifest.json',
   'ads.txt',
-  'llms.txt'
+  'llms.txt',
+  '7d651288514fb3e2d4dbc8ae19450700.txt'
 ];
 
 staticFiles.forEach(file => {
