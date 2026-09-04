@@ -132,7 +132,7 @@ VALUES ('20260101000000_InitialCreate', '9.0.0');
 
   <section class="notes">
     <h2>// if this is part of a .NET 10 migration</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now. If the model involved uses complex types, EF Core 10 also <a href="../guides/ef-core-10-complex-type-column-renaming">changed how their columns get named</a>, which is a separate reason a post-upgrade migration can show unexpected renames.</p></div>
   </section>
 
   <section class="notes">
