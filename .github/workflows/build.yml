@@ -41,5 +41,17 @@ jobs:
       # Only on an actual push to main -- a PR build isn't live yet, so
       # pinging IndexNow from one would tell Bing about URLs that may not
       # even be reachable (a branch that never merges, or hasn't deployed).
+      #
+      # continue-on-error is deliberate: IndexNow is a best-effort push to
+      # a third-party service, not a correctness check on this repo's own
+      # code -- a backend hiccup on Bing's end (seen for real: a 403
+      # "UserForbiddedToAccessSite" with the key file confirmed live,
+      # correct, and 200-ing the whole time; Microsoft's own support forum
+      # has reports of the same error with everything configured
+      # correctly, requiring their backend support to resolve) should
+      # never block a merge or hide a real E2E failure behind an
+      # unrelated red X. The step still shows failed in the log for
+      # visibility -- it just doesn't fail the job.
       - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: npm run indexnow
+        continue-on-error: true
