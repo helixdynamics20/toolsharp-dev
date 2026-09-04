@@ -73,22 +73,22 @@
       <div class="tab">what actually happens, step by step</div>
       <div class="body">
         <div class="throws-label">the model</div>
-        <pre class="parse-call" style="margin:0;">public class Customer
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">public</span> <span class="code-kw">class</span> Customer
 {
-    public int Id { get; set; }
-    public Address ShippingAddress { get; set; }
-    public Address BillingAddress { get; set; }
+    <span class="code-kw">public</span> <span class="code-kw">int</span> Id { get; set; }
+    <span class="code-kw">public</span> Address ShippingAddress { get; set; }
+    <span class="code-kw">public</span> Address BillingAddress { get; set; }
 }
 
-public class Address
+<span class="code-kw">public</span> <span class="code-kw">class</span> Address
 {
-    public string Street { get; set; }
+    <span class="code-kw">public</span> <span class="code-kw">string</span> Street { get; set; }
 }
 
 modelBuilder.Entity&lt;Customer&gt;(b =&gt;
 {
-    b.ComplexProperty(c =&gt; c.ShippingAddress, p =&gt; p.Property(a =&gt; a.Street).HasColumnName("Street"));
-    b.ComplexProperty(c =&gt; c.BillingAddress,  p =&gt; p.Property(a =&gt; a.Street).HasColumnName("Street"));
+    b.ComplexProperty(c =&gt; c.ShippingAddress, p =&gt; p.Property(a =&gt; a.Street).HasColumnName(<span class="code-str">"Street"</span>));
+    b.ComplexProperty(c =&gt; c.BillingAddress,  p =&gt; p.Property(a =&gt; a.Street).HasColumnName(<span class="code-str">"Street"</span>));
 });</pre>
         <div class="throws-label">on EF Core 9 and earlier</div>
         <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Both ComplexProperty calls map to the same "Street" column. No error at migration time, no error at runtime -- customer.ShippingAddress.Street and customer.BillingAddress.Street silently read and write the exact same value.</pre>
@@ -109,23 +109,23 @@ so the two properties finally get separate storage instead of quietly sharing on
     <div class="config-block" style="margin-top:14px;">
       <div class="tab">the model that triggers it</div>
       <div class="body">
-        <pre class="parse-call" style="margin:0;">public class Order
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">public</span> <span class="code-kw">class</span> Order
 {
-    public int Id { get; set; }
-    public Address ShippingAddress { get; set; }
-    public Address BillingAddress { get; set; }
+    <span class="code-kw">public</span> <span class="code-kw">int</span> Id { get; set; }
+    <span class="code-kw">public</span> Address ShippingAddress { get; set; }
+    <span class="code-kw">public</span> Address BillingAddress { get; set; }
 }
 
-public class Address
+<span class="code-kw">public</span> <span class="code-kw">class</span> Address
 {
-    public string Street { get; set; }
-    public GeoCoordinates Coordinates { get; set; }   // a complex type nested inside a complex type
+    <span class="code-kw">public</span> <span class="code-kw">string</span> Street { get; set; }
+    <span class="code-kw">public</span> GeoCoordinates Coordinates { get; set; }   <span class="code-com">// a complex type nested inside a complex type</span>
 }
 
-public class GeoCoordinates
+<span class="code-kw">public</span> <span class="code-kw">class</span> GeoCoordinates
 {
-    public double Lat { get; set; }
-    public double Lng { get; set; }
+    <span class="code-kw">public</span> <span class="code-kw">double</span> Lat { get; set; }
+    <span class="code-kw">public</span> <span class="code-kw">double</span> Lng { get; set; }
 }</pre>
       </div>
     </div>
@@ -151,7 +151,7 @@ public class GeoCoordinates
     .ComplexProperty(e =&gt; e.ShippingAddress)
     .ComplexProperty(o =&gt; o.Coordinates)
     .Property(c =&gt; c.Lat)
-    .HasColumnName("Coordinates_Lat");   // keeps the pre-EF-Core-10 name on purpose</pre>
+    .HasColumnName(<span class="code-str">"Coordinates_Lat"</span>);   <span class="code-com">// keeps the pre-EF-Core-10 name on purpose</span></pre>
       </div>
     </div>
     <div class="comment-line"><span class="bar">│</span><p>Either way, treat the migration EF Core generates right after the upgrade as a diagnostic, not a formality: it's pointing at every complex-type column name that changed, which is also exactly the set of names that were ambiguous before you upgraded.</p></div>
