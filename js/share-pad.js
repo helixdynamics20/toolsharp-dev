@@ -177,8 +177,20 @@ async function generateShare() {
     }
     
     // 2. Generate sharing credentials
+    //
+    // Cleared up front, before the network call: on a retry after an
+    // earlier successful share, these fields still hold that *previous*
+    // share's code/link. If this attempt then fails, leaving them in place
+    // would show a code that looks like it belongs to the text just typed
+    // but actually still decrypts to the old one, with nothing on screen
+    // saying it's stale.
+    document.getElementById('shareCodeA').textContent = '';
+    document.getElementById('shareCodeB').textContent = '';
+    document.getElementById('shareCode').dataset.copyValue = '';
+    document.getElementById('shareLink').value = '';
+
     let code = generateCode();
-    
+
     // Encrypt client-side using the 6-digit code itself as the key
     const encryptedText = await encryptPayload(val, code);
     
