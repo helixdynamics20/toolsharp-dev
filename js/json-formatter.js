@@ -230,6 +230,21 @@ function logStructuralDelta(before, after, originalText) {
   if (braceDelta > 0) logRepairChange('struct-brace', 'Inserted {n} missing brace{s}', originalText, null, braceDelta);
   if (bracketDelta > 0) logRepairChange('struct-bracket', 'Inserted {n} missing bracket{s}', originalText, null, bracketDelta);
 }
+
+// A word that Number() parses fine (so it reaches this point) can still be
+// invalid JSON syntax: JSON permits a leading "-" but never "+", and
+// requires at least one digit before a decimal point ("0.5", not ".5").
+// Passing one of these through unchanged would leave the "repaired"
+// output still failing to parse.
+function normalizeJsonNumberSyntax(word) {
+  let sign = '';
+  let w = word;
+  if (w[0] === '+') { w = w.slice(1); }
+  else if (w[0] === '-') { sign = '-'; w = w.slice(1); }
+  if (w[0] === '.') { w = '0' + w; }
+  return sign + w;
+}
+
 function tryRepairJson(text) {
   resetRepairLog();
 
@@ -377,8 +392,18 @@ function tryRepairJson(text) {
         output += 'null';
       } else if (word === 'true' || word === 'false' || word === 'null') {
         output += word;
+      } else if (word === 'Infinity' || word === '-Infinity' || word === 'NaN') {
+        // Valid in JS (and what JSON.stringify() itself falls back to
+        // null for), never valid in JSON -- without this, these three
+        // passed the isNaN(Number(word)) check below (Number('Infinity')
+        // is a real, non-NaN value) and were written through unchanged,
+        // so the "repaired" output still failed to parse.
+        logRepairChange('non-finite', 'Converted {n} non-finite number{s} (Infinity/-Infinity/NaN) to null', text, wordStart);
+        output += 'null';
       } else if (!isNaN(Number(word))) {
-        output += word;
+        const normalized = normalizeJsonNumberSyntax(word);
+        if (normalized !== word) logRepairChange('number-syntax', 'Fixed {n} number{s} not valid in JSON (leading + or missing 0 before a decimal point)', text, wordStart);
+        output += normalized;
       } else {
         logRepairChange('bare-word', 'Quoted {n} unquoted key/value{s}', text, wordStart);
         output += '"' + word + '"';
@@ -463,6 +488,13 @@ function repairTokenStructure(tokens) {
     newTop.state = 'comma';
     newTop.empty = false;
   }
+  // Plain text of a token, quotes/escaping stripped -- used to rejoin
+  // consecutive bare words back into one string (see the 'key' state
+  // below).
+  function rawValueOf(tok) {
+    if (tok.type === 'STRING') return tok.value.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    return tok.value;
+  }
 
   let idx = 0;
   let guard = 0;
@@ -483,8 +515,26 @@ function repairTokenStructure(tokens) {
     if (top.type === 'obj') {
       if (top.state === 'key') {
         if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
-        if (tok.type === 'STRING') { out.push(tok); top.state = 'colon'; idx++; continue; }
-        if (tok.type === 'LITERAL') { out.push({ type: 'STRING', value: '"' + tok.value.replace(/"/g, '\\"') + '"' }); top.state = 'colon'; idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') {
+          // Consecutive bare words/strings with nothing but whitespace
+          // between them, still expecting a key, almost always means the
+          // key itself contains a space and lost its quotes (e.g.
+          // {first name: "John"}) -- a key position can only ever be
+          // followed by a colon in valid JSON, so "two keys in a row"
+          // isn't a real alternative reading. Joining them into one key
+          // beats quoting each separately and fabricating a comma + a
+          // null value between them, which silently produced wrong data
+          // that still looked like it had parsed successfully.
+          const parts = [rawValueOf(tok)];
+          idx++;
+          while (idx < tokens.length && (tokens[idx].type === 'STRING' || tokens[idx].type === 'LITERAL')) {
+            parts.push(rawValueOf(tokens[idx]));
+            idx++;
+          }
+          out.push({ type: 'STRING', value: '"' + parts.join(' ').replace(/"/g, '\\"') + '"' });
+          top.state = 'colon';
+          continue;
+        }
         idx++; continue; // stray comma/colon while expecting a key
       }
       if (top.state === 'colon') {
@@ -787,11 +837,16 @@ function convertToYaml() {
       const val = obj[key];
       const valStr = jsonToYaml(val, depth + 1);
       const prefix = index === 0 && depth > 0 ? '' : spacing;
-      
+      // A JSON key is always a string, but YAML has no such restriction --
+      // an unquoted key like "true" or "123" is parsed back as a boolean or
+      // number, silently changing type on round-trip. Same guard already
+      // used for values below, applied to keys too.
+      const keyStr = yamlNeedsQuoting(key) ? yamlEscapeString(key) : key;
+
       if (typeof val === 'object' && val !== null) {
-        return `${prefix}${key}:${valStr}`;
+        return `${prefix}${keyStr}:${valStr}`;
       } else {
-        return `${prefix}${key}: ${valStr}`;
+        return `${prefix}${keyStr}: ${valStr}`;
       }
     }).join('\n');
   }
