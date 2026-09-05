@@ -604,10 +604,15 @@ function repairStructuralIssues(text) {
 
 let _pendingAutoFixNote = false;
 
-function repairAndUpdateInput() {
-  const inputEl = document.getElementById('jsonInput');
-  const text = inputEl.value;
-  if (!text.trim()) return false;
+// Computes the repaired JSON without touching the input box -- the input
+// is what the user actually pasted/typed, and it should stay that way so
+// they can still see what they started with (and re-run Auto-fix, or edit
+// and retry, without losing it). This used to overwrite #jsonInput with
+// the repaired text directly, which meant a click on "Auto-fix it" quietly
+// replaced whatever the user had typed.
+function computeRepairedJson() {
+  const text = document.getElementById('jsonInput').value;
+  if (!text.trim()) return null;
 
   let wasAlreadyValid = false;
   try { JSON.parse(text); wasAlreadyValid = true; } catch (_) {}
@@ -615,27 +620,51 @@ function repairAndUpdateInput() {
   const repaired = tryRepairJson(text);
   // the structural pass reconstructs the token stream flat (single spaces
   // between tokens) since it doesn't track original indentation -- pretty
-  // print it back so the input box doesn't turn into a squished one-liner
-  let toSet = repaired;
+  // print it back rather than showing a squished one-liner
+  let formatted = repaired;
   try {
-    toSet = JSON.stringify(JSON.parse(repaired), null, getIndent());
+    formatted = JSON.stringify(JSON.parse(repaired), null, getIndent());
   } catch (_) {
     // repair didn't fully succeed -- fall back to the raw attempt as-is
   }
 
-  inputEl.value = toSet;
   _pendingAutoFixNote = !wasAlreadyValid;
-  return true;
+  return formatted;
+}
+
+function renderRepairedOutput(formatted) {
+  let parsed;
+  try {
+    parsed = JSON.parse(formatted);
+  } catch (e) {
+    renderResult([{ type: 'error', msg: 'Could not fully repair: ' + escapeHtml(e.message) }]);
+    return;
+  }
+  const checks = [{ type: 'ok', msg: 'Valid JSON.' }];
+  const isStrict = document.getElementById('jsonStrict').checked;
+  const dupes = isStrict ? findDuplicateKeys(formatted) : [];
+  if (dupes.length) {
+    checks.push({ type: 'warn', msg: `Duplicate key(s) within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — the last one silently wins in valid JSON.` });
+  }
+  if (_pendingAutoFixNote) {
+    _pendingAutoFixNote = false;
+    const summary = formatRepairSummary();
+    const detail = summary ? summary + '. ' : '';
+    checks.push({ type: 'warn', msg: detail + 'Please review the result below against what you actually intended before relying on it.' });
+  }
+  renderResult(checks, formatted, parsed);
 }
 
 function applyJsonRepair() {
-  if (!repairAndUpdateInput()) return;
-  formatJson();
+  const formatted = computeRepairedJson();
+  if (formatted === null) return;
+  renderRepairedOutput(formatted);
 }
 
 function autoFixJson() {
-  if (!repairAndUpdateInput()) return;
-  formatJson();
+  const formatted = computeRepairedJson();
+  if (formatted === null) return;
+  renderRepairedOutput(formatted);
 }
 
 function validateOnly(text) {
