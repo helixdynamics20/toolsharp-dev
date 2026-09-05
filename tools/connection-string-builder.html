@@ -160,12 +160,12 @@
   <section class="notes">
     <h2>// things this catches</h2>
     <div class="comment-line"><span class="bar">│</span><p>A few mistakes show up constantly in .NET connection strings, so the builder flags them as you go rather than letting you find out at runtime.</p></div>
-    <ul>
-      <li><strong>Encrypt not set for Azure SQL.</strong> Azure SQL rejects unencrypted connections outright — if your server host contains <code>database.windows.net</code> and Encrypt is off, that's almost always a bug, not a choice.</li>
-      <li><strong>TrustServerCertificate=True in what looks like a production host.</strong> It's the right call for a local Docker SQL instance with a self-signed cert; it's a silent security hole if it ships to prod by accident.</li>
-      <li><strong>Both Integrated Security and a User Id set.</strong> These are mutually exclusive — the driver will ignore one, and it's rarely obvious which.</li>
-      <li><strong>Since .NET 6, Microsoft.Data.SqlClient defaults Encrypt to <code>True</code></strong> and TrustServerCertificate to <code>False</code> — a connection string that worked under .NET Framework's older client can suddenly fail after a migration purely because of this default flip. Worth checking explicitly rather than assuming the old string still behaves the same way after upgrading.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong>Encrypt not set for Azure SQL.</strong> Azure SQL rejects unencrypted connections outright — if your server host contains <code>database.windows.net</code> and Encrypt is off, that's almost always a bug, not a choice.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>TrustServerCertificate=True in what looks like a production host.</strong> It's the right call for a local Docker SQL instance with a self-signed cert; it's a silent security hole if it ships to prod by accident.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Both Integrated Security and a User Id set.</strong> These are mutually exclusive — the driver will ignore one, and it's rarely obvious which.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Since .NET 6, Microsoft.Data.SqlClient defaults Encrypt to <code>True</code></strong> and TrustServerCertificate to <code>False</code> — a connection string that worked under .NET Framework's older client can suddenly fail after a migration purely because of this default flip. Worth checking explicitly rather than assuming the old string still behaves the same way after upgrading.</p></div>
+    </div>
 
     <h2>// why "just paste it from Azure Portal" isn't always enough</h2>
     <div class="comment-line"><span class="bar">│</span><p>The Azure Portal's connection string blade gives you a string that's syntactically correct but not always what you want to run with — it typically enables Encrypt but leaves the auth block as a placeholder, and it won't reflect an Azure AD identity setup even if that's actually how your app authenticates in production. Treat it as a starting template, not the final string.</p></div>

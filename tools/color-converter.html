@@ -224,11 +224,11 @@ body.dark-theme .color-swatch {
     <div class="comment-line"><span class="bar">│</span><p>Each format has a distinctive syntax, so the input can be classified before it's parsed: a leading <code>#</code> means HEX (both 6-digit <code>#RRGGBB</code> and 3-digit shorthand <code>#RGB</code> are accepted), a leading <code>rgb(</code> or <code>rgba(</code> means RGB, and a leading <code>hsl(</code> or <code>hsla(</code> means HSL. Once detected, the color is converted internally to RGB and then re-derived into all three output formats, so the values you see always agree with each other exactly.</p></div>
 
     <h2>// which format to use where</h2>
-    <ul>
-      <li><strong>HEX</strong> — the most common format in CSS, design tools, and brand style guides. Compact and easy to copy-paste, but not human-intuitive to read at a glance.</li>
-      <li><strong>RGB</strong> — directly maps to how screens render color (red, green, blue channel intensities from 0–255). Useful when you need to reason about individual channel values, or when working with canvas/image APIs that expect raw byte values.</li>
-      <li><strong>HSL</strong> — hue, saturation, lightness. The most intuitive format for humans to adjust: keep the same hue and just change lightness to get a lighter or darker shade of the same color, without the trial-and-error of hand-editing hex digits.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">HEX</strong> — the most common format in CSS, design tools, and brand style guides. Compact and easy to copy-paste, but not human-intuitive to read at a glance.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">RGB</strong> — directly maps to how screens render color (red, green, blue channel intensities from 0–255). Useful when you need to reason about individual channel values, or when working with canvas/image APIs that expect raw byte values.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">HSL</strong> — hue, saturation, lightness. The most intuitive format for humans to adjust: keep the same hue and just change lightness to get a lighter or darker shade of the same color, without the trial-and-error of hand-editing hex digits.</p></div>
+    </div>
 
     <h2>// WCAG contrast ratios</h2>
     <div class="comment-line"><span class="bar">│</span><p>The contrast ratio is computed with the standard WCAG 2.1 relative luminance formula: each sRGB channel (0–255) is gamma-corrected into linear light, combined as <code>L = 0.2126·R + 0.7152·G + 0.0722·B</code>, and the ratio between the lighter and darker color's luminance is <code>(L1 + 0.05) / (L2 + 0.05)</code>. It ranges from 1:1 (identical colors) to 21:1 (pure black on pure white). WCAG AA requires 4.5:1 for normal text and 3:1 for large text (≥18pt, or ≥14pt bold); WCAG AAA raises that to 7:1 and 4.5:1 respectively.</p></div>
