@@ -81,19 +81,16 @@
 
   // Command Palette Logic
   //
-  // toolsList/guidesList used to be hand-maintained copies of the same data
-  // that lives in tools/index.html, guides/index.html, and llms.txt -- that
-  // duplication once caused a real bug (guides missing from this palette
-  // entirely). They're now derived from the single catalog in
-  // data/catalog.js (loaded before this script) instead of kept separately.
-  var catalog = window.TOOLSHARP_CATALOG || { tools: [], guides: [], toolCategories: [], guideCategories: [] };
-  var toolsList = catalog.tools.map(function (t) { return { name: t.name, path: t.path }; });
-  var guidesList = catalog.guides.map(function (g) { return { name: g.name, path: g.path }; });
+  // Reads js/catalog.js's generic `types` array (tools, guides, and
+  // whatever gets added later) instead of keeping its own per-type copies
+  // -- that kind of duplication once caused a real bug (guides missing
+  // from this palette entirely). Nothing below hardcodes "tools"/"guides"
+  // by name; a new type in the catalog just shows up here automatically.
+  var catalog = window.TOOLSHARP_CATALOG || { types: [] };
 
-  // Exposed so other scripts (the home page terminal) can reuse this index
-  // instead of keeping their own copy of it.
-  window.TOOLSHARP_TOOLS = toolsList;
-  window.TOOLSHARP_GUIDES = guidesList;
+  // Exposed so other scripts (the home page terminal) can reuse the same
+  // generic list instead of keeping their own copy of it.
+  window.TOOLSHARP_TYPES = catalog.types;
 
   // Every entry's path is already root-absolute ('/tools/json-formatter'), so it
   // can be assigned as-is from any page. A previous version tried to "adjust"
@@ -196,11 +193,12 @@
 
   function renderList(query) {
     var q = query.toLowerCase();
-    var allEntries = toolsList.map(function(t) {
-      return { name: t.name, path: t.path, kind: 'tool' };
-    }).concat(guidesList.map(function(g) {
-      return { name: g.name, path: g.path, kind: 'guide' };
-    }));
+    var allEntries = [];
+    catalog.types.forEach(function (type) {
+      type.items.forEach(function (item) {
+        allEntries.push({ name: item.name, path: item.path, kind: type.kindLabel });
+      });
+    });
     filteredTools = allEntries.filter(function(t) {
       return t.name.toLowerCase().indexOf(q) !== -1;
     });
@@ -277,47 +275,52 @@
     var isGuideSubpage = window.location.pathname.includes('/guides/');
     var pathPrefix = (isToolSubpage || isGuideSubpage) ? '../' : '';
 
-    // Grouped from js/catalog.js -- both which categories exist/their
-    // order (catalog.toolCategories) and which tool has which category --
-    // instead of keeping a second hand-maintained copy of either. That
-    // duplication had already drifted for real: this dropdown used to show
-    // JWT Decoder under "encoding" while tools/index.html has always
-    // grouped it under "dev-helpers".
-    var categories = catalog.toolCategories.map(function (catName) {
-      return {
-        name: catName,
-        items: catalog.tools
-          .filter(function (t) { return t.category === catName; })
-          .map(function (t) { return { name: t.name, path: t.path.replace(/^\//, '') }; })
-      };
-    });
-
+    // One primary link per registered type (tools/, guides/, and whatever
+    // gets added later), in catalog order -- nothing here hardcodes "tools"
+    // or "guides" by name.
     var dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'nav-category-dropdowns';
 
-    var toolsLink = document.createElement('a');
-    toolsLink.className = 'nav-dropdown-trigger nav-primary-link';
-    toolsLink.href = pathPrefix + 'tools';
-    toolsLink.textContent = 'tools/';
-    dropdownContainer.appendChild(toolsLink);
+    catalog.types.forEach(function (type) {
+      var link = document.createElement('a');
+      link.className = 'nav-dropdown-trigger nav-primary-link';
+      link.href = pathPrefix + type.key;
+      link.textContent = type.key + '/';
+      dropdownContainer.appendChild(link);
+    });
 
-    var guidesLink = document.createElement('a');
-    guidesLink.className = 'nav-dropdown-trigger nav-primary-link';
-    guidesLink.href = pathPrefix + 'guides';
-    guidesLink.textContent = 'guides/';
-    dropdownContainer.appendChild(guidesLink);
-
-    // Separates the two real destination pages (tools/, guides/) from the
-    // category dropdowns after it, which are quick-jump shortcuts into
-    // tools/ rather than pages of their own -- without this they read as
-    // five more items of the same kind as "tools/", making it look
-    // redundant next to them.
+    // Separates the real destination pages (tools/, guides/) from the
+    // category dropdowns after it, which are quick-jump shortcuts rather
+    // than pages of their own -- without this they read as more items of
+    // the same kind as "tools/", making it look redundant next to them.
     var navDivider = document.createElement('span');
     navDivider.className = 'nav-divider';
     navDivider.setAttribute('aria-hidden', 'true');
     dropdownContainer.appendChild(navDivider);
 
-    categories.forEach(function(cat) {
+    // Category dropdowns only for types that opt in via
+    // showCategoriesInNav (currently just tools -- guides' list is short
+    // enough for its plain link above to be enough). Grouped from
+    // js/catalog.js -- both which categories exist/their order and which
+    // item has which category -- instead of keeping a second
+    // hand-maintained copy of either. That duplication had already
+    // drifted for real once: this dropdown used to show JWT Decoder under
+    // "encoding" while tools/index.html has always grouped it under
+    // "dev-helpers".
+    var navCategoryGroups = [];
+    catalog.types.forEach(function (type) {
+      if (!type.showCategoriesInNav) return;
+      type.categories.forEach(function (catName) {
+        navCategoryGroups.push({
+          name: catName,
+          items: type.items
+            .filter(function (it) { return it.category === catName; })
+            .map(function (it) { return { name: it.name, path: it.path.replace(/^\//, '') }; })
+        });
+      });
+    });
+
+    navCategoryGroups.forEach(function(cat) {
       var dropdown = document.createElement('div');
       dropdown.className = 'nav-dropdown';
 
@@ -372,9 +375,9 @@
     document.addEventListener('click', closeAllDropdowns);
 
     // Mobile menu: a single toggle button instead of wrapping every
-    // category chip onto its own line. Reuses the same categories/guidesLink
-    // data as the desktop dropdowns; <details>/<summary> gives free
-    // accordion behavior with no extra JS.
+    // category chip onto its own line. Reuses the same catalog.types /
+    // navCategoryGroups data as the desktop dropdowns; <details>/<summary>
+    // gives free accordion behavior with no extra JS.
     var mobileMenuToggle = document.createElement('button');
     mobileMenuToggle.type = 'button';
     mobileMenuToggle.className = 'mobile-menu-toggle';
@@ -385,19 +388,15 @@
     var mobileMenu = document.createElement('div');
     mobileMenu.className = 'mobile-menu';
 
-    var mobileToolsLink = document.createElement('a');
-    mobileToolsLink.className = 'mobile-menu-link';
-    mobileToolsLink.href = pathPrefix + 'tools';
-    mobileToolsLink.textContent = 'tools/';
-    mobileMenu.appendChild(mobileToolsLink);
+    catalog.types.forEach(function (type) {
+      var link = document.createElement('a');
+      link.className = 'mobile-menu-link';
+      link.href = pathPrefix + type.key;
+      link.textContent = type.key + '/';
+      mobileMenu.appendChild(link);
+    });
 
-    var mobileGuidesLink = document.createElement('a');
-    mobileGuidesLink.className = 'mobile-menu-link';
-    mobileGuidesLink.href = pathPrefix + 'guides';
-    mobileGuidesLink.textContent = 'guides/';
-    mobileMenu.appendChild(mobileGuidesLink);
-
-    categories.forEach(function(cat) {
+    navCategoryGroups.forEach(function(cat) {
       var details = document.createElement('details');
       var summary = document.createElement('summary');
       summary.textContent = cat.name + '/';

@@ -1,55 +1,103 @@
-// Single source of truth for every tool and guide on the site --
-// path, display name, listing category, and the short description shown
-// in the tools/index.html and guides/index.html directory listings.
+// Single source of truth for every piece of listable content on the site
+// (tools, guides, and any future content type) -- path, display name,
+// listing category, and the short description shown in each type's
+// index.html directory listing.
 //
 // Isomorphic: loaded via <script src="/js/catalog.js"> in the browser
 // (assigns window.TOOLSHARP_CATALOG), and via require() from build.js on
 // the Node side, so both consume the exact same data instead of drifting.
 //
-// js/theme.js derives its palette/nav-dropdown/terminal lists from this at
-// runtime instead of keeping its own copies. tools/index.html,
-// guides/index.html, and llms.txt keep their own hand-written HTML/text
-// (their prose differs in length and phrasing from the short desc here on
-// purpose, so they aren't generated from this file) but build.js's
-// validateRegistration() validates every path here appears in all three,
-// failing the build loudly on drift instead of silently shipping a gap.
+// Structured as a generic list of content *types* -- not hardcoded
+// "tools"/"guides" fields -- specifically so a brand new content type
+// (blog posts, cheatsheets, whatever comes next) is a data change here,
+// not a rewrite of theme.js/terminal.js/build.js. Every consumer
+// (js/theme.js's command palette, nav dropdown, and js/terminal.js's ls/cd/
+// open commands) iterates this array generically; none of them hardcode a
+// type's key by name anywhere.
 //
-// toolCategories/guideCategories below are themselves the single source for
-// which categories exist and what order they display in -- js/theme.js's
-// nav dropdown and build.js's category-name validation both read this array
-// directly rather than keeping their own copies, so a category can't drift
-// the same way individual tools/guides used to.
+// Each type object:
+//   key                 URL prefix AND source directory AND terminal
+//                        keyword AND home-page count-element id, all at
+//                        once -- e.g. 'tools' means: /tools/, tools/,
+//                        tools/index.html, "ls tools", "cd tools",
+//                        #toolsCount. This mirrors a convention the site
+//                        already follows for every type; a new type is
+//                        expected to follow it too rather than needing its
+//                        own set of overrides.
+//   kindLabel           singular label shown as each result's badge in the
+//                        command palette (e.g. 'tool', 'guide').
+//   showCategoriesInNav whether the header's nav dropdown gets a per-
+//                        category submenu for this type (tools do; guides
+//                        currently don't, since the list is short enough
+//                        for a plain link -- purely a per-type display
+//                        choice, not a structural difference).
+//   categories           ordered list of valid category names for this
+//                        type -- also each category's display order, and
+//                        its display label (shown as "<name>/").
+//   items                the actual tools/guides: { path, name, category,
+//                        desc }.
+//
+// tools/index.html, guides/index.html, sitemap.xml, and llms.txt all keep
+// their own hand-written HTML/text (deliberately worded differently per
+// place) rather than being generated from this file -- but build.js's
+// validateRegistration() validates every path and category here against
+// all of them, for every registered type, failing the build loudly on any
+// drift instead of silently shipping a gap.
 //
 // ── To add a new tool or guide ──
 //   1. Add its .html file under tools/ or guides/.
-//   2. Add an entry to the relevant array below (path/name/category/desc).
-//      Reuse an existing `category` value, or see "to add a new category".
+//   2. Add an entry to that type's `items` array below (path/name/
+//      category/desc). Reuse an existing category, or see "to add a new
+//      category" below.
 //   3. Add a matching <div class="dir-row"> to tools/index.html or
 //      guides/index.html, under the right <div class="dir-category">
 //      section (create one if using a new category -- see below).
 //   4. Add a <url> entry to sitemap.xml and a line to llms.txt.
 //   5. Run `node build.js` -- validateRegistration() fails loudly and
 //      names the exact file if any of the above was missed.
-// theme.js's palette, nav dropdown, and terminal all update automatically
-// from step 2 alone; steps 3-4 are the only genuinely separate places left,
-// since their prose is hand-written on purpose (see above).
+// theme.js's palette, nav dropdown, and terminal.js all update
+// automatically from step 2 alone; steps 3-4 are the only genuinely
+// separate places left, since their prose is hand-written on purpose.
 //
-// ── To add a new category ──
-//   1. Add its name to toolCategories or guideCategories below, in the
+// ── To add a new category to an existing type ──
+//   1. Add its name to that type's `categories` array below, in the
 //      position you want it to display (this is also its display label,
 //      shown as "<name>/" -- keep it lowercase to match the others).
-//   2. Tag the relevant entries with `category: '<name>'`.
+//   2. Tag the relevant items with `category: '<name>'`.
 //   3. Add the matching <div class="dir-category" id="cat-...">name/</div>
-//      section to the index.html listing, in the same relative order.
-// Skipping step 3 is caught at build time (validateRegistration() checks
-// every category in this file has a matching section in the index page);
-// skipping step 1 is also caught (an unrecognized category name fails the
-// build immediately, naming the tool/guide and the bad category).
+//      section to the type's index.html listing, in the same relative
+//      order.
+// Skipping step 3 is caught at build time (every declared category must
+// have a matching section); skipping step 1 is also caught (an
+// unrecognized category fails the build immediately, naming the item and
+// the bad category).
+//
+// ── To add a brand new content type (e.g. "cheatsheets") ──
+//   1. Create the directory and its index.html/listing page (cheatsheets/,
+//      following the same structure as tools/index.html or
+//      guides/index.html -- dir-listing, dir-row-head, dir-category/dir-row
+//      per category, a #cheatsheetsFilter input wired to a small
+//      cheatsheets-home.js copied from guides-home.js).
+//   2. Add a #cheatsheetsCount element wherever the home page should show
+//      its live count (optional -- terminal.js only fills it in if it
+//      exists, same as tools/guides today).
+//   3. Add a new object to the `types` array below: key: 'cheatsheets',
+//      kindLabel: 'cheatsheet', showCategoriesInNav (your call), an
+//      initial categories list, and items.
+//   4. Add cheatsheets/ entries to sitemap.xml and llms.txt as they're
+//      written.
+//   5. Run `node build.js` -- it validates the new type exactly like the
+//      existing two, and the command palette, nav dropdown, and terminal
+//      ls/cd/open all pick it up with no further code changes anywhere.
 (function (root) {
   var TOOLSHARP_CATALOG = {
-    toolCategories: ['json', 'encoding', 'text', 'hashes', 'dev-helpers'],
-    guideCategories: ['.net', 'json', 'reference'],
-    tools: [
+    types: [
+      {
+        key: 'tools',
+        kindLabel: 'tool',
+        showCategoriesInNav: true,
+        categories: ['json', 'encoding', 'text', 'hashes', 'dev-helpers'],
+        items: [
       { path: '/tools/json-formatter', name: 'JSON Formatter & Minifier', category: 'json', desc: 'Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them' },
       { path: '/tools/appsettings-validator', name: 'AppSettings Validator', category: 'json', desc: 'Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets' },
       { path: '/tools/csv-json-converter', name: 'CSV / JSON Converter', category: 'json', desc: 'Convert CSV to JSON or JSON to CSV — proper quoted-field parsing handles embedded commas, quotes, and newlines; comma, semicolon, or tab delimiters' },
@@ -73,8 +121,14 @@
       { path: '/tools/regex-tester', name: 'Regex Tester', category: 'dev-helpers', desc: 'Test a regex with live match and capture-group highlighting — pattern explanation panel, options mapped to .NET RegexOptions, C#/JS code generator' },
       { path: '/tools/password-generator', name: 'Password Generator', category: 'dev-helpers', desc: 'Generate cryptographically secure passwords or passphrases — configure length, character sets, exclude ambiguous chars, see entropy in bits, bulk generate up to 50 at once' },
       { path: '/tools/curl-converter', name: 'cURL Converter', category: 'dev-helpers', desc: 'Convert a curl command (including multi-line commands copied from browser DevTools) into working code — C#, Python, JavaScript, Node.js, PowerShell, Go, or Java — headers, body, basic auth, and the insecure flag all translated' },
-    ],
-    guides: [
+        ]
+      },
+      {
+        key: 'guides',
+        kindLabel: 'guide',
+        showCategoriesInNav: false,
+        categories: ['.net', 'json', 'reference'],
+        items: [
       { path: '/guides/ef-core-migrations-already-up-to-date', name: 'EF Core: "The Database Is Already Up to Date"', category: '.net', desc: 'Update-Database says there\'s nothing to apply, but your migration never ran — usually EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain' },
       { path: '/guides/ef-core-10-complex-type-column-renaming', name: 'EF Core 10 Renamed Columns You Didn\'t Touch', category: '.net', desc: 'EF Core 10 renames complex-type columns you didn\'t touch — colliding names that used to silently share a column now get a numeric suffix, and nested types use the full property path' },
       { path: '/guides/sqlite-net10-datetimeoffset-utc-breaking-change', name: 'Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC', category: '.net', desc: '.NET 10 silently changes what Microsoft.Data.Sqlite\'s GetDateTimeOffset() and GetDateTime() return — same code, same data, different timestamp, no error' },
@@ -96,6 +150,8 @@
       { path: '/guides/uuid-guid-versions-explained', name: 'UUID / GUID Versions Explained', category: 'reference', desc: 'What each UUID version (v1-v8) actually encodes, why RFC 9562\'s new v7 fixes a real database index performance problem, and the .NET byte-order quirk that breaks interop' },
       { path: '/guides/unix-timestamp-epoch-explained', name: 'Unix Timestamp & Epoch Time Explained', category: 'reference', desc: 'Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, leap seconds, and a cross-language cheat sheet for getting "now" as epoch' },
       { path: '/guides/url-hash-fragment-explained', name: 'The URL Fragment That Never Reaches Your Server', category: 'reference', desc: 'Everything after # in a URL never reaches the server — verified with a real network capture — plus what OAuth and client-side routers use it for and where the guarantee actually ends' },
+        ]
+      }
     ]
   };
 
