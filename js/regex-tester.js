@@ -120,16 +120,19 @@ function renderMatches(matches, testStr) {
   metaDiv.innerHTML = `<div class="callout ${matches.length ? 'ok' : 'warn'}" style="margin-top:14px;">${matches.length} match${matches.length === 1 ? '' : 'es'} found.</div>`;
 
   if (matches.length && matches.some(m => m.captures.length > 0)) {
+    // A named capture group's value lands in *both* m.captures (by numeric
+    // position) and m.groups (by name) -- listing both unconditionally
+    // showed every named group twice with identical values. Group names
+    // are looked up by position so each capture is listed exactly once,
+    // under its name when it has one.
+    const groupNames = getCapturingGroupNames(document.getElementById('rxPattern').value);
     let rows = [];
     matches.forEach((m, mi) => {
       m.captures.forEach((c, gi) => {
-        if (c !== undefined) rows.push({k: `match ${mi+1}, group ${gi+1}`, v: c});
+        if (c === undefined) return;
+        const label = groupNames[gi] ? `match ${mi+1}, ${groupNames[gi]}` : `match ${mi+1}, group ${gi+1}`;
+        rows.push({k: label, v: c});
       });
-      if (m.groups) {
-        Object.entries(m.groups).forEach(([name, val]) => {
-          if (val !== undefined) rows.push({k: `match ${mi+1}, ${name}`, v: val});
-        });
-      }
     });
     groupsDiv.innerHTML = rows.length ? `
       <div class="config-block" style="margin-top:14px;">
@@ -320,6 +323,26 @@ function tokenizeRegex(pattern) {
     tokens.push({ token: ch, type: 'literal', desc: `Literal "${ch}"` }); i++;
   }
   return tokens;
+}
+
+// Capturing-group index -> name (null for an unnamed group), in the same
+// left-to-right order the regex engine itself assigns group numbers.
+// Reuses tokenizeRegex's own group-boundary detection instead of
+// re-parsing the pattern, so it can't disagree with what the explanation
+// panel already shows for the same pattern.
+function getCapturingGroupNames(pattern) {
+  let tokens;
+  try { tokens = tokenizeRegex(pattern); } catch (e) { return []; }
+  const names = [];
+  tokens.forEach(t => {
+    if (t.type !== 'group') return;
+    if (t.desc === 'Capturing group') names.push(null);
+    else if (t.desc.indexOf('Named capturing group') === 0) {
+      const m = /"([^"]*)"/.exec(t.desc);
+      names.push(m ? m[1] : null);
+    }
+  });
+  return names;
 }
 
 const _tokenColors = {
