@@ -30,6 +30,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -133,10 +134,10 @@
 
   <section class="notes">
     <h2>// what gets checked</h2>
-    <ul>
-      <li><strong>Syntax errors</strong> — trailing commas, unquoted keys, missing commas, mismatched brackets — reported with the line and column where parsing failed. Modern V8 often includes a position itself now, but not consistently — some failures (an empty string, for one) come back with no location at all, and older runtimes and other engines vary.</li>
-      <li><strong>Duplicate keys within the same object</strong> — valid JSON technically allows this and silently keeps only the last one, which makes it a quiet source of bugs: the file parses fine, but a value you think is set isn't, because an earlier key with the same name got overwritten later in the same object.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Syntax errors</strong> — trailing commas, unquoted keys, missing commas, mismatched brackets — reported with the line and column where parsing failed. Modern V8 often includes a position itself now, but not consistently — some failures (an empty string, for one) come back with no location at all, and older runtimes and other engines vary.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Duplicate keys within the same object</strong> — valid JSON technically allows this and silently keeps only the last one, which makes it a quiet source of bugs: the file parses fine, but a value you think is set isn't, because an earlier key with the same name got overwritten later in the same object.</p></div>
+    </div>
 
     <h2>// format vs. minify</h2>
     <div class="comment-line"><span class="bar">│</span><p>Formatting is for humans — reviewing a config file, debugging an API response, or preparing something to paste into a PR. Minifying is for machines — stripping whitespace before storing JSON in a database column, embedding it in a URL query param, or shipping it over the wire where every byte counts. Both produce identical data; only the whitespace changes.</p></div>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>Why curl -d Doesn't Send application/json — Even With a JSON Body — ToolSharp.dev</title>
-<meta name="description" content="curl -d sends Content-Type: application/x-www-form-urlencoded by default, even when the body you passed is JSON. Your API never sees application/json unless you set the header explicitly -- here's why that produces a null model or a 400, not a parse error.">
+<meta name="description" content="curl -d sends Content-Type: application/x-www-form-urlencoded by default, even for a JSON body -- why that produces a null model or a 400, not a parse error.">
 <link rel="canonical" href="https://toolsharp.dev/guides/curl-data-json-content-type-explained">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>

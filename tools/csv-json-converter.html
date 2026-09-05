@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -160,11 +161,11 @@
     <div class="comment-line"><span class="bar">│</span><p>JSON objects in an array don't have to share identical keys — one record might be missing a field another one has. The header row here is the union of every key seen across all objects, in the order each key first appears; any object missing a given key just gets an empty cell in that column instead of the conversion failing.</p></div>
 
     <h2>// picking a delimiter</h2>
-    <ul>
-      <li><strong>Comma</strong> — the default for CSV almost everywhere English-locale tools export it, including Excel (US), most REST API exports, and database bulk-export tools.</li>
-      <li><strong>Semicolon</strong> — common in European-locale exports (Excel configured for a locale that uses <code>,</code> as the decimal separator switches its CSV delimiter to <code>;</code> to avoid ambiguity with decimal numbers).</li>
-      <li><strong>Tab (TSV)</strong> — common for pasting into or out of spreadsheet apps, and for data that's likely to contain commas in nearly every field (addresses, free text), where tabs are less likely to collide.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Comma</strong> — the default for CSV almost everywhere English-locale tools export it, including Excel (US), most REST API exports, and database bulk-export tools.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Semicolon</strong> — common in European-locale exports (Excel configured for a locale that uses <code>,</code> as the decimal separator switches its CSV delimiter to <code>;</code> to avoid ambiguity with decimal numbers).</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Tab (TSV)</strong> — common for pasting into or out of spreadsheet apps, and for data that's likely to contain commas in nearly every field (addresses, free text), where tabs are less likely to collide.</p></div>
+    </div>
   </section>
 </main>
 

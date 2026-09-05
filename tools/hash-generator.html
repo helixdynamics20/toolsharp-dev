@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>Hash Generator — MD5, SHA-1, SHA-256, SHA-512 | ToolSharp.dev</title>
-<meta name="description" content="Generate MD5, SHA-1, SHA-256, and SHA-512 hashes from text or a file, plain or as a keyed HMAC. Runs locally via the Web Crypto API — nothing leaves your browser.">
+<meta name="description" content="Generate MD5, SHA-1, SHA-256, and SHA-512 hashes from text or a file, plain or as a keyed HMAC. Runs locally via the Web Crypto API.">
 <link rel="canonical" href="https://toolsharp.dev/tools/hash-generator">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -117,12 +118,12 @@
 
   <section class="notes">
     <h2>// which algorithm to use</h2>
-    <ul>
-      <li><strong>SHA-256</strong> — The right default for almost everything: verifying file integrity, signing tokens, storing password hashes (via a slow KDF like bcrypt, not raw SHA-256), generating content-addressable identifiers. Part of the SHA-2 family, currently unbroken, and what the Web Crypto API and .NET's <code>SHA256.HashData()</code> expose natively.</li>
-      <li><strong>SHA-512</strong> — Same security properties as SHA-256 but produces a 512-bit (128-character hex) output. Useful when you need a longer hash for additional collision resistance, or when hashing large data where SHA-512 is faster than SHA-256 on 64-bit hardware due to word size.</li>
-      <li><strong>SHA-1</strong> — Deprecated for all security-sensitive purposes since 2017 (collision attacks are practical). Still widely used for non-security checksums (Git commit IDs use SHA-1), and many older systems still emit SHA-1 hashes you may need to verify. Don't use it for new security work.</li>
-      <li><strong>MD5</strong> — Cryptographically broken since the mid-2000s (deliberate collisions can be constructed in seconds). Exists here for compatibility with legacy systems, checksums, and formats that still emit MD5 hashes (like some database file integrity checks or older package registries). Never use MD5 to protect security-sensitive data.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">SHA-256</strong> — The right default for almost everything: verifying file integrity, signing tokens, storing password hashes (via a slow KDF like bcrypt, not raw SHA-256), generating content-addressable identifiers. Part of the SHA-2 family, currently unbroken, and what the Web Crypto API and .NET's <code>SHA256.HashData()</code> expose natively.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">SHA-512</strong> — Same security properties as SHA-256 but produces a 512-bit (128-character hex) output. Useful when you need a longer hash for additional collision resistance, or when hashing large data where SHA-512 is faster than SHA-256 on 64-bit hardware due to word size.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">SHA-1</strong> — Deprecated for all security-sensitive purposes since 2017 (collision attacks are practical). Still widely used for non-security checksums (Git commit IDs use SHA-1), and many older systems still emit SHA-1 hashes you may need to verify. Don't use it for new security work.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">MD5</strong> — Cryptographically broken since the mid-2000s (deliberate collisions can be constructed in seconds). Exists here for compatibility with legacy systems, checksums, and formats that still emit MD5 hashes (like some database file integrity checks or older package registries). Never use MD5 to protect security-sensitive data.</p></div>
+    </div>
 
     <h2>// hashing vs. encryption — they are not the same thing</h2>
     <div class="comment-line"><span class="bar">│</span><p>A hash is a one-way function: the same input always produces the same output, but you cannot reconstruct the input from the hash. Encryption is two-way: a key encrypts data and a key decrypts it back. If you "hash" a password to store it in a database, that's correct — storing encrypted passwords means you have a key that can decrypt them, which is a security liability. If you need to be able to recover the original value, you want encryption, not hashing.</p></div>

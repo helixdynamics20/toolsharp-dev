@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>cURL Converter — curl to C#, Python, JS, Go, Java, PowerShell — ToolSharp.dev</title>
-<meta name="description" content="Paste a curl command (e.g. copied from Chrome DevTools) and get working code in C#, Python, JavaScript, Node.js, PowerShell, Go, or Java -- headers, body, basic auth, and TLS flags all translated. Runs entirely in your browser.">
+<meta name="description" content="Paste a curl command (e.g. from Chrome DevTools) and get working code in C#, Python, JS, Node.js, PowerShell, Go, or Java. Runs entirely in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/curl-converter">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -107,14 +108,14 @@
 
   <section class="notes">
     <h2>// what gets translated, in every language</h2>
-    <ul>
-      <li><strong>Method</strong> — explicit <code>-X</code>/<code>--request</code>, or inferred: <code>POST</code> if a body is present, otherwise <code>GET</code>.</li>
-      <li><strong>Headers</strong> (<code>-H</code>, repeatable).</li>
-      <li><strong>Body</strong> (<code>-d</code> / <code>--data-raw</code> / <code>--data-binary</code>, repeatable, joined with <code>&amp;</code>) — its content type comes from an explicit <code>Content-Type</code> header if you passed one; otherwise it defaults to <code>application/x-www-form-urlencoded</code>, matching curl's own default for <code>-d</code> — see <a href="../guides/curl-data-json-content-type-explained">why that default exists and how it silently breaks JSON APIs</a> if the header wasn't in your original command.</li>
-      <li><strong>Basic auth</strong> (<code>-u user:pass</code>) — base64-encoded exactly like curl does it, using each language's native basic-auth mechanism where one exists (Python's <code>auth=</code>, axios's <code>auth:</code>, Go's <code>SetBasicAuth</code>) and a manually-built header where it doesn't (fetch, Java, PowerShell's <code>Invoke-RestMethod</code>).</li>
-      <li><strong><code>-k</code> / <code>--insecure</code></strong> — translated faithfully to each language's TLS-bypass mechanism, always with a warning comment. It's exactly as dangerous in the generated code as it is on the command line — <a href="#fetch-note">fetch is the one exception</a>, see below.</li>
-      <li><strong><code>-G</code> / <code>--get</code></strong> — data gets appended to the URL as a query string instead of a body, method forced to <code>GET</code>, matching curl's behavior.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Method</strong> — explicit <code>-X</code>/<code>--request</code>, or inferred: <code>POST</code> if a body is present, otherwise <code>GET</code>.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Headers</strong> (<code>-H</code>, repeatable).</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Body</strong> (<code>-d</code> / <code>--data-raw</code> / <code>--data-binary</code>, repeatable, joined with <code>&amp;</code>) — its content type comes from an explicit <code>Content-Type</code> header if you passed one; otherwise it defaults to <code>application/x-www-form-urlencoded</code>, matching curl's own default for <code>-d</code> — see <a href="../guides/curl-data-json-content-type-explained">why that default exists and how it silently breaks JSON APIs</a> if the header wasn't in your original command.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Basic auth</strong> (<code>-u user:pass</code>) — base64-encoded exactly like curl does it, using each language's native basic-auth mechanism where one exists (Python's <code>auth=</code>, axios's <code>auth:</code>, Go's <code>SetBasicAuth</code>) and a manually-built header where it doesn't (fetch, Java, PowerShell's <code>Invoke-RestMethod</code>).</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key"><code>-k</code> / <code>--insecure</code></strong> — translated faithfully to each language's TLS-bypass mechanism, always with a warning comment. It's exactly as dangerous in the generated code as it is on the command line — <a href="#fetch-note">fetch is the one exception</a>, see below.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key"><code>-G</code> / <code>--get</code></strong> — data gets appended to the URL as a query string instead of a body, method forced to <code>GET</code>, matching curl's behavior.</p></div>
+    </div>
 
     <h2>// what doesn't</h2>
     <p>Multipart form data (<code>-F</code>/<code>--form</code>) isn't auto-converted in any language — building a multipart body correctly means constructing a real <code>MultipartFormDataContent</code>/<code>FormData</code>/equivalent by hand, so the tool lists the original <code>-F</code> arguments as a comment instead of guessing. Flags that don't affect the request itself (<code>-v</code>, <code>-s</code>, <code>-L</code>, <code>--compressed</code>, output/timeout/proxy options) are silently ignored, since most HTTP clients either have no equivalent or handle the underlying behavior differently by default.</p>

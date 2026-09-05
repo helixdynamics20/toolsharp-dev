@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>The URL Fragment (#...) That Never Reaches Your Server — ToolSharp.dev</title>
-<meta name="description" content="Everything after # in a URL never appears in the HTTP request — verified with a real network capture. Why this exists, what OAuth and client-side routers use it for, and where the guarantee actually ends.">
+<meta name="description" content="Everything after # in a URL never reaches the server -- verified with a real network capture. What OAuth and client routers use it for, and where it ends.">
 <link rel="canonical" href="https://toolsharp.dev/guides/url-hash-fragment-explained">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -106,22 +107,22 @@
 
   <section class="notes">
     <h2>// what actually relies on this today</h2>
-    <ul>
-      <li><strong>OAuth 2.0 implicit flow</strong> — returns the access token appended to the redirect URL's fragment specifically so it never lands in the redirect target's server logs. (Implicit flow is now discouraged in favor of Authorization Code + PKCE, for other reasons — token lifetime and same-page script exposure — but the redirect step still works this way because of exactly this behavior.)</li>
-      <li><strong>Client-side routers</strong> — older single-page apps (early Angular, hash-mode React Router) used <code>#/users/42</code>-style routes precisely because changing the fragment doesn't trigger a full page reload or a new server request — the app's own JavaScript reads the change and re-renders.</li>
-      <li><strong>This site's share-pad</strong> — the offline-link mode compresses your text directly into the fragment. The <a href="../tools/share-pad">tool page</a> can decompress and display it purely from <code>window.location.hash</code> — the text was never sent to ToolSharp's server, or anywhere else, to produce that link.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">OAuth 2.0 implicit flow</strong> — returns the access token appended to the redirect URL's fragment specifically so it never lands in the redirect target's server logs. (Implicit flow is now discouraged in favor of Authorization Code + PKCE, for other reasons — token lifetime and same-page script exposure — but the redirect step still works this way because of exactly this behavior.)</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Client-side routers</strong> — older single-page apps (early Angular, hash-mode React Router) used <code>#/users/42</code>-style routes precisely because changing the fragment doesn't trigger a full page reload or a new server request — the app's own JavaScript reads the change and re-renders.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">This site's share-pad</strong> — the offline-link mode compresses your text directly into the fragment. The <a href="../tools/share-pad">tool page</a> can decompress and display it purely from <code>window.location.hash</code> — the text was never sent to ToolSharp's server, or anywhere else, to produce that link.</p></div>
+    </div>
   </section>
 
   <section class="notes">
     <h2>// where the guarantee ends</h2>
     <div class="comment-line"><span class="bar">│</span><p>"Never sent to the server" is a specific, narrow guarantee — not a general statement that the data is secret. It's worth being precise about what it does and doesn't cover:</p></div>
-    <ul>
-      <li><strong>Any JavaScript on the page can read it.</strong> <code>window.location.hash</code> is a normal DOM property — the page's own script, any third-party script it loads (ads, analytics, a chat widget), and any browser extension with page access can all read it freely. The guarantee is about the network, not about code running in the browser.</li>
-      <li><strong>It still leaves outbound in one place: your own history.</strong> Your browser stores the full URL, fragment included, in local history — and if browser sync is turned on, that history (fragment included) can sync to your browser vendor's account.</li>
-      <li><strong>The <code>Referer</code> header is fragment-free too — which helps.</strong> If a page with a sensitive fragment contains a link to somewhere else, the outbound <code>Referer</code> header sent to that destination is defined to exclude the fragment. That's one fewer leak path, not an exception to watch for.</li>
-      <li><strong>Copying the link still copies the data.</strong> If you paste the full URL into a chat, an email, or a bug report, the fragment goes with it as plain text. The guarantee is "your server's access logs won't have it" — not "this data can't end up anywhere."</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong>Any JavaScript on the page can read it.</strong> <code>window.location.hash</code> is a normal DOM property — the page's own script, any third-party script it loads (ads, analytics, a chat widget), and any browser extension with page access can all read it freely. The guarantee is about the network, not about code running in the browser.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>It still leaves outbound in one place: your own history.</strong> Your browser stores the full URL, fragment included, in local history — and if browser sync is turned on, that history (fragment included) can sync to your browser vendor's account.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>The <code>Referer</code> header is fragment-free too — which helps.</strong> If a page with a sensitive fragment contains a link to somewhere else, the outbound <code>Referer</code> header sent to that destination is defined to exclude the fragment. That's one fewer leak path, not an exception to watch for.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Copying the link still copies the data.</strong> If you paste the full URL into a chat, an email, or a bug report, the fragment goes with it as plain text. The guarantee is "your server's access logs won't have it" — not "this data can't end up anywhere."</p></div>
+    </div>
   </section>
 
   <section class="notes">

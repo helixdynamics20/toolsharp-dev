@@ -37,51 +37,33 @@ fs.mkdirSync(path.join(distDir, 'guides'));
 fs.mkdirSync(path.join(distDir, 'assets'));
 fs.mkdirSync(path.join(distDir, 'api'));
 
-// Every tool/guide has to be registered in several hand-maintained places
-// (theme.js's command palette, theme.js's nav category dropdown, the
-// relevant index.html, sitemap.xml) with no single source of truth --
-// exactly the setup that already caused a real bug once (a new guide
-// missing from the palette). Rather than trust hand-editing to catch every
-// spot next time, this diffs each list against the actual .html files on
-// disk and fails the build the moment any one of them drifts, instead of
-// silently shipping a tool/guide that's reachable from some pages but not
+// Every tool/guide has to be registered in several places: js/catalog.js
+// (theme.js's command palette, nav dropdown, and terminal all derive from
+// this one file now, instead of each keeping its own copy -- that setup
+// already caused a real bug once, a new guide missing from the palette),
+// plus the relevant index.html, sitemap.xml, and llms.txt, which still
+// carry their own hand-written HTML/prose and can't just be generated from
+// catalog.js without flattening content that's deliberately worded
+// differently per place.
+//
+// This loops over catalog.js's `types` array generically -- nothing here
+// hardcodes "tools"/"guides" by name, so a new content type registered in
+// catalog.js (see the comment block at the top of that file) gets exactly
+// the same validation as the existing two automatically, no changes needed
+// here. For each type it diffs catalog.js against the actual .html files
+// on disk, that type's index.html, sitemap.xml, and llms.txt, plus checks
+// every declared category has a matching section in the index page,
+// failing the build the moment any one of them drifts instead of silently
+// shipping a tool/guide/category that's reachable from some places but not
 // others.
 function validateRegistration() {
   const errors = [];
 
-  const toolFiles = fs.readdirSync(path.join(srcDir, 'tools'))
-    .filter(f => f.endsWith('.html') && f !== 'index.html')
-    .map(f => f.replace(/\.html$/, ''));
-  const guideFiles = fs.readdirSync(path.join(srcDir, 'guides'))
-    .filter(f => f.endsWith('.html') && f !== 'index.html')
-    .map(f => f.replace(/\.html$/, ''));
+  delete require.cache[require.resolve(path.join(srcDir, 'js/catalog.js'))];
+  const catalog = require(path.join(srcDir, 'js/catalog.js'));
 
-  const themeJs = fs.readFileSync(path.join(srcDir, 'js/theme.js'), 'utf8');
-  const toolsIndexHtml = fs.readFileSync(path.join(srcDir, 'tools/index.html'), 'utf8');
-  const guidesIndexHtml = fs.readFileSync(path.join(srcDir, 'guides/index.html'), 'utf8');
   const sitemap = fs.readFileSync(path.join(srcDir, 'sitemap.xml'), 'utf8');
-
-  const extractBetween = (text, startMarker, endMarker) => {
-    const start = text.indexOf(startMarker);
-    const end = text.indexOf(endMarker, start);
-    if (start === -1 || end === -1) return '';
-    return text.slice(start, end);
-  };
-
-  const toolsListBlock = extractBetween(themeJs, 'var toolsList = [', 'var guidesList = [');
-  const paletteTools = [...toolsListBlock.matchAll(/path:\s*'\/tools\/([^']+)'/g)].map(m => m[1]);
-
-  const guidesListBlock = extractBetween(themeJs, 'var guidesList = [', 'window.TOOLSHARP_TOOLS');
-  const paletteGuides = [...guidesListBlock.matchAll(/path:\s*'\/guides\/([^']+)'/g)].map(m => m[1]);
-
-  const categoriesBlock = extractBetween(themeJs, 'var categories = [', 'var dropdownContainer');
-  const navDropdownTools = [...categoriesBlock.matchAll(/path:\s*'tools\/([^']+)'/g)].map(m => m[1]);
-
-  const toolsIndexTools = [...toolsIndexHtml.matchAll(/data-row-href="\/tools\/([^"]+)"/g)].map(m => m[1]);
-  const guidesIndexGuides = [...guidesIndexHtml.matchAll(/data-row-href="\/guides\/([^"]+)"/g)].map(m => m[1]);
-
-  const sitemapTools = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/tools\/([^<]+)<\/loc>/g)].map(m => m[1]);
-  const sitemapGuides = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/guides\/([^<]+)<\/loc>/g)].map(m => m[1]);
+  const llms = fs.readFileSync(path.join(srcDir, 'llms.txt'), 'utf8');
 
   function checkSet(kind, groundTruth, sets) {
     for (const slug of groundTruth) {
@@ -96,25 +78,53 @@ function validateRegistration() {
     }
   }
 
-  checkSet('tool', toolFiles, {
-    'theme.js command palette (toolsList)': paletteTools,
-    'theme.js nav dropdown (categories)': navDropdownTools,
-    'tools/index.html': toolsIndexTools,
-    'sitemap.xml': sitemapTools,
-  });
-  checkSet('guide', guideFiles, {
-    'theme.js command palette (guidesList)': paletteGuides,
-    'guides/index.html': guidesIndexGuides,
-    'sitemap.xml': sitemapGuides,
-  });
+  const summary = [];
+
+  for (const type of catalog.types) {
+    const typeDir = path.join(srcDir, type.key);
+    const diskFiles = fs.readdirSync(typeDir)
+      .filter(f => f.endsWith('.html') && f !== 'index.html')
+      .map(f => f.replace(/\.html$/, ''));
+
+    const pathPrefix = new RegExp('^/' + type.key + '/');
+    const catalogSlugs = type.items.map(it => it.path.replace(pathPrefix, ''));
+
+    const indexHtml = fs.readFileSync(path.join(typeDir, 'index.html'), 'utf8');
+    const indexSlugs = [...indexHtml.matchAll(new RegExp('data-row-href="/' + type.key + '/([^"]+)"', 'g'))].map(m => m[1]);
+
+    const sitemapSlugs = [...sitemap.matchAll(new RegExp('<loc>https://toolsharp\\.dev/' + type.key + '/([^<]+)</loc>', 'g'))].map(m => m[1]);
+    const llmsSlugs = [...llms.matchAll(new RegExp('\\(https://toolsharp\\.dev/' + type.key + '/([^)]+)\\)', 'g'))].map(m => m[1]);
+
+    checkSet(type.kindLabel, diskFiles, {
+      'js/catalog.js': catalogSlugs,
+      [`${type.key}/index.html`]: indexSlugs,
+      'sitemap.xml': sitemapSlugs,
+      'llms.txt': llmsSlugs,
+    });
+
+    // catalog.js's `categories` array is itself the single source for
+    // which categories exist -- theme.js's nav dropdown reads the same
+    // array, so a category can't silently drift the way individual
+    // tools/guides used to. Two things get checked: every item's
+    // `category` is one the type actually declares, and every declared
+    // category has a matching <div class="dir-category"> section in its
+    // index.html (catching "added a category to the catalog, forgot to
+    // add its listing section").
+    for (const it of type.items) if (!type.categories.includes(it.category)) errors.push(`${type.kindLabel} "${it.path}" has unrecognized category "${it.category}" (not in catalog types.${type.key}.categories)`);
+
+    const indexCategories = [...indexHtml.matchAll(/<div class="dir-category"[^>]*>([^<]+)<\/div>/g)].map(m => m[1].replace(/\/$/, ''));
+    for (const cat of type.categories) if (!indexCategories.includes(cat)) errors.push(`${type.kindLabel} category "${cat}" is in catalog (types.${type.key}) but has no matching section in ${type.key}/index.html`);
+
+    summary.push(`${diskFiles.length} ${type.key}`);
+  }
 
   if (errors.length) {
     console.error('\nRegistration consistency check failed -- build aborted:\n');
     errors.forEach(e => console.error('  - ' + e));
-    console.error('\nEvery tool/guide must be registered in all of: theme.js (palette, and the nav dropdown for tools), the relevant index.html, and sitemap.xml.\n');
+    console.error('\nEvery item must be registered in all of: js/catalog.js, its type\'s index.html, sitemap.xml, and llms.txt.\n');
     process.exit(1);
   }
-  console.log(`Registration check passed: ${toolFiles.length} tools, ${guideFiles.length} guides, all in sync.`);
+  console.log(`Registration check passed: ${summary.join(', ')}, all in sync.`);
 }
 
 // Helper to ensure target directories exist
@@ -137,7 +147,8 @@ const staticFiles = [
   'LICENSE',
   'manifest.json',
   'ads.txt',
-  'llms.txt'
+  'llms.txt',
+  '7d651288514fb3e2d4dbc8ae19450700.txt'
 ];
 
 staticFiles.forEach(file => {

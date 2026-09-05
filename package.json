@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node build.js",
     "generate-og": "node scripts/generate-guide-og.js",
-    "test:e2e": "node tests/run-all.js"
+    "test:e2e": "node tests/run-all.js",
+    "indexnow": "node scripts/indexnow-ping.js"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

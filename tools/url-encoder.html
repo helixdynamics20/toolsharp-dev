@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>URL Encoder & Decoder — ToolSharp.dev</title>
-<meta name="description" content="Encode or decode URLs and query strings online. Parse any URL into its parts (protocol, host, path, query, fragment) and build one from parts. Runs in your browser.">
+<meta name="description" content="Encode or decode URLs and query strings online. Parse any URL into its parts (protocol, host, path, query, fragment) and build one from parts.">
 <link rel="canonical" href="https://toolsharp.dev/tools/url-encoder">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -184,18 +185,18 @@
 
   <section class="notes">
     <h2>// encodeURIComponent vs encodeURI</h2>
-    <ul>
-      <li><strong>encodeURIComponent</strong> — encodes everything except <code>A–Z a–z 0–9 - _ . ! ~ * ' ( )</code>. Use this when encoding a <em>value</em> that will go inside a query string (e.g. <code>?q=hello+world</code> → <code>?q=hello%2Bworld</code>). It encodes <code>/</code>, <code>?</code>, <code>&</code>, <code>=</code>, <code>#</code> and everything that has structural meaning in a URL.</li>
-      <li><strong>encodeURI</strong> — encodes everything except characters that are valid in a full URL: letters, digits, and <code>- _ . ! ~ * ' ( ) ; / ? : @ & = + $ , #</code>. Use this when encoding a <em>complete URL</em> that you want to keep structurally intact.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">encodeURIComponent</strong> — encodes everything except <code>A–Z a–z 0–9 - _ . ! ~ * ' ( )</code>. Use this when encoding a <em>value</em> that will go inside a query string (e.g. <code>?q=hello+world</code> → <code>?q=hello%2Bworld</code>). It encodes <code>/</code>, <code>?</code>, <code>&</code>, <code>=</code>, <code>#</code> and everything that has structural meaning in a URL.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">encodeURI</strong> — encodes everything except characters that are valid in a full URL: letters, digits, and <code>- _ . ! ~ * ' ( ) ; / ? : @ & = + $ , #</code>. Use this when encoding a <em>complete URL</em> that you want to keep structurally intact.</p></div>
+    </div>
     <p>The most common mistake: using <code>encodeURI</code> on a query parameter value. That leaves <code>&</code> and <code>=</code> unencoded, which breaks query string parsing when the value contains those characters.</p>
 
     <h2>// in .NET</h2>
-    <ul>
-      <li><code>Uri.EscapeDataString(value)</code> — equivalent to <code>encodeURIComponent</code>. Use for query param values.</li>
-      <li><code>Uri.EscapeUriString(url)</code> — equivalent to <code>encodeURI</code>. Deprecated in .NET 5+ for being ambiguous; prefer building URLs via <code>UriBuilder</code> or <code>QueryHelpers.AddQueryString()</code> in ASP.NET Core.</li>
-      <li><code>HttpUtility.UrlEncode(value)</code> — encodes spaces as <code>+</code> instead of <code>%20</code> (HTML form encoding, not RFC 3986). The two formats look similar but behave differently in decoders.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key"><code>Uri.EscapeDataString(value)</code></strong> — equivalent to <code>encodeURIComponent</code>. Use for query param values.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key"><code>Uri.EscapeUriString(url)</code></strong> — equivalent to <code>encodeURI</code>. Deprecated in .NET 5+ for being ambiguous; prefer building URLs via <code>UriBuilder</code> or <code>QueryHelpers.AddQueryString()</code> in ASP.NET Core.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key"><code>HttpUtility.UrlEncode(value)</code></strong> — encodes spaces as <code>+</code> instead of <code>%20</code> (HTML form encoding, not RFC 3986). The two formats look similar but behave differently in decoders.</p></div>
+    </div>
   </section>
 </main>
 

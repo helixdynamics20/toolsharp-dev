@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -118,7 +119,7 @@
         <div class="result-item"><span class="k"><code>iat</code></span><span class="v">issued-at — when the token was created</span></div>
       </div>
     </div>
-    <p style="margin-top:14px;">Everything past these is application-specific — roles, permissions, tenant IDs, whatever the issuer decided to include. There's no schema enforcement; the payload is just JSON, so anything the signer puts there arrives at the consumer as-is.</p>
+    <p style="margin-top:14px;">Everything past these is application-specific — roles, permissions, tenant IDs, whatever the issuer decided to include. There's no schema enforcement; the payload is just JSON, so anything the signer puts there arrives at the consumer as-is. <code>exp</code>, <code>nbf</code>, and <code>iat</code> are ordinary Unix timestamps in seconds — see <a href="unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a> if a token looks expired the moment it's issued, which is usually a seconds/milliseconds unit mismatch, not a clock problem.</p>
   </section>
 
   <section class="notes">

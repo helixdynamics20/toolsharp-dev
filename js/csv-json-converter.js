@@ -70,7 +70,20 @@ function parseCsv(text, delimiter) {
     }
 
     if (c === '"') {
-      inQuotes = true;
+      // Per RFC 4180, a field is a *quoted* field only when its very
+      // first character is a quote. A quote appearing after the field
+      // has already started (3" screw, He said "hi") is just a literal
+      // character, not the start of quote mode -- treating it as quote
+      // mode unconditionally meant one stray inch-mark or mid-word quote
+      // silently swallowed everything after it (including delimiters and
+      // newlines) as literal data until the next quote character turned
+      // up, or the end of the file if none did.
+      if (field.length === 0) {
+        inQuotes = true;
+        i++;
+        continue;
+      }
+      field += c;
       i++;
       continue;
     }

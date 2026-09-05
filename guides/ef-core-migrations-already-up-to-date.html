@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>EF Core: "The Database Is Already Up to Date" — When It Isn't — ToolSharp.dev</title>
-<meta name="description" content="Update-Database says there's nothing to apply, but your new migration never ran. The usual cause is EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain.">
+<meta name="description" content="Update-Database says there's nothing to apply, but your migration never ran -- usually EnsureCreated() and Migrate() disagreeing about __EFMigrationsHistory.">
 <link rel="canonical" href="https://toolsharp.dev/guides/ef-core-migrations-already-up-to-date">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -132,7 +133,7 @@ VALUES ('20260101000000_InitialCreate', '9.0.0');
 
   <section class="notes">
     <h2>// if this is part of a .NET 10 migration</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Reconciling migrations tends to happen in the same pass as a framework upgrade, and if the database in question is SQLite, .NET 10 also <a href="../guides/sqlite-net10-datetimeoffset-utc-breaking-change">silently changed how <code>Microsoft.Data.Sqlite</code> interprets stored timestamps</a> — worth checking in the same sitting, since it's the same class of bug: code that still runs, just returns something different now. If the model involved uses complex types, EF Core 10 also <a href="../guides/ef-core-10-complex-type-column-renaming">changed how their columns get named</a>, which is a separate reason a post-upgrade migration can show unexpected renames.</p></div>
   </section>
 
   <section class="notes">

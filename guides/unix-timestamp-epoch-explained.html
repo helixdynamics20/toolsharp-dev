@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/epoch-clock.js" defer></script>
@@ -123,17 +124,17 @@
     </figure>
 
     <h2>// what happens when the unit is wrong</h2>
-    <ul>
-      <li><strong>Seconds read as milliseconds</strong> — the value is treated as 1000× smaller than intended, so it lands in <strong>January 1970</strong>, a few days after the epoch. This is the classic "why is every date showing 1970" bug.</li>
-      <li><strong>Milliseconds read as seconds</strong> — the value is treated as 1000× larger, throwing the date <strong>tens of thousands of years into the future</strong>. Some systems reject it outright; others cheerfully display an absurd year.</li>
-    </ul>
-    <div class="callout warn">Neither mistake throws an error at the boundary where it happens — both produce a perfectly valid number that is simply wrong, and the damage usually surfaces much later in a report or a UI. Check the unit at every boundary a timestamp crosses, not just once at the source.</div>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Seconds read as milliseconds</strong> — the value is treated as 1000× smaller than intended, so it lands in <strong>January 1970</strong>, a few days after the epoch. This is the classic "why is every date showing 1970" bug.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Milliseconds read as seconds</strong> — the value is treated as 1000× larger, throwing the date <strong>tens of thousands of years into the future</strong>. Some systems reject it outright; others cheerfully display an absurd year.</p></div>
+    </div>
+    <div class="callout warn">Neither mistake throws an error at the boundary where it happens — both produce a perfectly valid number that is simply wrong, and the damage usually surfaces much later in a report or a UI. Check the unit at every boundary a timestamp crosses, not just once at the source. A <a href="what-is-a-jwt">JWT's <code>exp</code>/<code>nbf</code>/<code>iat</code> claims</a> are ordinary Unix timestamps in seconds — hand one a milliseconds value by mistake and it either looks expired immediately or effectively never expires, with no error at the point it went wrong.</div>
   </section>
 
   <section class="notes">
     <h2>// why "UTC by definition" is the whole point</h2>
     <div class="comment-line"><span class="bar">│</span><p>A Unix timestamp has no timezone attached because it doesn't need one — it's a count of seconds from a single fixed instant, so <code>1735689600</code> means the exact same moment everywhere on Earth. The timezone only re-enters the picture when you convert it to a human-readable string for display. This is precisely why storing timestamps as epoch (or any UTC value) and converting to local time only at the display layer is the correct default — the alternative, storing "local wall-clock time," runs straight into a problem epoch time was designed to avoid entirely.</p></div>
-    <div class="callout error"><strong>Local wall-clock time is ambiguous twice a year.</strong> During a "spring forward" DST transition, a clock jumps from 1:59 AM straight to 3:00 AM — the local time <code>2:30 AM</code> never happens that day. During "fall back," 1:00–1:59 AM occurs <em>twice</em> — a stored local timestamp of <code>1:30 AM</code> doesn't say which occurrence it means. Neither problem can happen to a Unix timestamp, because it isn't wall-clock time — it's a single, unambiguous instant. A scheduled job or event stored as local time can silently fire twice, not at all, or at the wrong hour on transition days; the same job stored as epoch/UTC never has this failure mode.</div>
+    <div class="callout error"><strong>Local wall-clock time is ambiguous twice a year.</strong> During a "spring forward" DST transition, a clock jumps from 1:59 AM straight to 3:00 AM — the local time <code>2:30 AM</code> never happens that day. During "fall back," 1:00–1:59 AM occurs <em>twice</em> — a stored local timestamp of <code>1:30 AM</code> doesn't say which occurrence it means. Neither problem can happen to a Unix timestamp, because it isn't wall-clock time — it's a single, unambiguous instant. A <a href="cron-expression-cheat-sheet">scheduled cron job</a> stored as local time can silently fire twice, not at all, or at the wrong hour on transition days; the same job stored as epoch/UTC never has this failure mode.</div>
 
     <figure class="guide-figure">
       <svg viewBox="0 0 440 200" role="img" aria-label="Diagram showing local clock time skipping an hour in spring and repeating an hour in autumn during daylight saving transitions, while Unix epoch time increases continuously through both with no gap or duplicate.">
@@ -188,7 +189,7 @@
 
   <section class="notes">
     <h2>// SQL Server: DATETIME2 to epoch and back</h2>
-    <div class="comment-line"><span class="bar">│</span><p>Unlike MySQL's <code>UNIX_TIMESTAMP()</code>/<code>FROM_UNIXTIME()</code>, T-SQL has no built-in epoch functions at all — the standard pattern is <code>DATEDIFF</code> and <code>DATEADD</code> measured against the epoch literal directly, and it has a sharp edge at millisecond precision that's easy to hit without knowing it's there.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>Unlike MySQL's <code>UNIX_TIMESTAMP()</code>/<code>FROM_UNIXTIME()</code>, T-SQL has no built-in epoch functions at all — the standard pattern is <code>DATEDIFF</code> and <code>DATEADD</code> measured against the epoch literal directly, and it has a sharp edge at millisecond precision that's easy to hit without knowing it's there. (If it's the <a href="sql-server-connection-string-examples">connection itself</a> giving you trouble rather than this conversion, that's a separate guide.)</p></div>
 
     <div class="config-block">
       <div class="tab">the conversions</div>

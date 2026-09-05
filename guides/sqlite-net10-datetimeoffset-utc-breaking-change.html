@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC — ToolSharp.dev</title>
-<meta name="description" content="Upgrading to .NET 10 silently changes what GetDateTimeOffset() and GetDateTime() return from SQLite — same code, same data, different timestamp. No error, no warning.">
+<meta name="description" content="Upgrading to .NET 10 silently changes what GetDateTimeOffset() and GetDateTime() return from SQLite — same code, same data, different timestamp.">
 <link rel="canonical" href="https://toolsharp.dev/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -105,7 +106,7 @@
 
   <section class="notes">
     <h2>// this lands in the same migration wave as the EF Core work</h2>
-    <div class="comment-line"><span class="bar">│</span><p>If you're moving to .NET 10 because of the November 2026 end-of-support deadline and also run EF Core migrations against the same database, <a href="../guides/ef-core-migrations-already-up-to-date">the migrations-history mismatch covered here</a> is worth checking in the same pass — both are the kind of change that doesn't show up until something's already been running in production for a while. For the general rules around UTC and epoch time this bug intersects with, see the <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time guide</a>.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>If you're moving to .NET 10 because of the November 2026 end-of-support deadline and also run EF Core migrations against the same database, <a href="../guides/ef-core-migrations-already-up-to-date">the migrations-history mismatch covered here</a> and <a href="../guides/ef-core-10-complex-type-column-renaming">EF Core 10's complex-type column renaming</a> are both worth checking in the same pass — all three are the kind of change that doesn't show up until something's already been running in production for a while. For the general rules around UTC and epoch time this bug intersects with, see the <a href="../guides/unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time guide</a>.</p></div>
   </section>
 
   <section class="notes">

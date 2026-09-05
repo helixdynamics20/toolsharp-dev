@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>Guides — ToolSharp.dev</title>
-<meta name="description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server connection strings, regex, and more — read once, bookmarked.">
+<meta name="description" content="Reference guides for the syntax and formats developers look up most: cron expressions, JWTs, SQL Server strings, regex, and more — read once, bookmarked.">
 <link rel="canonical" href="https://toolsharp.dev/guides">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -29,6 +29,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/guides-home.js" defer></script>
@@ -65,22 +66,48 @@
     <input type="text" id="guideFilter" aria-label="Filter guides" placeholder="type to filter guides..." autocomplete="off">
   </div>
 
-  <section class="dir-listing">
+  <section id="guides" class="dir-listing">
     <div class="dir-row-head">
       <div>path</div>
       <div>description</div>
       <div>status</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/cron-expression-cheat-sheet">
-      <a class="path-link" href="/guides/cron-expression-cheat-sheet">/cron-expression-cheat-sheet</a>
-      <div class="desc">Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, and the mistakes that break schedules silently</div>
+    <div class="dir-category" id="cat-dotnet">.net/</div>
+
+    <div class="dir-row" data-row-href="/guides/ef-core-migrations-already-up-to-date">
+      <a class="path-link" href="/guides/ef-core-migrations-already-up-to-date">/ef-core-migrations-already-up-to-date</a>
+      <div class="desc">Update-Database says there's nothing to apply, but your migration never ran — usually EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/what-is-a-jwt">
-      <a class="path-link" href="/guides/what-is-a-jwt">/what-is-a-jwt</a>
-      <div class="desc">What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why it can't be revoked before it expires</div>
+    <div class="dir-row" data-row-href="/guides/ef-core-10-complex-type-column-renaming">
+      <a class="path-link" href="/guides/ef-core-10-complex-type-column-renaming">/ef-core-10-complex-type-column-renaming</a>
+      <div class="desc">EF Core 10 renames complex-type columns you didn't touch — colliding names that used to silently share a column now get a numeric suffix, and nested types use the full property path</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
+      <a class="path-link" href="/guides/sqlite-net10-datetimeoffset-utc-breaking-change">/sqlite-net10-datetimeoffset-utc-breaking-change</a>
+      <div class="desc">.NET 10 silently changes what Microsoft.Data.Sqlite's GetDateTimeOffset() and GetDateTime() return — same code, same data, different timestamp, no error</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/appsettings-secrets-in-git">
+      <a class="path-link" href="/guides/appsettings-secrets-in-git">/appsettings-secrets-in-git</a>
+      <div class="desc">A real secret got committed to appsettings.json and pushed — why deleting the line isn't enough, how to actually remove it from history, and rotating it either way</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/hangfire-cron-wrong-day-explained">
+      <a class="path-link" href="/guides/hangfire-cron-wrong-day-explained">/hangfire-cron-wrong-day-explained</a>
+      <div class="desc">Why a Hangfire cron expression that validates fine still fires on the wrong day — Cronos, Quartz.NET, and traditional cron each number Sunday differently</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/quartz-net-question-mark-explained">
+      <a class="path-link" href="/guides/quartz-net-question-mark-explained">/quartz-net-question-mark-explained</a>
+      <div class="desc">The exact rule behind Quartz.NET's "day-of-week AND day-of-month" parse error, and why the ? character is required rather than optional</div>
       <div class="status">● ready</div>
     </div>
 
@@ -90,29 +117,13 @@
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/regex-cheat-sheet">
-      <a class="path-link" href="/guides/regex-cheat-sheet">/regex-cheat-sheet</a>
-      <div class="desc">Anchors, character classes, greedy vs lazy, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems</div>
+    <div class="dir-row" data-row-href="/guides/sql-server-keyword-not-supported-encrypt">
+      <a class="path-link" href="/guides/sql-server-keyword-not-supported-encrypt">/sql-server-keyword-not-supported-encrypt</a>
+      <div class="desc">"Keyword not supported" and certificate trust errors in SQL Server connection strings, and how both trace back to the same Microsoft.Data.SqlClient default change</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/hashing-algorithms-explained">
-      <a class="path-link" href="/guides/hashing-algorithms-explained">/hashing-algorithms-explained</a>
-      <div class="desc">Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id do differently, current OWASP-recommended parameters, salting, HMAC, and the collision attacks that broke MD5 and SHA-1</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" data-row-href="/guides/uuid-guid-versions-explained">
-      <a class="path-link" href="/guides/uuid-guid-versions-explained">/uuid-guid-versions-explained</a>
-      <div class="desc">What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database index performance problem, and the .NET byte-order quirk that breaks interop</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" data-row-href="/guides/unix-timestamp-epoch-explained">
-      <a class="path-link" href="/guides/unix-timestamp-epoch-explained">/unix-timestamp-epoch-explained</a>
-      <div class="desc">Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, leap seconds, and a cross-language cheat sheet for getting "now" as epoch</div>
-      <div class="status">● ready</div>
-    </div>
+    <div class="dir-category" id="cat-json">json/</div>
 
     <div class="dir-row" data-row-href="/guides/json-invisible-characters-explained">
       <a class="path-link" href="/guides/json-invisible-characters-explained">/json-invisible-characters-explained</a>
@@ -144,51 +155,53 @@
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/hangfire-cron-wrong-day-explained">
-      <a class="path-link" href="/guides/hangfire-cron-wrong-day-explained">/hangfire-cron-wrong-day-explained</a>
-      <div class="desc">Why a Hangfire cron expression that validates fine still fires on the wrong day — Cronos, Quartz.NET, and traditional cron each number Sunday differently</div>
+    <div class="dir-row" data-row-href="/guides/curl-data-json-content-type-explained">
+      <a class="path-link" href="/guides/curl-data-json-content-type-explained">/curl-data-json-content-type-explained</a>
+      <div class="desc">curl -d sends Content-Type: application/x-www-form-urlencoded by default even when the body is JSON — why that produces a null model or a 400, not a parse error, and the one-line fix</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/sqlite-net10-datetimeoffset-utc-breaking-change">
-      <a class="path-link" href="/guides/sqlite-net10-datetimeoffset-utc-breaking-change">/sqlite-net10-datetimeoffset-utc-breaking-change</a>
-      <div class="desc">.NET 10 silently changes what Microsoft.Data.Sqlite's GetDateTimeOffset() and GetDateTime() return — same code, same data, different timestamp, no error</div>
+    <div class="dir-category" id="cat-reference">reference/</div>
+
+    <div class="dir-row" data-row-href="/guides/cron-expression-cheat-sheet">
+      <a class="path-link" href="/guides/cron-expression-cheat-sheet">/cron-expression-cheat-sheet</a>
+      <div class="desc">Every cron field explained, side-by-side Hangfire (5-field) and Quartz.NET (6-field) examples, and the mistakes that break schedules silently</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/sql-server-keyword-not-supported-encrypt">
-      <a class="path-link" href="/guides/sql-server-keyword-not-supported-encrypt">/sql-server-keyword-not-supported-encrypt</a>
-      <div class="desc">"Keyword not supported" and certificate trust errors in SQL Server connection strings, and how both trace back to the same Microsoft.Data.SqlClient default change</div>
+    <div class="dir-row" data-row-href="/guides/what-is-a-jwt">
+      <a class="path-link" href="/guides/what-is-a-jwt">/what-is-a-jwt</a>
+      <div class="desc">What a JWT actually is, how its signature is computed, the algorithm-confusion attack, JWT vs session cookies, and why it can't be revoked before it expires</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/appsettings-secrets-in-git">
-      <a class="path-link" href="/guides/appsettings-secrets-in-git">/appsettings-secrets-in-git</a>
-      <div class="desc">A real secret got committed to appsettings.json and pushed — why deleting the line isn't enough, how to actually remove it from history, and rotating it either way</div>
+    <div class="dir-row" data-row-href="/guides/regex-cheat-sheet">
+      <a class="path-link" href="/guides/regex-cheat-sheet">/regex-cheat-sheet</a>
+      <div class="desc">Anchors, character classes, greedy vs lazy, named groups across .NET/JS/Python/PCRE, lookaround, flags, and the catastrophic-backtracking mistake that has taken down production systems</div>
       <div class="status">● ready</div>
     </div>
 
-    <div class="dir-row" data-row-href="/guides/quartz-net-question-mark-explained">
-      <a class="path-link" href="/guides/quartz-net-question-mark-explained">/quartz-net-question-mark-explained</a>
-      <div class="desc">The exact rule behind Quartz.NET's "day-of-week AND day-of-month" parse error, and why the ? character is required rather than optional</div>
+    <div class="dir-row" data-row-href="/guides/hashing-algorithms-explained">
+      <a class="path-link" href="/guides/hashing-algorithms-explained">/hashing-algorithms-explained</a>
+      <div class="desc">Why SHA-256 is wrong for passwords, what bcrypt/scrypt/Argon2id do differently, current OWASP-recommended parameters, salting, HMAC, and the collision attacks that broke MD5 and SHA-1</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/uuid-guid-versions-explained">
+      <a class="path-link" href="/guides/uuid-guid-versions-explained">/uuid-guid-versions-explained</a>
+      <div class="desc">What each UUID version (v1-v8) actually encodes, why RFC 9562's new v7 fixes a real database index performance problem, and the .NET byte-order quirk that breaks interop</div>
+      <div class="status">● ready</div>
+    </div>
+
+    <div class="dir-row" data-row-href="/guides/unix-timestamp-epoch-explained">
+      <a class="path-link" href="/guides/unix-timestamp-epoch-explained">/unix-timestamp-epoch-explained</a>
+      <div class="desc">Why Unix time is UTC by definition, how DST makes local wall-clock time ambiguous twice a year, leap seconds, and a cross-language cheat sheet for getting "now" as epoch</div>
       <div class="status">● ready</div>
     </div>
 
     <div class="dir-row" data-row-href="/guides/url-hash-fragment-explained">
       <a class="path-link" href="/guides/url-hash-fragment-explained">/url-hash-fragment-explained</a>
       <div class="desc">Everything after # in a URL never reaches the server — verified with a real network capture — plus what OAuth and client-side routers use it for and where the guarantee actually ends</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" data-row-href="/guides/ef-core-migrations-already-up-to-date">
-      <a class="path-link" href="/guides/ef-core-migrations-already-up-to-date">/ef-core-migrations-already-up-to-date</a>
-      <div class="desc">Update-Database says there's nothing to apply, but your migration never ran — usually EnsureCreated() and Migrate() disagreeing about what __EFMigrationsHistory should contain</div>
-      <div class="status">● ready</div>
-    </div>
-
-    <div class="dir-row" data-row-href="/guides/curl-data-json-content-type-explained">
-      <a class="path-link" href="/guides/curl-data-json-content-type-explained">/curl-data-json-content-type-explained</a>
-      <div class="desc">curl -d sends Content-Type: application/x-www-form-urlencoded by default even when the body is JSON — why that produces a null model or a 400, not a parse error, and the one-line fix</div>
       <div class="status">● ready</div>
     </div>
   </section>

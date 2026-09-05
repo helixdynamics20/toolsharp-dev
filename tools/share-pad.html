@@ -30,6 +30,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -151,11 +152,11 @@
 
   <section class="notes">
     <h2>// sharing options explained</h2>
-    <ul>
-      <li><strong>6-Digit Code</strong> — A short code like <code>482 195</code> that's easy to read out, type, or paste. Before anything is sent anywhere, your text is encrypted in your browser (AES-256-GCM, key derived from the code itself via PBKDF2) — the server only ever stores ciphertext, never your plaintext. The code doubles as the decryption key, so it works standalone: read it out over a call, or send it any way you like. Retrieval needs a network round-trip, and a code keeps working for 30 days (it isn't consumed after one read).</li>
-      <li><strong>Quick Share Link</strong> — The same 6-digit code embedded in a link (<code>#code=482195</code>), so opening it decrypts and shows the text automatically with nothing to type. It's the code above, just easier to click. The code lives after the <code>#</code>, which browsers never send to a server — see <a href="../guides/url-hash-fragment-explained">why the hash fragment is never transmitted</a>.</li>
-      <li><strong>Offline Fallback Link</strong> — The entire text is compressed (GZIP) and encoded directly into the URL hash fragment. Nothing is sent to any server — the URL itself contains all the data. The recipient's browser decompresses it locally when they open the link. The trade-off: the URL can get very long for large inputs, which some messaging apps may truncate or reject.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">6-Digit Code</strong> — A short code like <code>482 195</code> that's easy to read out, type, or paste. Before anything is sent anywhere, your text is encrypted in your browser (AES-256-GCM, key derived from the code itself via PBKDF2) — the server only ever stores ciphertext, never your plaintext. The code doubles as the decryption key, so it works standalone: read it out over a call, or send it any way you like. Retrieval needs a network round-trip, and a code keeps working for 30 days (it isn't consumed after one read).</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Quick Share Link</strong> — The same 6-digit code embedded in a link (<code>#code=482195</code>), so opening it decrypts and shows the text automatically with nothing to type. It's the code above, just easier to click. The code lives after the <code>#</code>, which browsers never send to a server — see <a href="../guides/url-hash-fragment-explained">why the hash fragment is never transmitted</a>.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Offline Fallback Link</strong> — The entire text is compressed (GZIP) and encoded directly into the URL hash fragment. Nothing is sent to any server — the URL itself contains all the data. The recipient's browser decompresses it locally when they open the link. The trade-off: the URL can get very long for large inputs, which some messaging apps may truncate or reject.</p></div>
+    </div>
 
     <h2>// privacy considerations</h2>
     <div class="comment-line"><span class="bar">│</span><p>The 6-digit code path encrypts before storing, but don't mistake that for a guarantee: the code is both the lookup key and the decryption key, so anyone with direct read access to the underlying data store — not network access, direct access — could decrypt an entry using its own key. That's a meaningfully different (and much smaller) threat than "stored as plaintext," but it's not the same as end-to-end encryption between two people who never trust a third party. Don't share passwords, production secrets, private keys, or personal data through it. For anything sensitive, use the offline fallback link instead — the data never leaves your browser and the recipient's, and the server never sees it at all. That said, if the link itself gets logged somewhere (a proxy, a chat client, a browser extension with page access), the data in the hash is exposed regardless of how it got there — treat the offline link as convenient, not as end-to-end secure messaging.</p></div>

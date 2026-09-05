@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -181,7 +182,7 @@
         <div class="result-item"><span class="k">Quartz.NET</span><span class="v"><code>CronScheduleBuilder.CronSchedule(expr).InTimeZone(TimeZoneInfo...)</code> — omit it and Quartz uses <code>TimeZoneInfo.Local</code>, i.e. whatever the host machine is set to</span></div>
       </div>
     </div>
-    <p style="margin-top:14px;">That default mismatch — Hangfire falling back to UTC, Quartz falling back to the host's local time — is itself a common source of "this ran three, four, or five hours off" bugs when a job moves between a developer's machine, a container, and a cloud region without the timezone ever being set explicitly on either side. Pin it explicitly in code rather than relying on either default, and remember that a timezone with daylight saving (unlike UTC) means the same cron expression covers a different number of real hours on the two days each year the clock shifts.</p>
+    <p style="margin-top:14px;">That default mismatch — Hangfire falling back to UTC, Quartz falling back to the host's local time — is itself a common source of "this ran three, four, or five hours off" bugs when a job moves between a developer's machine, a container, and a cloud region without the timezone ever being set explicitly on either side. Pin it explicitly in code rather than relying on either default, and remember that a timezone with daylight saving (unlike UTC) means the same cron expression covers a different number of real hours on the two days each year the clock shifts — see <a href="unix-timestamp-epoch-explained">Unix Timestamp &amp; Epoch Time Explained</a> for exactly why UTC/epoch sidesteps this and local wall-clock time can't.</p>
   </section>
 
   <section class="notes">

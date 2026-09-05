@@ -28,6 +28,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -163,11 +164,11 @@
   <section class="notes">
     <h2>// seconds vs. milliseconds — the most common confusion</h2>
     <div class="comment-line"><span class="bar">│</span><p>Unix timestamps traditionally count <strong>seconds</strong> since the epoch (January 1, 1970 UTC). A seconds-based timestamp is 10 digits long today (e.g. <code>1713876000</code>). JavaScript's <code>Date.now()</code> returns <strong>milliseconds</strong>, making it 13 digits long (e.g. <code>1713876000000</code>). This distinction causes one of the most reliable classes of off-by-1000x bugs: displaying a date 47 years in the past because seconds were used where milliseconds were expected, or displaying a date in the year 56,000 because milliseconds were stored as seconds.</p></div>
-    <ul>
-      <li><strong>In .NET</strong>: use <code>DateTimeOffset.UtcNow.ToUnixTimeSeconds()</code> for seconds and <code>ToUnixTimeMilliseconds()</code> for milliseconds. Do not use <code>(long)(DateTime.UtcNow - new DateTime(1970,1,1)).TotalSeconds</code> — that's fragile and loses the explicit "this is UTC" signal.</li>
-      <li><strong>In JWT claims</strong>: <code>exp</code>, <code>nbf</code>, and <code>iat</code> are always in <strong>seconds</strong>, not milliseconds — a common off-by-1000 bug when a token is validated against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code>.</li>
-      <li><strong>In databases</strong>: SQL Server's <code>DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())</code> returns seconds. If you're storing a timestamp as a <code>bigint</code>, agree on the unit with the application layer before writing the first row — changing it later means migrating all existing values.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">In .NET</strong>: use <code>DateTimeOffset.UtcNow.ToUnixTimeSeconds()</code> for seconds and <code>ToUnixTimeMilliseconds()</code> for milliseconds. Do not use <code>(long)(DateTime.UtcNow - new DateTime(1970,1,1)).TotalSeconds</code> — that's fragile and loses the explicit "this is UTC" signal.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">In JWT claims</strong>: <code>exp</code>, <code>nbf</code>, and <code>iat</code> are always in <strong>seconds</strong>, not milliseconds — a common off-by-1000 bug when a token is validated against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code>.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">In databases</strong>: SQL Server's <code>DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())</code> returns seconds. If you're storing a timestamp as a <code>bigint</code>, agree on the unit with the application layer before writing the first row — changing it later means migrating all existing values.</p></div>
+    </div>
 
     <h2>// what the Unix epoch actually is</h2>
     <div class="comment-line"><span class="bar">│</span><p>The epoch is a fixed reference point: midnight UTC, January 1, 1970. Every Unix timestamp is just the number of seconds (or milliseconds) that have elapsed since that moment. There's nothing special about the date itself — it was chosen as a convenient origin point when Unix was being designed. One practical consequence: timestamps before 1970 are negative numbers, and some older APIs or parsers reject negative timestamps without explanation.</p></div>

@@ -30,6 +30,7 @@
 <link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css">
+<script src="../js/catalog.js" defer></script>
 <script src="../js/theme.js" defer></script>
 <script src="../js/utils.js" defer></script>
 <script src="../js/speed-insights.js" defer></script>
@@ -98,10 +99,10 @@
 
   <section class="notes">
     <h2>// what gets checked</h2>
-    <ul>
-      <li><strong>Well-formedness</strong> — mismatched or unclosed tags, invalid nesting, bad attribute syntax, and unescaped <code>&amp;</code>/<code>&lt;</code> characters, reported using the browser's own <code>DOMParser</code>, with a line and column pulled out of the error message when the browser provides one.</li>
-      <li><strong>Structure on format</strong> — the tool re-indents the document from its parsed DOM tree rather than just re-indenting the raw text, so nesting is always consistent even if the input was inconsistently indented or all on one line.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Well-formedness</strong> — mismatched or unclosed tags, invalid nesting, bad attribute syntax, and unescaped <code>&amp;</code>/<code>&lt;</code> characters, reported using the browser's own <code>DOMParser</code>, with a line and column pulled out of the error message when the browser provides one.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Structure on format</strong> — the tool re-indents the document from its parsed DOM tree rather than just re-indenting the raw text, so nesting is always consistent even if the input was inconsistently indented or all on one line.</p></div>
+    </div>
 
     <h2>// format vs. minify</h2>
     <div class="comment-line"><span class="bar">│</span><p>Formatting re-indents nested elements, keeps attributes on the opening tag, collapses genuinely empty elements to self-closing tags, and leaves comments, <code>&lt;![CDATA[...]]&gt;</code> sections, and the <code>&lt;?xml ... ?&gt;</code> declaration untouched. Minifying strips all the whitespace between tags down to a single line — useful before storing XML in a database column or shipping it over the wire — while leaving whitespace that's part of an element's actual text content alone.</p></div>
