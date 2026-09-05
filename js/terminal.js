@@ -3,16 +3,26 @@
 // nav, so nothing here is required to navigate the site (and crawlers, screen
 // readers, and no-JS visitors lose nothing by ignoring it).
 (function () {
-  var tools = window.TOOLSHARP_TOOLS || [];
-  var guides = window.TOOLSHARP_GUIDES || [];
+  // window.TOOLSHARP_TYPES (set by theme.js from js/catalog.js) is a
+  // generic list of content types -- tools, guides, and whatever gets
+  // added later. Nothing below hardcodes "tools"/"guides" by name; a new
+  // type just needs a matching #<key>Count element (optional) and shows up
+  // in ls/cd/open automatically.
+  var types = window.TOOLSHARP_TYPES || [];
+
+  function typeByKey(key) {
+    for (var i = 0; i < types.length; i++) if (types[i].key === key) return types[i];
+    return null;
+  }
 
   // Keeps the home page's "N items" counts honest without hand-editing them
   // every time a tool or guide is added -- same data source the terminal
-  // below and the command palette (theme.js) already use.
-  var toolsCountEl = document.getElementById('toolsCount');
-  if (toolsCountEl) toolsCountEl.textContent = tools.length + ' items';
-  var guidesCountEl = document.getElementById('guidesCount');
-  if (guidesCountEl) guidesCountEl.textContent = guides.length + ' items';
+  // below and the command palette (theme.js) already use. Only touches an
+  // element if the home page actually has one for that type.
+  types.forEach(function (type) {
+    var countEl = document.getElementById(type.key + 'Count');
+    if (countEl) countEl.textContent = type.items.length + ' items';
+  });
 
   var form = document.getElementById('termForm');
   if (!form) return;
@@ -57,7 +67,8 @@
 
   function findEntry(query) {
     var q = query.toLowerCase().replace(/^\/+/, '');
-    var all = tools.concat(guides);
+    var all = [];
+    types.forEach(function (type) { all = all.concat(type.items); });
     var exact = all.filter(function (e) { return slugOf(e.path) === q; })[0];
     if (exact) return exact;
     return all.filter(function (e) {
@@ -65,29 +76,40 @@
     })[0];
   }
 
+  // Right-pads to a fixed column so the generated help/ls lines line up
+  // the way the old hand-written ones did, regardless of how many types
+  // are registered or how long their keys are.
+  function padTo(s, width) {
+    return s.length >= width ? s + ' ' : s + new Array(width - s.length + 1).join(' ');
+  }
+
   var COMMANDS = {
     help: function () {
       line('Available commands:');
-      line('  ls                    list the top-level directories');
-      line('  ls tools              list every tool');
-      line('  ls guides             list every guide');
-      line('  open <name>           open a tool or guide (e.g. open json-formatter)');
-      line('  cd tools | guides     go to that directory page');
-      line('  whoami                what this site is');
-      line('  clear                 clear this output');
+      line('  ls' + padTo('', 21) + 'list the top-level directories');
+      types.forEach(function (type) {
+        line('  ls ' + padTo(type.key, 20) + 'list every ' + type.kindLabel);
+      });
+      var kindList = types.map(function (t) { return t.kindLabel; }).join(' or ');
+      line('  open <name>' + padTo('', 11) + 'open a ' + kindList + ' (e.g. open json-formatter)');
+      var keyList = types.map(function (t) { return t.key; }).join(' | ');
+      line('  cd ' + padTo(keyList, 19) + 'go to that directory page');
+      line('  whoami' + padTo('', 16) + 'what this site is');
+      line('  clear' + padTo('', 17) + 'clear this output');
       line('Everything here is also reachable by clicking — this is just faster.');
     },
 
     ls: function (arg) {
       if (!arg) {
-        line('tools/   ' + tools.length + ' items');
-        line('guides/  ' + guides.length + ' items');
-        line('Try "ls tools" or "ls guides".');
+        types.forEach(function (type) {
+          line(padTo(type.key + '/', 9) + type.items.length + ' items');
+        });
+        line('Try "ls ' + types.map(function (t) { return t.key; }).join('" or "ls ') + '".');
         return;
       }
       var target = arg.replace(/\/+$/, '').toLowerCase();
-      if (target === 'tools') { linkLine(tools); return; }
-      if (target === 'guides') { linkLine(guides); return; }
+      var type = typeByKey(target);
+      if (type) { linkLine(type.items); return; }
       line('ls: no such directory: ' + arg, 'err');
     },
 
@@ -102,7 +124,7 @@
 
     cd: function (arg) {
       var target = (arg || '').replace(/\/+$/, '').toLowerCase();
-      if (target === 'tools' || target === 'guides') {
+      if (typeByKey(target)) {
         window.location.href = '/' + target;
         return;
       }
