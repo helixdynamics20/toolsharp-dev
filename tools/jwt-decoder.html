@@ -107,10 +107,10 @@
     <div class="comment-line"><span class="bar">│</span><p>A JWT's header and payload are just base64url-encoded JSON — no secret is needed to read them, which is exactly why you should never put sensitive data in a JWT payload assuming it's private. This tool decodes those two segments locally. It does not, and cannot, verify the signature, because that needs the signing key. A token can decode perfectly here and still be invalid, expired at the API level in a way this tool doesn't know about, or signed with a key that doesn't match your server.</p></div>
 
     <h2>// reading the time claims</h2>
-    <ul>
-      <li><strong>exp</strong> (expiration) and <strong>nbf</strong> (not before) are Unix timestamps in seconds, not milliseconds — a common off-by-1000x bug when these get compared against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code> in .NET.</li>
-      <li>Clock skew between your server and the token issuer is a frequent source of "valid token rejected" bugs — <code>Microsoft.IdentityModel.Tokens</code>' <code>TokenValidationParameters.ClockSkew</code> defaults to 5 minutes of leeway for exactly this reason.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong>exp</strong> (expiration) and <strong>nbf</strong> (not before) are Unix timestamps in seconds, not milliseconds — a common off-by-1000x bug when these get compared against <code>DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()</code> instead of <code>ToUnixTimeSeconds()</code> in .NET.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p>Clock skew between your server and the token issuer is a frequent source of "valid token rejected" bugs — <code>Microsoft.IdentityModel.Tokens</code>' <code>TokenValidationParameters.ClockSkew</code> defaults to 5 minutes of leeway for exactly this reason.</p></div>
+    </div>
 
     <h2>// learn more</h2>
     <div class="comment-line"><span class="bar">│</span><p>For a fuller breakdown of a JWT's structure and how signature verification actually works, see <a href="../guides/what-is-a-jwt">What Is a JWT?</a> If this token came from a login or refresh-token endpoint you're about to call again in code, the <a href="../tools/curl-converter">cURL Converter</a> turns that same curl command into a working <code>Authorization: Bearer</code> request in C#, Python, JavaScript, Go, Java, or PowerShell.</p></div>

@@ -686,6 +686,24 @@ body.dark-theme .status-pill.s-good    { background: #092018; color: #50E8A0; }
   flex-shrink: 0;
   padding-top: 1px;
 }
+/* Lead term on a comment-line used as a spec/definition item (e.g. "Method
+   — explicit -X/--request..."), for a list of terms each paired with a
+   longer explanation that's too long for .result-item's compact
+   side-by-side layout. A small badge, not just a color change, so the
+   label is easy to pick out at a glance scanning down the list. */
+.notes .comment-line strong.spec-key {
+  display: inline-block;
+  color: var(--violet-dark);
+  background: var(--violet-wash);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1px 8px;
+  margin-right: 2px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+body.dark-theme .notes .comment-line strong.spec-key { background: #2d2650; border-color: #453c74; }
 .notes ul { color: var(--ink-soft); padding-left: 20px; max-width: 66ch; }
 .notes li { margin-bottom: 6px; overflow-wrap: break-word; }
 

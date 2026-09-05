@@ -92,12 +92,12 @@
 
   <section class="notes">
     <h2>// what gets checked</h2>
-    <ul>
-      <li><strong>JSON syntax</strong> — trailing commas, unquoted keys, mismatched braces — reported with the line and column where parsing failed. Modern V8 often includes a position itself now, but not consistently — some failures come back with no location at all, and older runtimes and other engines vary.</li>
-      <li><strong>Duplicate keys within the same object</strong> — valid JSON allows this (the last one silently wins), which makes it a nasty bug: the config loads fine, but a setting you think is active isn't.</li>
-      <li><strong>Empty <code>ConnectionStrings</code> values</strong> — a key present with an empty string, which usually means a secret was meant to come from environment variables or a secrets manager but the placeholder was left checked in.</li>
-      <li><strong>Suspiciously plaintext-looking secrets</strong> — a rough heuristic flag on values that look like passwords or keys sitting directly in the file, as a nudge to double check they're not meant to be in <code>appsettings.Development.json</code>, user secrets, or a vault instead. If one's already been committed and pushed, <a href="../guides/appsettings-secrets-in-git">here's what that actually takes to fix</a>.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">JSON syntax</strong> — trailing commas, unquoted keys, mismatched braces — reported with the line and column where parsing failed. Modern V8 often includes a position itself now, but not consistently — some failures come back with no location at all, and older runtimes and other engines vary.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Duplicate keys within the same object</strong> — valid JSON allows this (the last one silently wins), which makes it a nasty bug: the config loads fine, but a setting you think is active isn't.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Empty <code>ConnectionStrings</code> values</strong> — a key present with an empty string, which usually means a secret was meant to come from environment variables or a secrets manager but the placeholder was left checked in.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong>Suspiciously plaintext-looking secrets</strong> — a rough heuristic flag on values that look like passwords or keys sitting directly in the file, as a nudge to double check they're not meant to be in <code>appsettings.Development.json</code>, user secrets, or a vault instead. If one's already been committed and pushed, <a href="../guides/appsettings-secrets-in-git">here's what that actually takes to fix</a>.</p></div>
+    </div>
 
     <h2>// why appsettings bugs are so quiet</h2>
     <div class="comment-line"><span class="bar">│</span><p>ASP.NET Core's configuration system merges appsettings.json, appsettings.{Environment}.json, environment variables, and user secrets in a defined precedence order, and a key that's misspelled or nested one level off from where a strongly-typed options class expects it won't throw — it just silently falls back to the type's default value. That's why catching structural mistakes before the app even starts (rather than debugging a "why is this null" at runtime) is worth the extra minute.</p></div>

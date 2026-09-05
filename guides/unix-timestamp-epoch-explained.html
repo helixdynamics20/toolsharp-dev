@@ -124,10 +124,10 @@
     </figure>
 
     <h2>// what happens when the unit is wrong</h2>
-    <ul>
-      <li><strong>Seconds read as milliseconds</strong> — the value is treated as 1000× smaller than intended, so it lands in <strong>January 1970</strong>, a few days after the epoch. This is the classic "why is every date showing 1970" bug.</li>
-      <li><strong>Milliseconds read as seconds</strong> — the value is treated as 1000× larger, throwing the date <strong>tens of thousands of years into the future</strong>. Some systems reject it outright; others cheerfully display an absurd year.</li>
-    </ul>
+    <div class="spec-list">
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Seconds read as milliseconds</strong> — the value is treated as 1000× smaller than intended, so it lands in <strong>January 1970</strong>, a few days after the epoch. This is the classic "why is every date showing 1970" bug.</p></div>
+      <div class="comment-line"><span class="bar">│</span><p><strong class="spec-key">Milliseconds read as seconds</strong> — the value is treated as 1000× larger, throwing the date <strong>tens of thousands of years into the future</strong>. Some systems reject it outright; others cheerfully display an absurd year.</p></div>
+    </div>
     <div class="callout warn">Neither mistake throws an error at the boundary where it happens — both produce a perfectly valid number that is simply wrong, and the damage usually surfaces much later in a report or a UI. Check the unit at every boundary a timestamp crosses, not just once at the source. A <a href="what-is-a-jwt">JWT's <code>exp</code>/<code>nbf</code>/<code>iat</code> claims</a> are ordinary Unix timestamps in seconds — hand one a milliseconds value by mistake and it either looks expired immediately or effectively never expires, with no error at the point it went wrong.</div>
   </section>
 
