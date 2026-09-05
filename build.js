@@ -218,6 +218,59 @@ function processServiceWorker() {
   console.log('Versioned service-worker.js asset URLs');
 }
 
+// RSS feed for the guides -- lets a newsletter curator or feed reader
+// discover a new guide automatically instead of needing a manual
+// submission every time one ships. Sourced from sitemap.xml's own
+// <lastmod> per guide rather than a separately hand-maintained date list,
+// since that's already kept current and this way there's one date to get
+// right, not two that can drift apart.
+function generateRssFeed() {
+  const sitemap = fs.readFileSync(path.join(srcDir, 'sitemap.xml'), 'utf8');
+  const guideUrls = [...sitemap.matchAll(/<url><loc>(https:\/\/toolsharp\.dev\/guides\/[^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g)]
+    .map(([, loc, lastmod]) => ({ loc, lastmod }));
+
+  const escXml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const decodeHtmlEntities = (s) => s.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+  const items = guideUrls.map(({ loc, lastmod }) => {
+    const slug = loc.replace('https://toolsharp.dev/guides/', '');
+    const html = fs.readFileSync(path.join(srcDir, 'guides', slug + '.html'), 'utf8');
+    const titleMatch = html.match(/<meta property="og:title" content="([^"]*)"/);
+    const descMatch = html.match(/<meta name="description" content="([^"]*)"/);
+    return {
+      title: decodeHtmlEntities(titleMatch ? titleMatch[1] : slug),
+      desc: decodeHtmlEntities(descMatch ? descMatch[1] : ''),
+      loc,
+      pubDate: new Date(lastmod + 'T12:00:00Z').toUTCString(),
+      sortKey: lastmod,
+    };
+  }).sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
+  const itemsXml = items.map(it => `
+  <item>
+    <title>${escXml(it.title)}</title>
+    <link>${it.loc}</link>
+    <guid>${it.loc}</guid>
+    <description>${escXml(it.desc)}</description>
+    <pubDate>${it.pubDate}</pubDate>
+  </item>`).join('');
+
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>ToolSharp.dev Guides</title>
+  <link>https://toolsharp.dev/guides</link>
+  <description>New reference guides from ToolSharp.dev -- specific error messages and edge cases explained, with a .NET/SQL Server focus.</description>
+  <language>en-us</language>
+  <atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="https://toolsharp.dev/feed.xml" rel="self" type="application/rss+xml"/>${itemsXml}
+</channel>
+</rss>
+`;
+
+  fs.writeFileSync(path.join(distDir, 'feed.xml'), rss);
+  console.log(`Generated feed.xml (${items.length} guides)`);
+}
+
 // HTML Minification function
 async function processHtml() {
   const htmlMinifyOptions = {
@@ -320,6 +373,7 @@ async function main() {
   await processJs();
   await processHtml();
   processServiceWorker();
+  generateRssFeed();
   console.log('Build completed successfully!');
 }
 
