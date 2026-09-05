@@ -137,8 +137,22 @@ function tryRepairJson(text) {
         output += 'null';
       } else if (word === 'true' || word === 'false' || word === 'null') {
         output += word;
+      } else if (word === 'NaN' || word === 'Infinity' || word === '-Infinity') {
+        // JSON has no NaN/Infinity literals -- JSON.stringify() itself
+        // serializes these as null, so repairing to null keeps parity with
+        // that instead of emitting a bare word that fails the re-parse
+        // check below and silently declines to offer any fix at all.
+        output += 'null';
       } else if (!isNaN(Number(word))) {
-        output += word;
+        // Number(word) accepts syntax JSON's own number grammar doesn't --
+        // a leading "+", or a "." with no digit before it (with or without
+        // a leading "-") -- so a technically-numeric word could still fail
+        // the re-parse check below and get silently dropped as unrepairable.
+        let num = word;
+        if (num[0] === '+') num = num.slice(1);
+        if (num[0] === '.') num = '0' + num;
+        else if (num.startsWith('-.')) num = '-0' + num.slice(1);
+        output += num;
       } else {
         output += '"' + word + '"';
       }
