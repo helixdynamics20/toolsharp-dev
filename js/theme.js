@@ -80,55 +80,15 @@
   }
 
   // Command Palette Logic
-  var toolsList = [
-    { name: 'Connection String Builder', path: '/tools/connection-string-builder' },
-    { name: 'Cron Builder & Explainer', path: '/tools/cron-builder' },
-    { name: 'JWT Decoder', path: '/tools/jwt-decoder' },
-    { name: 'GUID Formatter & Generator', path: '/tools/guid-formatter' },
-    { name: 'Regex Tester', path: '/tools/regex-tester' },
-    { name: 'AppSettings Validator', path: '/tools/appsettings-validator' },
-    { name: 'JSON Formatter & Minifier', path: '/tools/json-formatter' },
-    { name: 'Diff Checker', path: '/tools/diff-checker' },
-    { name: 'Base64 Converter', path: '/tools/base64-converter' },
-    { name: 'Share Pad', path: '/tools/share-pad' },
-    { name: 'Cryptographic Hash Generator', path: '/tools/hash-generator' },
-    { name: 'Epoch & Timestamp Converter', path: '/tools/epoch-converter' },
-    { name: 'URL Encoder & Decoder', path: '/tools/url-encoder' },
-    { name: 'SQL Formatter & Beautifier', path: '/tools/sql-formatter' },
-    { name: 'Password Generator', path: '/tools/password-generator' },
-    { name: 'Case Converter', path: '/tools/case-converter' },
-    { name: 'XML Formatter & Validator', path: '/tools/xml-formatter' },
-    { name: 'Number Base Converter', path: '/tools/base-converter' },
-    { name: 'CSV / JSON Converter', path: '/tools/csv-json-converter' },
-    { name: 'Color Converter & Contrast Checker', path: '/tools/color-converter' },
-    { name: 'Markdown Previewer', path: '/tools/markdown-previewer' },
-    { name: 'QR Code Generator', path: '/tools/qr-code-generator' },
-    { name: 'cURL Converter', path: '/tools/curl-converter' }
-  ];
-
-  var guidesList = [
-    { name: 'JSON Is Invalid But Looks Correct', path: '/guides/json-invisible-characters-explained' },
-    { name: 'Unexpected Token in JSON at Position N', path: '/guides/json-unexpected-token-explained' },
-    { name: 'Python "JSONDecodeError: Expecting value"', path: '/guides/python-json-decode-error-explained' },
-    { name: '"Unexpected End of JSON Input"', path: '/guides/unexpected-end-of-json-input-explained' },
-    { name: 'PowerShell "ConvertFrom-Json: Invalid JSON primitive"', path: '/guides/powershell-convertfrom-json-invalid-primitive' },
-    { name: 'Cron Expression Cheat Sheet', path: '/guides/cron-expression-cheat-sheet' },
-    { name: 'What Is a JWT?', path: '/guides/what-is-a-jwt' },
-    { name: 'SQL Server Connection String Examples', path: '/guides/sql-server-connection-string-examples' },
-    { name: 'Regex Cheat Sheet', path: '/guides/regex-cheat-sheet' },
-    { name: 'Hashing Algorithms Explained', path: '/guides/hashing-algorithms-explained' },
-    { name: 'UUID / GUID Versions Explained', path: '/guides/uuid-guid-versions-explained' },
-    { name: 'Unix Timestamp & Epoch Time Explained', path: '/guides/unix-timestamp-epoch-explained' },
-    { name: 'Hangfire Cron Job Running on the Wrong Day', path: '/guides/hangfire-cron-wrong-day-explained' },
-    { name: 'Microsoft.Data.Sqlite in .NET 10: DateTimeOffset Now Assumes UTC', path: '/guides/sqlite-net10-datetimeoffset-utc-breaking-change' },
-    { name: '"Keyword Not Supported" and Certificate Trust Errors', path: '/guides/sql-server-keyword-not-supported-encrypt' },
-    { name: 'appsettings.json Secrets Committed to Git', path: '/guides/appsettings-secrets-in-git' },
-    { name: 'Quartz.NET "?" vs "*"', path: '/guides/quartz-net-question-mark-explained' },
-    { name: 'The URL Fragment That Never Reaches Your Server', path: '/guides/url-hash-fragment-explained' },
-    { name: 'EF Core: "The Database Is Already Up to Date"', path: '/guides/ef-core-migrations-already-up-to-date' },
-    { name: 'Why curl -d Doesn\'t Send application/json', path: '/guides/curl-data-json-content-type-explained' },
-    { name: 'EF Core 10 Renamed Columns You Didn\'t Touch', path: '/guides/ef-core-10-complex-type-column-renaming' }
-  ];
+  //
+  // toolsList/guidesList used to be hand-maintained copies of the same data
+  // that lives in tools/index.html, guides/index.html, and llms.txt -- that
+  // duplication once caused a real bug (guides missing from this palette
+  // entirely). They're now derived from the single catalog in
+  // data/catalog.js (loaded before this script) instead of kept separately.
+  var catalog = window.TOOLSHARP_CATALOG || { tools: [], guides: [] };
+  var toolsList = catalog.tools.map(function (t) { return { name: t.name, path: t.path }; });
+  var guidesList = catalog.guides.map(function (g) { return { name: g.name, path: g.path }; });
 
   // Exposed so other scripts (the home page terminal) can reuse this index
   // instead of keeping their own copy of it.
@@ -317,56 +277,20 @@
     var isGuideSubpage = window.location.pathname.includes('/guides/');
     var pathPrefix = (isToolSubpage || isGuideSubpage) ? '../' : '';
 
-    var categories = [
-      {
-        name: 'json',
-        items: [
-          { name: 'JSON Formatter', path: 'tools/json-formatter' },
-          { name: 'AppSettings Validator', path: 'tools/appsettings-validator' },
-          { name: 'CSV / JSON Converter', path: 'tools/csv-json-converter' }
-        ]
-      },
-      {
-        name: 'encoding',
-        items: [
-          { name: 'Base64 Converter', path: 'tools/base64-converter' },
-          { name: 'URL Encoder', path: 'tools/url-encoder' },
-          { name: 'JWT Decoder', path: 'tools/jwt-decoder' },
-          { name: 'Color Converter', path: 'tools/color-converter' },
-          { name: 'QR Code Generator', path: 'tools/qr-code-generator' }
-        ]
-      },
-      {
-        name: 'text',
-        items: [
-          { name: 'Diff Checker', path: 'tools/diff-checker' },
-          { name: 'SQL Formatter', path: 'tools/sql-formatter' },
-          { name: 'Case Converter', path: 'tools/case-converter' },
-          { name: 'XML Formatter', path: 'tools/xml-formatter' },
-          { name: 'Markdown Previewer', path: 'tools/markdown-previewer' },
-          { name: 'Share Pad', path: 'tools/share-pad' }
-        ]
-      },
-      {
-        name: 'hashes',
-        items: [
-          { name: 'Hash Generator', path: 'tools/hash-generator' }
-        ]
-      },
-      {
-        name: 'dev-helpers',
-        items: [
-          { name: 'Connection String Builder', path: 'tools/connection-string-builder' },
-          { name: 'Cron Builder & Explainer', path: 'tools/cron-builder' },
-          { name: 'Epoch Converter', path: 'tools/epoch-converter' },
-          { name: 'GUID Formatter', path: 'tools/guid-formatter' },
-          { name: 'Regex Tester', path: 'tools/regex-tester' },
-          { name: 'Password Generator', path: 'tools/password-generator' },
-          { name: 'Base Converter', path: 'tools/base-converter' },
-          { name: 'cURL Converter', path: 'tools/curl-converter' }
-        ]
-      }
-    ];
+    // Grouped from data/catalog.js (same category each tool has on
+    // tools/index.html) instead of a separately hand-maintained list --
+    // that duplication had already drifted for real: this dropdown showed
+    // JWT Decoder under "encoding" while tools/index.html has always
+    // grouped it under "dev-helpers".
+    var CATEGORY_ORDER = ['json', 'encoding', 'text', 'hashes', 'dev-helpers'];
+    var categories = CATEGORY_ORDER.map(function (catName) {
+      return {
+        name: catName,
+        items: catalog.tools
+          .filter(function (t) { return t.category === catName; })
+          .map(function (t) { return { name: t.name, path: t.path.replace(/^\//, '') }; })
+      };
+    });
 
     var dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'nav-category-dropdowns';

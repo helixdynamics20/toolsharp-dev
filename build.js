@@ -37,15 +37,18 @@ fs.mkdirSync(path.join(distDir, 'guides'));
 fs.mkdirSync(path.join(distDir, 'assets'));
 fs.mkdirSync(path.join(distDir, 'api'));
 
-// Every tool/guide has to be registered in several hand-maintained places
-// (theme.js's command palette, theme.js's nav category dropdown, the
-// relevant index.html, sitemap.xml) with no single source of truth --
-// exactly the setup that already caused a real bug once (a new guide
-// missing from the palette). Rather than trust hand-editing to catch every
-// spot next time, this diffs each list against the actual .html files on
-// disk and fails the build the moment any one of them drifts, instead of
-// silently shipping a tool/guide that's reachable from some pages but not
-// others.
+// Every tool/guide has to be registered in several places: js/catalog.js
+// (theme.js's command palette, nav dropdown, and terminal all derive from
+// this one file now, instead of each keeping its own copy -- that setup
+// already caused a real bug once, a new guide missing from the palette),
+// plus the relevant index.html, sitemap.xml, and llms.txt, which still
+// carry their own hand-written HTML/prose and can't just be generated from
+// catalog.js without flattening content that's deliberately worded
+// differently per place. Rather than trust hand-editing to catch every spot
+// next time, this diffs catalog.js against the actual .html files on disk
+// and against all three of those, failing the build the moment any one of
+// them drifts, instead of silently shipping a tool/guide that's reachable
+// from some pages but not others.
 function validateRegistration() {
   const errors = [];
 
@@ -56,32 +59,31 @@ function validateRegistration() {
     .filter(f => f.endsWith('.html') && f !== 'index.html')
     .map(f => f.replace(/\.html$/, ''));
 
-  const themeJs = fs.readFileSync(path.join(srcDir, 'js/theme.js'), 'utf8');
+  // js/catalog.js is the single source of truth theme.js derives its
+  // palette/nav-dropdown/terminal lists from at runtime (no more hand-kept
+  // copies in theme.js to drift) -- this check validates *catalog.js itself*
+  // against disk, tools/index.html, guides/index.html, sitemap.xml, and
+  // llms.txt, so a tool/guide missing from any of those still fails the
+  // build loudly instead of silently shipping a gap (this is exactly how
+  // llms.txt once ended up missing a real guide).
+  delete require.cache[require.resolve(path.join(srcDir, 'js/catalog.js'))];
+  const catalog = require(path.join(srcDir, 'js/catalog.js'));
+  const catalogTools = catalog.tools.map(t => t.path.replace(/^\/tools\//, ''));
+  const catalogGuides = catalog.guides.map(g => g.path.replace(/^\/guides\//, ''));
+
   const toolsIndexHtml = fs.readFileSync(path.join(srcDir, 'tools/index.html'), 'utf8');
   const guidesIndexHtml = fs.readFileSync(path.join(srcDir, 'guides/index.html'), 'utf8');
   const sitemap = fs.readFileSync(path.join(srcDir, 'sitemap.xml'), 'utf8');
-
-  const extractBetween = (text, startMarker, endMarker) => {
-    const start = text.indexOf(startMarker);
-    const end = text.indexOf(endMarker, start);
-    if (start === -1 || end === -1) return '';
-    return text.slice(start, end);
-  };
-
-  const toolsListBlock = extractBetween(themeJs, 'var toolsList = [', 'var guidesList = [');
-  const paletteTools = [...toolsListBlock.matchAll(/path:\s*'\/tools\/([^']+)'/g)].map(m => m[1]);
-
-  const guidesListBlock = extractBetween(themeJs, 'var guidesList = [', 'window.TOOLSHARP_TOOLS');
-  const paletteGuides = [...guidesListBlock.matchAll(/path:\s*'\/guides\/([^']+)'/g)].map(m => m[1]);
-
-  const categoriesBlock = extractBetween(themeJs, 'var categories = [', 'var dropdownContainer');
-  const navDropdownTools = [...categoriesBlock.matchAll(/path:\s*'tools\/([^']+)'/g)].map(m => m[1]);
+  const llms = fs.readFileSync(path.join(srcDir, 'llms.txt'), 'utf8');
 
   const toolsIndexTools = [...toolsIndexHtml.matchAll(/data-row-href="\/tools\/([^"]+)"/g)].map(m => m[1]);
   const guidesIndexGuides = [...guidesIndexHtml.matchAll(/data-row-href="\/guides\/([^"]+)"/g)].map(m => m[1]);
 
   const sitemapTools = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/tools\/([^<]+)<\/loc>/g)].map(m => m[1]);
   const sitemapGuides = [...sitemap.matchAll(/<loc>https:\/\/toolsharp\.dev\/guides\/([^<]+)<\/loc>/g)].map(m => m[1]);
+
+  const llmsTools = [...llms.matchAll(/\(https:\/\/toolsharp\.dev\/tools\/([^)]+)\)/g)].map(m => m[1]);
+  const llmsGuides = [...llms.matchAll(/\(https:\/\/toolsharp\.dev\/guides\/([^)]+)\)/g)].map(m => m[1]);
 
   function checkSet(kind, groundTruth, sets) {
     for (const slug of groundTruth) {
@@ -97,21 +99,26 @@ function validateRegistration() {
   }
 
   checkSet('tool', toolFiles, {
-    'theme.js command palette (toolsList)': paletteTools,
-    'theme.js nav dropdown (categories)': navDropdownTools,
+    'js/catalog.js': catalogTools,
     'tools/index.html': toolsIndexTools,
     'sitemap.xml': sitemapTools,
+    'llms.txt': llmsTools,
   });
   checkSet('guide', guideFiles, {
-    'theme.js command palette (guidesList)': paletteGuides,
+    'js/catalog.js': catalogGuides,
     'guides/index.html': guidesIndexGuides,
     'sitemap.xml': sitemapGuides,
+    'llms.txt': llmsGuides,
   });
+
+  const validCategories = { tool: ['json', 'encoding', 'text', 'hashes', 'dev-helpers'], guide: ['.net', 'json', 'reference'] };
+  for (const t of catalog.tools) if (!validCategories.tool.includes(t.category)) errors.push(`tool "${t.path}" has unrecognized category "${t.category}"`);
+  for (const g of catalog.guides) if (!validCategories.guide.includes(g.category)) errors.push(`guide "${g.path}" has unrecognized category "${g.category}"`);
 
   if (errors.length) {
     console.error('\nRegistration consistency check failed -- build aborted:\n');
     errors.forEach(e => console.error('  - ' + e));
-    console.error('\nEvery tool/guide must be registered in all of: theme.js (palette, and the nav dropdown for tools), the relevant index.html, and sitemap.xml.\n');
+    console.error('\nEvery tool/guide must be registered in all of: js/catalog.js, the relevant index.html, sitemap.xml, and llms.txt.\n');
     process.exit(1);
   }
   console.log(`Registration check passed: ${toolFiles.length} tools, ${guideFiles.length} guides, all in sync.`);
