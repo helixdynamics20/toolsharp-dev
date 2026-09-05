@@ -82,7 +82,13 @@ function parseUrlLive() {
 
   // A leading "scheme:" (mailto:, tel:, etc.) means the input already names
   // its own protocol, even without "//" — don't force it under https://.
-  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(raw);
+  // But "word:" followed by a bare port number (localhost:3000,
+  // example.com:8080/path) is a host:port pair, not a real scheme -- no
+  // real URI scheme is ever immediately followed by a raw port number like
+  // that, and without this exclusion "localhost:3000" parsed as its own
+  // "scheme" leaves host empty and dumps "3000" into the pathname instead.
+  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(raw) &&
+    !/^[a-zA-Z][a-zA-Z0-9+.-]*:\d+(?:[/?#]|$)/.test(raw);
   let parsed;
   try {
     parsed = new URL(hasScheme || raw.startsWith('//') ? raw : 'https://' + raw);
