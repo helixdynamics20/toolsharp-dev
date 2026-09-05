@@ -111,9 +111,22 @@ function validateRegistration() {
     'llms.txt': llmsGuides,
   });
 
-  const validCategories = { tool: ['json', 'encoding', 'text', 'hashes', 'dev-helpers'], guide: ['.net', 'json', 'reference'] };
-  for (const t of catalog.tools) if (!validCategories.tool.includes(t.category)) errors.push(`tool "${t.path}" has unrecognized category "${t.category}"`);
-  for (const g of catalog.guides) if (!validCategories.guide.includes(g.category)) errors.push(`guide "${g.path}" has unrecognized category "${g.category}"`);
+  // catalog.toolCategories/guideCategories is itself the single source for
+  // which categories exist -- theme.js's nav dropdown reads the same array,
+  // so a category can't silently drift between the two the way individual
+  // tools/guides used to. Two things get checked: every tool/guide's
+  // `category` is one catalog actually declares, and every declared
+  // category has a matching <div class="dir-category"> section in its
+  // index.html (catching "added a category to the catalog, forgot to add
+  // its listing section" the same way the rest of this function catches a
+  // missing tool/guide).
+  for (const t of catalog.tools) if (!catalog.toolCategories.includes(t.category)) errors.push(`tool "${t.path}" has unrecognized category "${t.category}" (not in catalog.toolCategories)`);
+  for (const g of catalog.guides) if (!catalog.guideCategories.includes(g.category)) errors.push(`guide "${g.path}" has unrecognized category "${g.category}" (not in catalog.guideCategories)`);
+
+  const toolsIndexCategories = [...toolsIndexHtml.matchAll(/<div class="dir-category"[^>]*>([^<]+)<\/div>/g)].map(m => m[1].replace(/\/$/, ''));
+  const guidesIndexCategories = [...guidesIndexHtml.matchAll(/<div class="dir-category"[^>]*>([^<]+)<\/div>/g)].map(m => m[1].replace(/\/$/, ''));
+  for (const cat of catalog.toolCategories) if (!toolsIndexCategories.includes(cat)) errors.push(`tool category "${cat}" is in catalog.toolCategories but has no matching section in tools/index.html`);
+  for (const cat of catalog.guideCategories) if (!guidesIndexCategories.includes(cat)) errors.push(`guide category "${cat}" is in catalog.guideCategories but has no matching section in guides/index.html`);
 
   if (errors.length) {
     console.error('\nRegistration consistency check failed -- build aborted:\n');

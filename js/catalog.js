@@ -6,14 +6,49 @@
 // (assigns window.TOOLSHARP_CATALOG), and via require() from build.js on
 // the Node side, so both consume the exact same data instead of drifting.
 //
-// js/theme.js derives its palette/nav/terminal lists from this at runtime
-// instead of keeping its own copy. tools/index.html, guides/index.html, and
-// llms.txt keep their own hand-written HTML/text (their prose differs in
-// length and phrasing from the short desc here on purpose) but build.js
-// validates every path in this file appears in all three, failing the
-// build loudly on drift instead of silently shipping a gap.
+// js/theme.js derives its palette/nav-dropdown/terminal lists from this at
+// runtime instead of keeping its own copies. tools/index.html,
+// guides/index.html, and llms.txt keep their own hand-written HTML/text
+// (their prose differs in length and phrasing from the short desc here on
+// purpose, so they aren't generated from this file) but build.js's
+// validateRegistration() validates every path here appears in all three,
+// failing the build loudly on drift instead of silently shipping a gap.
+//
+// toolCategories/guideCategories below are themselves the single source for
+// which categories exist and what order they display in -- js/theme.js's
+// nav dropdown and build.js's category-name validation both read this array
+// directly rather than keeping their own copies, so a category can't drift
+// the same way individual tools/guides used to.
+//
+// ── To add a new tool or guide ──
+//   1. Add its .html file under tools/ or guides/.
+//   2. Add an entry to the relevant array below (path/name/category/desc).
+//      Reuse an existing `category` value, or see "to add a new category".
+//   3. Add a matching <div class="dir-row"> to tools/index.html or
+//      guides/index.html, under the right <div class="dir-category">
+//      section (create one if using a new category -- see below).
+//   4. Add a <url> entry to sitemap.xml and a line to llms.txt.
+//   5. Run `node build.js` -- validateRegistration() fails loudly and
+//      names the exact file if any of the above was missed.
+// theme.js's palette, nav dropdown, and terminal all update automatically
+// from step 2 alone; steps 3-4 are the only genuinely separate places left,
+// since their prose is hand-written on purpose (see above).
+//
+// ── To add a new category ──
+//   1. Add its name to toolCategories or guideCategories below, in the
+//      position you want it to display (this is also its display label,
+//      shown as "<name>/" -- keep it lowercase to match the others).
+//   2. Tag the relevant entries with `category: '<name>'`.
+//   3. Add the matching <div class="dir-category" id="cat-...">name/</div>
+//      section to the index.html listing, in the same relative order.
+// Skipping step 3 is caught at build time (validateRegistration() checks
+// every category in this file has a matching section in the index page);
+// skipping step 1 is also caught (an unrecognized category name fails the
+// build immediately, naming the tool/guide and the bad category).
 (function (root) {
   var TOOLSHARP_CATALOG = {
+    toolCategories: ['json', 'encoding', 'text', 'hashes', 'dev-helpers'],
+    guideCategories: ['.net', 'json', 'reference'],
     tools: [
       { path: '/tools/json-formatter', name: 'JSON Formatter & Minifier', category: 'json', desc: 'Validate, format, minify, or convert any JSON — errors show the exact line and column, duplicate keys are flagged even when valid JSON technically permits them' },
       { path: '/tools/appsettings-validator', name: 'AppSettings Validator', category: 'json', desc: 'Validate and pretty-print appsettings.json — catches JSON syntax errors with line/column, duplicate keys, empty connection strings, and plaintext secrets' },

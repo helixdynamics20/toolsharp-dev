@@ -86,7 +86,7 @@
   // duplication once caused a real bug (guides missing from this palette
   // entirely). They're now derived from the single catalog in
   // data/catalog.js (loaded before this script) instead of kept separately.
-  var catalog = window.TOOLSHARP_CATALOG || { tools: [], guides: [] };
+  var catalog = window.TOOLSHARP_CATALOG || { tools: [], guides: [], toolCategories: [], guideCategories: [] };
   var toolsList = catalog.tools.map(function (t) { return { name: t.name, path: t.path }; });
   var guidesList = catalog.guides.map(function (g) { return { name: g.name, path: g.path }; });
 
@@ -277,13 +277,13 @@
     var isGuideSubpage = window.location.pathname.includes('/guides/');
     var pathPrefix = (isToolSubpage || isGuideSubpage) ? '../' : '';
 
-    // Grouped from data/catalog.js (same category each tool has on
-    // tools/index.html) instead of a separately hand-maintained list --
-    // that duplication had already drifted for real: this dropdown showed
+    // Grouped from js/catalog.js -- both which categories exist/their
+    // order (catalog.toolCategories) and which tool has which category --
+    // instead of keeping a second hand-maintained copy of either. That
+    // duplication had already drifted for real: this dropdown used to show
     // JWT Decoder under "encoding" while tools/index.html has always
     // grouped it under "dev-helpers".
-    var CATEGORY_ORDER = ['json', 'encoding', 'text', 'hashes', 'dev-helpers'];
-    var categories = CATEGORY_ORDER.map(function (catName) {
+    var categories = catalog.toolCategories.map(function (catName) {
       return {
         name: catName,
         items: catalog.tools
