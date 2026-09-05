@@ -95,9 +95,8 @@ function buildConnectionString() {
   if (timeout) parts.push(`Connect Timeout=${escapeCsValue(timeout)}`);
   if (appName) parts.push(`Application Name=${escapeCsValue(appName)}`);
 
-  const result = parts.join(';') + ';';
   const out = document.getElementById('csOutput');
-  out.innerHTML = highlightConnString(result);
+  out.innerHTML = highlightConnString(parts);
   out.classList.remove('empty');
 
   let warnings = [];
@@ -118,21 +117,60 @@ function buildConnectionString() {
   ).join('');
 }
 
+// Splits "Key=Value;Key=Value;..." the way ADO.NET actually does: a value
+// can be wrapped in ' or " (escapeCsValue above does exactly this for any
+// value containing ; = ' " or leading/trailing whitespace), and a ; or =
+// *inside* a quoted value is literal data, not a separator. Naively
+// splitting on every ; -- what this used to do -- silently truncated or
+// dropped any value that needed quoting, which is exactly the class of
+// value this tool's own Build side produces.
+function splitConnStringPairs(input) {
+  const pairs = [];
+  const n = input.length;
+  let i = 0;
+  while (i < n) {
+    while (i < n && (input[i] === ';' || /\s/.test(input[i]))) i++;
+    if (i >= n) break;
+    const keyStart = i;
+    while (i < n && input[i] !== '=' && input[i] !== ';') i++;
+    if (i >= n || input[i] !== '=') { while (i < n && input[i] !== ';') i++; continue; }
+    const key = input.slice(keyStart, i).trim();
+    i++; // skip '='
+    while (i < n && input[i] === ' ') i++;
+
+    let val;
+    if (input[i] === "'" || input[i] === '"') {
+      const quote = input[i];
+      i++;
+      let out = '';
+      while (i < n) {
+        if (input[i] === quote) {
+          if (input[i + 1] === quote) { out += quote; i += 2; continue; }
+          i++; break;
+        }
+        out += input[i]; i++;
+      }
+      val = out;
+      while (i < n && input[i] !== ';') i++; // trailing junk before the next ';', if any
+    } else {
+      const valStart = i;
+      while (i < n && input[i] !== ';') i++;
+      val = input.slice(valStart, i).trim();
+    }
+    pairs.push({ key, val });
+  }
+  return pairs;
+}
+
 function parseConnectionString() {
   const input = document.getElementById('csParseInput').value.trim();
   const resultDiv = document.getElementById('csParsedResult');
   if (!input) { resultDiv.innerHTML = ''; return; }
 
-  const pairs = input.split(';').map(p => p.trim()).filter(Boolean);
-  let rows = [];
-  pairs.forEach(p => {
-    const idx = p.indexOf('=');
-    if (idx === -1) return;
-    const key = p.substring(0, idx).trim();
-    let val = p.substring(idx + 1).trim();
-    if (/password|pwd/i.test(key)) val = '••••••• (hidden)';
-    rows.push({key, val});
-  });
+  let rows = splitConnStringPairs(input).map(({ key, val }) => ({
+    key,
+    val: /password|pwd/i.test(key) ? '••••••• (hidden)' : val,
+  }));
 
   if (rows.length === 0) {
     resultDiv.innerHTML = '<div class="callout error" style="margin-top:14px;">Could not parse any key=value pairs. Check the format looks like Key=Value;Key=Value;</div>';
@@ -155,8 +193,13 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function highlightConnString(str) {
-  return str.split(';').filter(Boolean).map(part => {
+// Takes the same "Key=EscapedValue" segments buildConnectionString() is
+// about to join with ';', instead of re-splitting the joined string on ';'
+// -- an escaped value can itself contain a literal ';' (that's the whole
+// reason escapeCsValue quotes it), and re-splitting on ';' broke that
+// value's boundary and highlighted a fake extra field in the middle of it.
+function highlightConnString(parts) {
+  return parts.map(part => {
     const idx = part.indexOf('=');
     if (idx === -1) return escapeHtml(part);
     const key = part.slice(0, idx);
