@@ -230,6 +230,21 @@ function logStructuralDelta(before, after, originalText) {
   if (braceDelta > 0) logRepairChange('struct-brace', 'Inserted {n} missing brace{s}', originalText, null, braceDelta);
   if (bracketDelta > 0) logRepairChange('struct-bracket', 'Inserted {n} missing bracket{s}', originalText, null, bracketDelta);
 }
+
+// A word that Number() parses fine (so it reaches this point) can still be
+// invalid JSON syntax: JSON permits a leading "-" but never "+", and
+// requires at least one digit before a decimal point ("0.5", not ".5").
+// Passing one of these through unchanged would leave the "repaired"
+// output still failing to parse.
+function normalizeJsonNumberSyntax(word) {
+  let sign = '';
+  let w = word;
+  if (w[0] === '+') { w = w.slice(1); }
+  else if (w[0] === '-') { sign = '-'; w = w.slice(1); }
+  if (w[0] === '.') { w = '0' + w; }
+  return sign + w;
+}
+
 function tryRepairJson(text) {
   resetRepairLog();
 
@@ -377,8 +392,18 @@ function tryRepairJson(text) {
         output += 'null';
       } else if (word === 'true' || word === 'false' || word === 'null') {
         output += word;
+      } else if (word === 'Infinity' || word === '-Infinity' || word === 'NaN') {
+        // Valid in JS (and what JSON.stringify() itself falls back to
+        // null for), never valid in JSON -- without this, these three
+        // passed the isNaN(Number(word)) check below (Number('Infinity')
+        // is a real, non-NaN value) and were written through unchanged,
+        // so the "repaired" output still failed to parse.
+        logRepairChange('non-finite', 'Converted {n} non-finite number{s} (Infinity/-Infinity/NaN) to null', text, wordStart);
+        output += 'null';
       } else if (!isNaN(Number(word))) {
-        output += word;
+        const normalized = normalizeJsonNumberSyntax(word);
+        if (normalized !== word) logRepairChange('number-syntax', 'Fixed {n} number{s} not valid in JSON (leading + or missing 0 before a decimal point)', text, wordStart);
+        output += normalized;
       } else {
         logRepairChange('bare-word', 'Quoted {n} unquoted key/value{s}', text, wordStart);
         output += '"' + word + '"';
@@ -463,6 +488,13 @@ function repairTokenStructure(tokens) {
     newTop.state = 'comma';
     newTop.empty = false;
   }
+  // Plain text of a token, quotes/escaping stripped -- used to rejoin
+  // consecutive bare words back into one string (see the 'key' state
+  // below).
+  function rawValueOf(tok) {
+    if (tok.type === 'STRING') return tok.value.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    return tok.value;
+  }
 
   let idx = 0;
   let guard = 0;
@@ -483,8 +515,26 @@ function repairTokenStructure(tokens) {
     if (top.type === 'obj') {
       if (top.state === 'key') {
         if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
-        if (tok.type === 'STRING') { out.push(tok); top.state = 'colon'; idx++; continue; }
-        if (tok.type === 'LITERAL') { out.push({ type: 'STRING', value: '"' + tok.value.replace(/"/g, '\\"') + '"' }); top.state = 'colon'; idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') {
+          // Consecutive bare words/strings with nothing but whitespace
+          // between them, still expecting a key, almost always means the
+          // key itself contains a space and lost its quotes (e.g.
+          // {first name: "John"}) -- a key position can only ever be
+          // followed by a colon in valid JSON, so "two keys in a row"
+          // isn't a real alternative reading. Joining them into one key
+          // beats quoting each separately and fabricating a comma + a
+          // null value between them, which silently produced wrong data
+          // that still looked like it had parsed successfully.
+          const parts = [rawValueOf(tok)];
+          idx++;
+          while (idx < tokens.length && (tokens[idx].type === 'STRING' || tokens[idx].type === 'LITERAL')) {
+            parts.push(rawValueOf(tokens[idx]));
+            idx++;
+          }
+          out.push({ type: 'STRING', value: '"' + parts.join(' ').replace(/"/g, '\\"') + '"' });
+          top.state = 'colon';
+          continue;
+        }
         idx++; continue; // stray comma/colon while expecting a key
       }
       if (top.state === 'colon') {
@@ -554,10 +604,15 @@ function repairStructuralIssues(text) {
 
 let _pendingAutoFixNote = false;
 
-function repairAndUpdateInput() {
-  const inputEl = document.getElementById('jsonInput');
-  const text = inputEl.value;
-  if (!text.trim()) return false;
+// Computes the repaired JSON without touching the input box -- the input
+// is what the user actually pasted/typed, and it should stay that way so
+// they can still see what they started with (and re-run Auto-fix, or edit
+// and retry, without losing it). This used to overwrite #jsonInput with
+// the repaired text directly, which meant a click on "Auto-fix it" quietly
+// replaced whatever the user had typed.
+function computeRepairedJson() {
+  const text = document.getElementById('jsonInput').value;
+  if (!text.trim()) return null;
 
   let wasAlreadyValid = false;
   try { JSON.parse(text); wasAlreadyValid = true; } catch (_) {}
@@ -565,27 +620,51 @@ function repairAndUpdateInput() {
   const repaired = tryRepairJson(text);
   // the structural pass reconstructs the token stream flat (single spaces
   // between tokens) since it doesn't track original indentation -- pretty
-  // print it back so the input box doesn't turn into a squished one-liner
-  let toSet = repaired;
+  // print it back rather than showing a squished one-liner
+  let formatted = repaired;
   try {
-    toSet = JSON.stringify(JSON.parse(repaired), null, getIndent());
+    formatted = JSON.stringify(JSON.parse(repaired), null, getIndent());
   } catch (_) {
     // repair didn't fully succeed -- fall back to the raw attempt as-is
   }
 
-  inputEl.value = toSet;
   _pendingAutoFixNote = !wasAlreadyValid;
-  return true;
+  return formatted;
+}
+
+function renderRepairedOutput(formatted) {
+  let parsed;
+  try {
+    parsed = JSON.parse(formatted);
+  } catch (e) {
+    renderResult([{ type: 'error', msg: 'Could not fully repair: ' + escapeHtml(e.message) }]);
+    return;
+  }
+  const checks = [{ type: 'ok', msg: 'Valid JSON.' }];
+  const isStrict = document.getElementById('jsonStrict').checked;
+  const dupes = isStrict ? findDuplicateKeys(formatted) : [];
+  if (dupes.length) {
+    checks.push({ type: 'warn', msg: `Duplicate key(s) within the same object: ${dupes.map(d => `<code>${escapeHtml(d)}</code>`).join(', ')} — the last one silently wins in valid JSON.` });
+  }
+  if (_pendingAutoFixNote) {
+    _pendingAutoFixNote = false;
+    const summary = formatRepairSummary();
+    const detail = summary ? summary + '. ' : '';
+    checks.push({ type: 'warn', msg: detail + 'Please review the result below against what you actually intended before relying on it.' });
+  }
+  renderResult(checks, formatted, parsed);
 }
 
 function applyJsonRepair() {
-  if (!repairAndUpdateInput()) return;
-  formatJson();
+  const formatted = computeRepairedJson();
+  if (formatted === null) return;
+  renderRepairedOutput(formatted);
 }
 
 function autoFixJson() {
-  if (!repairAndUpdateInput()) return;
-  formatJson();
+  const formatted = computeRepairedJson();
+  if (formatted === null) return;
+  renderRepairedOutput(formatted);
 }
 
 function validateOnly(text) {
@@ -787,11 +866,16 @@ function convertToYaml() {
       const val = obj[key];
       const valStr = jsonToYaml(val, depth + 1);
       const prefix = index === 0 && depth > 0 ? '' : spacing;
-      
+      // A JSON key is always a string, but YAML has no such restriction --
+      // an unquoted key like "true" or "123" is parsed back as a boolean or
+      // number, silently changing type on round-trip. Same guard already
+      // used for values below, applied to keys too.
+      const keyStr = yamlNeedsQuoting(key) ? yamlEscapeString(key) : key;
+
       if (typeof val === 'object' && val !== null) {
-        return `${prefix}${key}:${valStr}`;
+        return `${prefix}${keyStr}:${valStr}`;
       } else {
-        return `${prefix}${key}: ${valStr}`;
+        return `${prefix}${keyStr}: ${valStr}`;
       }
     }).join('\n');
   }
