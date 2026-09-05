@@ -71,14 +71,14 @@
     <div class="comment-line"><span class="bar">│</span><p>"Blank space" in a text file is not one character — it's dozens of distinct Unicode code points, and JSON's own grammar only permits four of them as whitespace: plain space (<code>U+0020</code>), tab, carriage return, and line feed. Word processors, browsers, and chat clients routinely insert other space-like or width-zero characters that render identically to a normal space (or don't render at all) but are, byte-for-byte, a completely different character — one JSON's parser has never heard of and will reject the instant it appears outside a quoted string.</p></div>
 
     <figure class="guide-figure">
-      <svg viewBox="0 0 460 150" role="img" aria-label="Diagram showing a JSON snippet that looks identical whether the space before a key is a normal space or a non-breaking space, with the non-breaking space revealed as a red highlighted character.">
+      <svg viewBox="0 0 460 160" role="img" aria-label="Diagram showing a JSON snippet that looks identical whether the space before a key is a normal space or a non-breaking space, with the non-breaking space revealed as a red highlighted character.">
         <text x="10" y="30" font-family="var(--sans)" font-size="11" font-weight="600" fill="var(--ink-faint)">what you see</text>
         <rect x="10" y="42" width="440" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
         <text x="24" y="62" font-family="var(--mono)" font-size="13" fill="var(--ink)">{ "name": "Alice",  "role": "admin" }</text>
         <text x="10" y="98" font-family="var(--sans)" font-size="11" font-weight="600" fill="var(--red)">what's actually there</text>
         <rect x="10" y="110" width="440" height="30" rx="4" fill="var(--bg)" stroke="var(--rule-strong)"/>
         <text x="24" y="130" xml:space="preserve" font-family="var(--mono)" font-size="13" fill="var(--ink)">{ "name": "Alice", <tspan fill="var(--red)" font-weight="700">·</tspan> "role": "admin" }</text>
-        <text x="230" y="146" font-family="var(--sans)" font-size="9.5" fill="var(--red)" text-anchor="middle">U+00A0 (non-breaking space) — identical on screen, invalid here</text>
+        <text x="230" y="152" font-family="var(--sans)" font-size="9.5" fill="var(--red)" text-anchor="middle">U+00A0 (non-breaking space) — identical on screen, invalid here</text>
       </svg>
       <figcaption>Two renderings of the exact same bytes. The top line is what your editor shows you. The bottom line is what's actually in the file — a non-breaking space where you'd swear there's just a normal one, sitting right where the parser gives up.</figcaption>
     </figure>
