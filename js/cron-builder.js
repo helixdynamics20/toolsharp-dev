@@ -162,7 +162,21 @@ function explainPasted() {
 function describeFieldValue(name, value, quartzDow) {
   if (value === '*') return 'every ' + name;
   if (value === '?') return 'any (wildcard)';
+  // A comma-separated list (e.g. "1-5,10-15") has to be split before any of
+  // the single-value branches below run -- the plain-range branch matches
+  // on the mere presence of a "-" and would otherwise grab the "1-5" and
+  // stray "10" (via a 2-element split of the whole string on "-"), silently
+  // dropping the rest ("-15") instead of describing it.
+  if (value.includes(',')) return value.split(',').map(v => describeFieldValue(name, v, quartzDow)).join(', ');
   if (value.startsWith('*/')) return 'every ' + value.slice(2) + ' ' + name + (parseInt(value.slice(2)) > 1 ? 's' : '');
+  if (/^\d+-\d+\/\d+$/.test(value)) {
+    // range/step, e.g. "9-17/2" -- checked before the plain range branch
+    // below, which would otherwise match first (it only tests for a "-")
+    // and render this as the nonsensical "9 through 17/2".
+    const [range, step] = value.split('/');
+    const [lo, hi] = range.split('-');
+    return `every ${step} ${name}${parseInt(step, 10) > 1 ? 's' : ''} from ${lo} through ${hi}`;
+  }
   if (/^\d+$/.test(value)) {
     if (name === 'minute') return 'at :' + String(value).padStart(2, '0');
     if (name === 'hour') return 'at ' + String(value).padStart(2, '0') + ':xx';
@@ -179,7 +193,6 @@ function describeFieldValue(name, value, quartzDow) {
     return 'on day ' + value;
   }
   if (value.includes('-')) { const [a, b] = value.split('-'); return `${a} through ${b}`; }
-  if (value.includes(',')) return 'at ' + value;
   return value;
 }
 
@@ -228,6 +241,13 @@ function matchesField(field, value) {
       const [range, step] = part.split('/');
       const s = parseInt(step, 10);
       if (range === '*') return value % s === 0;
+      // range/step, e.g. "9-17/2" -- a bare parseInt(range) on "9-17" reads
+      // only the "9" and silently drops the upper bound, so a value like
+      // 19 or 21 (well outside 9-17) was matching too.
+      if (range.includes('-')) {
+        const [lo, hi] = range.split('-').map(Number);
+        return value >= lo && value <= hi && (value - lo) % s === 0;
+      }
       const start = parseInt(range, 10);
       return value >= start && (value - start) % s === 0;
     }
