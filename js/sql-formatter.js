@@ -21,12 +21,20 @@ function tokenizeSQL(sql) {
       tokens.push({ type: 'comment', value: sql.slice(i, j + 2) });
       i = j + 2; continue;
     }
-    // string literal (single or double quote)
+    // string literal (single or double quote). A doubled quote ('' or "")
+    // is the ANSI-standard escape every dialect here supports (T-SQL,
+    // PostgreSQL, and MySQL in ANSI_QUOTES mode) -- e.g. 'O''Brien' is one
+    // string, not two. A backslash before the closing quote (MySQL's
+    // non-ANSI default) also doesn't end the string.
     if (sql[i] === "'" || sql[i] === '"') {
       const q = sql[i];
       let j = i + 1;
       while (j < sql.length) {
-        if (sql[j] === q && sql[j - 1] !== '\\') { j++; break; }
+        if (sql[j] === '\\' && j + 1 < sql.length) { j += 2; continue; }
+        if (sql[j] === q) {
+          if (sql[j + 1] === q) { j += 2; continue; }
+          j++; break;
+        }
         j++;
       }
       tokens.push({ type: 'string', value: sql.slice(i, j) });
@@ -61,7 +69,14 @@ function tokenizeSQL(sql) {
       tokens.push({ type: 'word', value: sql.slice(i, j) });
       i = j; continue;
     }
-    // punctuation / operator (multi-char)
+    // punctuation / operator (multi-char) -- three-char operators must be
+    // checked before their two-char prefix, or "->>"  (Postgres/MySQL JSON
+    // text-extract) gets cut into "->" plus a stray ">".
+    const three = sql.slice(i, i + 3);
+    if (three === '->>') {
+      tokens.push({ type: 'op', value: three });
+      i += 3; continue;
+    }
     const two = sql.slice(i, i + 2);
     if (['<>', '!=', '<=', '>=', '::', '||', '->'].includes(two)) {
       tokens.push({ type: 'op', value: two });
@@ -186,7 +201,13 @@ function formatSQL(sql, opts = {}) {
   let depth = 0;
   let lineTokens = [];
   let parenDepthInLine = 0; // unclosed '(' currently sitting in lineTokens
+  let parenStack = []; // 'subquery' | 'inline' per currently-open paren, matching each '(' to how it should format when its ')' arrives
   let inSelectList = false;
+
+  // ::, ->, and ->> (Postgres cast and JSON operators) are conventionally
+  // written with no space on either side -- col::int, data->'key', not
+  // col :: int.
+  const TIGHT_OPS = new Set(['::', '->', '->>']);
 
   function smartJoin(toks) {
     let s = '';
@@ -195,6 +216,8 @@ function formatSQL(sql, opts = {}) {
       const prev = toks[j - 1];
       if (t === '.') { s = s.trimEnd() + '.'; continue; }
       if (prev === '.') { s += t; continue; }
+      if (TIGHT_OPS.has(t)) { s = s.trimEnd() + t; continue; }
+      if (TIGHT_OPS.has(prev)) { s += t; continue; }
       if (t === ',' || t === ')') { s = s.trimEnd() + t; continue; }
       if (t === '(') {
         const prevUp = prev !== undefined ? prev.toUpperCase() : undefined;
@@ -251,24 +274,35 @@ function formatSQL(sql, opts = {}) {
         flushLine();
         out += indent(depth) + '(\n';
         depth++;
+        parenStack.push('subquery');
         inSelectList = false;
       } else {
         lineTokens.push('(');
         parenDepthInLine++;
+        parenStack.push('inline');
       }
       i++; continue;
     }
 
-    // close paren
+    // close paren. Which kind of open paren this matches was decided (and
+    // recorded on parenStack) when it was opened above -- inferring it
+    // here from string-searching `out` (the previous approach) doesn't
+    // work: out.trimEnd().endsWith('\n') can never be true, since
+    // trimEnd() strips trailing newlines by definition. That made the
+    // subquery-dedent branch dead code -- depth never decreased, so
+    // everything after a closing subquery paren (an alias, the next
+    // clause) inherited the wrong indent, worse the more it nested.
     if (tok.value === ')') {
-      const prevWasSubquery = out.trimEnd().endsWith('\n') && depth > 0;
-      if (prevWasSubquery && lineTokens.length === 0) {
-        depth = Math.max(0, depth - 1);
-        out += indent(depth) + ')\n';
-      } else if (lineTokens.join(' ').includes('\n') === false && out.trimEnd().endsWith('\n')) {
+      const kind = parenStack.length ? parenStack.pop() : 'inline';
+      if (kind === 'subquery') {
+        // Flush the subquery's own last line (e.g. "FROM t") at its
+        // depth, *then* dedent, then start a fresh line with just ')' --
+        // left pending in lineTokens so a following alias ("AS sub") or
+        // another close paren joins it on the same line, exactly like
+        // any other token would.
         flushLine();
         depth = Math.max(0, depth - 1);
-        out += indent(depth) + ')\n';
+        lineTokens.push(')');
       } else {
         lineTokens.push(')');
         parenDepthInLine = Math.max(0, parenDepthInLine - 1);
@@ -282,6 +316,7 @@ function formatSQL(sql, opts = {}) {
       flushLine();
       out += '\n;\n\n';
       depth = 0;
+      parenStack = [];
       inSelectList = false;
       i++; continue;
     }
