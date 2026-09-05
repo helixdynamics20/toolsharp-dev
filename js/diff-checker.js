@@ -406,11 +406,15 @@ function runDiff() {
 
   const aLines = origRaw.split('\n');
   const bLines = changedRaw.split('\n');
-  // aCmp/bCmp are what "ignore whitespace" trims for the purpose of deciding
-  // what's different -- aLines/bLines (the true original text) are what
-  // actually gets shown and what "copy result" reconstructs from.
-  const aCmp = ignoreWs ? aLines.map(l => l.trim()) : aLines;
-  const bCmp = ignoreWs ? bLines.map(l => l.trim()) : bLines;
+  // aCmp/bCmp are what "ignore whitespace" normalizes for the purpose of
+  // deciding what's different -- aLines/bLines (the true original text) are
+  // what actually gets shown and what "copy result" reconstructs from.
+  // Collapsing internal runs too (not just trimming the ends) matches what
+  // "ignore whitespace" means in every other diff tool (diff -w, git diff
+  // -w): "const  x   =  1;" and "const x = 1;" should count as unchanged.
+  const normalizeWs = l => l.trim().replace(/\s+/g, ' ');
+  const aCmp = ignoreWs ? aLines.map(normalizeWs) : aLines;
+  const bCmp = ignoreWs ? bLines.map(normalizeWs) : bLines;
 
   const prefixLen = commonPrefixLen(aCmp, bCmp);
   const suffixLen = commonSuffixLen(aCmp, bCmp, prefixLen);
