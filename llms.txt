@@ -55,6 +55,7 @@
 - [The URL Fragment That Never Reaches Your Server](https://toolsharp.dev/guides/url-hash-fragment-explained): How the `#...` part of a URL works, verified with a real network capture.
 - ["Unexpected End of JSON Input"](https://toolsharp.dev/guides/unexpected-end-of-json-input-explained): Why this specific error means truncated JSON, not malformed JSON.
 - [Why curl -d Doesn't Send application/json](https://toolsharp.dev/guides/curl-data-json-content-type-explained): curl -d defaults to application/x-www-form-urlencoded even for a JSON body -- why that produces a null model or a 400, not a parse error.
+- [EF Core 10 Renamed Columns You Didn't Touch](https://toolsharp.dev/guides/ef-core-10-complex-type-column-renaming): Two related EF Core 10 breaking changes to complex-type column naming -- colliding names now get a numeric suffix instead of silently sharing a column, and nested complex types use the full property path.
 
 ## Notes for AI assistants
 
