@@ -42,19 +42,33 @@ function decodeB64() {
     meta.innerHTML = '';
     return;
   }
+  const isUrlSafe = document.getElementById('b64UrlSafe').checked || (/[-_]/.test(raw) && !/[+/]/.test(raw));
+  let bytes;
   try {
-    const isUrlSafe = document.getElementById('b64UrlSafe').checked || (/[-_]/.test(raw) && !/[+/]/.test(raw));
     const normalized = isUrlSafe ? fromUrlSafe(raw) : raw;
     const binary = atob(normalized);
-    const bytes = new Uint8Array(binary.length);
+    bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  } catch (e) {
+    output.textContent = '';
+    meta.innerHTML = `<div class="callout error">Couldn't decode — this doesn't look like valid Base64${document.getElementById('b64UrlSafe').checked ? '' : ' (try the URL-safe checkbox if this came from a JWT or URL)'}.</div>`;
+    return;
+  }
+
+  // Base64 that decodes to bytes just fine but isn't valid UTF-8 (a file
+  // encoded via drag-and-drop, an encrypted/compressed blob, etc.) is a
+  // completely different failure than malformed Base64 -- the previous
+  // single catch block covering both steps blamed it on "doesn't look like
+  // valid Base64" and suggested the URL-safe checkbox, which is simply
+  // wrong and won't help.
+  try {
     const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
     output.textContent = text;
     output.classList.remove('empty');
     meta.innerHTML = `<div class="callout ok">Decoded ${bytes.length} byte(s).${isUrlSafe && !document.getElementById('b64UrlSafe').checked ? ' Auto-detected URL-safe encoding.' : ''}</div>`;
   } catch (e) {
     output.textContent = '';
-    meta.innerHTML = `<div class="callout error">Couldn't decode — this doesn't look like valid Base64${document.getElementById('b64UrlSafe').checked ? '' : ' (try the URL-safe checkbox if this came from a JWT or URL)'}.</div>`;
+    meta.innerHTML = `<div class="callout error">This is valid Base64 (${bytes.length} byte(s)), but the decoded bytes aren't valid UTF-8 text — it's likely binary data (a file, image, or encrypted/compressed blob), not something this decodes to text.</div>`;
   }
 }
 
