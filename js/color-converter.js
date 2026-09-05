@@ -195,13 +195,28 @@ function contrastRatio(rgbA, rgbB) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+// Alpha isn't part of the WCAG luminance formula, and contrastRatio() above
+// only looks at r/g/b -- a translucent color's real, perceived contrast
+// depends on what shows through it, not its own channel values in
+// isolation. Composite it over its backdrop first so e.g. rgba(0,0,0,0.2)
+// text on a white background is scored as the pale gray it actually
+// renders as, not as opaque black.
+function compositeOver(fg, backdrop) {
+  const a = fg.a === undefined ? 1 : fg.a;
+  return {
+    r: fg.r * a + backdrop.r * (1 - a),
+    g: fg.g * a + backdrop.g * (1 - a),
+    b: fg.b * a + backdrop.b * (1 - a)
+  };
+}
+
 // Export for the standalone Node test harness; harmless in the browser
 // since `module` is undefined there and this branch is skipped.
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     parseColor, parseHex, parseRgbFn, parseHslFn,
     rgbToHex, rgbToHsl, hslToRgb, formatRgb, formatHsl,
-    relativeLuminance, contrastRatio
+    relativeLuminance, contrastRatio, compositeOver
   };
 }
 
@@ -306,7 +321,12 @@ function updateContrast() {
   errorEl.style.display = 'none';
   resultEl.style.display = 'block';
 
-  const ratio = contrastRatio(fg, bg);
+  // Composite any translucency over an opaque backdrop before measuring --
+  // the background itself over white (the assumed page canvas, absent any
+  // other context), then the foreground over that now-opaque background.
+  const bgOpaque = compositeOver(bg, { r: 255, g: 255, b: 255 });
+  const fgOpaque = compositeOver(fg, bgOpaque);
+  const ratio = contrastRatio(fgOpaque, bgOpaque);
   ratioEl.textContent = ratio.toFixed(2) + ' : 1';
 
   previewEl.style.background = formatRgb(bg);
