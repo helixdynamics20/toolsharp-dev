@@ -2,8 +2,19 @@
 function escapeXmlText(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+// Per the XML spec, attribute-value normalization replaces any *literal*
+// whitespace character (space, tab, CR, LF) in an attribute value with a
+// single space when the document is parsed. A value that reached the DOM
+// as an actual newline/tab/CR because the source used a character
+// reference (e.g. "line1&#10;line2") survives normalization as that real
+// character -- but re-emitting it here as a literal newline/tab/CR instead
+// of the reference would get it silently collapsed to a space the next
+// time ANY XML parser (including this tool, on a second Format pass)
+// reads it back. Escaping them as numeric character references keeps them
+// exempt from normalization, the same way the source protected them.
 function escapeXmlAttr(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/\n/g, '&#10;').replace(/\r/g, '&#13;').replace(/\t/g, '&#9;');
 }
 
 // ── HTML escaping for display only (matches json-formatter.js's approach:
