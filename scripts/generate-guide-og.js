@@ -40,10 +40,21 @@ function wrapTitle(title) {
   return lines;
 }
 
-function extractMeta(html) {
-  const h1 = html.match(/<h1>([^<]*(?:<[^\/][^<]*<\/[^>]+>[^<]*)*)<\/h1>/)[1]
+function extractMeta(html, slug) {
+  // Regex-parsing HTML is inherently fragile -- if a future guide's <h1> or
+  // description doesn't fit the shape these patterns assume (an <h1> with
+  // an exotic nesting structure, a missing meta description), .match()
+  // returns null and indexing [1] straight into that throws a bare
+  // "Cannot read properties of null", giving whoever runs this maintenance
+  // script no clue which guide or which piece of markup is the problem.
+  const h1Match = html.match(/<h1>([^<]*(?:<[^\/][^<]*<\/[^>]+>[^<]*)*)<\/h1>/);
+  if (!h1Match) throw new Error(`${slug}: couldn't find a matching <h1> to extract the OG title from.`);
+  const descMatch = html.match(/<meta name="description" content="([^"]*)"/);
+  if (!descMatch) throw new Error(`${slug}: couldn't find a <meta name="description"> to extract the OG description from.`);
+
+  const h1 = h1Match[1]
     .replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-  const desc = html.match(/<meta name="description" content="([^"]*)"/)[1]
+  const desc = descMatch[1]
     .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
   const badges = [...html.matchAll(/<span class="badge">([^<]*)<\/span>/g)].map(m => m[1]).slice(0, 3);
   return { title: h1, desc, badges: badges.length ? badges : ['reference'] };
@@ -52,7 +63,7 @@ function extractMeta(html) {
 async function generateOne(page, slug) {
   const htmlPath = slug === 'index' ? path.join(REPO, 'guides', 'index.html') : path.join(REPO, 'guides', slug + '.html');
   const html = fs.readFileSync(htmlPath, 'utf8');
-  const { title, desc, badges } = extractMeta(html);
+  const { title, desc, badges } = extractMeta(html, slug);
   const titleLines = wrapTitle(title);
 
   await page.setContent(TEMPLATE);
