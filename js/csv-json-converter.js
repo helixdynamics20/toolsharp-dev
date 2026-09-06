@@ -135,10 +135,33 @@ function parseCsv(text, delimiter) {
 }
 
 // Converts parsed CSV rows into an array of objects, using the first row
-// as the header/keys. Rows that are a single empty field (blank lines)
-// are skipped rather than turned into a spurious record.
+// as the header/keys. A truly blank line (no delimiters at all) always
+// parses to a single empty field -- for a CSV with more than one column
+// that's unambiguous (real data for an N-column row needs N-1 delimiters
+// to produce N fields, so a lone empty field can only be a blank/
+// separator line, safe to drop wherever it appears), but a genuinely
+// single-column CSV has no such signal: a real one-column row whose only
+// value is empty parses identically to a blank line. For that case, only
+// trailing blank-looking rows are dropped (a paste/file ending in blank
+// lines, the common real case) -- one anywhere else is kept as data,
+// since a stray blank line essentially never turns up mid-file by
+// accident. Dropping *any* blank-looking row unconditionally regardless
+// of column count (the previous behavior) could even consume the header
+// itself when a JSON object's only key was "" (a real key, however
+// unusual): "\r\nvalue" parses to [[''],['value']], and filtering out
+// that blank first row turned the actual data row into the header with
+// zero rows left, silently producing no data at all.
 function rowsToObjects(rows) {
-  const filtered = rows.filter(r => !(r.length === 1 && r[0] === ''));
+  const maxCols = rows.reduce((m, r) => Math.max(m, r.length), 0);
+  const isBlank = r => r.length === 1 && r[0] === '';
+  let filtered;
+  if (maxCols > 1) {
+    filtered = rows.filter(r => !isBlank(r));
+  } else {
+    let end = rows.length;
+    while (end > 0 && isBlank(rows[end - 1])) end--;
+    filtered = rows.slice(0, end);
+  }
   if (!filtered.length) return { data: [], duplicateHeaders: [] };
   const header = filtered[0];
 
