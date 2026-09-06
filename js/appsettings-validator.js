@@ -42,6 +42,15 @@ function findDuplicateKeys(text) {
 }
 
 function tryRepairJson(text) {
+  // appsettings.json is routinely saved with a UTF-8 byte-order-mark by
+  // various .NET tooling/editors, and a copy/paste carries it straight
+  // into the textarea as a literal U+FEFF character. JSON.parse rejects
+  // it outright (it's not one of the four whitespace characters the JSON
+  // grammar allows), and without stripping it here the "repaired" text
+  // would still start with it and fail to re-parse identically -- Auto-fix
+  // would silently do nothing for a file in this genuinely common state.
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
   let output = '';
   let i = 0;
   const n = text.length;
@@ -143,6 +152,13 @@ function tryRepairJson(text) {
         // that instead of emitting a bare word that fails the re-parse
         // check below and silently declines to offer any fix at all.
         output += 'null';
+      } else if (word === 'undefined') {
+        // Same failure mode as Infinity/NaN, just a value rather than a
+        // number: valid in JS, never valid in JSON. Without this it fell
+        // through to the generic bare-word branch below and got quoted
+        // into the literal string "undefined" -- silently turning a
+        // missing/placeholder value into real (wrong) string data.
+        output += 'null';
       } else if (!isNaN(Number(word))) {
         // Number(word) accepts syntax JSON's own number grammar doesn't --
         // a leading "+", or a "." with no digit before it (with or without
@@ -152,6 +168,18 @@ function tryRepairJson(text) {
         if (num[0] === '+') num = num.slice(1);
         if (num[0] === '.') num = '0' + num;
         else if (num.startsWith('-.')) num = '-0' + num.slice(1);
+        // A leading zero before another digit ("01", "007") is also
+        // Number()-parseable but not valid JSON. The /^0\d/ guard only
+        // fires when the second character is itself a digit, so this
+        // never touches a hex literal like "0x1F" (second char 'x') or an
+        // already-valid "0.5"/"0e5" (second char '.'/'e').
+        if (/^0\d/.test(num)) {
+          const m = /^0+(\d.*)$/.exec(num);
+          if (m) num = m[1];
+        } else if (/^-0\d/.test(num)) {
+          const m = /^-0+(\d.*)$/.exec(num);
+          if (m) num = '-' + m[1];
+        }
         output += num;
       } else {
         output += '"' + word + '"';
@@ -165,7 +193,192 @@ function tryRepairJson(text) {
   // Clean up trailing commas before closing braces/brackets
   output = output.replace(/,\s*([\}\]])/g, '$1');
 
+  // Structural pass: fix missing commas/colons/brackets and missing
+  // values -- see repairStructuralIssues() below. Ported from
+  // json-formatter.js, which had this and this file didn't: a missing
+  // comma between two properties -- arguably the single most common real
+  // JSON typo -- previously left this tool's own "Auto-fix it" link doing
+  // nothing at all, since the character-level pass above never touches
+  // anything when the only problem is a missing separator.
+  output = repairStructuralIssues(output);
+
   return output;
+}
+
+// -- structural repair: missing/mismatched commas, colons, and brackets --
+// Runs on text already normalized by the character-level pass above (so
+// quotes are all double-quoted, comments are gone, literals normalized).
+// This is a small lenient/recovering parser: it walks the token stream
+// tracking what each open object/array currently expects next, and
+// inserts or corrects whatever's missing so the result parses. It is a
+// best-effort heuristic, not a mind-reader -- always spot-check the
+// result against the source before trusting it (the tool says so too).
+// Verbatim port of json-formatter.js's version of the same three
+// functions (self-contained, no dependency on its repair-log system).
+
+function tokenizeForStructuralRepair(text) {
+  const tokens = [];
+  let i = 0;
+  const n = text.length;
+  function isDelim(ch) {
+    return ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' ||
+      ch === '{' || ch === '}' || ch === '[' || ch === ']' ||
+      ch === ':' || ch === ',' || ch === '"';
+  }
+  while (i < n) {
+    const c = text[i];
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r') { i++; continue; }
+    if (c === '{' || c === '}' || c === '[' || c === ']' || c === ':' || c === ',') {
+      tokens.push({ type: c, value: c });
+      i++; continue;
+    }
+    if (c === '"') {
+      let j = i + 1;
+      let raw = '"';
+      let closed = false;
+      while (j < n) {
+        if (text[j] === '\\') { raw += text[j] + (text[j + 1] || ''); j += 2; continue; }
+        if (text[j] === '"') { raw += '"'; j++; closed = true; break; }
+        raw += text[j]; j++;
+      }
+      if (!closed) raw += '"'; // unterminated string at EOF -- close it
+      tokens.push({ type: 'STRING', value: raw });
+      i = j; continue;
+    }
+    let j = i;
+    while (j < n && !isDelim(text[j])) j++;
+    if (j === i) { i++; continue; } // stray char we don't recognize -- drop
+    tokens.push({ type: 'LITERAL', value: text.slice(i, j) });
+    i = j;
+  }
+  return tokens;
+}
+
+function repairTokenStructure(tokens) {
+  const out = [];
+  const stack = [];
+  let rootDone = false;
+
+  function isCloser(tok) { return tok && (tok.type === '}' || tok.type === ']'); }
+  function isValueStart(tok) { return tok && (tok.type === 'STRING' || tok.type === 'LITERAL' || tok.type === '{' || tok.type === '['); }
+  function afterClose() {
+    const newTop = stack[stack.length - 1];
+    if (!newTop) { rootDone = true; return; }
+    newTop.state = 'comma';
+    newTop.empty = false;
+  }
+  // Plain text of a token, quotes/escaping stripped -- used to rejoin
+  // consecutive bare words back into one string (see the 'key' state
+  // below).
+  function rawValueOf(tok) {
+    if (tok.type === 'STRING') return tok.value.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    return tok.value;
+  }
+
+  let idx = 0;
+  let guard = 0;
+  const guardMax = tokens.length * 4 + 10;
+  while (idx < tokens.length) {
+    if (++guard > guardMax) break; // safety valve -- should be unreachable
+    const tok = tokens[idx];
+    const top = stack[stack.length - 1];
+
+    if (!top) {
+      if (rootDone) { idx++; continue; }
+      if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+      if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+      if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); rootDone = true; idx++; continue; }
+      idx++; continue; // stray closer/colon/comma at root
+    }
+
+    if (top.type === 'obj') {
+      if (top.state === 'key') {
+        if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') {
+          // Consecutive bare words/strings with nothing but whitespace
+          // between them, still expecting a key, almost always means the
+          // key itself contains a space and lost its quotes (e.g.
+          // {first name: "John"}) -- a key position can only ever be
+          // followed by a colon in valid JSON, so "two keys in a row"
+          // isn't a real alternative reading. Joining them into one key
+          // beats quoting each separately and fabricating a comma + a
+          // null value between them, which silently produced wrong data
+          // that still looked like it had parsed successfully.
+          const parts = [rawValueOf(tok)];
+          idx++;
+          while (idx < tokens.length && (tokens[idx].type === 'STRING' || tokens[idx].type === 'LITERAL')) {
+            parts.push(rawValueOf(tokens[idx]));
+            idx++;
+          }
+          out.push({ type: 'STRING', value: '"' + parts.join(' ').replace(/"/g, '\\"') + '"' });
+          top.state = 'colon';
+          continue;
+        }
+        idx++; continue; // stray comma/colon while expecting a key
+      }
+      if (top.state === 'colon') {
+        if (tok.type === ':') { out.push(tok); top.state = 'value'; idx++; continue; }
+        out.push({ type: ':', value: ':' });
+        top.state = 'value';
+        continue; // reprocess tok as the value
+      }
+      if (top.state === 'value') {
+        if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+        if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); top.state = 'comma'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        if (tok.type === ',') { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        idx++; continue; // stray colon
+      }
+      if (top.state === 'comma') {
+        if (tok.type === ',') { out.push(tok); top.state = 'key'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
+        if (isValueStart(tok)) { out.push({ type: ',', value: ',' }); top.state = 'key'; continue; }
+        idx++; continue; // stray colon
+      }
+    }
+
+    if (top.type === 'arr') {
+      if (top.state === 'value') {
+        if (isCloser(tok)) { out.push({ type: ']', value: ']' }); stack.pop(); afterClose(); idx++; continue; }
+        top.empty = false;
+        if (tok.type === '{') { out.push(tok); stack.push({ type: 'obj', state: 'key' }); idx++; continue; }
+        if (tok.type === '[') { out.push(tok); stack.push({ type: 'arr', state: 'value', empty: true }); idx++; continue; }
+        if (tok.type === 'STRING' || tok.type === 'LITERAL') { out.push(tok); top.state = 'comma'; idx++; continue; }
+        if (tok.type === ',') { out.push({ type: 'LITERAL', value: 'null' }); top.state = 'comma'; continue; }
+        idx++; continue; // stray colon
+      }
+      if (top.state === 'comma') {
+        if (tok.type === ',') { out.push(tok); top.state = 'value'; idx++; continue; }
+        if (isCloser(tok)) { out.push({ type: ']', value: ']' }); stack.pop(); afterClose(); idx++; continue; }
+        if (isValueStart(tok)) { out.push({ type: ',', value: ',' }); top.state = 'value'; continue; }
+        idx++; continue; // stray colon
+      }
+    }
+  }
+
+  // EOF: close any still-open containers, synthesizing missing pieces
+  while (stack.length) {
+    const c = stack.pop();
+    if (c.type === 'obj') {
+      if (c.state === 'colon') { out.push({ type: ':', value: ':' }); out.push({ type: 'LITERAL', value: 'null' }); }
+      else if (c.state === 'value') { out.push({ type: 'LITERAL', value: 'null' }); }
+      out.push({ type: '}', value: '}' });
+    } else {
+      if (c.state === 'value' && !c.empty) { out.push({ type: 'LITERAL', value: 'null' }); }
+      out.push({ type: ']', value: ']' });
+    }
+  }
+
+  return out;
+}
+
+function repairStructuralIssues(text) {
+  const tokens = tokenizeForStructuralRepair(text);
+  const repaired = repairTokenStructure(tokens);
+  let result = repaired.map(t => t.value).join(' ');
+  result = result.replace(/,\s*([}\]])/g, '$1');
+  return result;
 }
 
 function applyAppsettingsRepair() {
