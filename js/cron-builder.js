@@ -274,10 +274,22 @@ function getNextRuns(expr, count) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
 
+  // Standard cron's day-of-month/day-of-week rule (POSIX, and NCrontab --
+  // what Hangfire uses): if BOTH fields are restricted (neither is "*"),
+  // a day matches when EITHER one matches, not when both do. Quartz never
+  // hits this -- it requires one of the two to be "?" (already always-true
+  // via matchesField), so plain AND is correct there regardless.
+  const domRestricted = domF !== '*' && domF !== '?';
+  const dowRestricted = dowF !== '*' && dowF !== '?';
+  const useOrForDay = !isQuartz && domRestricted && dowRestricted;
+
   for (let i = 0; i < 525960 && results.length < count; i++) {
     const m = d.getMinutes(), h = d.getHours(), dom = d.getDate(), mon = d.getMonth() + 1;
     const dow = isQuartz ? d.getDay() + 1 : d.getDay();
-    if (matchesField(minF, m) && matchesField(hourF, h) && matchesField(domF, dom) && matchesField(monF, mon) && matchesField(dowF, dow)) {
+    const domMatch = matchesField(domF, dom);
+    const dowMatch = matchesField(dowF, dow);
+    const dayMatches = useOrForDay ? (domMatch || dowMatch) : (domMatch && dowMatch);
+    if (matchesField(minF, m) && matchesField(hourF, h) && matchesField(monF, mon) && dayMatches) {
       results.push(new Date(d));
     }
     d.setMinutes(d.getMinutes() + 1);
