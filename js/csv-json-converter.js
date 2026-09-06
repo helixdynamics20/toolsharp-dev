@@ -40,6 +40,15 @@ function highlightJsonText(jsonString) {
 // \r\n line endings. Returns an array of rows, each row an array of
 // raw string field values (no header handling here).
 function parseCsv(text, delimiter) {
+  // Excel's "CSV UTF-8" export (the option most people actually pick)
+  // prepends a byte-order-mark to the file. Copy/paste carries it straight
+  // into the textarea as a literal U+FEFF character glued onto the first
+  // header name -- e.g. a "name" column silently becomes the key
+  // "﻿name", so every row's value for that column looks like it
+  // vanished. Only meaningful at the very start of the file, never inside
+  // a real field's data, so it's safe to strip unconditionally here.
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
   const rows = [];
   let row = [];
   let field = '';
