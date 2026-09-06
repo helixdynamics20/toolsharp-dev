@@ -96,7 +96,18 @@ function diffArrays(a, b, aOut, bOut) {
 
 /* ── tokenisers ── */
 
-function tokenizeWord(line) { return line.match(/\w+|[^\w\s]|\s+/g) || []; }
+// \w only covers [A-Za-z0-9_], so any accented Latin, Cyrillic, Greek, etc.
+// text fell into the single-character "other punctuation" branch instead
+// of being grouped into words -- "café" tokenized as "caf" + "é", turning
+// word-mode into an accidental (and much noisier) character-mode for any
+// non-ASCII language. \p{L}/\p{N} fix that, but naively applying them to
+// CJK/Japanese text would over-correct the other way: those scripts have
+// no spaces between words, so a whole unbroken run would become a single
+// token, making a one-character edit highlight the entire phrase as
+// changed. Matching Han/Hiragana/Katakana one character at a time first
+// (same granularity this already had) avoids that, while every other
+// script's letters/digits still group into real words.
+function tokenizeWord(line) { return line.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]|[\p{L}\p{N}_]+|[^\p{L}\p{N}\s]|\s+/gu) || []; }
 function tokenizeChar(line) { return [...line]; }
 
 function tokenize(line) {
