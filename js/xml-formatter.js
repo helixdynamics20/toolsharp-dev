@@ -126,6 +126,22 @@ function formatElement(el, depth, indentUnit, lines, preserveWs) {
     return;
   }
 
+  // True mixed content (both element and non-whitespace text children --
+  // "<p>Hello <b>world</b>!</p>") can't be safely reflowed the way pure
+  // data-style children below are: putting each fragment on its own
+  // indented line inserts whitespace/newlines between them that weren't
+  // in the source, and for prose that whitespace is part of what it
+  // renders as, not decoration. Minify already gets this right (it never
+  // adds separators between children) -- format needs the same verbatim
+  // treatment xml:space="preserve" already gets, using the untouched
+  // childNodes so any real whitespace-only text *inside* the mixed run
+  // survives too.
+  if (children.some(n => n.nodeType === 1) && children.some(n => n.nodeType === 3)) {
+    const inner = Array.from(el.childNodes).map(serializeVerbatim).join('');
+    lines.push(indent + open + '>' + inner + '</' + tagName + '>');
+    return;
+  }
+
   // Inline a single text-only child: <tag>value</tag> on one line.
   if (children.length === 1 && children[0].nodeType === 3) {
     lines.push(indent + open + '>' + escapeXmlText(children[0].nodeValue.trim()) + '</' + tagName + '>');
