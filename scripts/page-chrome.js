@@ -49,6 +49,7 @@ function renderHeadCommon(assetBasePath) {
     `<link rel="stylesheet" href="${assetBasePath}css/style.css">`,
     `<script src="${assetBasePath}js/catalog.js" defer></script>`,
     `<script src="${assetBasePath}js/theme.js" defer></script>`,
+    `<script src="${assetBasePath}js/nav.js" defer></script>`,
     `<script src="${assetBasePath}js/utils.js" defer></script>`,
   ].join('\n');
 }
