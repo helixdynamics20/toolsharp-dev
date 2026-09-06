@@ -455,21 +455,6 @@
       var header = document.querySelector('.site-header');
       if (header) header.appendChild(mobileMenu);
     }
-
-    // Inject Vercel Web Analytics & Speed Insights
-    try {
-      var vaScript = document.createElement('script');
-      vaScript.defer = true;
-      vaScript.src = '/_vercel/insights/script.js';
-      document.head.appendChild(vaScript);
-
-      var siScript = document.createElement('script');
-      siScript.defer = true;
-      siScript.src = '/_vercel/speed-insights/script.js';
-      document.head.appendChild(siScript);
-    } catch (e) {
-      console.warn('Vercel scripts failed to load:', e);
-    }
   });
 
 })();

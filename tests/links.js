@@ -45,6 +45,17 @@ async function run(BASE) {
     if (!statusCache.has(resolved)) {
       const resp = await page.goto(BASE + resolved, { waitUntil: 'load' }).catch(() => null);
       statusCache.set(resolved, resp ? resp.status() : 'NAV-FAILED');
+    } else if (hashPart) {
+      // The status was already cached from an earlier link to this same
+      // target, but the browser may well have navigated elsewhere since --
+      // to a *different* resolved target checked in between this one and
+      // that earlier visit. Without re-navigating here, the upcoming
+      // getElementById check below would run against whatever page happens
+      // to still be loaded, not `resolved`, silently mis-validating (or
+      // mis-flagging) the anchor on an unrelated page. Only worth paying
+      // for when there's actually a hash to verify; a plain status re-check
+      // has nothing that depends on which page is currently loaded.
+      await page.goto(BASE + resolved, { waitUntil: 'load' }).catch(() => null);
     }
     const status = statusCache.get(resolved);
     if (status !== 200) {

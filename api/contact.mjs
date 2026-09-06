@@ -9,6 +9,12 @@ async function checkRateLimit(url, token, ip) {
     body: JSON.stringify(['INCR', key])
   });
   const { result: count } = await incrRes.json();
+  // A malformed/unexpected Upstash response (no `result`, or a non-number)
+  // must not silently fall through to `count <= 5` -- undefined/NaN
+  // comparisons are always false in JS, which would reject a legitimate
+  // message as over the limit with no real violation. Throwing here routes
+  // it through the caller's fail-open handling instead.
+  if (typeof count !== 'number') throw new Error(`Unexpected Upstash INCR response: ${JSON.stringify(count)}`);
   if (count === 1) {
     await fetch(url, {
       method: 'POST',
@@ -45,9 +51,23 @@ export default async function handler(req, res) {
   const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (redisUrl && redisToken) {
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-    const withinLimit = await checkRateLimit(redisUrl, redisToken, ip);
-    if (!withinLimit) {
-      return res.status(429).json({ error: 'Too many messages sent. Try again later.' });
+    // Not wrapping this used to have two bad failure modes on any Upstash
+    // hiccup (a network error, a non-JSON error body, a missing `result`
+    // field): an unhandled rejection crashing the whole handler, or --
+    // more insidiously -- `count` coming back undefined and silently
+    // failing the `count <= 5` check (undefined <= 5 is false in JS),
+    // rejecting a legitimate message as "too many messages sent" with no
+    // actual rate-limit violation. Rate limiting is a defense-in-depth
+    // measure here, not the contact form's actual job -- failing open
+    // (let the message through) beats blocking real submissions because
+    // the rate limiter itself had a bad moment.
+    try {
+      const withinLimit = await checkRateLimit(redisUrl, redisToken, ip);
+      if (!withinLimit) {
+        return res.status(429).json({ error: 'Too many messages sent. Try again later.' });
+      }
+    } catch (e) {
+      console.error('Rate limit check failed, allowing the message through:', e);
     }
   }
 

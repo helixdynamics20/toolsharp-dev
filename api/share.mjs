@@ -12,6 +12,12 @@ async function checkRateLimit(url, token, ip) {
     body: JSON.stringify(['INCR', key])
   });
   const { result: count } = await incrRes.json();
+  // A malformed/unexpected Upstash response (no `result`, or a non-number)
+  // must not silently fall through to `count <= 20` -- undefined/NaN
+  // comparisons are always false in JS, which would reject a legitimate
+  // save/retrieve as rate-limited with no real violation. Throwing here
+  // routes it through the caller's fail-open handling instead.
+  if (typeof count !== 'number') throw new Error(`Unexpected Upstash INCR response: ${JSON.stringify(count)}`);
   if (count === 1) {
     // first request in this window -- start the clock
     await fetch(url, {
@@ -32,9 +38,25 @@ export default async function handler(req, res) {
   }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const withinLimit = await checkRateLimit(url, token, ip);
-  if (!withinLimit) {
-    return res.status(429).json({ error: "Too many requests. Try again in a minute." });
+  // Not wrapping this used to mean any Upstash hiccup during the rate-limit
+  // check (a network error, a malformed response) either crashed the whole
+  // request with an unhandled rejection, or -- since `count` coming back
+  // undefined makes `count <= 20` false -- silently rejected a legitimate
+  // save/retrieve as rate-limited with no real violation. Notably
+  // inconsistent with the SET/GET calls below, which already handle their
+  // own Upstash failures gracefully; the rate-limit check (a lighter
+  // defense-in-depth guard, not this endpoint's actual job) was the one
+  // path that wasn't. Failing open here doesn't meaningfully weaken the
+  // guard either: an Upstash outage severe enough to break this INCR call
+  // would very likely break the SET/GET call right after it too, on the
+  // same Redis instance.
+  try {
+    const withinLimit = await checkRateLimit(url, token, ip);
+    if (!withinLimit) {
+      return res.status(429).json({ error: "Too many requests. Try again in a minute." });
+    }
+  } catch (e) {
+    console.error('Rate limit check failed, allowing the request through:', e);
   }
 
   // Handle write (POST)
