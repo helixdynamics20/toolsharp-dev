@@ -72,7 +72,16 @@ function parseCurl(input) {
       case '--data-urlencode': {
         const val = tokens[++i] || '';
         const eq = val.indexOf('=');
-        req.dataParts.push(eq === -1 ? encodeURIComponent(val) : val.slice(0, eq) + '=' + encodeURIComponent(val.slice(eq + 1)));
+        // curl's own three forms: "content" (encode the whole thing),
+        // "=content" (encode everything after the leading "=", which is
+        // itself dropped from the output -- it only disambiguates this
+        // from the name=content form), and "name=content" (keep name
+        // literal, encode only the content). Treating a leading "=" the
+        // same as the name=content case left it in the output as a
+        // spurious literal "=" that real curl never actually sends.
+        if (eq === -1) req.dataParts.push(encodeURIComponent(val));
+        else if (eq === 0) req.dataParts.push(encodeURIComponent(val.slice(1)));
+        else req.dataParts.push(val.slice(0, eq) + '=' + encodeURIComponent(val.slice(eq + 1)));
         break;
       }
       case '-F': case '--form': if (tokens[i + 1] !== undefined) req.formParts.push(tokens[++i]); break;
