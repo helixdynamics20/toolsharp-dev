@@ -242,6 +242,16 @@ function normalizeJsonNumberSyntax(word) {
   if (w[0] === '+') { w = w.slice(1); }
   else if (w[0] === '-') { sign = '-'; w = w.slice(1); }
   if (w[0] === '.') { w = '0' + w; }
+  // A leading zero before another digit ("01", "007") is Number()-parseable
+  // but not valid JSON -- JSON's integer part is either a lone "0" or a
+  // nonzero digit followed by more digits, never a zero-padded run. The
+  // /^0\d/ guard only fires when the second character is itself a digit,
+  // which also keeps this from ever touching a hex literal like "0x1F"
+  // (second char 'x') or an already-valid "0.5"/"0e5" (second char '.'/'e').
+  if (/^0\d/.test(w)) {
+    const m = /^0+(\d.*)$/.exec(w);
+    if (m) w = m[1];
+  }
   return sign + w;
 }
 
@@ -400,9 +410,17 @@ function tryRepairJson(text) {
         // so the "repaired" output still failed to parse.
         logRepairChange('non-finite', 'Converted {n} non-finite number{s} (Infinity/-Infinity/NaN) to null', text, wordStart);
         output += 'null';
+      } else if (word === 'undefined') {
+        // Same failure mode as Infinity/NaN, just a value rather than a
+        // number: valid in JS, never valid in JSON. Without this it fell
+        // through to the generic bare-word branch below and got quoted
+        // into the literal string "undefined" -- silently turning a
+        // missing/placeholder value into real (wrong) string data.
+        logRepairChange('undefined-literal', 'Converted {n} JS "undefined" literal{s} to null', text, wordStart);
+        output += 'null';
       } else if (!isNaN(Number(word))) {
         const normalized = normalizeJsonNumberSyntax(word);
-        if (normalized !== word) logRepairChange('number-syntax', 'Fixed {n} number{s} not valid in JSON (leading + or missing 0 before a decimal point)', text, wordStart);
+        if (normalized !== word) logRepairChange('number-syntax', 'Fixed {n} number{s} not valid in JSON (leading +, missing 0 before a decimal point, or a zero-padded integer)', text, wordStart);
         output += normalized;
       } else {
         logRepairChange('bare-word', 'Quoted {n} unquoted key/value{s}', text, wordStart);
