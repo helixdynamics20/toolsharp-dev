@@ -480,6 +480,14 @@ body.dark-theme .share-code-display { background: #18142a; border-color: var(--r
 .btn.secondary:hover { border-color: var(--violet); background: var(--violet-wash); }
 .btn:disabled { opacity: .45; pointer-events: none; }
 .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+/* Used across regex-tester, epoch-converter, and the epoch guide's inline
+   widget for compact secondary actions (a language tab, "use as input",
+   "Now") -- previously had no actual size rule anywhere in the codebase
+   (only tools/epoch-converter.html's page-local `.live-clock-row .btn-sm`
+   override, which just handles flex-sizing/margin for that one layout),
+   so every "small" button rendered at full .btn size (confirmed: 37px
+   tall either way) with nothing distinguishing it visually. */
+.btn-sm { font-size: 12px; padding: 5px 12px; }
 
 .output-block pre {
   margin: 0;
