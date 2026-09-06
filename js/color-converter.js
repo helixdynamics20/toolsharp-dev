@@ -69,6 +69,7 @@ function parseRgbFn(str) {
   const b = parseChannelToken(parts[2]);
   if ([r, g, b].some(Number.isNaN)) return null;
   const a = parts.length > 3 ? parseAlphaToken(parts[3]) : 1;
+  if (Number.isNaN(a)) return null;
   return { r, g, b, a };
 }
 
@@ -82,6 +83,7 @@ function parseHslFn(str) {
   const l = parseFloat(String(parts[2]).replace('%', ''));
   if ([h, s, l].some(Number.isNaN)) return null;
   const a = parts.length > 3 ? parseAlphaToken(parts[3]) : 1;
+  if (Number.isNaN(a)) return null;
   const rgb = hslToRgb(h, s, l);
   return { r: rgb.r, g: rgb.g, b: rgb.b, a };
 }
