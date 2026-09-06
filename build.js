@@ -231,7 +231,14 @@ async function processJs() {
       fs.writeFileSync(path.join(distDir, 'js', file), minified.code);
       console.log(`Minified JS: js/${file}`);
     } catch (err) {
+      // Logging and continuing here (the previous behavior) meant a
+      // syntax error in one file left it simply missing from dist/js/ --
+      // the build still printed "completed successfully" and exited 0,
+      // silently shipping a page whose <script src> now 404s. Every other
+      // failure mode in this file (esbuild bundling, validateRegistration)
+      // already fails the build outright; this should too.
       console.error(`Error minifying JS js/${file}:`, err);
+      process.exit(1);
     }
   }
 }
@@ -272,7 +279,11 @@ async function processHtml() {
       fs.writeFileSync(path.join(distDir, file), output);
       console.log(`Minified HTML: ${file}`);
     } catch (err) {
+      // See the matching comment in processJs() -- logging and continuing
+      // left a page silently missing from dist/ while the build still
+      // reported success.
       console.error(`Error minifying HTML ${file}:`, err);
+      process.exit(1);
     }
   }
 
@@ -288,6 +299,7 @@ async function processHtml() {
       console.log(`Minified HTML: tools/${file}`);
     } catch (err) {
       console.error(`Error minifying HTML tools/${file}:`, err);
+      process.exit(1);
     }
   }
 
@@ -303,6 +315,7 @@ async function processHtml() {
       console.log(`Minified HTML: guides/${file}`);
     } catch (err) {
       console.error(`Error minifying HTML guides/${file}:`, err);
+      process.exit(1);
     }
   }
 }
