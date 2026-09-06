@@ -25,16 +25,27 @@ function md5Core(bytes) {
       h2 = 0x98badcfe,
       h3 = 0x10325476;
 
-  var n = bytes.length,
-      words = [];
+  var n = bytes.length;
+  var wordCount = ((n + 8) >> 6) * 16 + 14;
+  // A plain (sparse) JS array here made every element a boxed/tagged
+  // value and grew by repeated re-indexing -- for a large file (a few
+  // hundred MB, well within what the file-hashing feature below invites
+  // someone to drop in) that's enough memory churn to throw "Invalid
+  // array length" outright rather than hang. Preallocating a Uint32Array
+  // of the exact final size avoids that, and its writes wrap to 32 bits
+  // the same way the bitwise ops below already assumed.
+  var words = new Uint32Array(wordCount + 2);
   for (var i = 0; i < n; i++) {
     words[i >> 2] |= bytes[i] << ((i % 4) * 8);
   }
   words[n >> 2] |= 0x80 << ((n % 4) * 8);
-  var wordCount = ((n + 8) >> 6) * 16 + 14;
-  while (words.length < wordCount) { words.push(0); }
-  words[wordCount] = n * 8;
-  words[wordCount + 1] = 0;
+  // 64-bit bit-length, little-endian word order. n*8 exceeds 32 bits for
+  // any input >= 512 MiB (2^29 bytes) -- a hardcoded 0 high word silently
+  // produced a wrong digest for anything that large instead of throwing,
+  // which is worse for a checksum tool than an outright error.
+  var bitLen = n * 8;
+  words[wordCount] = bitLen >>> 0;
+  words[wordCount + 1] = Math.floor(bitLen / 0x100000000);
 
   for (var chunk = 0; chunk < words.length; chunk += 16) {
     var a = h0, b_val = h1, c = h2, d = h3;
