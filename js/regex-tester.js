@@ -296,12 +296,22 @@ function tokenizeRegex(pattern) {
         const inner = pattern.slice(i+1, end);
         const lazy = pattern[end+1] === '?';
         const mode = lazy ? ' (lazy)' : '';
-        let desc;
+        let desc, type = 'quantifier';
         if (/^\d+$/.test(inner)) desc = `Exactly ${inner} time${inner==='1'?'':'s'}${mode}`;
         else if (/^\d+,$/.test(inner)) desc = `At least ${inner.slice(0,-1)} times${mode}`;
-        else if (/^\d+,\d+$/.test(inner)) { const [a,b] = inner.split(','); desc = `Between ${a} and ${b} times${mode}`; }
+        else if (/^\d+,\d+$/.test(inner)) {
+          const [a, b] = inner.split(',');
+          // {5,2} parses fine here (it matches the digit-comma-digit
+          // shape) but new RegExp() rejects it -- "numbers out of order
+          // in {} quantifier". Without this check the explanation panel
+          // confidently described a range the pattern can't actually
+          // compile with, while the matcher below showed "Invalid
+          // pattern" with no visible connection between the two.
+          if (Number(a) > Number(b)) { desc = `Invalid — min (${a}) is greater than max (${b}); this won't compile as a regex`; type = 'error'; }
+          else desc = `Between ${a} and ${b} times${mode}`;
+        }
         else { tokens.push({ token: ch, type: 'literal', desc: `Literal "{"` }); i++; continue; }
-        tokens.push({ token: pattern.slice(i, end+1) + (lazy ? '?' : ''), type: 'quantifier', desc });
+        tokens.push({ token: pattern.slice(i, end+1) + (lazy ? '?' : ''), type, desc });
         i = end + 1 + (lazy ? 1 : 0); continue;
       }
     }
