@@ -25,14 +25,8 @@
 <meta name="twitter:description" content="SyntaxError: Unexpected end of JSON input means JSON.parse() received an empty string, not malformed JSON. Almost always a fetch() response body that was empty, not-yet-arrived, or never JSON to begin with.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/guide-unexpected-end-of-json-input-explained.png">
 
-<link rel="preload" href="/assets/fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../css/style.css">
-<script src="../js/catalog.js" defer></script>
-<script src="../js/theme.js" defer></script>
-<script src="../js/utils.js" defer></script>
-<script src="../js/speed-insights.js" defer></script>
-<script type="module" src="../js/analytics.bundle.js"></script>
+<!--HEAD-COMMON-->
+<!--HEAD-COMMON-TAIL-->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"TechArticle","headline":"\"Unexpected End of JSON Input\" — What It Actually Means","url":"https://toolsharp.dev/guides/unexpected-end-of-json-input-explained","description":"Why SyntaxError: Unexpected end of JSON input means JSON.parse() got an empty string, and the fetch()-specific scenarios that cause it.","author":{"@type":"Organization","name":"ToolSharp.dev"}}
 </script>
@@ -46,12 +40,7 @@
 <body>
 <script src="../js/theme-init.js"></script>
 
-<header class="site-header">
-  <div class="wrap">
-    <a class="logo" href="../"><span class="term-dots"><span></span><span></span><span></span></span>tool<span class="accent">sharp</span><span class="dim">.dev</span></a>
-    <nav class="nav-links"><a href="#" id="darkModeToggle"></a></nav>
-  </div>
-</header>
+<!--HEADER-->
 
 <main class="wrap">
   <div class="breadcrumb"><a href="../">toolsharp.dev</a><span class="sep">/</span><a href="../guides">guides</a><span class="sep">/</span><span class="current">unexpected-end-of-json-input-explained</span></div>
@@ -121,13 +110,7 @@ const data = text ? JSON.parse(text) : null;  // only parse if something's actua
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <span><a href="../">← toolsharp.dev</a></span>
-    <span><a href="../privacy-policy">privacy policy</a> · <a href="../terms">terms</a> · <a href="../contact">contact</a></span>
-    <span>runs entirely in your browser</span>
-  </div>
-</footer>
+<!--FOOTER-->
 
 </body>
 </html>
