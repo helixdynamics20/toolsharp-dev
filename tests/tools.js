@@ -148,11 +148,21 @@ const TESTS = {
   'share-pad': async (p) => {
     await p.fill('#plainInput', 'hello world');
     await p.click('#btnGenerate'); await p.waitForTimeout(900);
-    // Offline-link mode is fully client-side; the 6-digit code mode needs
-    // the live Vercel API, unavailable against a local dist build.
+    // Offline-link mode is fully client-side (compresses into the URL
+    // itself) and is generated *before* generateShare() ever attempts the
+    // 6-digit code mode's network call to the live Vercel API (unavailable
+    // against a local dist build) -- so a genuinely healthy tool always
+    // populates #offlineLink regardless of whether that later API call
+    // succeeds. Asserting only on `link` here (previously `|| !!err` also
+    // counted as a pass) matters because both paths route through the same
+    // catch block: a real regression in compressText() itself throws
+    // before #offlineLink is ever set, populates #shareError from the
+    // *same* catch as the expected "API unavailable locally" case, and
+    // `|| !!err` would have called that a pass too, hiding an actual break
+    // in the tool's core client-side feature behind the network error this
+    // check is specifically meant to tolerate.
     const link = await read(p, '#offlineLink');
-    const err = await read(p, '#shareError');
-    return { ok: !!(link && link.includes('#')) || !!err, detail: link ? 'offline link generated' : 'code mode needs live API (expected locally)' };
+    return { ok: !!(link && link.includes('#')), detail: link ? 'offline link generated' : 'offline link missing' };
   },
   // curl-converter gets a wider matrix than the other tools -- 7 output
   // languages is real surface area a single-case check can't protect, and
