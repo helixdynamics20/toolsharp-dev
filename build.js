@@ -202,12 +202,14 @@ if (fs.existsSync(assetDir)) {
   fs.cpSync(assetDir, path.join(distDir, 'assets'), { recursive: true });
 }
 
-// Copy api directory contents (Vercel serverless function files, kept as-is)
+// Copy api directory contents (Vercel serverless function files, kept as-is).
+// Recursive (like assets/ below) rather than a flat per-file loop -- api/_lib/
+// holds modules shared between routes (e.g. rate-limit.mjs), and a flat
+// fs.copyFileSync loop would throw trying to copy that directory as if it
+// were a file.
 const apiDir = path.join(srcDir, 'api');
 if (fs.existsSync(apiDir)) {
-  fs.readdirSync(apiDir).forEach(file => {
-    fs.copyFileSync(path.join(apiDir, file), path.join(distDir, 'api', file));
-  });
+  fs.cpSync(apiDir, path.join(distDir, 'api'), { recursive: true });
 }
 
 // CSS Minification

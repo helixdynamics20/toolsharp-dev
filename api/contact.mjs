@@ -1,29 +1,7 @@
 // Keeps the Resend API key server-side only -- the browser posts here
 // instead of api.resend.com directly, so the key never appears in page
 // source or the client bundle.
-async function checkRateLimit(url, token, ip) {
-  const key = `contactlimit:${ip}`;
-  const incrRes = await fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(['INCR', key])
-  });
-  const { result: count } = await incrRes.json();
-  // A malformed/unexpected Upstash response (no `result`, or a non-number)
-  // must not silently fall through to `count <= 5` -- undefined/NaN
-  // comparisons are always false in JS, which would reject a legitimate
-  // message as over the limit with no real violation. Throwing here routes
-  // it through the caller's fail-open handling instead.
-  if (typeof count !== 'number') throw new Error(`Unexpected Upstash INCR response: ${JSON.stringify(count)}`);
-  if (count === 1) {
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(['EXPIRE', key, 3600])
-    });
-  }
-  return count <= 5; // 5 messages per IP per hour
-}
+import { checkRateLimit } from './_lib/rate-limit.mjs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -62,7 +40,7 @@ export default async function handler(req, res) {
     // (let the message through) beats blocking real submissions because
     // the rate limiter itself had a bad moment.
     try {
-      const withinLimit = await checkRateLimit(redisUrl, redisToken, ip);
+      const withinLimit = await checkRateLimit(redisUrl, redisToken, `contactlimit:${ip}`, 3600, 5); // 5 messages per IP per hour
       if (!withinLimit) {
         return res.status(429).json({ error: 'Too many messages sent. Try again later.' });
       }
