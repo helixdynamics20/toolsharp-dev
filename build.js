@@ -127,6 +127,39 @@ function validateRegistration() {
   console.log(`Registration check passed: ${summary.join(', ')}, all in sync.`);
 }
 
+// service-worker.js's ASSETS precache list is hand-maintained, not derived
+// from catalog.js, and it already drifted once: curl-converter's page and
+// script -- along with a few shared/per-page scripts (catalog.js,
+// theme-init.js, terminal.js, tools-home.js, guides-home.js) -- had gone
+// missing from it with nothing catching it. That's a silent failure mode
+// specifically because cache.addAll() only fails on a *bad* URL, not a
+// missing one -- the tool just silently isn't available on a first-ever
+// offline visit, and the build still reports success. Guides are a
+// deliberately curated subset of the full list (not every guide is meant
+// to be precached), so this only checks tools, where every one of them is
+// expected to be precached.
+function validateServiceWorkerAssets() {
+  delete require.cache[require.resolve(path.join(srcDir, 'js/catalog.js'))];
+  const catalog = require(path.join(srcDir, 'js/catalog.js'));
+  const swSrc = fs.readFileSync(path.join(srcDir, 'service-worker.js'), 'utf8');
+  const tools = catalog.types.find(t => t.key === 'tools');
+
+  const errors = [];
+  tools.items.forEach(item => {
+    const slug = item.path.replace(/^\/tools\//, '');
+    if (!swSrc.includes(`'/tools/${slug}'`)) errors.push(`tool "${slug}" page missing from service-worker.js ASSETS`);
+    if (!swSrc.includes(`'/js/${slug}.js'`)) errors.push(`tool "${slug}"'s script missing from service-worker.js ASSETS`);
+  });
+
+  if (errors.length) {
+    console.error('\nService worker precache check failed -- build aborted:\n');
+    errors.forEach(e => console.error('  - ' + e));
+    console.error('\nEvery tool needs both its page and its own script listed in service-worker.js\'s ASSETS array.\n');
+    process.exit(1);
+  }
+  console.log(`Service worker precache check passed: all ${tools.items.length} tools present.`);
+}
+
 // Helper to ensure target directories exist
 function ensureDirectoryExistence(filePath) {
   const dirname = path.dirname(filePath);
@@ -289,6 +322,7 @@ async function processHtml() {
 
 async function main() {
   validateRegistration();
+  validateServiceWorkerAssets();
 
   // Bundle analytics module with esbuild -- using the JS API directly
   // (not execSync + npx) so the process.env.NODE_ENV define below is
