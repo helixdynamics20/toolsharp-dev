@@ -202,7 +202,13 @@ function formatSQL(sql, opts = {}) {
   let lineTokens = [];
   let parenDepthInLine = 0; // unclosed '(' currently sitting in lineTokens
   let parenStack = []; // 'subquery' | 'inline' per currently-open paren, matching each '(' to how it should format when its ')' arrives
-  let inSelectList = false;
+  // Column-list state: while walking a comma-separated SELECT/GROUP BY/
+  // ORDER BY list, listContinuation flips true after the *first* item is
+  // flushed, so every following item (including the one flushed when the
+  // next clause keyword arrives) gets +1 indent under the clause instead
+  // of sitting flush-left with it.
+  let inColumnList = false;
+  let listContinuation = false;
 
   // ::, ->, and ->> (Postgres cast and JSON operators) are conventionally
   // written with no space on either side -- col::int, data->'key', not
@@ -275,7 +281,7 @@ function formatSQL(sql, opts = {}) {
         out += indent(depth) + '(\n';
         depth++;
         parenStack.push('subquery');
-        inSelectList = false;
+        inColumnList = false; listContinuation = false;
       } else {
         lineTokens.push('(');
         parenDepthInLine++;
@@ -303,11 +309,18 @@ function formatSQL(sql, opts = {}) {
         flushLine();
         depth = Math.max(0, depth - 1);
         lineTokens.push(')');
+        // A subquery is a real context change -- reset column-list
+        // tracking. An ordinary inline paren (a function call, "IN (...)",
+        // "FILTER (...)") closing is not: it's just one token among many
+        // inside the current SELECT/GROUP BY/ORDER BY item, so it must
+        // NOT clear inColumnList/listContinuation, or a list item with a
+        // function call in it (e.g. "SUM(b) FILTER (WHERE c > 0)") loses
+        // its indent the moment that inner paren closes.
+        inColumnList = false; listContinuation = false;
       } else {
         lineTokens.push(')');
         parenDepthInLine = Math.max(0, parenDepthInLine - 1);
       }
-      inSelectList = false;
       i++; continue;
     }
 
@@ -317,19 +330,29 @@ function formatSQL(sql, opts = {}) {
       out += '\n;\n\n';
       depth = 0;
       parenStack = [];
-      inSelectList = false;
+      inColumnList = false; listContinuation = false;
       i++; continue;
     }
 
-    // major clause keyword
-    if (tok.type === 'word' && CLAUSE_STARTERS.has(up)) {
-      flushLine();
+    // major clause keyword. Guarded to real top-level clause boundaries --
+    // without the paren check, a keyword that's also a CLAUSE_STARTERS
+    // entry but appears inside a function-call/grouping paren (ORDER BY or
+    // PARTITION BY inside "OVER (...)", WHERE inside "FILTER (...)") would
+    // wrongly break the line and reset parenDepthInLine, mangling the
+    // window-function/filter expression across multiple dangling lines.
+    // A currently-open 'subquery' paren is different -- WHERE/ORDER BY/etc.
+    // inside "(SELECT ... WHERE ...)" are real clause boundaries for that
+    // subquery, so only an 'inline' paren on top suppresses this.
+    const insideInlineParen = parenStack.length > 0 && parenStack[parenStack.length - 1] === 'inline';
+    if (tok.type === 'word' && CLAUSE_STARTERS.has(up) && !insideInlineParen) {
+      flushLine((inColumnList && listContinuation) ? 1 : 0);
       // AND / OR inside WHERE get slight indent
       if (up === 'AND' || up === 'OR') {
         lineTokens.push(kw(up));
       } else {
         lineTokens.push(kw(tok.value));
-        inSelectList = (up === 'SELECT');
+        inColumnList = (up === 'SELECT' || up === 'GROUP BY' || up === 'ORDER BY');
+        listContinuation = false;
       }
       i++; continue;
     }
@@ -340,12 +363,19 @@ function formatSQL(sql, opts = {}) {
         // inside an unclosed function-call/list paren (e.g. CONCAT(a, b),
         // IN (1, 2, 3)) — this comma separates arguments, not clauses.
         lineTokens.push(',');
-      } else if (commaStyle === 'leading') {
-        flushLine();
-        lineTokens.push(',');
       } else {
-        lineTokens.push(',');
-        flushLine();
+        // First item of a column list sits on the clause's own line; every
+        // item after that (and the final one, flushed above when the next
+        // clause keyword arrives) gets +1 indent under the clause.
+        const extra = (inColumnList && listContinuation) ? 1 : 0;
+        if (commaStyle === 'leading') {
+          flushLine(extra);
+          lineTokens.push(',');
+        } else {
+          lineTokens.push(',');
+          flushLine(extra);
+        }
+        listContinuation = true;
       }
       i++; continue;
     }
@@ -361,7 +391,7 @@ function formatSQL(sql, opts = {}) {
     i++;
   }
 
-  flushLine();
+  flushLine((inColumnList && listContinuation) ? 1 : 0);
 
   // clean up: collapse excessive blank lines, trim trailing whitespace per line
   return out
