@@ -81,6 +81,18 @@
     </div>
 
     <div class="callout error">The digit <code>1</code> means <strong>Monday</strong> in a Hangfire/Cronos expression, but <strong>Sunday</strong> in a Quartz.NET expression. Copy a "run every Monday" example from a Quartz.NET tutorial straight into <code>RecurringJob.AddOrUpdate</code> and the job will run every Sunday instead — with no error, because <code>1</code> is a valid day-of-week value in both systems, just a different day.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the mistake, concretely</div>
+      <div class="body">
+        <div class="throws-label">a "run every Monday" example copied straight from a Quartz.NET tutorial</div>
+        <pre class="parse-call" style="margin:0;">RecurringJob.AddOrUpdate(<span class="code-str">"weekly-report"</span>, () =&gt; SendReport(), <span class="code-str">"0 6 * * 1"</span>);</pre>
+        <div class="throws-label">what actually happens</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">No exception, no validation warning -- Hangfire's dashboard shows a perfectly valid next run time. The job fires every Sunday, not Monday.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;">RecurringJob.AddOrUpdate(<span class="code-str">"weekly-report"</span>, () =&gt; SendReport(), Cron.Weekly(DayOfWeek.Monday, 6));  <span class="code-com">// no ambiguous digit to get wrong</span></pre>
+      </div>
+    </div>
   </section>
 
   <section class="notes">

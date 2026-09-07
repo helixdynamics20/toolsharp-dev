@@ -204,15 +204,15 @@
       <div class="tab">the overflow that catches almost everyone once</div>
       <div class="body">
         <div class="throws-label">the code</div>
-        <pre class="parse-call" style="margin:0;">SELECT DATEDIFF(MILLISECOND, '1970-01-01', GETUTCDATE());</pre>
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">SELECT</span> DATEDIFF(MILLISECOND, <span class="code-str">'1970-01-01'</span>, GETUTCDATE());</pre>
         <div class="throws-label">what happens</div>
         <pre class="throws-msg" style="margin:0;">Msg 535, Level 16, State 0
 The datediff function resulted in an overflow. The number of dateparts separating two date/time instances is too large.</pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">DATEDIFF returns a plain 32-bit int. At millisecond precision that overflows once the two dates are more than 24 days, 20 hours, 31 minutes, 23.647 seconds apart -- and any date compared against 1970 is over 50 years away, so this fails every time, not just on old data.</pre>
         <div class="throws-label">the fix</div>
-        <pre class="fixed-msg" style="margin:0;">SELECT DATEDIFF_BIG(MILLISECOND, '1970-01-01', GETUTCDATE());
--- DATEDIFF_BIG (SQL Server 2016+) returns bigint instead of int -- same syntax, no overflow</pre>
+        <pre class="fixed-msg" style="margin:0;"><span class="code-kw">SELECT</span> DATEDIFF_BIG(MILLISECOND, <span class="code-str">'1970-01-01'</span>, GETUTCDATE());
+<span class="code-com">-- DATEDIFF_BIG (SQL Server 2016+) returns bigint instead of int -- same syntax, no overflow</span></pre>
       </div>
     </div>
 

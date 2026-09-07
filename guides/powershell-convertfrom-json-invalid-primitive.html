@@ -75,17 +75,17 @@
       <div class="tab">what actually happens, step by step</div>
       <div class="body">
         <div class="throws-label">the code</div>
-        <pre class="parse-call" style="margin:0;">$result = some-cli-tool get-config
-$config = $result | ConvertFrom-Json</pre>
+        <pre class="parse-call" style="margin:0;"><span class="code-var">$result</span> = some-cli-tool get-config
+<span class="code-var">$config</span> = <span class="code-var">$result</span> | ConvertFrom-Json</pre>
         <div class="throws-label">what happens</div>
         <pre class="throws-msg" style="margin:0;">ConvertFrom-Json : Invalid JSON primitive: Loading.</pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">some-cli-tool printed "Loading..." to the same output stream before its real JSON. $result is now the string "Loading...\n{ ... }" -- ConvertFrom-Json chokes on "Loading" before it ever reaches the { that starts the real JSON.</pre>
         <div class="throws-label">the fix</div>
-        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">$result = some-cli-tool get-config --output json   # ask for JSON-only output if the CLI supports it
-# or, isolate the JSON manually if it doesn't:
-$json = ($result -split "`n" | Where-Object { $_ -match '^\s*[\{\[]' }) -join "`n"
-$config = $json | ConvertFrom-Json</pre>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;"><span class="code-var">$result</span> = some-cli-tool get-config --output json   <span class="code-com"># ask for JSON-only output if the CLI supports it</span>
+<span class="code-com"># or, isolate the JSON manually if it doesn't:</span>
+<span class="code-var">$json</span> = (<span class="code-var">$result</span> -split "`n" | Where-Object { <span class="code-var">$_</span> -match <span class="code-str">'^\s*[\{\[]'</span> }) -join "`n"
+<span class="code-var">$config</span> = <span class="code-var">$json</span> | ConvertFrom-Json</pre>
       </div>
     </div>
   </section>
