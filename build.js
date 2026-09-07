@@ -25,6 +25,11 @@ function versionAssetUrls(html) {
   });
 }
 
+// Shared <head>/<header>/<footer> chrome templates -- see
+// scripts/page-chrome.js for why this lives in its own module instead of
+// inline here.
+const { renderPage } = require('./scripts/page-chrome.js');
+
 // Clean and create dist directory
 if (fs.existsSync(distDir)) {
   fs.rmSync(distDir, { recursive: true, force: true });
@@ -197,12 +202,14 @@ if (fs.existsSync(assetDir)) {
   fs.cpSync(assetDir, path.join(distDir, 'assets'), { recursive: true });
 }
 
-// Copy api directory contents (Vercel serverless function files, kept as-is)
+// Copy api directory contents (Vercel serverless function files, kept as-is).
+// Recursive (like assets/ below) rather than a flat per-file loop -- api/_lib/
+// holds modules shared between routes (e.g. rate-limit.mjs), and a flat
+// fs.copyFileSync loop would throw trying to copy that directory as if it
+// were a file.
 const apiDir = path.join(srcDir, 'api');
 if (fs.existsSync(apiDir)) {
-  fs.readdirSync(apiDir).forEach(file => {
-    fs.copyFileSync(path.join(apiDir, file), path.join(distDir, 'api', file));
-  });
+  fs.cpSync(apiDir, path.join(distDir, 'api'), { recursive: true });
 }
 
 // CSS Minification
@@ -273,7 +280,7 @@ async function processHtml() {
   const rootFiles = fs.readdirSync(srcDir).filter(f => f.endsWith('.html') && f !== 'google461995a17a0d27be.html');
   for (const file of rootFiles) {
     const srcPath = path.join(srcDir, file);
-    const input = versionAssetUrls(fs.readFileSync(srcPath, 'utf8'));
+    const input = versionAssetUrls(renderPage(fs.readFileSync(srcPath, 'utf8'), file));
     try {
       const output = await minifyHtml(input, htmlMinifyOptions);
       fs.writeFileSync(path.join(distDir, file), output);
@@ -292,7 +299,7 @@ async function processHtml() {
   const toolFiles = fs.readdirSync(toolsDir).filter(f => f.endsWith('.html'));
   for (const file of toolFiles) {
     const srcPath = path.join(toolsDir, file);
-    const input = versionAssetUrls(fs.readFileSync(srcPath, 'utf8'));
+    const input = versionAssetUrls(renderPage(fs.readFileSync(srcPath, 'utf8'), 'tools/' + file));
     try {
       const output = await minifyHtml(input, htmlMinifyOptions);
       fs.writeFileSync(path.join(distDir, 'tools', file), output);
@@ -308,7 +315,7 @@ async function processHtml() {
   const guideFiles = fs.readdirSync(guidesDir).filter(f => f.endsWith('.html'));
   for (const file of guideFiles) {
     const srcPath = path.join(guidesDir, file);
-    const input = versionAssetUrls(fs.readFileSync(srcPath, 'utf8'));
+    const input = versionAssetUrls(renderPage(fs.readFileSync(srcPath, 'utf8'), 'guides/' + file));
     try {
       const output = await minifyHtml(input, htmlMinifyOptions);
       fs.writeFileSync(path.join(distDir, 'guides', file), output);

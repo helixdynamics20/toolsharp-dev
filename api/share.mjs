@@ -4,30 +4,7 @@
 // separate secret to brute-force. The only real defense is making
 // enumeration slow: a simple per-IP request cap using the same Redis
 // instance we already talk to, no extra service required.
-async function checkRateLimit(url, token, ip) {
-  const key = `ratelimit:${ip}`;
-  const incrRes = await fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(['INCR', key])
-  });
-  const { result: count } = await incrRes.json();
-  // A malformed/unexpected Upstash response (no `result`, or a non-number)
-  // must not silently fall through to `count <= 20` -- undefined/NaN
-  // comparisons are always false in JS, which would reject a legitimate
-  // save/retrieve as rate-limited with no real violation. Throwing here
-  // routes it through the caller's fail-open handling instead.
-  if (typeof count !== 'number') throw new Error(`Unexpected Upstash INCR response: ${JSON.stringify(count)}`);
-  if (count === 1) {
-    // first request in this window -- start the clock
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(['EXPIRE', key, 60])
-    });
-  }
-  return count <= 20; // 20 requests per IP per 60 seconds
-}
+import { checkRateLimit } from './_lib/rate-limit.mjs';
 
 export default async function handler(req, res) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
@@ -51,7 +28,7 @@ export default async function handler(req, res) {
   // would very likely break the SET/GET call right after it too, on the
   // same Redis instance.
   try {
-    const withinLimit = await checkRateLimit(url, token, ip);
+    const withinLimit = await checkRateLimit(url, token, `ratelimit:${ip}`, 60, 20); // 20 requests per IP per 60 seconds
     if (!withinLimit) {
       return res.status(429).json({ error: "Too many requests. Try again in a minute." });
     }
