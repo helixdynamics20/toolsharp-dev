@@ -72,16 +72,16 @@
       <div class="tab">what this actually looks like</div>
       <div class="body">
         <div class="throws-label">the code — unchanged across both versions</div>
-        <pre class="parse-call" style="margin:0;">var offset = reader.GetDateTimeOffset(0);  // column stores "2026-01-15 10:30:00", no offset</pre>
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">var</span> offset = reader.GetDateTimeOffset(0);  <span class="code-com">// column stores "2026-01-15 10:30:00", no offset</span></pre>
         <div class="throws-label">on .NET 9, server in UTC+2</div>
-        <pre class="parse-call" style="margin:0;">2026-01-15T10:30:00+02:00   // assumed the server's local timezone</pre>
+        <pre class="parse-call" style="margin:0;">2026-01-15T10:30:00+02:00   <span class="code-com">// assumed the server's local timezone</span></pre>
         <div class="throws-label">on .NET 10, same code, same data, same server</div>
-        <pre class="throws-msg" style="margin:0;">2026-01-15T10:30:00+00:00   // now assumed UTC -- a genuinely different instant in time</pre>
+        <pre class="throws-msg" style="margin:0;">2026-01-15T10:30:00+00:00   <span class="code-com">// now assumed UTC -- a genuinely different instant in time</span></pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">.NET 10 changed the assumption to align with SQLite's own convention: a timestamp with no offset is treated as UTC. It's arguably the more correct default -- SQLite itself has never assumed local time -- but "more correct" and "silent" is exactly what makes this dangerous for existing data written under the old assumption.</pre>
         <div class="throws-label">the fix, if you need the old behavior while you migrate</div>
-        <pre class="fixed-msg" style="margin:0;">AppContext.SetSwitch("Microsoft.Data.Sqlite.Pre10TimeZoneHandling", true);
-// set this once at startup, before any SQLite connection is opened</pre>
+        <pre class="fixed-msg" style="margin:0;">AppContext.SetSwitch(<span class="code-str">"Microsoft.Data.Sqlite.Pre10TimeZoneHandling"</span>, <span class="code-kw">true</span>);
+<span class="code-com">// set this once at startup, before any SQLite connection is opened</span></pre>
       </div>
     </div>
 

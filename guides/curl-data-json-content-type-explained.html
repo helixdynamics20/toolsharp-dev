@@ -63,7 +63,7 @@
       <div class="tab">what you wrote vs. what actually goes over the wire</div>
       <div class="body">
         <div class="throws-label">the command</div>
-        <pre class="parse-call" style="margin:0;">curl -d '{"name":"Ada"}' https://api.example.com/users</pre>
+        <pre class="parse-call" style="margin:0;">curl -d <span class="code-str">'{"name":"Ada"}'</span> https://api.example.com/users</pre>
         <div class="throws-label">the request headers curl actually sends</div>
         <pre class="throws-msg" style="margin:0;">POST /users HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -71,7 +71,7 @@ Content-Length: 16
 
 {"name":"Ada"}</pre>
         <div class="throws-label">the fix</div>
-        <pre class="fixed-msg" style="margin:0;">curl -H 'Content-Type: application/json' -d '{"name":"Ada"}' https://api.example.com/users</pre>
+        <pre class="fixed-msg" style="margin:0;">curl -H <span class="code-str">'Content-Type: application/json'</span> -d <span class="code-str">'{"name":"Ada"}'</span> https://api.example.com/users</pre>
       </div>
     </div>
 

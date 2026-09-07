@@ -75,14 +75,14 @@
       <div class="tab">the most common version of this, end to end</div>
       <div class="body">
         <div class="throws-label">the code</div>
-        <pre class="parse-call" style="margin:0;">data = json.loads(open("config.json"))</pre>
+        <pre class="parse-call" style="margin:0;">data = json.loads(open(<span class="code-str">"config.json"</span>))</pre>
         <div class="throws-label">what happens</div>
         <pre class="throws-msg" style="margin:0;">json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">open("config.json") returns a file object, not a string. json.loads() tries to parse that object's repr -- something like &lt;_io.TextIOWrapper name='config.json' ...&gt; -- as JSON, and fails at the first character.</pre>
         <div class="throws-label">the fix</div>
-        <pre class="fixed-msg" style="margin:0;">with open("config.json") as f:
-    data = json.load(f)  # load(), not loads() -- takes the file object directly</pre>
+        <pre class="fixed-msg" style="margin:0;"><span class="code-kw">with</span> open(<span class="code-str">"config.json"</span>) <span class="code-kw">as</span> f:
+    data = json.load(f)  <span class="code-com"># load(), not loads() -- takes the file object directly</span></pre>
       </div>
     </div>
   </section>
@@ -94,10 +94,10 @@
       <div class="tab">requests.py</div>
       <div class="body">
         <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;">resp = requests.get(url)
-resp.raise_for_status()          # turn 4xx/5xx into an exception here, not a confusing parse error later
-if not resp.text.strip():
-    raise ValueError(f"{url} returned an empty body")
-data = resp.json()               # or: json.loads(resp.text)</pre>
+resp.raise_for_status()          <span class="code-com"># turn 4xx/5xx into an exception here, not a confusing parse error later</span>
+<span class="code-kw">if</span> <span class="code-kw">not</span> resp.text.strip():
+    <span class="code-kw">raise</span> ValueError(<span class="code-str">f"{url} returned an empty body"</span>)
+data = resp.json()               <span class="code-com"># or: json.loads(resp.text)</span></pre>
       </div>
     </div>
   </section>

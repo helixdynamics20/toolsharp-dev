@@ -402,6 +402,7 @@ body.dark-theme .dir-category .cat-link { color: var(--violet); }
   color: var(--ink-soft);
 }
 .config-block .body { padding: 20px; }
+.config-block pre { overflow-x: auto; max-width: 100%; }
 body.dark-theme .config-block .tab {
   background: #2d2650;
   border-bottom-color: #453c74;

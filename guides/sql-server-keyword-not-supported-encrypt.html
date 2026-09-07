@@ -59,6 +59,18 @@
     <h2>// "keyword not supported" — a library mismatch, not a typo</h2>
     <div class="comment-line"><span class="bar">│</span><p><code>System.Data.SqlClient</code> (the old, in-box provider) and <code>Microsoft.Data.SqlClient</code> (the actively developed successor) don't recognize the same connection-string keywords. A handful of newer keywords — <code>TrustServerCertificate</code>, <code>Column Encryption Setting</code>, <code>Attestation Protocol</code>, <code>Enclave Attestation Url</code> among them — exist in <code>Microsoft.Data.SqlClient</code> but throw <code>Keyword not supported: '…'</code> if that exact same connection string reaches a <code>System.Data.SqlClient.SqlConnection</code> instead. This happens more often than it sounds: a connection string built with one provider's <code>SqlConnectionStringBuilder</code> and handed to code still referencing the other, a partially completed migration between the two packages, or a copy-pasted connection string from a newer tutorial landing in an older project.</p></div>
 
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the same connection string, two providers</div>
+      <div class="body">
+        <div class="throws-label">the code</div>
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">var</span> conn = <span class="code-kw">new</span> System.Data.SqlClient.SqlConnection(<span class="code-str">"Server=myserver;Database=Sales;TrustServerCertificate=True;"</span>);</pre>
+        <div class="throws-label">what happens</div>
+        <pre class="throws-msg" style="margin:0;">System.ArgumentException: Keyword not supported: 'trustservercertificate'.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;"><span class="code-kw">var</span> conn = <span class="code-kw">new</span> Microsoft.Data.SqlClient.SqlConnection(<span class="code-str">"Server=myserver;Database=Sales;TrustServerCertificate=True;"</span>);</pre>
+      </div>
+    </div>
+
     <div class="callout warn">The fix isn't to remove the keyword — it's to check which package the exception actually came from. <code>Microsoft.Data.SqlClient</code> has been the Microsoft-recommended provider since <code>System.Data.SqlClient</code> was put into maintenance-only mode; if a project still references the old package anywhere, that's almost always the real fix, not stripping keywords out of the connection string.</div>
   </section>
 
@@ -67,6 +79,18 @@
     <div class="comment-line"><span class="bar">│</span><p>Starting with <strong>Microsoft.Data.SqlClient 4.0</strong>, the <code>Encrypt</code> setting defaults to <strong>true (mandatory)</strong> — earlier versions, and the old <code>System.Data.SqlClient</code>, defaulted it to <code>false</code>. A connection string with no <code>Encrypt</code> keyword at all behaved identically for years, then started failing the moment a NuGet update pulled in 4.0 or later, because encryption is now attempted by default and the client validates the server's certificate as part of that.</p></div>
 
     <div class="callout error">Most SQL Server instances outside of Azure use a self-signed certificate, which fails validation by design — that's what "the certificate chain was issued by an authority that is not trusted" means. It isn't a sign anything is actually broken on the server; it's the new default doing exactly what it's supposed to do against a certificate nothing has told the client to trust.</div>
+
+    <div class="config-block" style="margin-top:14px;">
+      <div class="tab">the same connection string, before and after 4.0</div>
+      <div class="body">
+        <div class="throws-label">the code — unchanged across the upgrade</div>
+        <pre class="parse-call" style="margin:0;"><span class="code-kw">var</span> conn = <span class="code-kw">new</span> SqlConnection(<span class="code-str">"Server=myserver;Database=Sales;User Id=app;Password=***;"</span>);</pre>
+        <div class="throws-label">what happens on Microsoft.Data.SqlClient 4.0+</div>
+        <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">System.Data.SqlClient.SqlException: A connection was successfully established with the server, but then an error occurred during the login process. The certificate chain was issued by an authority that is not trusted.</pre>
+        <div class="throws-label">the fix</div>
+        <pre class="fixed-msg" style="margin:0;"><span class="code-kw">var</span> conn = <span class="code-kw">new</span> SqlConnection(<span class="code-str">"Server=myserver;Database=Sales;User Id=app;Password=***;TrustServerCertificate=True;"</span>);</pre>
+      </div>
+    </div>
 
     <div class="config-block">
       <div class="tab">the three real options, in order of preference</div>

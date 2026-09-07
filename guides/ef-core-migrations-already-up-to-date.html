@@ -68,7 +68,7 @@
       <div class="tab">what actually happens, step by step</div>
       <div class="body">
         <div class="throws-label">the code, at some earlier point</div>
-        <pre class="parse-call" style="margin:0;">context.Database.EnsureCreated();  // seeds a working database for local dev/tests</pre>
+        <pre class="parse-call" style="margin:0;">context.Database.EnsureCreated();  <span class="code-com">// seeds a working database for local dev/tests</span></pre>
         <div class="throws-label">later, the normal migration workflow</div>
         <pre class="parse-call" style="margin:0;">Add-Migration AddCustomerEmail
 Update-Database</pre>
@@ -78,10 +78,10 @@ There is already an object named 'Customers' in the database.</pre>
         <div class="throws-label">why</div>
         <pre class="parse-call" style="margin:0;white-space:pre-wrap;">__EFMigrationsHistory is empty, so EF Core believes no migration has ever run -- including the very first one, which creates the Customers table. It tries to run that first migration now, against a database where Customers already exists from EnsureCreated(), and SQL Server refuses.</pre>
         <div class="throws-label">the fix</div>
-        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;">INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
-VALUES ('20260101000000_InitialCreate', '9.0.0');
--- tells EF Core that migration already ran, so it stops trying to recreate Customers
--- and moves straight to applying AddCustomerEmail, the one that's actually missing</pre>
+        <pre class="fixed-msg" style="margin:0;white-space:pre-wrap;"><span class="code-kw">INSERT INTO</span> __EFMigrationsHistory (MigrationId, ProductVersion)
+<span class="code-kw">VALUES</span> (<span class="code-str">'20260101000000_InitialCreate'</span>, <span class="code-str">'9.0.0'</span>);
+<span class="code-com">-- tells EF Core that migration already ran, so it stops trying to recreate Customers</span>
+<span class="code-com">-- and moves straight to applying AddCustomerEmail, the one that's actually missing</span></pre>
       </div>
     </div>
 
@@ -112,8 +112,8 @@ VALUES ('20260101000000_InitialCreate', '9.0.0');
       <div class="tab">see what EF Core thinks is applied vs. pending</div>
       <div class="body">
         <pre style="margin:0; font-family:var(--mono); font-size:13px; white-space:pre-wrap;">dotnet ef migrations list
--- marks each migration [applied] or [pending] based on __EFMigrationsHistory alone --
--- compare that against which tables/columns actually exist to find the exact mismatch</pre>
+<span class="code-com">-- marks each migration [applied] or [pending] based on __EFMigrationsHistory alone --</span>
+<span class="code-com">-- compare that against which tables/columns actually exist to find the exact mismatch</span></pre>
       </div>
     </div>
     <div class="comment-line"><span class="bar">│</span><p>For every migration the list shows as <code>[pending]</code> whose effect is already in the database (the <code>EnsureCreated()</code> case above), insert its row by hand instead of letting EF try to recreate what's already there — using the same pattern shown earlier, with that migration's own ID and a current EF Core version string in place of <code>'20260101000000_InitialCreate'</code> and <code>'9.0.0'</code>.</p></div>

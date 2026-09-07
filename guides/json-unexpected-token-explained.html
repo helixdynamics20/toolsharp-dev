@@ -66,7 +66,7 @@
     <div class="config-block">
       <div class="tab">missing comma</div>
       <div class="body">
-        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('{"a": 1 "b": 2}')</pre>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse(<span class="code-str">'{"a": 1 "b": 2}'</span>)</pre>
         <div class="throws-label">throws</div>
         <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Expected ',' or '}' after property value in JSON at position 8 (line 1 column 9)</pre>
       </div>
@@ -74,7 +74,7 @@
     <div class="config-block" style="margin-top:12px;">
       <div class="tab">empty input</div>
       <div class="body">
-        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('')</pre>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse(<span class="code-str">''</span>)</pre>
         <div class="throws-label">throws</div>
         <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Unexpected end of JSON input</pre>
       </div>
@@ -82,7 +82,7 @@
     <div class="config-block" style="margin-top:12px;">
       <div class="tab">missing value</div>
       <div class="body">
-        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse('{"a":}')</pre>
+        <pre class="parse-call" style="margin:0;white-space:pre-wrap;">JSON.parse(<span class="code-str">'{"a":}'</span>)</pre>
         <div class="throws-label">throws</div>
         <pre class="throws-msg" style="margin:0;white-space:pre-wrap;">Unexpected token '}', "{"a":}" is not valid JSON</pre>
       </div>
@@ -111,9 +111,9 @@
     <div class="comment-line"><span class="bar">│</span><p>If your engine's error doesn't already include a line and column, you can compute it the same way <a href="../tools/json-formatter">ToolSharp's JSON Formatter</a> does internally: slice the string up to the reported position, count the newlines in that slice (that's the line number), and the column is the distance from the last newline to the end of the slice.</p></div>
     <div class="config-block">
       <div class="tab">the whole function</div>
-      <div class="body"><pre style="margin:0;white-space:pre-wrap;">function findLineCol(text, index) {
-  const lines = text.slice(0, index).split('\n');
-  return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+      <div class="body"><pre style="margin:0;white-space:pre-wrap;"><span class="code-kw">function</span> findLineCol(text, index) {
+  <span class="code-kw">const</span> lines = text.slice(0, index).split(<span class="code-str">'\n'</span>);
+  <span class="code-kw">return</span> { line: lines.length, col: lines[lines.length - 1].length + 1 };
 }</pre></div>
     </div>
   </section>
