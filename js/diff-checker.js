@@ -402,12 +402,6 @@ function runDiff() {
 
   if (!origRaw && !changedRaw) { resultDiv.innerHTML = ''; currentRows = []; return; }
 
-  if (!origRaw || !changedRaw) {
-    resultDiv.innerHTML = '<div class="callout warn">Paste content into both boxes to compare.</div>';
-    currentRows = [];
-    return;
-  }
-
   const contentKey = origRaw.length + ':' + origRaw + changedRaw.length + ':' + changedRaw + (ignoreWs ? ':ws' : '');
   if (contentKey !== _lastDiffContentKey) {
     expandedRowIndices = new Set();
@@ -415,8 +409,12 @@ function runDiff() {
     _lastDiffContentKey = contentKey;
   }
 
-  const aLines = origRaw.split('\n');
-  const bLines = changedRaw.split('\n');
+  // A genuinely empty side is zero lines, not one blank line -- ''.split('\n')
+  // returns [''], which would otherwise show a phantom "1 line removed" next
+  // to the real additions when comparing against nothing, instead of the
+  // clean "everything added" result `git diff` gives against /dev/null.
+  const aLines = origRaw === '' ? [] : origRaw.split('\n');
+  const bLines = changedRaw === '' ? [] : changedRaw.split('\n');
   // aCmp/bCmp are what "ignore whitespace" normalizes for the purpose of
   // deciding what's different -- aLines/bLines (the true original text) are
   // what actually gets shown and what "copy result" reconstructs from.

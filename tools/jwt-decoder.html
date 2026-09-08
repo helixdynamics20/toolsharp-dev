@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-adsense-account" content="ca-pub-2086099472319988">
 <title>JWT Decoder — ToolSharp.dev</title>
-<meta name="description" content="Decode a JWT's header and payload in your browser, inspect claims, and check exp/nbf against the current time. Decoding only — signatures are not verified.">
+<meta name="description" content="Decode a JWT's header and payload, check exp/nbf, and verify HS256/RS256/ES256 signatures — entirely in your browser.">
 <link rel="canonical" href="https://toolsharp.dev/tools/jwt-decoder">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="manifest" href="../manifest.json">
@@ -15,14 +15,14 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toolsharp.dev/tools/jwt-decoder">
 <meta property="og:title" content="JWT Decoder — ToolSharp.dev">
-<meta property="og:description" content="Decode a JWT's header and payload in your browser, inspect claims, and check exp/nbf against the current time. Decoding only — signatures are not verified.">
+<meta property="og:description" content="Decode a JWT's header and payload, check exp/nbf, and verify HS256/RS256/ES256 signatures — entirely in your browser.">
 <meta property="og:image" content="https://toolsharp.dev/assets/og/jwt-decoder.png">
 <meta property="og:site_name" content="ToolSharp.dev">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://toolsharp.dev/tools/jwt-decoder">
 <meta name="twitter:title" content="JWT Decoder — ToolSharp.dev">
-<meta name="twitter:description" content="Decode a JWT's header and payload in your browser, inspect claims, and check exp/nbf against the current time. Decoding only — signatures are not verified.">
+<meta name="twitter:description" content="Decode a JWT's header and payload, check exp/nbf, and verify HS256/RS256/ES256 signatures — entirely in your browser.">
 <meta name="twitter:image" content="https://toolsharp.dev/assets/og/jwt-decoder.png">
 
 <!--HEAD-COMMON-->
@@ -44,7 +44,7 @@
 
   <div class="tool-header">
     <h1>jwt-decoder</h1>
-    <p class="sub">Paste a JWT to decode its header and payload and check the standard time claims. This decodes only — it does not verify the signature, and the token never leaves your browser.</p>
+    <p class="sub">Paste a JWT to decode its header and payload, check the standard time claims, and verify its signature against a secret or public key — entirely in your browser, the token never leaves it.</p>
     <div class="badges">
       <span class="badge">client-side only</span>
       <span class="badge">HS256 / RS256 / ES256 verification</span>
@@ -93,7 +93,7 @@
 
   <section class="notes">
     <h2>// what this does and doesn't do</h2>
-    <div class="comment-line"><span class="bar">│</span><p>A JWT's header and payload are just base64url-encoded JSON — no secret is needed to read them, which is exactly why you should never put sensitive data in a JWT payload assuming it's private. This tool decodes those two segments locally. It does not, and cannot, verify the signature, because that needs the signing key. A token can decode perfectly here and still be invalid, expired at the API level in a way this tool doesn't know about, or signed with a key that doesn't match your server.</p></div>
+    <div class="comment-line"><span class="bar">│</span><p>A JWT's header and payload are just base64url-encoded JSON — no secret is needed to read them, which is exactly why you should never put sensitive data in a JWT payload assuming it's private. This tool decodes those two segments locally, and verifies the signature too if you provide the shared secret (HS256) or public key (RS256/ES256) — entirely in your browser, nothing sent anywhere. What it still can't tell you: whether the token's been revoked server-side, or whether you're checking it against the key your server is actually using right now if that key has since rotated.</p></div>
 
     <h2>// reading the time claims</h2>
     <div class="spec-list">
