@@ -535,21 +535,33 @@ function repairTokenStructure(tokens) {
         if (isCloser(tok)) { out.push({ type: '}', value: '}' }); stack.pop(); afterClose(); idx++; continue; }
         if (tok.type === 'STRING' || tok.type === 'LITERAL') {
           // Consecutive bare words/strings with nothing but whitespace
-          // between them, still expecting a key, almost always means the
-          // key itself contains a space and lost its quotes (e.g.
-          // {first name: "John"}) -- a key position can only ever be
-          // followed by a colon in valid JSON, so "two keys in a row"
-          // isn't a real alternative reading. Joining them into one key
-          // beats quoting each separately and fabricating a comma + a
-          // null value between them, which silently produced wrong data
-          // that still looked like it had parsed successfully.
+          // between them, still expecting a key, usually means the key
+          // itself contains a space and lost its quotes (e.g.
+          // {first name: "John"}). But that's only true if a colon
+          // actually follows the run -- {"a" 1} is the *other* way this
+          // shape shows up: one key, one value, with the colon between
+          // them missing. Merging unconditionally turned that into
+          // {"a 1": null}, silently discarding the value into the key
+          // name instead of just inserting the colon that's actually
+          // missing. Looking ahead for a colon before committing to
+          // "multi-word key" disambiguates the two: only merge as one key
+          // when a colon genuinely follows; otherwise treat just this one
+          // token as the key and let the 'colon' state below synthesize
+          // the missing colon and reprocess whatever comes next as the
+          // value, same as any other missing-colon case.
           const parts = [rawValueOf(tok)];
-          idx++;
-          while (idx < tokens.length && (tokens[idx].type === 'STRING' || tokens[idx].type === 'LITERAL')) {
-            parts.push(rawValueOf(tokens[idx]));
+          let lookahead = idx + 1;
+          while (lookahead < tokens.length && (tokens[lookahead].type === 'STRING' || tokens[lookahead].type === 'LITERAL')) {
+            parts.push(rawValueOf(tokens[lookahead]));
+            lookahead++;
+          }
+          if (tokens[lookahead] && tokens[lookahead].type === ':') {
+            out.push({ type: 'STRING', value: '"' + parts.join(' ').replace(/"/g, '\\"') + '"' });
+            idx = lookahead;
+          } else {
+            out.push({ type: 'STRING', value: '"' + rawValueOf(tok).replace(/"/g, '\\"') + '"' });
             idx++;
           }
-          out.push({ type: 'STRING', value: '"' + parts.join(' ').replace(/"/g, '\\"') + '"' });
           top.state = 'colon';
           continue;
         }
