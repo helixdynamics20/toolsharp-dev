@@ -103,6 +103,7 @@ function renderFooter(basePath, footerVariant, excludeLink) {
     ? '<span>toolsharp.dev — built by a developer, for developers</span>'
     : `<span><a href="${basePath}">← toolsharp.dev</a></span>`;
   const links = [];
+  if (excludeLink !== 'about') links.push(`<a href="${basePath}about">about</a>`);
   if (excludeLink !== 'privacy-policy') links.push(`<a href="${basePath}privacy-policy">privacy policy</a>`);
   if (excludeLink !== 'terms') links.push(`<a href="${basePath}terms">terms</a>`);
   if (excludeLink !== 'contact') links.push(`<a href="${basePath}contact">contact</a>`);
@@ -125,6 +126,7 @@ function resolvePageChrome(relPath) {
   const basePath = resolveBasePath(relPath);
   const assetBasePath = resolveAssetBasePath(relPath);
   if (relPath === 'index.html') return { basePath, assetBasePath, navVariant: 'home', footerVariant: 'home', excludeLink: null };
+  if (relPath === 'about.html') return { basePath, assetBasePath, navVariant: null, footerVariant: 'standard', excludeLink: 'about' };
   if (relPath === 'privacy-policy.html') return { basePath, assetBasePath, navVariant: null, footerVariant: 'standard', excludeLink: 'privacy-policy' };
   if (relPath === 'terms.html') return { basePath, assetBasePath, navVariant: null, footerVariant: 'standard', excludeLink: 'terms' };
   if (relPath === 'contact.html') return { basePath, assetBasePath, navVariant: null, footerVariant: 'standard', excludeLink: 'contact' };
