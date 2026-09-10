@@ -39,6 +39,7 @@ function resolveRewrite(urlPath) {
   if (urlPath === '/privacy-policy') return '/privacy-policy.html';
   if (urlPath === '/terms') return '/terms.html';
   if (urlPath === '/contact') return '/contact.html';
+  if (urlPath === '/about') return '/about.html';
   let m = urlPath.match(/^\/tools\/([^/]+)$/);
   if (m) return `/tools/${m[1]}.html`;
   m = urlPath.match(/^\/guides\/([^/]+)$/);
@@ -62,6 +63,7 @@ function resolveRedirect(urlPath) {
   if (urlPath === '/privacy-policy.html') return '/privacy-policy';
   if (urlPath === '/terms.html') return '/terms';
   if (urlPath === '/contact.html') return '/contact';
+  if (urlPath === '/about.html') return '/about';
   return null;
 }
 
