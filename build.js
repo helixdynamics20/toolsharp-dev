@@ -178,6 +178,7 @@ function ensureDirectoryExistence(filePath) {
 // Copy static assets directly
 const staticFiles = [
   'favicon.svg',
+  'favicon.ico',
   'robots.txt',
   'sitemap.xml',
   'google461995a17a0d27be.html',
